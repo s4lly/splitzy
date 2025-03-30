@@ -149,6 +149,15 @@ const ReceiptAnalysisDisplay = ({ result }) => {
         personTotals[person] += personTaxAmount;
       });
     }
+
+    // Add tip and gratuity if present
+    const totalTip = (receipt_data.tip || 0) + (receipt_data.gratuity || 0);
+    if (totalTip > 0 && people.length > 0) {
+      const tipPerPerson = totalTip / people.length;
+      people.forEach(person => {
+        personTotals[person] = (personTotals[person] || 0) + tipPerPerson;
+      });
+    }
   } else if (people.length > 0) {
     // No line items available or no assignments made - split total evenly
     const receiptTotal = receipt_data.final_total || receipt_data.total || 0;
