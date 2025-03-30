@@ -1225,6 +1225,18 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                                         </td>
                                       </tr>
                                     )}
+                                    {(receipt_data.tip > 0 || receipt_data.gratuity > 0) && (
+                                      <tr className="border-t">
+                                        <td colSpan="2" className="px-3 py-2 text-sm">Tip</td>
+                                        <td className="px-3 py-2 text-right text-sm">
+                                          {(() => {
+                                            const totalTip = (receipt_data.tip || 0) + (receipt_data.gratuity || 0);
+                                            const tipPerPerson = totalTip / people.length;
+                                            return formatCurrency(tipPerPerson);
+                                          })()}
+                                        </td>
+                                      </tr>
+                                    )}
                                     <tr className="border-t">
                                       <td colSpan="2" className="px-3 py-2 text-base font-semibold">Total</td>
                                       <td className="px-3 py-2 text-right text-base font-semibold">{formatCurrency(personAmount)}</td>
