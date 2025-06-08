@@ -60,12 +60,14 @@ const receiptService = {
    * Upload and analyze a receipt, invoice, or other payment document
    * @param {File} imageFile - The document image file
    * @param {string} previewUrl - Optional URL of the image preview
+   * @param {string} provider - The AI provider to use ('azure' or 'gemini')
    * @returns {Promise} - A promise that resolves to the analysis result
    */
-  analyzeReceipt: async (imageFile, previewUrl = null) => {
+  analyzeReceipt: async (imageFile, previewUrl = null, provider = 'azure') => {
     try {
       const formData = new FormData();
       formData.append('file', imageFile);
+      formData.append('provider', provider);
       
       const response = await axios.post(`${API_URL}/analyze-receipt`, formData, {
         headers: {
@@ -131,7 +133,7 @@ const receiptService = {
       
       return response.data;
     } catch (error) {
-      console.error('Error analyzing document:', error);
+      console.error('Error analyzing receipt:', error);
       throw error;
     }
   },

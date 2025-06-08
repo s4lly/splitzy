@@ -28,6 +28,8 @@ const HomePage = () => {
     // Navigate to the analysis page for the newly created receipt
     if (result && result.success && result.receipt_data && result.receipt_data.id) {
       navigate(`/receipt/${result.receipt_data.id}`);
+    } else {
+      console.error('Invalid receipt data received:', result);
     }
   };
   

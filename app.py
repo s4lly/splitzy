@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify, session
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from image_analyzer import analyze_image
+from image_analyzer import ImageAnalyzer
 from dotenv import load_dotenv
 from flask_cors import CORS
 import sqlite3
@@ -195,13 +195,17 @@ def uploaded_file(filename):
 @app.route('/analyze/<filename>')
 def analyze(filename):
     image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    analysis_result = analyze_image(image_path)
+    analyzer = ImageAnalyzer()
+    analysis_result = analyzer.analyze_image(image_path)
+    print("analysis_result done: ", analysis_result)
     return render_template('analysis.html', filename=filename, result=analysis_result)
 
 @app.route('/api/analyze/<filename>')
 def api_analyze(filename):
     image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    analysis_result = analyze_image(image_path)
+    analyzer = ImageAnalyzer()
+    analysis_result = analyzer.analyze_image(image_path)
+    print("analysis_result done: ", analysis_result)
     return jsonify(analysis_result)
 
 @app.route('/upload', methods=['POST'])
@@ -233,62 +237,51 @@ def upload_file():
 
 @app.route('/api/analyze-receipt', methods=['POST'])
 def analyze_receipt():
-    """API endpoint for receipt analysis"""
     # Check if user is authenticated
     current_user = get_current_user()
     if not current_user:
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
-    
-    # Check if the post request has the file part
+
     if 'file' not in request.files:
-        return jsonify({'success': False, 'error': 'No file part'}), 400
+        return jsonify({'success': False, 'error': 'No file provided'}), 400
     
     file = request.files['file']
-    
-    # If user does not select file, browser also
-    # submits an empty part without filename
     if file.filename == '':
-        return jsonify({'success': False, 'error': 'No selected file'}), 400
+        return jsonify({'success': False, 'error': 'No file selected'}), 400
     
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+    # Get the provider from the request, default to environment variable
+    provider = request.form.get('provider', os.getenv('DEFAULT_AI_PROVIDER', 'azure'))
+    
+    # Save the file temporarily
+    temp_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(file.filename))
+    file.save(temp_path)
+    
+    try:
+        # Initialize the analyzer with the selected provider
+        analyzer = ImageAnalyzer(provider=provider)
+        result = analyzer.analyze_image(temp_path)
         
-        # Analyze the receipt
-        result = analyze_image(filepath)
-        
-        # Store the receipt data in the database
-        if result.get('success') and 'receipt_data' in result:
-            try:
-                conn = get_db_connection()
-                cursor = conn.cursor()
-                
-                # Insert receipt data into the database
-                cursor.execute(
-                    'INSERT INTO user_receipts (user_id, receipt_data, image_path) VALUES (?, ?, ?)',
-                    (current_user['id'], json.dumps(result['receipt_data']), filepath)
-                )
-                
-                # Get the ID of the inserted receipt
-                receipt_id = cursor.lastrowid
-                
-                conn.commit()
-                conn.close()
-                
-                # Add the ID to the response data
-                result['receipt_data']['id'] = receipt_id
-                result['receipt_data']['created_at'] = datetime.datetime.now().isoformat()
-                print("Receipt inserted")
-                
-            except Exception as e:
-                app.logger.error(f"Error saving receipt: {str(e)}")
-                # Continue even if saving fails - the analysis will still be returned
-        
-        # Return the analysis result as JSON
+        if result.get('success') and result.get('is_receipt'):
+            # Save the receipt to the database
+            conn = get_db_connection()
+            cursor = conn.execute(
+                'INSERT INTO user_receipts (user_id, receipt_data, image_path) VALUES (?, ?, ?)',
+                (current_user['id'], json.dumps(result['receipt_data']), temp_path)
+            )
+            receipt_id = cursor.lastrowid
+            conn.commit()
+            conn.close()
+            
+            # Add the receipt ID to the response
+            result['receipt_data']['id'] = receipt_id
+            
         return jsonify(result)
-    
-    return jsonify({'success': False, 'error': 'Invalid file type'}), 400
+    except Exception as e:
+        app.logger.error(f"Error analyzing receipt: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        # Don't delete the file since we're storing it in the database
+        pass
 
 @app.route('/api/user/receipts', methods=['GET'])
 def get_user_receipts():

@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, FileText, X, Loader2, Receipt } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { AlertCircle } from 'lucide-react';
 import receiptService from '../../services/receiptService';
 
 const ModernReceiptUploader = ({ onAnalysisComplete }) => {
@@ -11,6 +13,7 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
   const [preview, setPreview] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState(null);
+  const [provider, setProvider] = useState('azure');
 
   const onDrop = useCallback((acceptedFiles) => {
     const selectedFile = acceptedFiles[0];
@@ -43,8 +46,8 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
       setIsUploading(true);
       setError(null);
       
-      // Pass the preview URL to the receipt service
-      const result = await receiptService.analyzeReceipt(file, preview);
+      // Pass the preview URL and provider to the receipt service
+      const result = await receiptService.analyzeReceipt(file, preview, provider);
       
       if (result.success && result.is_receipt) {
         // Clear previous inputs
@@ -80,97 +83,91 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
   };
 
   return (
-    <Card className="w-full shadow-md border-2 border-border/30">
-      <CardHeader className="pb-3 bg-muted/30">
+    <Card className="w-full max-w-2xl mx-auto">
+      <CardHeader>
         <CardTitle className="text-2xl font-bold flex items-center gap-2">
-          <Receipt className="h-6 w-6 text-primary" />
+          <Receipt className="h-6 w-6" />
           Upload Document
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="pt-6">
-        <div className="space-y-6">
-          <AnimatePresence mode="wait">
-            {!preview ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                key="dropzone"
-              >
-                <div 
-                  {...getRootProps()} 
-                  className={`border-3 border-dashed rounded-xl p-8 cursor-pointer transition-all hover:shadow-inner ${
-                    isDragActive 
-                      ? 'border-primary bg-primary/10' 
-                      : 'border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/30'
-                  }`}
+      <CardContent>
+        <div className="space-y-4">
+          {/* Provider Selection */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">AI Provider:</span>
+            <Select value={provider} onValueChange={setProvider}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select provider" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="azure">Azure OpenAI</SelectItem>
+                <SelectItem value="gemini">Google Gemini</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Drop Zone */}
+          <div
+            {...getRootProps()}
+            className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
+              ${isDragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+          >
+            <input {...getInputProps()} />
+            <AnimatePresence>
+              {preview ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="relative"
                 >
-                  <input {...getInputProps()} />
-                  <div className="flex flex-col items-center justify-center gap-3 py-6">
-                    <Upload className="h-14 w-14 text-primary/80" />
-                    {isDragActive ? (
-                      <p className="text-lg font-medium text-primary">Drop the document here...</p>
-                    ) : (
-                      <>
-                        <p className="text-lg font-medium">Drag & drop your receipt or invoice here</p>
-                        <p className="text-md text-muted-foreground">
-                          or click to browse files (JPG, JPEG, PNG)
-                        </p>
-                      </>
-                    )}
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="max-h-[300px] mx-auto rounded-lg"
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      clearFile();
+                    }}
+                    className="absolute top-2 right-2 p-1 bg-background/80 backdrop-blur-sm rounded-full hover:bg-background"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <Upload className="h-12 w-12 text-muted-foreground" />
+                  <div>
+                    <p className="text-base font-medium">
+                      Drag and drop your document here
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      or click to select a file
+                    </p>
                   </div>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                key="preview"
-                className="relative"
-              >
-                <div className="flex justify-center">
-                  <div className="relative max-w-[300px] h-auto overflow-hidden rounded-lg shadow-md border border-border">
-                    <img 
-                      src={preview} 
-                      alt="Document preview" 
-                      className="object-contain w-full" 
-                      style={{ maxHeight: '400px' }}
-                    />
-                    <Button 
-                      variant="destructive" 
-                      size="icon"
-                      className="absolute top-3 right-3 rounded-full shadow-md" 
-                      onClick={clearFile}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center justify-center gap-2 bg-muted/30 p-3 rounded-md">
-                  <FileText className="h-5 w-5 text-primary" />
-                  <span className="text-base font-medium truncate">
-                    {file?.name}
-                  </span>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Error Message */}
           {error && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="text-base text-destructive bg-destructive/10 p-4 rounded-lg border border-destructive/20"
-            >
+            <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
               {error}
-            </motion.div>
+            </div>
           )}
         </div>
       </CardContent>
-      
+
       <CardFooter className="py-4 border-t border-border bg-muted/20">
         <Button
           className="w-full py-6 text-base font-medium"

@@ -2,49 +2,128 @@ import os
 import base64
 from dotenv import load_dotenv
 import openai
+import google.generativeai as genai
 import requests
 import json
+from enum import Enum
 
 # Load environment variables
 load_dotenv()
 
-# Configure OpenAI
-openai.api_key = os.getenv("AZURE_OPENAI_KEY")
-openai.api_base = os.getenv("AZURE_OPENAI_ENDPOINT")
-openai.api_type = "azure"
-openai.api_version = "2023-05-15"  # Update if needed
+class AIProvider(Enum):
+    AZURE = "azure"
+    GEMINI = "gemini"
 
-def encode_image(image_path):
-    """Encode image to base64 string"""
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
+class ImageAnalyzer:
+    def __init__(self, provider=None):
+        self.provider = provider or os.getenv("DEFAULT_AI_PROVIDER", "azure")
+        self._configure_provider()
 
-def analyze_image(image_path):
-    """
-    Analyze a receipt image using Azure OpenAI
-    Returns a dictionary with the analysis results
-    """
-    # Check if image exists
-    if not os.path.exists(image_path):
-        return {"success": False, "error": "Image not found"}
-    
-    try:
-        # Encode image to base64
-        base64_image = encode_image(image_path)
+    def _configure_provider(self):
+        if self.provider == AIProvider.AZURE.value:
+            # Configure Azure OpenAI
+            openai.api_key = os.getenv("AZURE_OPENAI_KEY")
+            openai.api_base = os.getenv("AZURE_OPENAI_ENDPOINT")
+            openai.api_type = "azure"
+            openai.api_version = "2023-05-15"
+        elif self.provider == AIProvider.GEMINI.value:
+            # Configure Google Gemini
+            genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+        else:
+            raise ValueError(f"Unsupported AI provider: {self.provider}")
+
+    def encode_image(self, image_path):
+        """Encode image to base64 string"""
+        with open(image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode('utf-8')
+
+    def analyze_image(self, image_path):
+        """
+        Analyze a receipt image using the selected AI provider
+        Returns a dictionary with the analysis results
+        """
+        if not os.path.exists(image_path):
+            return {"success": False, "error": "Image not found"}
         
-        # Prepare the API call
+        try:
+            if self.provider == AIProvider.AZURE.value:
+                return self._analyze_with_azure(image_path)
+            else:
+                return self._analyze_with_gemini(image_path)
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def _analyze_with_azure(self, image_path):
+        """Analyze image using Azure OpenAI"""
+        base64_image = self.encode_image(image_path)
+        
         headers = {
             "Content-Type": "application/json",
             "api-key": os.getenv("AZURE_OPENAI_KEY")
         }
         
-        # Prepare the API URL for Azure OpenAI
         deployment_id = os.getenv("AZURE_OPENAI_DEPLOYMENT")
         endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
         url = f"{endpoint}openai/deployments/{deployment_id}/chat/completions?api-version=2023-05-15"
         
-        # Prepare the system prompt for receipt analysis
-        system_prompt = """
+        payload = {
+            "messages": [
+                {
+                    "role": "system",
+                    "content": self._get_system_prompt()
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text", 
+                            "text": "Analyze this image and extract all relevant payment information. This might be a receipt, invoice, or transportation ticket. Pay special attention to any monetary amounts shown."
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "max_tokens": 2000,
+            "temperature": 0.3
+        }
+        
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        
+        return self._process_response(response.json()["choices"][0]["message"]["content"])
+
+    def _analyze_with_gemini(self, image_path):
+        """Analyze image using Google Gemini"""
+        # Read the image file
+        with open(image_path, "rb") as image_file:
+            image_data = image_file.read()
+        
+        # Create the model
+        model = genai.GenerativeModel('models/gemini-2.0-flash-lite')
+        
+        # Create the content parts
+        content_parts = [
+            self._get_system_prompt(),
+            "Analyze this image and extract all relevant payment information. This might be a receipt, invoice, or transportation ticket. Pay special attention to any monetary amounts shown.",
+            {"mime_type": "image/jpeg", "data": image_data}
+        ]
+        
+        # Generate content
+        response = model.generate_content(content_parts)
+        
+        return self._process_response(response.text)
+
+    def _get_system_prompt(self):
+        """Get the system prompt for receipt analysis"""
+        return """
         You are a financial document analyzer, specializing in receipts, bills, invoices, transportation tickets, and similar payment documents. First, determine if the image contains any payment document (receipt, bill, invoice, ticket, order confirmation, etc.) with pricing information.
         
         If the image is a TRANSPORTATION TICKET (train, bus, flight, etc.):
@@ -138,162 +217,100 @@ def analyze_image(image_path):
         
         Use null for any other fields that cannot be determined. Ensure all numbers are formatted as numbers, not strings.
         Note: Use 'line_items' (not 'items') as the key for the list of purchased items.
+
         """
-        
-        # Prepare the payload
-        payload = {
-            "messages": [
-                {
-                    "role": "system",
-                    "content": system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text", 
-                            "text": "Analyze this image and extract all relevant payment information. This might be a receipt, invoice, or transportation ticket. Pay special attention to any monetary amounts shown."
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
-                            }
-                        }
-                    ]
-                }
-            ],
-            "max_tokens": 2000,
-            "temperature": 0.3
-        }
-        
-        # Make the API call
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()  # Raise an exception for HTTP errors
-        
-        response_data = response.json()
-        analysis_text = response_data["choices"][0]["message"]["content"]
-        print("Analysis text: ", analysis_text)
-        
-        # Try to parse the JSON response
+
+    def _process_response(self, analysis_text):
+        """Process and validate the AI response"""
         try:
             # Check if response is wrapped in markdown code blocks
             if analysis_text.strip().startswith("```") and "```" in analysis_text:
-                # Extract JSON from markdown code block
-                print("Detected markdown code block, extracting JSON...")
-                # Find content between first ``` and last ```
                 parts = analysis_text.split("```", 2)
                 if len(parts) >= 3:
-                    # Get the content after the first ``` and before the last ```
                     potential_json = parts[1]
-                    # Remove language identifier if present (e.g., "json")
                     if "\n" in potential_json:
                         potential_json = potential_json.split("\n", 1)[1]
                     analysis_text = potential_json.strip()
                 else:
-                    # If we can't split properly, try another approach
                     import re
                     match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', analysis_text)
                     if match:
                         analysis_text = match.group(1).strip()
             
-            # Add debug print to see exact response
             print(f"JSON response: {analysis_text}")
             
             receipt_data = json.loads(analysis_text)
             
-            # Check if it's a transportation ticket
+            # Process the receipt data based on type
             if receipt_data.get('document_type') == 'transportation_ticket':
-                # Ensure we have basic fields
-                if 'fare' not in receipt_data or receipt_data['fare'] is None:
-                    # Try to extract fare from total if available
-                    receipt_data['fare'] = receipt_data.get('total', 0)
+                return self._process_transportation_ticket(receipt_data)
+            else:
+                return self._process_regular_receipt(receipt_data)
                 
-                if 'total' not in receipt_data or receipt_data['total'] is None:
-                    # Use fare as total if total not provided
-                    receipt_data['total'] = receipt_data.get('fare', 0)
-                
-                # Ensure is_receipt is true so frontend can process it
-                receipt_data['is_receipt'] = True
-                
-                return {
-                    "success": True,
-                    "is_receipt": True,
-                    "is_transportation_ticket": True,
-                    "receipt_data": receipt_data
-                }
-            
-            # Handle backward compatibility - if response has 'items' instead of 'line_items'
-            if 'items' in receipt_data and 'line_items' not in receipt_data:
-                receipt_data['line_items'] = receipt_data.pop('items')
-            
-            # Initialize tip and gratuity with defaults if not present
-            if 'tip' not in receipt_data or receipt_data['tip'] is None:
-                receipt_data['tip'] = 0.0
-                
-            # Check for gratuity or service charge
-            gratuity_amount = receipt_data.get('gratuity', 0) or receipt_data.get('service_charge', 0) or 0
-            # Ensure we have a gratuity field even if it wasn't in the original response
-            receipt_data['gratuity'] = gratuity_amount
-            
-            # Remove service_charge field if it exists to avoid confusion
-            if 'service_charge' in receipt_data:
-                del receipt_data['service_charge']
-            
-            # Handle tax scenarios with defaults for new fields if not provided
-            if 'tax_included_in_items' not in receipt_data:
-                # Try to determine if tax is included in items by checking values
-                subtotal = receipt_data.get('subtotal', 0) or 0
-                items_total = 0
-                for item in receipt_data.get('line_items', []):
-                    item_total = item.get('total_price', 0) or 0
-                    items_total += item_total
-                
-                # If there's a significant difference, tax is likely not included in items
-                # Allow for small rounding errors
-                tax_likely_included = abs(items_total - subtotal) < 0.1
-                receipt_data['tax_included_in_items'] = tax_likely_included
-            
-            # Initialize the various total fields with reasonable values if not provided
-            if 'items_total' not in receipt_data:
-                items_total = 0
-                for item in receipt_data.get('line_items', []):
-                    item_total = item.get('total_price', 0) or 0
-                    items_total += item_total
-                receipt_data['items_total'] = items_total
-            
-            if 'display_subtotal' not in receipt_data:
-                receipt_data['display_subtotal'] = receipt_data.get('subtotal', receipt_data.get('items_total', 0))
-            
-            if 'pretax_total' not in receipt_data:
-                receipt_data['pretax_total'] = receipt_data.get('subtotal', receipt_data.get('items_total', 0))
-            
-            if 'posttax_total' not in receipt_data:
-                tax = receipt_data.get('tax', 0) or 0
-                pretax = receipt_data.get('pretax_total', receipt_data.get('subtotal', 0)) or 0
-                receipt_data['posttax_total'] = pretax + tax
-            
-            if 'final_total' not in receipt_data:
-                receipt_data['final_total'] = receipt_data.get('total', 0) or 0
-            elif 'total' not in receipt_data:
-                receipt_data['total'] = receipt_data.get('final_total', 0) or 0
-                
-            return {
-                "success": True,
-                "is_receipt": receipt_data.get("is_receipt", False),
-                "receipt_data": receipt_data
-            }
         except json.JSONDecodeError:
-            # If we can't parse JSON, return the raw text
             return {
                 "success": True,
                 "is_receipt": False,
                 "error": "Could not parse receipt data",
                 "raw_text": analysis_text
             }
-    
-    except Exception as e:
+
+    def _process_transportation_ticket(self, receipt_data):
+        """Process transportation ticket data"""
+        if 'fare' not in receipt_data or receipt_data['fare'] is None:
+            receipt_data['fare'] = receipt_data.get('total', 0)
+        
+        if 'total' not in receipt_data or receipt_data['total'] is None:
+            receipt_data['total'] = receipt_data.get('fare', 0)
+        
+        receipt_data['is_receipt'] = True
+        
         return {
-            "success": False,
-            "error": str(e)
-        } 
+            "success": True,
+            "is_receipt": True,
+            "is_transportation_ticket": True,
+            "receipt_data": receipt_data
+        }
+
+    def _process_regular_receipt(self, receipt_data):
+        """Process regular receipt data"""
+        # Handle backward compatibility
+        if 'items' in receipt_data and 'line_items' not in receipt_data:
+            receipt_data['line_items'] = receipt_data.pop('items')
+        
+        # Initialize default values
+        receipt_data.setdefault('tip', 0.0)
+        receipt_data.setdefault('gratuity', 0.0)
+        
+        # Process totals and tax information
+        self._process_totals(receipt_data)
+        
+        return {
+            "success": True,
+            "is_receipt": receipt_data.get("is_receipt", False),
+            "receipt_data": receipt_data
+        }
+
+    def _process_totals(self, receipt_data):
+        """Process and validate totals in receipt data"""
+        # Calculate items total if not present
+        if 'items_total' not in receipt_data:
+            items_total = sum(
+                item.get('total_price', 0) or 0 
+                for item in receipt_data.get('line_items', [])
+            )
+            receipt_data['items_total'] = items_total
+        
+        # Set default values for other total fields
+        receipt_data.setdefault('display_subtotal', receipt_data.get('subtotal', receipt_data.get('items_total', 0)))
+        receipt_data.setdefault('pretax_total', receipt_data.get('subtotal', receipt_data.get('items_total', 0)))
+        
+        # Calculate post-tax total
+        tax = receipt_data.get('tax', 0) or 0
+        pretax = receipt_data.get('pretax_total', receipt_data.get('subtotal', 0)) or 0
+        receipt_data.setdefault('posttax_total', pretax + tax)
+        
+        # Set final total
+        receipt_data.setdefault('final_total', receipt_data.get('total', 0) or 0)
+        if 'total' not in receipt_data:
+            receipt_data['total'] = receipt_data.get('final_total', 0) or 0 
