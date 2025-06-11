@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { DollarSign, Calendar, ShoppingBag, Tag, Receipt, Users, Plus, X, UserPlus, Check, AlertCircle, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '../ui/dialog';
+import receiptService from '../../services/receiptService';
 
 const formatCurrency = (amount) => {
   if (amount === null || amount === undefined) return '—';
@@ -87,9 +88,13 @@ const PersonBadge = ({ name, personIndex, totalPeople, size = "md", onClick }) =
 
 const ReceiptAnalysisDisplay = ({ result }) => {
   // State for people and item assignments
-  const [people, setPeople] = useState([]);
+  const initialPeople = useMemo(() => {
+    if (!result?.receipt_data?.line_items) return [];
+    const allAssignments = result.receipt_data.line_items.flatMap(item => item.assignments || []);
+    return Array.from(new Set(allAssignments));
+  }, [result]);
+  const [people, setPeople] = useState(initialPeople);
   const [newPersonName, setNewPersonName] = useState('');
-  const [itemAssignments, setItemAssignments] = useState({});
   const [showPeopleManager, setShowPeopleManager] = useState(false);
   // Add state for search inputs for each item
   const [searchInputs, setSearchInputs] = useState({});
@@ -113,10 +118,8 @@ const ReceiptAnalysisDisplay = ({ result }) => {
     let totalAssignedItemsValue = 0;
     
     // First pass: calculate item values per person (without tax)
-    receipt_data.line_items.forEach((item, index) => {
-      const itemId = `item-${index}`;
-      const assignedPeople = itemAssignments[itemId] || [];
-      
+    receipt_data.line_items.forEach((item) => {
+      const assignedPeople = item.assignments || [];
       if (assignedPeople.length > 0) {
         const pricePerPerson = item.total_price / assignedPeople.length;
         assignedPeople.forEach(person => {
@@ -171,7 +174,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
   
   // Check if we need to use equal split mode (no line items or no assignments made)
   const hasLineItems = receipt_data.line_items && receipt_data.line_items.length > 0;
-  const noAssignmentsMade = hasLineItems && Object.keys(itemAssignments).length === 0;
+  const noAssignmentsMade = hasLineItems && receipt_data.line_items.every(item => !item.assignments || item.assignments.length === 0);
   const useEqualSplit = !hasLineItems || noAssignmentsMade;
 
   // Calculate the total assigned and unassigned amounts
@@ -189,32 +192,32 @@ const ReceiptAnalysisDisplay = ({ result }) => {
 
   const handleRemovePerson = (personToRemove) => {
     setPeople(people.filter(person => person !== personToRemove));
-    
     // Also remove this person from all item assignments
-    const updatedAssignments = {};
-    Object.keys(itemAssignments).forEach(itemId => {
-      updatedAssignments[itemId] = itemAssignments[itemId].filter(
-        person => person !== personToRemove
-      );
+    receipt_data.line_items.forEach(item => {
+      if (item.assignments && Array.isArray(item.assignments)) {
+        item.assignments = item.assignments.filter(person => person !== personToRemove);
+      }
     });
-    setItemAssignments(updatedAssignments);
   };
 
-  const togglePersonAssignment = (itemId, person) => {
-    const currentAssignments = itemAssignments[itemId] || [];
-    
-    if (currentAssignments.includes(person)) {
-      // Remove person from item
-      setItemAssignments({
-        ...itemAssignments,
-        [itemId]: currentAssignments.filter(p => p !== person)
-      });
+  const togglePersonAssignment = async (itemId, person) => {
+    const item = receipt_data.line_items.find(item => item.id === itemId);
+    if (!item) return;
+    if (!item.assignments) item.assignments = [];
+    if (item.assignments.includes(person)) {
+      item.assignments = item.assignments.filter(p => p !== person);
     } else {
-      // Add person to item
-      setItemAssignments({
-        ...itemAssignments,
-        [itemId]: [...currentAssignments, person]
-      });
+      item.assignments = [...item.assignments, person];
+    }
+    // Persist to backend
+    try {
+      const receiptId = result?.receipt?.id || result?.id;
+      if (receiptId) {
+        await receiptService.updateAssignments(receiptId, receipt_data.line_items);
+      }
+    } catch (err) {
+      // Optionally show an error to the user
+      console.error('Failed to update assignments:', err);
     }
   };
   
@@ -254,9 +257,8 @@ const ReceiptAnalysisDisplay = ({ result }) => {
     if (!receipt_data.line_items) return [];
     
     const personItems = [];
-    receipt_data.line_items.forEach((item, index) => {
-      const itemId = `item-${index}`;
-      const assignedPeople = itemAssignments[itemId] || [];
+    receipt_data.line_items.forEach((item) => {
+      const assignedPeople = item.assignments || [];
       
       if (assignedPeople.includes(person)) {
         const pricePerPerson = item.total_price / assignedPeople.length;
@@ -335,9 +337,9 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                 <div className="col-span-2 text-center">Assigned To</div>
               </div>
               
-              {receipt_data.line_items.map((item, index) => {
-                const itemId = `item-${index}`;
-                const assignedPeople = itemAssignments[itemId] || [];
+              {receipt_data.line_items.map((item) => {
+                const itemId = item.id;
+                const assignedPeople = item.assignments || [];
                 const searchValue = searchInputs[itemId] || '';
                 
                 // Filter people based on search input
@@ -347,10 +349,10 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                 
                 return (
                   <motion.div 
-                    key={index}
+                    key={itemId}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: index * 0.05 }}
+                    transition={{ delay: 0.05 }}
                     className="border rounded-lg border-border/40 overflow-hidden mb-3 md:mb-0 md:border-0 md:rounded-none md:grid md:grid-cols-12 md:gap-3 text-base md:py-3 md:border-b md:last:border-0 md:items-center"
                   >
                     {/* Mobile layout */}

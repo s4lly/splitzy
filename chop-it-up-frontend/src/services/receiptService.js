@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ReceiptResponseSchema } from '../lib/receiptSchemas';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -209,7 +210,13 @@ const receiptService = {
         const response = await axios.get(`${API_URL}/user/receipts/${receiptId}`, {
           withCredentials: true,
         });
-        return response.data;
+        // Zod validation
+        const parsed = ReceiptResponseSchema.safeParse(response.data);
+        if (!parsed.success) {
+          console.error('Invalid receipt response:', parsed.error);
+          throw new Error('Invalid receipt response from server');
+        }
+        return parsed.data;
       } catch (serverError) {
         console.log('Server endpoint not available, using mock data');
         
@@ -272,6 +279,15 @@ const receiptService = {
       console.error('API health check failed:', error);
       return false;
     }
+  },
+  
+  updateAssignments: async (receiptId, lineItems) => {
+    const response = await axios.put(
+      `${API_URL}/user/receipts/${receiptId}/assignments`,
+      { line_items: lineItems },
+      { withCredentials: true }
+    );
+    return response.data;
   }
 };
 
