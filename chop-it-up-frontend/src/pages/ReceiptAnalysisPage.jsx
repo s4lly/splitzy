@@ -3,9 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ReceiptAnalysisDisplay from '../components/Receipt/ReceiptAnalysisDisplay';
 import receiptService from '../services/receiptService';
 import { Button } from '../components/ui/button';
-import { ArrowLeft, AlertCircle, Loader2, Image as ImageIcon, ZoomIn, ZoomOut, Download } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Loader2, Image as ImageIcon, Undo, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { motion } from 'framer-motion';
+import { createUseGesture, dragAction, pinchAction } from '@use-gesture/react';
+import { useSpring, animated } from '@react-spring/web'
+
+const useGesture =createUseGesture([dragAction, pinchAction])
 
 const ReceiptAnalysisPage = () => {
   const { receiptId } = useParams();
@@ -13,8 +17,54 @@ const ReceiptAnalysisPage = () => {
   const [receipt, setReceipt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [imageZoomed, setImageZoomed] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => e.preventDefault()
+    document.addEventListener('gesturestart', handler)
+    document.addEventListener('gesturechange', handler)
+    document.addEventListener('gestureend', handler)
+    return () => {
+      document.removeEventListener('gesturestart', handler)
+      document.removeEventListener('gesturechange', handler)
+      document.removeEventListener('gestureend', handler)
+    }
+  }, [])
+
+  const [style, api] = useSpring(() => ({
+    x: 0,
+    y: 0,
+    scale: 1,
+    rotateZ: 0,
+  }))
+  const ref = React.useRef(null)
+
+  useGesture(
+    {
+      onDrag: ({ pinching, cancel, offset: [x, y] }) => {
+        if (pinching) return cancel()
+        api.start({ x, y })
+      },
+      onPinch: ({ origin: [ox, oy], first, movement: [ms], offset: [s, a], memo }) => {
+        if (first) {
+          const { width, height, x, y } = ref.current.getBoundingClientRect()
+          const tx = ox - (x + width / 2)
+          const ty = oy - (y + height / 2)
+          memo = [style.x.get(), style.y.get(), tx, ty]
+        }
+
+        const x = memo[0] - (ms - 1) * memo[2]
+        const y = memo[1] - (ms - 1) * memo[3]
+        api.start({ scale: s, rotateZ: a, x, y })
+        return memo
+      },
+    },
+    {
+      target: ref,
+      drag: { from: () => [style.x.get(), style.y.get()] },
+      pinch: { scaleBounds: { min: 0.5, max: 2 }, rubberband: true },
+    }
+  )
 
   useEffect(() => {
     let objectUrlsToRevoke = [];
@@ -131,8 +181,14 @@ const ReceiptAnalysisPage = () => {
     navigate('/');
   };
 
-  const toggleImageZoom = () => {
-    setImageZoomed(!imageZoomed);
+  const resetImage = () => {
+    api.start({
+      x: 0,
+      y: 0,
+      scale: 1,
+      rotateZ: 0,
+      config: { tension: 300, friction: 20 }
+    });
   };
 
   const handleDownloadImage = async () => {
@@ -273,13 +329,16 @@ const ReceiptAnalysisPage = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   {previewImage ? (
-                    <div className="relative">
-                      <div className={`relative ${imageZoomed ? 'overflow-auto max-h-[80vh]' : 'overflow-hidden'} bg-muted/40`}>
+                    <div className={`relative overflow-hidden bg-muted/40`}>
+                      <animated.div 
+                        className="relative w-full h-full"
+                        ref={ref}
+                        style={style}
+                      >
                         <img 
                           src={previewImage} 
                           alt="Receipt" 
-                          className={`mx-auto ${imageZoomed ? 'max-w-none w-auto' : 'max-w-full'} object-contain`}
-                          style={{ maxHeight: imageZoomed ? 'none' : '500px' }}
+                          className={`mx-auto max-h-[75vh] object-contain transition-transform duration-100 touch-none`}
                           onError={(e) => {
                             console.error('Error loading image:', e);
                             // Don't try to load another image, just hide this one and show fallback
@@ -303,15 +362,17 @@ const ReceiptAnalysisPage = () => {
                             }
                           }}
                         />
+                      </animated.div>
+                      <div className="absolute top-3 right-3 flex gap-2">
+                        <Button 
+                          variant="secondary" 
+                          size="sm"
+                          className="rounded-full shadow-md opacity-80 hover:opacity-100"
+                          onClick={resetImage}
+                        >
+                          <Undo className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <Button 
-                        variant="secondary" 
-                        size="sm"
-                        className="absolute top-3 right-3 rounded-full shadow-md opacity-80 hover:opacity-100"
-                        onClick={toggleImageZoom}
-                      >
-                        {imageZoomed ? <ZoomOut className="h-4 w-4" /> : <ZoomIn className="h-4 w-4" />}
-                      </Button>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-16 px-4 bg-muted/30 text-center">
