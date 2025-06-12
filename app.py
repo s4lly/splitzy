@@ -458,41 +458,66 @@ def update_receipt_assignments(receipt_id):
     """Update the assignments for line items in a specific receipt"""
     current_user = get_current_user()
     if not current_user:
+        app.logger.error(f"[update_receipt_assignments] Authentication required for receipt_id={receipt_id}")
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
 
     data = request.get_json()
     if not data or 'line_items' not in data:
+        app.logger.error(f"[update_receipt_assignments] Missing line_items data for receipt_id={receipt_id}, user_id={current_user.get('id') if current_user else None}")
         return jsonify({'success': False, 'error': 'Missing line_items data'}), 400
 
     try:
         conn = get_db_connection()
-        # Fetch the receipt to ensure it belongs to the user
-        row = conn.execute(
-            'SELECT receipt_data FROM user_receipts WHERE id = ? AND user_id = ?',
-            (receipt_id, current_user['id'])
-        ).fetchone()
+        try:
+            # Fetch the receipt to ensure it belongs to the user
+            row = conn.execute(
+                'SELECT receipt_data FROM user_receipts WHERE id = ? AND user_id = ?',
+                (receipt_id, current_user['id'])
+            ).fetchone()
+        except Exception as e:
+            app.logger.error(f"[update_receipt_assignments] Error fetching receipt: receipt_id={receipt_id}, user_id={current_user['id']}, error={str(e)}")
+            conn.close()
+            return jsonify({'success': False, 'error': 'Database error while fetching receipt'}), 500
+
         if not row:
+            app.logger.error(f"[update_receipt_assignments] Receipt not found: receipt_id={receipt_id}, user_id={current_user['id']}")
             conn.close()
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
-        receipt_data = json.loads(row['receipt_data'])
+        try:
+            receipt_data = json.loads(row['receipt_data'])
+        except Exception as e:
+            app.logger.error(f"[update_receipt_assignments] Error decoding receipt_data: receipt_id={receipt_id}, user_id={current_user['id']}, error={str(e)}")
+            conn.close()
+            return jsonify({'success': False, 'error': 'Corrupt receipt data'}), 500
+
         # Update assignments for each line item by id
-        line_items_by_id = {item['id']: item for item in receipt_data.get('line_items', [])}
-        for updated_item in data['line_items']:
-            if updated_item['id'] in line_items_by_id:
-                line_items_by_id[updated_item['id']]['assignments'] = updated_item.get('assignments', [])
+        try:
+            line_items_by_id = {item['id']: item for item in receipt_data.get('line_items', [])}
+            for updated_item in data['line_items']:
+                if updated_item['id'] in line_items_by_id:
+                    line_items_by_id[updated_item['id']]['assignments'] = updated_item.get('assignments', [])
+            receipt_data['line_items'] = list(line_items_by_id.values())
+        except Exception as e:
+            app.logger.error(f"[update_receipt_assignments] Error updating line items: receipt_id={receipt_id}, user_id={current_user['id']}, error={str(e)}")
+            conn.close()
+            return jsonify({'success': False, 'error': 'Failed to update line items'}), 500
 
         # Save updated receipt_data
-        receipt_data['line_items'] = list(line_items_by_id.values())
-        conn.execute(
-            'UPDATE user_receipts SET receipt_data = ? WHERE id = ?',
-            (json.dumps(receipt_data), receipt_id)
-        )
-        conn.commit()
+        try:
+            conn.execute(
+                'UPDATE user_receipts SET receipt_data = ? WHERE id = ?',
+                (json.dumps(receipt_data), receipt_id)
+            )
+            conn.commit()
+        except Exception as e:
+            app.logger.error(f"[update_receipt_assignments] Error saving updated receipt_data: receipt_id={receipt_id}, user_id={current_user['id']}, error={str(e)}")
+            conn.close()
+            return jsonify({'success': False, 'error': 'Failed to save updated assignments'}), 500
         conn.close()
         return jsonify({'success': True})
     except Exception as e:
-        app.logger.error(f"Error updating assignments: {str(e)}")
+        app.logger.error(f"[update_receipt_assignments] Unexpected error: receipt_id={receipt_id}, user_id={current_user['id']}, error={str(e)}")
         return jsonify({'success': False, 'error': 'Failed to update assignments'}), 500
 
 @app.cli.command('migrate-receipt-line-items')

@@ -154,6 +154,8 @@ class ImageAnalyzer:
            - Quantity (if available)
            - Price per item
            - Total price for the item
+           - Id using a random uuid
+           - Assignments an empty array to be used for the people who are assigned to the item
         4. Subtotal (before tax)
         5. Tax amount
         6. Tip amount (if present)
@@ -175,10 +177,12 @@ class ImageAnalyzer:
           "date": "YYYY-MM-DD",
           "line_items": [
             {
+              "id": "random_uuid",
               "name": "Item 1",
               "quantity": 2,
               "price_per_item": 10.99,
-              "total_price": 21.98
+              "total_price": 21.98,
+              "assignments": []
             },
             ...
           ],
