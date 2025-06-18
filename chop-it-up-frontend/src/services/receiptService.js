@@ -281,10 +281,32 @@ const receiptService = {
     }
   },
   
+  /**
+   * Update the assignments for a receipt
+   * @param {number} receiptId - The ID of the receipt to update
+   * @param {Object[]} lineItems - The line items to update
+   * @returns {Promise} - A promise that resolves to the updated receipt data
+   */
   updateAssignments: async (receiptId, lineItems) => {
     const response = await axios.put(
       `${API_URL}/user/receipts/${receiptId}/assignments`,
       { line_items: lineItems },
+      { withCredentials: true }
+    );
+    return response.data;
+  },
+
+  /**
+   * Update a line item in a receipt
+   * @param {number} receiptId - The ID of the receipt to update
+   * @param {number} itemId - The ID of the line item to update
+   * @param {Object} updateObj - The object containing the updates to make
+   * @returns {Promise} - A promise that resolves to the updated receipt data
+   */
+  updateLineItem: async (receiptId, itemId, updateObj) => {
+    const response = await axios.put(
+      `${API_URL}/user/receipts/${receiptId}/line-items/${itemId}`,
+      updateObj,
       { withCredentials: true }
     );
     return response.data;

@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '../ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogDescription } from '../ui/dialog';
 import receiptService from '../../services/receiptService';
+import EditableText from '../ui/EditableText';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const formatCurrency = (amount) => {
   if (amount === null || amount === undefined) return '—';
@@ -99,9 +101,50 @@ const ReceiptAnalysisDisplay = ({ result }) => {
   // Add state for search inputs for each item
   const [searchInputs, setSearchInputs] = useState({});
   
-  if (!result) return null;
   
   const { receipt_data } = result;
+  
+  const queryClient = useQueryClient();
+  
+  const updateMutation = useMutation({
+    mutationFn: ({ receiptId, itemId, ...rest }) => {
+      return receiptService.updateLineItem(receiptId, itemId, rest);
+    },
+    onMutate: ({ receiptId, itemId, ...rest }) => {
+      queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
+
+      const previousData = queryClient.getQueryData(["receipt", receiptId]);
+
+      try {
+        queryClient.setQueryData(["receipt", receiptId], (old) => {
+          const newData = { ...old };
+          const item = newData.receipt.receipt_data.line_items.find(
+            (item) => item.id === itemId
+          );
+          if (item) {
+            item.name = rest.name;
+          }
+        });
+      } catch (error) {
+        console.error("Error updating item name:", error);
+      }
+
+      return { previousData };
+    },
+    onError: (error, variables, context) => {
+      queryClient.setQueryData(
+        ["receipt", variables.receiptId],
+        context.previousData
+      );
+    },
+    onSettled: (data, error, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: ["receipt", variables.receiptId],
+      });
+    },
+  });
+  
+  if (!result) return null;
 
   // Calculate the amount each person owes
   const personTotals = people.reduce((acc, person) => {
@@ -358,7 +401,28 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                     {/* Mobile layout */}
                     <div className="md:hidden">
                       <div className="p-2 bg-muted/10 border-b border-border/40 flex justify-between items-center">
-                        <div className="font-medium truncate pr-2 max-w-[70%]">{item.name}</div>
+                          <EditableText
+                            value={item.name}
+                            onSave={async newName => {
+                              if (newName !== item.name) {
+                                const receiptId = result?.receipt?.id || result?.id;
+
+                                if (receiptId && item.id) {
+                                  try {
+                                    updateMutation.mutate({
+                                      receiptId: String(receiptId),
+                                      itemId: item.id,
+                                      name: newName
+                                    });
+                                  } catch (err) {
+                                    // Optionally show an error to the user
+                                    console.error('Failed to update item name:', err);
+                                  }
+                                }
+                              }
+                            }}
+                            placeholder="Item name"
+                          />
                         <div className="text-right font-semibold">{formatCurrency(item.total_price)}</div>
                       </div>
                       <div className="p-2 sm:p-3 flex flex-col gap-2">
@@ -611,7 +675,30 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                     </div>
 
                     {/* Desktop layout */}
-                    <div className="hidden md:block col-span-5 truncate">{item.name}</div>
+                    <div className="hidden md:block col-span-5 truncate">
+                      <EditableText
+                        value={item.name}
+                        onSave={async newName => {
+                          if (newName !== item.name) {
+                            const receiptId = result?.receipt?.id || result?.id;
+
+                            if (receiptId && item.id) {
+                              try {
+                                updateMutation.mutate({
+                                  receiptId: String(receiptId),
+                                  itemId: item.id,
+                                  name: newName
+                                });
+                              } catch (err) {
+                                // Optionally show an error to the user
+                                console.error('Failed to update item name:', err);
+                              }
+                            }
+                          }
+                        }}
+                        placeholder="Item name"
+                      />
+                    </div>
                     <div className="hidden md:block col-span-1 text-right">{item.quantity || 1}</div>
                     <div className="hidden md:block col-span-2 text-right">{formatCurrency(item.price_per_item)}</div>
                     <div className="hidden md:block col-span-2 text-right font-medium">{formatCurrency(item.total_price)}</div>
@@ -1169,6 +1256,9 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                               <PersonBadge name={person} personIndex={idx} totalPeople={people.length} size="md" />
                               <span>{person}'s Items</span>
                             </DialogTitle>
+                            <DialogDescription>
+                              Detailed breakdown of items assigned to {person}.
+                            </DialogDescription>
                           </DialogHeader>
                           
                           <div className="overflow-y-auto flex-grow">

@@ -10,6 +10,10 @@ import UserProfileDropdown from './components/Auth/UserProfileDropdown';
 import LoginButton from './components/Auth/LoginButton';
 import HomePage from './pages/HomePage';
 import ReceiptAnalysisPage from './pages/ReceiptAnalysisPage';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+const queryClient = new QueryClient();
 
 function App() {
   const [apiStatus, setApiStatus] = useState('checking');
@@ -47,9 +51,10 @@ function App() {
   };
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system">
-      <div className="min-h-screen bg-background text-foreground flex flex-col">
-        {/* Header */}
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="system">
+        <div className="min-h-screen bg-background text-foreground flex flex-col">
+          {/* Header */}
         <header className="sticky top-0 z-10 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border shadow-sm">
           <div className="px-1 sm:container flex h-14 items-center">
             <div className="font-bold text-2xl mr-auto flex items-center gap-2">
@@ -119,9 +124,11 @@ function App() {
               Powered by Receipt AI
             </p>
           </div>
-        </footer>
-      </div>
-    </ThemeProvider>
+          </footer>
+        </div>
+      </ThemeProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
 

@@ -556,5 +556,55 @@ def migrate_receipt_line_items():
     conn.close()
     print(f"Migration complete. Updated {updated_count} receipts.")
 
+@app.route('/api/user/receipts/<int:receipt_id>/line-items/<item_id>', methods=['PUT'])
+def update_line_item(receipt_id, item_id):
+    """Update any property of a specific line item in a receipt"""
+    current_user = get_current_user()
+    if not current_user:
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'error': 'No update data provided'}), 400
+
+    try:
+        conn = get_db_connection()
+        # Fetch the receipt to ensure it belongs to the user
+        row = conn.execute(
+            'SELECT receipt_data FROM user_receipts WHERE id = ? AND user_id = ?',
+            (receipt_id, current_user['id'])
+        ).fetchone()
+
+        if not row:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Receipt not found'}), 404
+
+        receipt_data = json.loads(row['receipt_data'])
+        updated = False
+
+        # Find the line item by id and update its properties
+        for item in receipt_data.get('line_items', []):
+            if str(item.get('id')) == str(item_id):
+                for key, value in data.items():
+                    item[key] = value
+                updated = True
+                break
+
+        if not updated:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Line item not found'}), 404
+
+        # Save updated receipt_data
+        conn.execute(
+            'UPDATE user_receipts SET receipt_data = ? WHERE id = ?',
+            (json.dumps(receipt_data), receipt_id)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+    except Exception as e:
+        app.logger.error(f"[update_line_item] Error: {str(e)}")
+        return jsonify({'success': False, 'error': 'Failed to update line item'}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001) 

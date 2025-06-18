@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { motion } from 'framer-motion';
 import { createUseGesture, dragAction, pinchAction } from '@use-gesture/react';
 import { useSpring, animated } from '@react-spring/web'
+import { useQuery } from '@tanstack/react-query';
 
 const useGesture =createUseGesture([dragAction, pinchAction])
 
@@ -15,9 +16,18 @@ const ReceiptAnalysisPage = () => {
   const { receiptId } = useParams();
   const navigate = useNavigate();
   const [receipt, setReceipt] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+
+  const {
+    data: receiptData,
+    status: receiptDataStatus,
+    error: receiptDataError,
+    isLoading: receiptDataIsLoading,
+  } = useQuery({
+    queryKey: ["receipt", receiptId],
+    queryFn: () => receiptService.getSingleReceipt(parseInt(receiptId)),
+  });
 
   useEffect(() => {
     const handler = (e) => e.preventDefault()
@@ -71,13 +81,10 @@ const ReceiptAnalysisPage = () => {
     
     const fetchReceiptDetails = async () => {
       try {
-        setLoading(true);
-        
         // Try to get receipt from API
         try {
-          const response = await receiptService.getSingleReceipt(parseInt(receiptId));
-          if (response.success && response.receipt) {
-            setReceipt(response.receipt);
+          if (receiptData.receipt) {
+            setReceipt(receiptData.receipt);
             
             // First try to get the image directly from the backend
             try {
@@ -90,9 +97,9 @@ const ReceiptAnalysisPage = () => {
                 setPreviewImage(imageUrl);
               } else {
                 // If backend image fetch fails, check for image URL in receipt data
-                if (response.receipt.image_url) {
+                if (receiptData.receipt.image_url) {
                   console.log('Using image URL from receipt data (backend image not available)');
-                  setPreviewImage(response.receipt.image_url);
+                  setPreviewImage(receiptData.receipt.image_url);
                 } else {
                   console.log('No image available for this receipt (neither from backend nor receipt data)');
                   setPreviewImage(null);
@@ -102,9 +109,9 @@ const ReceiptAnalysisPage = () => {
               console.error('Error fetching image from backend:', imageError);
               
               // Fall back to image URL in receipt data
-              if (response.receipt.image_url) {
+              if (receiptData.receipt.image_url) {
                 console.log('Falling back to image URL in receipt data after error');
-                setPreviewImage(response.receipt.image_url);
+                setPreviewImage(receiptData.receipt.image_url);
               } else {
                 setPreviewImage(null);
               }
@@ -154,16 +161,11 @@ const ReceiptAnalysisPage = () => {
       } catch (err) {
         console.error('Error fetching receipt:', err);
         setError(err.message || 'Failed to load receipt details');
-      } finally {
-        setLoading(false);
       }
     };
 
-    if (receiptId) {
+    if (receiptDataStatus === 'success') {
       fetchReceiptDetails();
-    } else {
-      setError('No receipt ID provided');
-      setLoading(false);
     }
     
     // Cleanup function to revoke object URLs when component unmounts
@@ -175,7 +177,7 @@ const ReceiptAnalysisPage = () => {
         }
       });
     };
-  }, [receiptId]);
+  }, [receiptDataStatus, receiptData, receiptId]);
 
   const handleBackClick = () => {
     navigate('/');
@@ -256,14 +258,14 @@ const ReceiptAnalysisPage = () => {
       transition={{ duration: 0.5 }}
       className="w-full"
     >
-      {loading ? (
+      {receiptDataIsLoading ? (
         <div className="py-8 max-w-4xl mx-auto">
           <div className="flex items-center justify-center h-64">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
             <span className="ml-2 text-lg">Loading receipt details...</span>
           </div>
         </div>
-      ) : error ? (
+      ) : receiptDataStatus === 'error' || error ? (
         <div className="py-8 max-w-4xl mx-auto">
           <Button 
             variant="ghost" 
@@ -278,7 +280,7 @@ const ReceiptAnalysisPage = () => {
             <AlertCircle className="h-6 w-6 text-destructive flex-shrink-0" />
             <div>
               <h2 className="font-semibold text-destructive">Error Loading Receipt</h2>
-              <p className="text-destructive/90">{error}</p>
+              <p className="text-destructive/90">{receiptDataError || error}</p>
             </div>
           </div>
         </div>
@@ -331,7 +333,7 @@ const ReceiptAnalysisPage = () => {
                   {previewImage ? (
                     <div className={`relative overflow-hidden bg-muted/40`}>
                       <animated.div 
-                        className="relative w-full h-full"
+                        className="relative w-full h-full touch-none"
                         ref={ref}
                         style={style}
                       >
