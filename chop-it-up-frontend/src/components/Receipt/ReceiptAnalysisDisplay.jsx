@@ -93,6 +93,26 @@ const PersonBadge = ({ name, personIndex, totalPeople, size = "md", onClick }) =
   );
 };
 
+// Add this above the ReceiptAnalysisDisplay component
+const AddAllMenuItem = ({ people, filteredPeople, assignedPeople, onAddAll }) => {
+  if (!(people.length > 0 && filteredPeople.length > 1)) return null;
+  return (
+    <DropdownMenuItem
+      onClick={() => {
+        filteredPeople.forEach(person => {
+          if (!assignedPeople.includes(person)) {
+            onAddAll(person);
+          }
+        });
+      }}
+      className="flex items-center gap-2 font-semibold text-blue-700 dark:text-blue-300"
+    >
+      <Plus className="h-4 w-4" />
+      Add all
+    </DropdownMenuItem>
+  );
+};
+
 const ReceiptAnalysisDisplay = ({ result }) => {
   // State for people and item assignments
   const initialPeople = useMemo(() => {
@@ -473,6 +493,16 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                                       />
                                     </div>
                                     <div className="max-h-[150px] overflow-y-auto">
+                                      {/* Add All menu item */}
+                                      <AddAllMenuItem
+                                        people={people}
+                                        filteredPeople={filteredPeople}
+                                        assignedPeople={assignedPeople}
+                                        onAddAll={person => {
+                                          togglePersonAssignment(itemId, person);
+                                          handleSearchInputChange(itemId, '');
+                                        }}
+                                      />
                                       {people.length > 0 ? (
                                         filteredPeople.length > 0 ? (
                                           filteredPeople.map((person, idx) => (
@@ -564,6 +594,16 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                                       />
                                     </div>
                                     <div className="max-h-[150px] overflow-y-auto">
+                                      {/* Add All menu item */}
+                                      <AddAllMenuItem
+                                        people={people}
+                                        filteredPeople={filteredPeople}
+                                        assignedPeople={assignedPeople}
+                                        onAddAll={person => {
+                                          togglePersonAssignment(itemId, person);
+                                          handleSearchInputChange(itemId, '');
+                                        }}
+                                      />
                                       {people.length > 0 ? (
                                         filteredPeople.length > 0 ? (
                                           filteredPeople.map((person, idx) => (
@@ -635,6 +675,16 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                                     />
                                   </div>
                                   <div className="max-h-[150px] overflow-y-auto">
+                                    {/* Add All menu item */}
+                                    <AddAllMenuItem
+                                      people={people}
+                                      filteredPeople={filteredPeople}
+                                      assignedPeople={assignedPeople}
+                                      onAddAll={person => {
+                                        togglePersonAssignment(itemId, person);
+                                        handleSearchInputChange(itemId, '');
+                                      }}
+                                    />
                                     {people.length > 0 ? (
                                       filteredPeople.length > 0 ? (
                                         filteredPeople.map((person, idx) => (
@@ -749,6 +799,16 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                                     />
                                   </div>
                                   <div className="max-h-[150px] overflow-y-auto">
+                                    {/* Add All menu item */}
+                                    <AddAllMenuItem
+                                      people={people}
+                                      filteredPeople={filteredPeople}
+                                      assignedPeople={assignedPeople}
+                                      onAddAll={person => {
+                                        togglePersonAssignment(itemId, person);
+                                        handleSearchInputChange(itemId, '');
+                                      }}
+                                    />
                                     {people.length > 0 ? (
                                       filteredPeople.length > 0 ? (
                                         filteredPeople.map((person, idx) => (
@@ -819,6 +879,16 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                                     />
                                   </div>
                                   <div className="max-h-[150px] overflow-y-auto">
+                                    {/* Add All menu item */}
+                                    <AddAllMenuItem
+                                      people={people}
+                                      filteredPeople={filteredPeople}
+                                      assignedPeople={assignedPeople}
+                                      onAddAll={person => {
+                                        togglePersonAssignment(itemId, person);
+                                        handleSearchInputChange(itemId, '');
+                                      }}
+                                    />
                                     {people.length > 0 ? (
                                       filteredPeople.length > 0 ? (
                                         filteredPeople.map((person, idx) => (
@@ -891,6 +961,16 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                                 />
                               </div>
                               <div className="max-h-[150px] overflow-y-auto">
+                                {/* Add All menu item */}
+                                <AddAllMenuItem
+                                  people={people}
+                                  filteredPeople={filteredPeople}
+                                  assignedPeople={assignedPeople}
+                                  onAddAll={person => {
+                                    togglePersonAssignment(itemId, person);
+                                    handleSearchInputChange(itemId, '');
+                                  }}
+                                />
                                 {people.length > 0 ? (
                                   filteredPeople.length > 0 ? (
                                     filteredPeople.map((person, idx) => (
