@@ -32,6 +32,11 @@ const COLOR_PAIRS = [
   ['bg-cyan-100', 'text-cyan-800', 'bg-cyan-700/50', 'text-cyan-100'],
   ['bg-orange-100', 'text-orange-800', 'bg-orange-700/50', 'text-orange-100'],
   ['bg-blue-100', 'text-blue-800', 'bg-blue-700/50', 'text-blue-100'],
+  ['bg-lime-100', 'text-lime-800', 'bg-lime-700/50', 'text-lime-100'],
+  ['bg-fuchsia-100', 'text-fuchsia-800', 'bg-fuchsia-700/50', 'text-fuchsia-100'],
+  ['bg-violet-100', 'text-violet-800', 'bg-violet-700/50', 'text-violet-100'],
+  ['bg-yellow-100', 'text-yellow-800', 'bg-yellow-700/50', 'text-yellow-100'],
+  ['bg-emerald-100', 'text-emerald-800', 'bg-emerald-700/50', 'text-emerald-100'],
 ];
 
 // Get a deterministic color based on a name and position
