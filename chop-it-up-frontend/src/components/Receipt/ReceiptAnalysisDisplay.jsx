@@ -6,9 +6,9 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogDescription } from '../ui/dialog';
-import receiptService from '../../services/receiptService';
 import EditableText from '../ui/EditableText';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useUpdateItemAssignmentsMutation } from './useUpdateItemAssignmentsMutation';
+import { useUpdateLineItemMutation } from './useUpdateLineItemMutation';
 
 const formatCurrency = (amount) => {
   if (amount === null || amount === undefined) return '—';
@@ -100,6 +100,11 @@ const ReceiptAnalysisDisplay = ({ result }) => {
     const allAssignments = result.receipt_data.line_items.flatMap(item => item.assignments || []);
     return Array.from(new Set(allAssignments));
   }, [result]);
+  /**
+   * TODO looks like used to keep track of all people, including those not assigned to any items
+   * this is being used by the button at the bottom of the page. doese not break main flow but
+   * should also persist this list of people in the backend. leaving this here for now.
+   */
   const [people, setPeople] = useState(initialPeople);
   const [newPersonName, setNewPersonName] = useState('');
   const [showPeopleManager, setShowPeopleManager] = useState(false);
@@ -109,45 +114,8 @@ const ReceiptAnalysisDisplay = ({ result }) => {
   
   const { receipt_data } = result;
   
-  const queryClient = useQueryClient();
-  
-  const updateMutation = useMutation({
-    mutationFn: ({ receiptId, itemId, ...rest }) => {
-      return receiptService.updateLineItem(receiptId, itemId, rest);
-    },
-    onMutate: ({ receiptId, itemId, ...rest }) => {
-      queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
-
-      const previousData = queryClient.getQueryData(["receipt", receiptId]);
-
-      try {
-        queryClient.setQueryData(["receipt", receiptId], (old) => {
-          const newData = { ...old };
-          const item = newData.receipt.receipt_data.line_items.find(
-            (item) => item.id === itemId
-          );
-          if (item) {
-            item.name = rest.name;
-          }
-        });
-      } catch (error) {
-        console.error("Error updating item name:", error);
-      }
-
-      return { previousData };
-    },
-    onError: (error, variables, context) => {
-      queryClient.setQueryData(
-        ["receipt", variables.receiptId],
-        context.previousData
-      );
-    },
-    onSettled: (data, error, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: ["receipt", variables.receiptId],
-      });
-    },
-  });
+  const updateItemAssignmentsMutation = useUpdateItemAssignmentsMutation();
+  const updateLineItemMutation = useUpdateLineItemMutation();
   
   if (!result) return null;
 
@@ -233,39 +201,71 @@ const ReceiptAnalysisDisplay = ({ result }) => {
 
   const handleAddPerson = () => {
     if (newPersonName.trim() && !people.includes(newPersonName.trim())) {
+      // see TODO above
       setPeople([...people, newPersonName.trim()]);
-      setNewPersonName('');
+
+      setNewPersonName("");
     }
   };
 
   const handleRemovePerson = (personToRemove) => {
-    setPeople(people.filter(person => person !== personToRemove));
+    // see TODO above
+    setPeople(people.filter((person) => person !== personToRemove));
+
     // Also remove this person from all item assignments
-    receipt_data.line_items.forEach(item => {
+    receipt_data.line_items.forEach((item) => {
       if (item.assignments && Array.isArray(item.assignments)) {
-        item.assignments = item.assignments.filter(person => person !== personToRemove);
+        item.assignments = item.assignments.filter(
+          (person) => person !== personToRemove
+        );
       }
     });
-  };
 
-  const togglePersonAssignment = async (itemId, person) => {
-    const item = receipt_data.line_items.find(item => item.id === itemId);
-    if (!item) return;
-    if (!item.assignments) item.assignments = [];
-    if (item.assignments.includes(person)) {
-      item.assignments = item.assignments.filter(p => p !== person);
-    } else {
-      item.assignments = [...item.assignments, person];
-    }
     // Persist to backend
     try {
       const receiptId = result?.receipt?.id || result?.id;
+
       if (receiptId) {
-        await receiptService.updateAssignments(receiptId, receipt_data.line_items);
+        updateItemAssignmentsMutation.mutate({
+          receiptId: String(receiptId),
+          lineItems: receipt_data.line_items,
+        });
       }
     } catch (err) {
-      // Optionally show an error to the user
-      console.error('Failed to update assignments:', err);
+      console.error("Failed to update assignments:", err);
+    }
+  };
+
+  const togglePersonAssignment = async (itemId, person) => {
+    const item = receipt_data.line_items.find((item) => item.id === itemId);
+
+    if (!item) {
+      console.error(`Item with id ${itemId} not found`);
+      return;
+    }
+
+    if (!item.assignments) item.assignments = [];
+
+    if (item.assignments.includes(person)) {
+      console.info(`Removing person ${person} from item ${itemId}`);
+      item.assignments = item.assignments.filter((p) => p !== person);
+    } else {
+      console.info(`Adding person ${person} to item ${itemId}`);
+      item.assignments = [...item.assignments, person];
+    }
+
+    // Persist to backend
+    try {
+      const receiptId = result?.receipt?.id || result?.id;
+
+      if (receiptId) {
+        updateItemAssignmentsMutation.mutate({
+          receiptId: String(receiptId),
+          lineItems: receipt_data.line_items,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to update assignments:", err);
     }
   };
   
@@ -414,7 +414,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
 
                                 if (receiptId && item.id) {
                                   try {
-                                    updateMutation.mutate({
+                                    updateLineItemMutation.mutate({
                                       receiptId: String(receiptId),
                                       itemId: item.id,
                                       name: newName
@@ -689,7 +689,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
 
                             if (receiptId && item.id) {
                               try {
-                                updateMutation.mutate({
+                                updateLineItemMutation.mutate({
                                   receiptId: String(receiptId),
                                   itemId: item.id,
                                   name: newName
