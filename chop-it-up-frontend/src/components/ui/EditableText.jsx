@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from "react";
  * - className: string (optional, for the outer div)
  * - inputClassName: string (optional, for the input)
  * - placeholder: string (optional)
+ * - type: string (optional, input type, defaults to 'text')
  */
 export default function EditableText({
   value,
@@ -15,6 +16,8 @@ export default function EditableText({
   className = "",
   inputClassName = "",
   placeholder = "",
+  type = "text",
+  formatter = (value) => value,
 }) {
   const [editing, setEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value);
@@ -36,6 +39,10 @@ export default function EditableText({
 
   const handleSave = () => {
     if (inputValue !== value) {
+      if (type === "number" && isNaN(inputValue)) {
+        return
+      }
+
       onSave(inputValue);
     }
     setEditing(false);
@@ -75,7 +82,14 @@ export default function EditableText({
           className={`w-full bg-transparent outline-none ${inputClassName}`}
           value={inputValue}
           placeholder={placeholder}
-          onChange={(e) => setInputValue(e.target.value)}
+          type={type}
+          onChange={e => {
+            if (type === "number") {
+              setInputValue(e.target.valueAsNumber)
+            } else {
+              setInputValue(e.target.value)
+            }
+          }}
           onBlur={handleSave}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -86,7 +100,7 @@ export default function EditableText({
           }}
         />
       ) : (
-        value || <span className="text-muted-foreground">{placeholder}</span>
+        formatter(value) || <span className="text-muted-foreground">{placeholder}</span>
       )}
     </div>
   );
