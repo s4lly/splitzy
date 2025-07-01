@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import EditableText from '../ui/EditableText';
 import { useUpdateItemAssignmentsMutation } from './useUpdateItemAssignmentsMutation';
 import { useUpdateLineItemMutation } from './useUpdateLineItemMutation';
+import { useFeatureFlagEnabled } from 'posthog-js/react'
 
 const formatCurrency = (amount) => {
   if (amount === null || amount === undefined) return '—';
@@ -93,7 +94,6 @@ const PersonBadge = ({ name, personIndex, totalPeople, size = "md", onClick }) =
   );
 };
 
-// Add this above the ReceiptAnalysisDisplay component
 const AddAllMenuItem = ({ people, filteredPeople, assignedPeople, onAddAll }) => {
   if (!(people.length > 0 && filteredPeople.length > 1)) return null;
   return (
@@ -113,6 +113,36 @@ const AddAllMenuItem = ({ people, filteredPeople, assignedPeople, onAddAll }) =>
   );
 };
 
+function getTotalForAllItems(receipt_data) {
+  let total = 0
+  for (let item of receipt_data.line_items) {
+    total += getIndividualItemTotalPrice(item)
+  }
+  return total
+}
+
+function getIndividualItemTotalPrice(item) {
+  return item.price_per_item * item.quantity
+}
+
+function getTaxAmount(total, receipt_data) {
+  // don't get tax rate from receipt, so extract from available receipt_data
+  return total * (receipt_data.tax / receipt_data.display_subtotal)
+}
+
+function getTotal(receipt_data) {
+  let total = 0
+
+  total += getTotalForAllItems(receipt_data)
+  total += getTaxAmount(total, receipt_data)
+  total += receipt_data.gratuity
+  
+  // TODO get from receipt or collect from user
+  total += receipt_data.tip
+
+  return total
+}
+
 const ReceiptAnalysisDisplay = ({ result }) => {
   // State for people and item assignments
   const initialPeople = useMemo(() => {
@@ -128,16 +158,14 @@ const ReceiptAnalysisDisplay = ({ result }) => {
   const [people, setPeople] = useState(initialPeople);
   const [newPersonName, setNewPersonName] = useState('');
   const [showPeopleManager, setShowPeopleManager] = useState(false);
-  // Add state for search inputs for each item
-  const [searchInputs, setSearchInputs] = useState({});
-  
-  
-  const { receipt_data } = result;
-  
+  const [searchInputs, setSearchInputs] = useState({}); 
+
   const updateItemAssignmentsMutation = useUpdateItemAssignmentsMutation();
   const updateLineItemMutation = useUpdateLineItemMutation();
+  const editLineItemsEnabled = useFeatureFlagEnabled("edit-line-items");
   
   if (!result) return null;
+  const { receipt_data } = result;
 
   // Calculate the amount each person owes
   const personTotals = people.reduce((acc, person) => {
@@ -156,8 +184,11 @@ const ReceiptAnalysisDisplay = ({ result }) => {
     // First pass: calculate item values per person (without tax)
     receipt_data.line_items.forEach((item) => {
       const assignedPeople = item.assignments || [];
+
       if (assignedPeople.length > 0) {
-        const pricePerPerson = item.total_price / assignedPeople.length;
+        const itemTotalPrice = editLineItemsEnabled ? getIndividualItemTotalPrice(item) : item.total_price;
+        const pricePerPerson = itemTotalPrice / assignedPeople.length;
+
         assignedPeople.forEach(person => {
           personItemsTotals[person] = (personItemsTotals[person] || 0) + pricePerPerson;
           totalAssignedItemsValue += pricePerPerson;
@@ -172,8 +203,8 @@ const ReceiptAnalysisDisplay = ({ result }) => {
     
     // Add tax if not already included in item prices
     if (!receipt_data.tax_included_in_items && receipt_data.tax > 0 && totalAssignedItemsValue > 0) {
-      const taxAmount = receipt_data.tax || 0;
-      const pretaxTotal = receipt_data.pretax_total || receipt_data.items_total || 0;
+      const taxAmount = editLineItemsEnabled ? getTaxAmount(totalAssignedItemsValue, receipt_data) : receipt_data.tax || 0;
+      const pretaxTotal = editLineItemsEnabled ? getTotalForAllItems(receipt_data) : receipt_data.pretax_total || receipt_data.items_total || 0;
       
       // Calculate effective tax rate (handle case where pretax might be 0)
       let taxRate = 0;
@@ -199,7 +230,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
     }
   } else if (people.length > 0) {
     // No line items available or no assignments made - split total evenly
-    const receiptTotal = receipt_data.final_total || receipt_data.total || 0;
+    const receiptTotal = editLineItemsEnabled ? getTotal(receipt_data) : receipt_data.final_total || receipt_data.total || 0;
     const splitAmount = receiptTotal / people.length;
     
     // Assign even split amount to each person
@@ -215,7 +246,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
 
   // Calculate the total assigned and unassigned amounts
   const totalAssigned = Object.values(personTotals).reduce((sum, amount) => sum + amount, 0);
-  const receiptTotal = receipt_data.total || 0;
+  const receiptTotal = editLineItemsEnabled ? getTotal(receipt_data) : receipt_data.total || 0;
   const unassignedAmount = Math.max(0, receiptTotal - totalAssigned);
   const isFullyAssigned = Math.abs(totalAssigned - receiptTotal) < 0.01; // Account for floating point rounding
 
@@ -429,8 +460,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                           <EditableText
                             value={item.name}
                             onSave={async newName => {
-                              if (newName !== item.name) {
-                                const receiptId = result?.receipt?.id || result?.id;
+                              const receiptId = result?.receipt?.id || result?.id;
 
                                 if (receiptId && item.id) {
                                   try {
@@ -445,12 +475,13 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                                   }
                                 }
                               }
-                            }}
+                            }
                             placeholder="Item name"
                           />
                         <div className="text-right font-semibold">{formatCurrency(item.total_price)}</div>
                       </div>
                       <div className="p-2 sm:p-3 flex flex-col gap-2">
+
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Quantity:</span>
                           <span>{item.quantity || 1}</span>
@@ -459,6 +490,8 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                           <span className="text-muted-foreground">Unit Price:</span>
                           <span>{formatCurrency(item.price_per_item)}</span>
                         </div>
+
+                        {/* TODO refactor into own component */}
                         <div className="mt-2 pt-2 border-t border-border/20">
                           <div className="flex justify-between items-center mb-1">
                             <span className="text-sm font-medium">Assigned to:</span>
@@ -731,11 +764,10 @@ const ReceiptAnalysisDisplay = ({ result }) => {
 
                     {/* Desktop layout */}
                     <div className="hidden md:block col-span-5 truncate">
-                      <EditableText
+                      {editLineItemsEnabled ? <EditableText
                         value={item.name}
                         onSave={async newName => {
-                          if (newName !== item.name) {
-                            const receiptId = result?.receipt?.id || result?.id;
+                          const receiptId = result?.receipt?.id || result?.id;
 
                             if (receiptId && item.id) {
                               try {
@@ -750,13 +782,54 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                               }
                             }
                           }
-                        }}
+                        }
                         placeholder="Item name"
-                      />
+                      /> : <span className="text-base font-medium">{item.name}</span>}
                     </div>
-                    <div className="hidden md:block col-span-1 text-right">{item.quantity || 1}</div>
-                    <div className="hidden md:block col-span-2 text-right">{formatCurrency(item.price_per_item)}</div>
-                    <div className="hidden md:block col-span-2 text-right font-medium">{formatCurrency(item.total_price)}</div>
+                    <div className="hidden md:block col-span-1 text-right">
+                      {editLineItemsEnabled ? <EditableText
+                        value={item.quantity}
+                        type="number"
+                        onSave={async newQuantity => {
+                          const receiptId = result?.receipt?.id || result?.id;
+
+                          if (receiptId && item.id) {
+                            try {
+                              updateLineItemMutation.mutate({ receiptId: String(receiptId),
+                                itemId: item.id,
+                                quantity: newQuantity
+                              });
+                            } catch (err) {
+                              console.error('Failed to update item name:', err);
+                            }
+                          }
+                        }}
+                        placeholder="Item quantity"
+                      /> : <span className="text-base font-medium">{item.quantity}</span>}
+                    </div>
+                    <div className="hidden md:block col-span-2 text-right">
+                      {editLineItemsEnabled ? <EditableText
+                        value={item.price_per_item}
+                        type="number"
+                        formatter={value => formatCurrency(value)}
+                        onSave={async newPricePerItem => {
+                          const receiptId = result?.receipt?.id || result?.id;
+
+                          if (receiptId && item.id) {
+                            try {
+                              updateLineItemMutation.mutate({ receiptId: String(receiptId),
+                                itemId: item.id,
+                                price_per_item: newPricePerItem
+                              });
+                            } catch (err) {
+                              console.error('Failed to update item name:', err);
+                            }
+                          }
+                        }}
+                        placeholder="Item price"
+                      /> : <span className="text-base font-medium">{formatCurrency(item.price_per_item)}</span>}
+                    </div>
+                    <div className="hidden md:block col-span-2 text-right font-medium">{formatCurrency(getIndividualItemTotalPrice(item))}</div>
                     <div className="hidden md:flex col-span-2 justify-center">
                       {people.length > 0 ? (
                         <div className="flex flex-wrap gap-1 justify-center">
@@ -1069,7 +1142,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
             {/* Items Total */}
             <div className="flex justify-between items-center py-2">
               <span className="text-base">Items Total:</span>
-              <span className="text-base font-medium">{formatCurrency(receipt_data.items_total || 0)}</span>
+              <span className="text-base font-medium">{editLineItemsEnabled ? formatCurrency(getTotalForAllItems(receipt_data)) : formatCurrency(receipt_data.items_total || 0)}</span>
             </div>
             
             {/* Displayed Subtotal if different from items total */}
@@ -1096,7 +1169,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                   <span className="ml-2 text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-full">Included in prices</span>
                 )}
               </div>
-              <span className="text-base font-medium">{formatCurrency(receipt_data.tax || 0)}</span>
+              <span className="text-base font-medium">{editLineItemsEnabled ? formatCurrency(getTaxAmount(getTotalForAllItems(receipt_data), receipt_data) || 0) : formatCurrency(receipt_data.tax || 0)}</span>
             </div>
             
             {/* Post-tax total if different from final total */}
@@ -1108,6 +1181,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
             )}
             
             {/* Tip and Gratuity */}
+            {/* TODO use tip amount from receipt otherwise show UI to select from typical percentages */}
             {receipt_data.tip > 0 && (
               <div className="flex justify-between items-center py-1 sm:py-2">
                 <span className="text-base">Tip:</span>
@@ -1115,17 +1189,18 @@ const ReceiptAnalysisDisplay = ({ result }) => {
               </div>
             )}
             
+            {/* from receipt - pull from receipt, restaurant specific */}
             {receipt_data.gratuity > 0 && (
               <div className="flex justify-between items-center py-1 sm:py-2">
                 <span className="text-base">Gratuity:</span>
                 <span className="text-base font-medium">{formatCurrency(receipt_data.gratuity)}</span>
               </div>
             )}
-            
+
             {/* Final Total */}
             <div className="flex justify-between items-center pt-3 border-t-2 border-border mt-2">
               <span className="font-semibold text-base">Final Total:</span>
-              <span className="font-bold text-xl">{formatCurrency(receipt_data.final_total || receipt_data.total || 0)}</span>
+              <span className="font-bold text-xl">{editLineItemsEnabled ? formatCurrency(getTotal(receipt_data)) : formatCurrency(receipt_data.final_total || receipt_data.total || 0)}</span>
             </div>
           </div>
         </CardContent>
