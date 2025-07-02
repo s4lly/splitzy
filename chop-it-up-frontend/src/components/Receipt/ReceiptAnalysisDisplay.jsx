@@ -10,6 +10,8 @@ import EditableText from '../ui/EditableText';
 import { useUpdateItemAssignmentsMutation } from './useUpdateItemAssignmentsMutation';
 import { useUpdateLineItemMutation } from './useUpdateLineItemMutation';
 import { useFeatureFlagEnabled } from 'posthog-js/react'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../ui/table';
+import clsx from 'clsx';
 
 const formatCurrency = (amount) => {
   if (amount === null || amount === undefined) return '—';
@@ -163,6 +165,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
   const updateItemAssignmentsMutation = useUpdateItemAssignmentsMutation();
   const updateLineItemMutation = useUpdateLineItemMutation();
   const editLineItemsEnabled = useFeatureFlagEnabled("edit-line-items");
+  const desktopTableEnabled = !useFeatureFlagEnabled("receipt-desktop-table");
   
   if (!result) return null;
   const { receipt_data } = result;
@@ -375,6 +378,25 @@ const ReceiptAnalysisDisplay = ({ result }) => {
     return personItems;
   };
 
+  function withIds(receiptId, itemId, itemKey) {
+    return function (itemValue) {
+        if (!receiptId || !itemId) {
+          console.error(`Failed to update line item "${itemId}" with value:`, JSON.stringify({ [itemKey]: itemValue }, null, 2), 'because receiptId or itemId is missing');
+          return;
+        }
+
+        try {
+          updateLineItemMutation.mutate({
+            receiptId: String(receiptId),
+            itemId: itemId,
+            [itemKey]: itemValue
+          });
+        } catch (err) {
+          console.error(`Failed to update line item "${itemId}" with value:`, JSON.stringify({ [itemKey]: itemValue }, null, 2), err);
+        }
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -427,15 +449,326 @@ const ReceiptAnalysisDisplay = ({ result }) => {
         <CardContent className="px-3 sm:px-6">
           {receipt_data.line_items && receipt_data.line_items.length > 0 ? (
             <div className="space-y-4">
-              {/* Table headers - visible only on medium screens and up */}
-              <div className="hidden md:grid md:grid-cols-12 border-b-2 border-border pb-3 gap-3 text-base font-medium">
+              {/* Table headers and rows for desktop (md+) */}
+              {!desktopTableEnabled && <div className="hidden md:grid md:grid-cols-12 border-b-2 border-border pb-3 gap-3 text-base font-medium">
                 <div className="col-span-5">Item</div>
                 <div className="col-span-1 text-right">Qty</div>
                 <div className="col-span-2 text-right">Price</div>
                 <div className="col-span-2 text-right">Total</div>
                 <div className="col-span-2 text-center">Assigned To</div>
-              </div>
-              
+              </div>}
+              {desktopTableEnabled && <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-2/5">Item</TableHead>
+                      <TableHead className="w-1/12">Qty</TableHead>
+                      <TableHead className="">Price</TableHead>
+                      <TableHead className="">Total</TableHead>
+                      <TableHead className="text-right">Assigned To</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {receipt_data.line_items.map((item) => {
+                      const itemId = item.id;
+                      const assignedPeople = item.assignments || [];
+                      const searchValue = searchInputs[itemId] || '';
+                      // Filter people based on search input
+                      const filteredPeople = searchValue 
+                        ? people.filter(p => !assignedPeople.includes(p) && p.toLowerCase().includes(searchValue.toLowerCase()))
+                        : people.filter(p => !assignedPeople.includes(p));
+                      return (
+                        <TableRow key={itemId} className="align-top">
+                          <TableCell className="truncate">
+                            {editLineItemsEnabled ? <EditableText
+                              value={item.name}
+                              onSave={withIds(result?.receipt?.id || result?.id, itemId, 'name')}
+                              placeholder="Item name"
+                            /> : <span className="text-base font-medium">{item.name}</span>}
+                          </TableCell>
+                          <TableCell className="">
+                            {editLineItemsEnabled ? <EditableText
+                              value={item.quantity}
+                              type="number"
+                              onSave={withIds(result?.receipt?.id || result?.id, itemId, 'quantity')}
+                              placeholder="Item quantity"
+                            /> : <span className="text-base font-medium">{item.quantity}</span>}
+                          </TableCell>
+                          <TableCell className="">
+                            {editLineItemsEnabled ? <EditableText
+                              value={item.price_per_item}
+                              type="number"
+                              formatter={value => formatCurrency(value)}
+                              onSave={withIds(result?.receipt?.id || result?.id, itemId, 'price_per_item')}
+                              placeholder="Item price"
+                            /> : <span className="text-base font-medium">{formatCurrency(item.price_per_item)}</span>}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {formatCurrency(getIndividualItemTotalPrice(item))}
+                          </TableCell>
+                          <TableCell className="">
+                            {people.length > 0 ? (
+                              <div className="flex flex-wrap gap-1 justify-end">
+                                {assignedPeople.length > 0 ? (
+                                  <div className="flex flex-wrap gap-1">
+                                    {assignedPeople.map((person, personIdx) => (
+                                      <PersonBadge 
+                                        key={personIdx} 
+                                        name={person}
+                                        personIndex={people.indexOf(person)}
+                                        totalPeople={people.length}
+                                        onClick={() => togglePersonAssignment(itemId, person)}
+                                      />
+                                    ))}
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" size="sm" className="h-6 w-6 p-0 rounded-full">
+                                          <Plus className="h-3 w-3" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent 
+                                        align="end" 
+                                        className="w-56 p-2" 
+                                        onCloseAutoFocus={(e) => e.preventDefault()}
+                                      >
+                                        <div className="mb-2">
+                                          <Input
+                                            placeholder="Search or add new..."
+                                            className="h-8"
+                                            value={searchValue || ''}
+                                            onChange={(e) => handleSearchInputChange(itemId, e.target.value)}
+                                            onKeyDown={(e) => {
+                                              if (e.key === 'Enter' && e.target.value.trim()) {
+                                                handleSearchAndAssign(itemId, e.target.value);
+                                              } else {
+                                                e.stopPropagation();
+                                              }
+                                            }}
+                                            autoFocus
+                                          />
+                                        </div>
+                                        <div className="max-h-[150px] overflow-y-auto">
+                                          {/* Add All menu item */}
+                                          <AddAllMenuItem
+                                            people={people}
+                                            filteredPeople={filteredPeople}
+                                            assignedPeople={assignedPeople}
+                                            onAddAll={person => {
+                                              togglePersonAssignment(itemId, person);
+                                              handleSearchInputChange(itemId, '');
+                                            }}
+                                          />
+                                          {people.length > 0 ? (
+                                            filteredPeople.length > 0 ? (
+                                              filteredPeople.map((person, idx) => (
+                                                <DropdownMenuItem 
+                                                  key={idx} 
+                                                  onClick={() => {
+                                                    togglePersonAssignment(itemId, person);
+                                                    handleSearchInputChange(itemId, '');
+                                                  }}
+                                                  onKeyDown={(e) => e.stopPropagation()}
+                                                  className="flex items-center gap-2"
+                                                >
+                                                  <PersonBadge name={person} personIndex={people.indexOf(person)} totalPeople={people.length} size="sm" />
+                                                  <span>{person}</span>
+                                                </DropdownMenuItem>
+                                              ))
+                                            ) : searchValue ? (
+                                              <div className="px-2 py-1 text-xs text-muted-foreground">
+                                                No matching people. Press Enter to add "{searchValue}".
+                                              </div>
+                                            ) : (
+                                              <div className="px-2 py-1 text-xs text-muted-foreground">
+                                                All people assigned
+                                              </div>
+                                            )
+                                          ) : (
+                                            <div className="px-2 py-1 text-xs text-muted-foreground">
+                                              No people added yet
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div className="border-t mt-2 pt-2">
+                                          <div className="px-2 py-1 text-xs text-muted-foreground">
+                                            Type a name and press Enter to add
+                                          </div>
+                                        </div>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </div>
+                                ) : (
+                                  <div className="flex justify-center items-center h-full">
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" size="sm">
+                                          <Plus className="h-4 w-4 mr-1" />
+                                          Assign
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent 
+                                        align="end" 
+                                        className="w-56 p-2" 
+                                        onCloseAutoFocus={(e) => e.preventDefault()}
+                                      >
+                                        <div className="mb-2">
+                                          <Input
+                                            placeholder="Add a new person..."
+                                            className="h-8"
+                                            value={searchValue || ''}
+                                            onChange={(e) => handleSearchInputChange(itemId, e.target.value)}
+                                            onKeyDown={(e) => {
+                                              if (e.key === 'Enter' && e.target.value.trim()) {
+                                                handleSearchAndAssign(itemId, e.target.value);
+                                              } else {
+                                                e.stopPropagation();
+                                              }
+                                            }}
+                                            autoFocus
+                                          />
+                                        </div>
+                                        <div className="max-h-[150px] overflow-y-auto">
+                                          {/* Add All menu item */}
+                                          <AddAllMenuItem
+                                            people={people}
+                                            filteredPeople={filteredPeople}
+                                            assignedPeople={assignedPeople}
+                                            onAddAll={person => {
+                                              togglePersonAssignment(itemId, person);
+                                              handleSearchInputChange(itemId, '');
+                                            }}
+                                          />
+                                          {people.length > 0 ? (
+                                            filteredPeople.length > 0 ? (
+                                              filteredPeople.map((person, idx) => (
+                                                <DropdownMenuItem 
+                                                  key={idx} 
+                                                  onClick={() => {
+                                                    togglePersonAssignment(itemId, person);
+                                                    handleSearchInputChange(itemId, '');
+                                                  }}
+                                                  onKeyDown={(e) => e.stopPropagation()}
+                                                  className="flex items-center gap-2"
+                                                >
+                                                  <PersonBadge name={person} personIndex={people.indexOf(person)} totalPeople={people.length} size="sm" />
+                                                  <span>{person}</span>
+                                                </DropdownMenuItem>
+                                              ))
+                                            ) : searchValue ? (
+                                              <div className="px-2 py-1 text-xs text-muted-foreground">
+                                                No matching people. Press Enter to add "{searchValue}".
+                                              </div>
+                                            ) : (
+                                              <div className="px-2 py-1 text-xs text-muted-foreground">
+                                                All people assigned
+                                              </div>
+                                            )
+                                          ) : (
+                                            <div className="px-2 py-1 text-xs text-muted-foreground">
+                                              No people added yet
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div className="border-t mt-2 pt-2">
+                                          <div className="px-2 py-1 text-xs text-muted-foreground">
+                                            Type a name and press Enter to add
+                                          </div>
+                                        </div>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="flex justify-center items-center h-full">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" size="sm">
+                                      <Plus className="h-4 w-4 mr-1" />
+                                      Assign
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent 
+                                    align="end" 
+                                    className="w-56 p-2" 
+                                    onCloseAutoFocus={(e) => e.preventDefault()}
+                                  >
+                                    <div className="mb-2">
+                                      <Input
+                                        placeholder="Add a new person..."
+                                        className="h-8"
+                                        value={searchValue || ''}
+                                        onChange={(e) => handleSearchInputChange(itemId, e.target.value)}
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter' && e.target.value.trim()) {
+                                            handleSearchAndAssign(itemId, e.target.value);
+                                          } else {
+                                            e.stopPropagation();
+                                          }
+                                        }}
+                                        autoFocus
+                                      />
+                                    </div>
+                                    <div className="max-h-[150px] overflow-y-auto">
+                                      {/* Add All menu item */}
+                                      <AddAllMenuItem
+                                        people={people}
+                                        filteredPeople={filteredPeople}
+                                        assignedPeople={assignedPeople}
+                                        onAddAll={person => {
+                                          togglePersonAssignment(itemId, person);
+                                          handleSearchInputChange(itemId, '');
+                                        }}
+                                      />
+                                      {people.length > 0 ? (
+                                        filteredPeople.length > 0 ? (
+                                          filteredPeople.map((person, idx) => (
+                                            <DropdownMenuItem 
+                                              key={idx} 
+                                              onClick={() => {
+                                                togglePersonAssignment(itemId, person);
+                                                handleSearchInputChange(itemId, '');
+                                              }}
+                                              onKeyDown={(e) => e.stopPropagation()}
+                                              className="flex items-center gap-2"
+                                            >
+                                              <PersonBadge name={person} personIndex={people.indexOf(person)} totalPeople={people.length} size="sm" />
+                                              <span>{person}</span>
+                                            </DropdownMenuItem>
+                                          ))
+                                        ) : searchValue ? (
+                                          <div className="px-2 py-1 text-xs text-muted-foreground">
+                                            No matching people. Press Enter to add "{searchValue}".
+                                          </div>
+                                        ) : (
+                                          <div className="px-2 py-1 text-xs text-muted-foreground">
+                                            All people assigned
+                                          </div>
+                                        )
+                                      ) : (
+                                        <div className="px-2 py-1 text-xs text-muted-foreground">
+                                          No people added yet
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="border-t mt-2 pt-2">
+                                      <div className="px-2 py-1 text-xs text-muted-foreground">
+                                        Type a name and press Enter to add
+                                      </div>
+                                    </div>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>}
+
+              {/* Mobile layout remains unchanged */}
               {receipt_data.line_items.map((item) => {
                 const itemId = item.id;
                 const assignedPeople = item.assignments || [];
@@ -452,43 +785,40 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.05 }}
-                    className="border rounded-lg border-border/40 overflow-hidden mb-3 md:mb-0 md:border-0 md:rounded-none md:grid md:grid-cols-12 md:gap-3 text-base md:py-3 md:border-b md:last:border-0 md:items-center"
+                    className={clsx("border rounded-lg border-border/40 overflow-hidden mb-3 md:mb-0 md:border-0 md:rounded-none md:grid md:grid-cols-12 md:gap-3 text-base md:py-3 md:border-b md:last:border-0 md:items-center", desktopTableEnabled && "md:hidden")}
                   >
                     {/* Mobile layout */}
                     <div className="md:hidden">
                       <div className="p-2 bg-muted/10 border-b border-border/40 flex justify-between items-center">
                           <EditableText
+                            className=""
+                            device="mobile"
                             value={item.name}
-                            onSave={async newName => {
-                              const receiptId = result?.receipt?.id || result?.id;
-
-                                if (receiptId && item.id) {
-                                  try {
-                                    updateLineItemMutation.mutate({
-                                      receiptId: String(receiptId),
-                                      itemId: item.id,
-                                      name: newName
-                                    });
-                                  } catch (err) {
-                                    // Optionally show an error to the user
-                                    console.error('Failed to update item name:', err);
-                                  }
-                                }
-                              }
-                            }
+                            onSave={withIds(result?.receipt?.id || result?.id, itemId, 'name')}
                             placeholder="Item name"
                           />
-                        <div className="text-right font-semibold">{formatCurrency(item.total_price)}</div>
+                        <div className="text-right font-semibold">{formatCurrency(editLineItemsEnabled ? getIndividualItemTotalPrice(item) : item.total_price)}</div>
                       </div>
                       <div className="p-2 sm:p-3 flex flex-col gap-2">
 
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Quantity:</span>
-                          <span>{item.quantity || 1}</span>
+                          {editLineItemsEnabled ? <EditableText
+                            value={item.quantity}
+                            type="number"
+                            onSave={withIds(result?.receipt?.id || result?.id, itemId, 'quantity')}
+                            placeholder="Item quantity"
+                          /> : <span className="text-base font-medium">{item.quantity}</span>}
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Unit Price:</span>
-                          <span>{formatCurrency(item.price_per_item)}</span>
+                          {editLineItemsEnabled ? <EditableText
+                            value={item.price_per_item}
+                            type="number"
+                            formatter={value => formatCurrency(value)}
+                            onSave={withIds(result?.receipt?.id || result?.id, itemId, 'price_per_item')}
+                            placeholder="Item price"
+                          /> : <span className="text-base font-medium">{formatCurrency(item.price_per_item)}</span>}
                         </div>
 
                         {/* TODO refactor into own component */}
@@ -763,26 +1093,11 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                     </div>
 
                     {/* Desktop layout */}
+                    {!desktopTableEnabled && <>
                     <div className="hidden md:block col-span-5 truncate">
                       {editLineItemsEnabled ? <EditableText
                         value={item.name}
-                        onSave={async newName => {
-                          const receiptId = result?.receipt?.id || result?.id;
-
-                            if (receiptId && item.id) {
-                              try {
-                                updateLineItemMutation.mutate({
-                                  receiptId: String(receiptId),
-                                  itemId: item.id,
-                                  name: newName
-                                });
-                              } catch (err) {
-                                // Optionally show an error to the user
-                                console.error('Failed to update item name:', err);
-                              }
-                            }
-                          }
-                        }
+                        onSave={withIds(result?.receipt?.id || result?.id, itemId, 'name')}
                         placeholder="Item name"
                       /> : <span className="text-base font-medium">{item.name}</span>}
                     </div>
@@ -790,20 +1105,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                       {editLineItemsEnabled ? <EditableText
                         value={item.quantity}
                         type="number"
-                        onSave={async newQuantity => {
-                          const receiptId = result?.receipt?.id || result?.id;
-
-                          if (receiptId && item.id) {
-                            try {
-                              updateLineItemMutation.mutate({ receiptId: String(receiptId),
-                                itemId: item.id,
-                                quantity: newQuantity
-                              });
-                            } catch (err) {
-                              console.error('Failed to update item name:', err);
-                            }
-                          }
-                        }}
+                        onSave={withIds(result?.receipt?.id || result?.id, itemId, 'quantity')}
                         placeholder="Item quantity"
                       /> : <span className="text-base font-medium">{item.quantity}</span>}
                     </div>
@@ -812,20 +1114,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                         value={item.price_per_item}
                         type="number"
                         formatter={value => formatCurrency(value)}
-                        onSave={async newPricePerItem => {
-                          const receiptId = result?.receipt?.id || result?.id;
-
-                          if (receiptId && item.id) {
-                            try {
-                              updateLineItemMutation.mutate({ receiptId: String(receiptId),
-                                itemId: item.id,
-                                price_per_item: newPricePerItem
-                              });
-                            } catch (err) {
-                              console.error('Failed to update item name:', err);
-                            }
-                          }
-                        }}
+                        onSave={withIds(result?.receipt?.id || result?.id, itemId, 'price_per_item')}
                         placeholder="Item price"
                       /> : <span className="text-base font-medium">{formatCurrency(item.price_per_item)}</span>}
                     </div>
@@ -1085,6 +1374,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                         </div>
                       )}
                     </div>
+                    </>}
                   </motion.div>
                 );
               })}

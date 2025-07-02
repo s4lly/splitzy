@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { Pencil } from "lucide-react";
+import clsx from "clsx";
 
 /**
  * EditableText
@@ -18,8 +20,9 @@ export default function EditableText({
   placeholder = "",
   type = "text",
   formatter = (value) => value,
+  device = "desktop",
 }) {
-  const [editing, setEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value);
   const [focused, setFocused] = useState(false);
   const inputRef = useRef(null);
@@ -31,63 +34,63 @@ export default function EditableText({
 
   // Focus input when editing starts
   useEffect(() => {
-    if (editing && inputRef.current) {
+    if (isEditing && inputRef.current) {
       inputRef.current.focus();
       inputRef.current.select();
     }
-  }, [editing]);
+  }, [isEditing]);
 
   const handleSave = () => {
     if (inputValue !== value) {
       if (type === "number" && isNaN(inputValue)) {
-        return
+        return;
       }
 
       onSave(inputValue);
     }
-    setEditing(false);
+    setIsEditing(false);
   };
 
   const handleCancel = () => {
     setInputValue(value);
-    setEditing(false);
+    setIsEditing(false);
   };
 
   // Border logic: show on hover, focus, or editing
-  const borderClass = editing
+  const borderClass = isEditing
     ? "border border-blue-400 bg-white dark:bg-gray-900"
     : focused
     ? "border border-gray-300 dark:border-gray-600"
-    : "hover:border hover:border-gray-300 dark:hover:border-gray-600";
+    : "hover:border md:hover:-my-1 hover:border-gray-300 dark:hover:border-gray-600";
 
   return (
     <div
-      className={`md:block col-span-5 truncate rounded px-1 cursor-pointer ${borderClass} ${className}`}
+      className={`flex-1 justify-end truncate rounded px-1 cursor-pointer ${borderClass} ${className}`}
       tabIndex={0}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       onKeyDown={(e) => {
-        if (!editing && (e.key === "Enter" || e.key === " ")) {
-          setEditing(true);
+        if (!isEditing && (e.key === "Enter" || e.key === " ")) {
+          setIsEditing(true);
         }
       }}
       onClick={() => {
-        setEditing(true);
+        setIsEditing(true);
       }}
       style={{ minHeight: "1.5em" }}
     >
-      {editing ? (
+      {isEditing ? (
         <input
           ref={inputRef}
           className={`w-full bg-transparent outline-none ${inputClassName}`}
           value={inputValue}
           placeholder={placeholder}
           type={type}
-          onChange={e => {
+          onChange={(e) => {
             if (type === "number") {
-              setInputValue(e.target.valueAsNumber)
+              setInputValue(e.target.valueAsNumber);
             } else {
-              setInputValue(e.target.value)
+              setInputValue(e.target.value);
             }
           }}
           onBlur={handleSave}
@@ -100,7 +103,19 @@ export default function EditableText({
           }}
         />
       ) : (
-        formatter(value) || <span className="text-muted-foreground">{placeholder}</span>
+        <div
+          className={clsx(
+            "flex items-center gap-1 group py-1",
+            device === "mobile" && "justify-start",
+            device === "desktop" && "justify-between"
+          )}
+        >
+          <span className="">{formatter(value) || placeholder}</span>
+          <Pencil
+            size={16}
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+          />
+        </div>
       )}
     </div>
   );
