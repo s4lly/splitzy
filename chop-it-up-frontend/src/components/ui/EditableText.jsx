@@ -23,6 +23,8 @@ export default function EditableText({
   device = "desktop",
 }) {
   const [isEditing, setIsEditing] = useState(false);
+  // const isEditing = true;
+  // const setIsEditing = () => {};
   const [inputValue, setInputValue] = useState(value);
   const [focused, setFocused] = useState(false);
   const inputRef = useRef(null);
@@ -56,16 +58,18 @@ export default function EditableText({
     setIsEditing(false);
   };
 
-  // Border logic: show on hover, focus, or editing
-  const borderClass = isEditing
-    ? "border border-blue-400 bg-white dark:bg-gray-900"
-    : focused
-    ? "border border-gray-300 dark:border-gray-600"
-    : "hover:border md:hover:-my-1 hover:border-gray-300 dark:hover:border-gray-600";
-
   return (
     <div
-      className={`flex-1 justify-end truncate rounded px-1 cursor-pointer ${borderClass} ${className}`}
+      data-foo
+      className={clsx(
+        "flex-1 truncate rounded p-1 cursor-pointer w-full",
+        focused && "p-[3px] border border-gray-300 dark:border-gray-600",
+        isEditing && "text-base",
+        !isEditing &&
+          !focused &&
+          "hover:p-[3px] hover:border hover:border-gray-300 dark:hover:border-gray-600",
+        className
+      )}
       tabIndex={0}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
@@ -77,7 +81,6 @@ export default function EditableText({
       onClick={() => {
         setIsEditing(true);
       }}
-      style={{ minHeight: "1.5em" }}
     >
       {isEditing ? (
         <input
@@ -103,18 +106,8 @@ export default function EditableText({
           }}
         />
       ) : (
-        <div
-          className={clsx(
-            "flex items-center gap-1 group py-1",
-            device === "mobile" && "justify-start",
-            device === "desktop" && "justify-between"
-          )}
-        >
-          <span className="">{formatter(value) || placeholder}</span>
-          <Pencil
-            size={16}
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
-          />
+        <div className={clsx("")}>
+          <span className="text-base">{formatter(value) || placeholder}</span>
         </div>
       )}
     </div>

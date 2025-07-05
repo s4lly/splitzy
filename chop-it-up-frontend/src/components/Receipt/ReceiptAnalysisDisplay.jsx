@@ -165,7 +165,7 @@ const ReceiptAnalysisDisplay = ({ result }) => {
   const updateItemAssignmentsMutation = useUpdateItemAssignmentsMutation();
   const updateLineItemMutation = useUpdateLineItemMutation();
   const editLineItemsEnabled = useFeatureFlagEnabled("edit-line-items");
-  const desktopTableEnabled = !useFeatureFlagEnabled("receipt-desktop-table");
+  const desktopTableEnabled = useFeatureFlagEnabled("receipt-desktop-table");
   
   if (!result) return null;
   const { receipt_data } = result;
@@ -492,6 +492,8 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                               type="number"
                               onSave={withIds(result?.receipt?.id || result?.id, itemId, 'quantity')}
                               placeholder="Item quantity"
+                              className="w-[75px] px-[3px]"
+                              inputClassName=" w-[75px] px-[3px]"
                             /> : <span className="text-base font-medium">{item.quantity}</span>}
                           </TableCell>
                           <TableCell className="">
@@ -501,16 +503,18 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                               formatter={value => formatCurrency(value)}
                               onSave={withIds(result?.receipt?.id || result?.id, itemId, 'price_per_item')}
                               placeholder="Item price"
+                              className="w-[100px] px-[3px]"
+                              inputClassName="w-[100px] px-[3px]"
                             /> : <span className="text-base font-medium">{formatCurrency(item.price_per_item)}</span>}
                           </TableCell>
                           <TableCell className="font-medium">
                             {formatCurrency(getIndividualItemTotalPrice(item))}
                           </TableCell>
-                          <TableCell className="">
+                          <TableCell className="w-full">
                             {people.length > 0 ? (
                               <div className="flex flex-wrap gap-1 justify-end">
                                 {assignedPeople.length > 0 ? (
-                                  <div className="flex flex-wrap gap-1">
+                                  <div className="flex justify-end flex-wrap gap-1">
                                     {assignedPeople.map((person, personIdx) => (
                                       <PersonBadge 
                                         key={personIdx} 
@@ -789,10 +793,9 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                   >
                     {/* Mobile layout */}
                     <div className="md:hidden">
-                      <div className="p-2 bg-muted/10 border-b border-border/40 flex justify-between items-center">
+                      <div className="p-2 bg-muted/10 border-b border-border/40 flex justify-between items-center gap-2">
                           <EditableText
                             className=""
-                            device="mobile"
                             value={item.name}
                             onSave={withIds(result?.receipt?.id || result?.id, itemId, 'name')}
                             placeholder="Item name"
@@ -801,16 +804,18 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                       </div>
                       <div className="p-2 sm:p-3 flex flex-col gap-2">
 
-                        <div className="flex justify-between text-sm">
+                        <div className="flex gap-2 items-baseline text-sm">
                           <span className="text-muted-foreground">Quantity:</span>
                           {editLineItemsEnabled ? <EditableText
                             value={item.quantity}
                             type="number"
                             onSave={withIds(result?.receipt?.id || result?.id, itemId, 'quantity')}
                             placeholder="Item quantity"
+                            className="text-right"
+                            inputClassName="text-right"
                           /> : <span className="text-base font-medium">{item.quantity}</span>}
                         </div>
-                        <div className="flex justify-between text-sm">
+                        <div className="flex gap-2 items-baseline text-sm">
                           <span className="text-muted-foreground">Unit Price:</span>
                           {editLineItemsEnabled ? <EditableText
                             value={item.price_per_item}
@@ -818,6 +823,8 @@ const ReceiptAnalysisDisplay = ({ result }) => {
                             formatter={value => formatCurrency(value)}
                             onSave={withIds(result?.receipt?.id || result?.id, itemId, 'price_per_item')}
                             placeholder="Item price"
+                            className="text-right"
+                            inputClassName="text-right"
                           /> : <span className="text-base font-medium">{formatCurrency(item.price_per_item)}</span>}
                         </div>
 
