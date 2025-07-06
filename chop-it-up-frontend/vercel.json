@@ -1,8 +1,10 @@
 {
-    "rewrites": [
-      {
-        "source": "/api/(.*)",
-        "destination": "https://epaphus.pythonanywhere.com/api/$1"
-      }
-    ]
-  }
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://epaphus.pythonanywhere.com/api/$1"
+    }
+  ]
+}
