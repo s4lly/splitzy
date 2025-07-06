@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ReceiptResponseSchema } from '../lib/receiptSchemas';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Local storage key for mock receipt history
 const MOCK_RECEIPTS_KEY = 'mock_receipt_history';
