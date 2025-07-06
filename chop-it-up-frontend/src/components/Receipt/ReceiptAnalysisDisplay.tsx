@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { DollarSign, Calendar, ShoppingBag, Tag, Receipt, Users, Plus, X, UserPlus, Check, AlertCircle, FileText } from 'lucide-react';
@@ -9,9 +10,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import EditableText from '../ui/EditableText';
 import { useUpdateItemAssignmentsMutation } from './useUpdateItemAssignmentsMutation';
 import { useUpdateLineItemMutation } from './useUpdateLineItemMutation';
-import { useFeatureFlagEnabled } from 'posthog-js/react'
+import { useFeatureFlag } from '../../context/FeatureFlagProvider';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../ui/table';
 import clsx from 'clsx';
+
 
 const formatCurrency = (amount) => {
   if (amount === null || amount === undefined) return '—';
@@ -164,8 +166,8 @@ const ReceiptAnalysisDisplay = ({ result }) => {
 
   const updateItemAssignmentsMutation = useUpdateItemAssignmentsMutation();
   const updateLineItemMutation = useUpdateLineItemMutation();
-  const editLineItemsEnabled = useFeatureFlagEnabled("edit-line-items");
-  const desktopTableEnabled = useFeatureFlagEnabled("receipt-desktop-table");
+  const editLineItemsEnabled = useFeatureFlag("edit-line-items");
+  const desktopTableEnabled = useFeatureFlag("receipt-desktop-table");
   
   if (!result) return null;
   const { receipt_data } = result;

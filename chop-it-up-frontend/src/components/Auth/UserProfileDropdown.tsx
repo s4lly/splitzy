@@ -12,6 +12,7 @@ import {
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { User, LogOut, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const UserProfileDropdown = () => {
   const { user, logout, loading } = useAuth();
@@ -53,12 +54,14 @@ const UserProfileDropdown = () => {
             <span>Profile</span>
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer">
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
+            <Link to="/settings" className="flex items-center w-full">
+              <Settings className="mr-2 h-4 w-4" />
+              <span className="flex-1">Settings</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
+        <DropdownMenuItem
           className="cursor-pointer text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
           onClick={handleLogout}
           disabled={loading}
