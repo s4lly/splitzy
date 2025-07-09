@@ -5,7 +5,11 @@ import openai
 import google.generativeai as genai
 import requests
 import json
+import re
+import uuid
 from enum import Enum
+from typing import List, Optional, Union
+from pydantic import BaseModel, Field, validator
 
 # Load environment variables
 load_dotenv()
@@ -13,6 +17,66 @@ load_dotenv()
 class AIProvider(Enum):
     AZURE = "azure"
     GEMINI = "gemini"
+
+# Pydantic models for structured output validation
+class LineItem(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    quantity: int = 1
+    price_per_item: float = 0.0
+    total_price: float = 0.0
+    assignments: List[str] = Field(default_factory=list)
+    
+    @validator('price_per_item', 'total_price')
+    def validate_prices(cls, v):
+        return float(v) if v is not None else 0.0
+
+class TransportationTicket(BaseModel):
+    document_type: str = "transportation_ticket"
+    is_receipt: bool = True
+    carrier: Optional[str] = None
+    ticket_number: Optional[str] = None
+    date: Optional[str] = None
+    origin: Optional[str] = None
+    destination: Optional[str] = None
+    passenger: Optional[str] = None
+    class_: Optional[str] = Field(None, alias='class')
+    fare: float = 0.0
+    currency: Optional[str] = None
+    taxes: float = 0.0
+    total: float = 0.0
+    
+    @validator('fare', 'taxes', 'total')
+    def validate_amounts(cls, v):
+        return float(v) if v is not None else 0.0
+
+class RegularReceipt(BaseModel):
+    is_receipt: bool = True
+    merchant: Optional[str] = None
+    date: Optional[str] = None
+    line_items: List[LineItem] = Field(default_factory=list)
+    subtotal: float = 0.0
+    tax: float = 0.0
+    tip: float = 0.0
+    gratuity: float = 0.0
+    total: float = 0.0
+    payment_method: Optional[str] = None
+    tax_included_in_items: bool = False
+    display_subtotal: float = 0.0
+    items_total: float = 0.0
+    pretax_total: float = 0.0
+    posttax_total: float = 0.0
+    final_total: float = 0.0
+    
+    @validator('subtotal', 'tax', 'tip', 'gratuity', 'total', 'display_subtotal', 'items_total', 'pretax_total', 'posttax_total', 'final_total')
+    def validate_amounts(cls, v):
+        return float(v) if v is not None else 0.0
+
+class NotAReceipt(BaseModel):
+    is_receipt: bool = False
+
+# Union type for all possible receipt types
+ReceiptData = Union[TransportationTicket, RegularReceipt, NotAReceipt]
 
 class ImageAnalyzer:
     def __init__(self, provider=None):
@@ -121,6 +185,100 @@ class ImageAnalyzer:
         
         return self._process_response(response.text)
 
+    def _with_structured_output(self, analysis_text: str) -> dict:
+        """
+        Validate and structure the AI response using Pydantic models
+        """
+        try:
+            # Try to parse the JSON response
+            json_response = json.loads(analysis_text)
+            
+            # Determine the document type and validate with appropriate schema
+            if json_response.get('is_receipt', False) == False:
+                # Not a receipt
+                validated_data = NotAReceipt(**json_response)
+                return {
+                    "success": True,
+                    "is_receipt": False,
+                    "receipt_data": validated_data.dict()
+                }
+            elif json_response.get('document_type') == 'transportation_ticket':
+                # Transportation ticket - add processing logic
+                if 'fare' not in json_response or json_response['fare'] is None:
+                    json_response['fare'] = json_response.get('total', 0)
+                if 'total' not in json_response or json_response['total'] is None:
+                    json_response['total'] = json_response.get('fare', 0)
+                
+                validated_data = TransportationTicket(**json_response)
+                return {
+                    "success": True,
+                    "is_receipt": True,
+                    "is_transportation_ticket": True,
+                    "receipt_data": validated_data.dict()
+                }
+            else:
+                # Regular receipt - add processing logic
+                if 'items' in json_response and 'line_items' not in json_response:
+                    json_response['line_items'] = json_response.pop('items')
+                
+                # Ensure line items have proper structure
+                for item in json_response.get('line_items', []):
+                    if 'id' not in item:
+                        item['id'] = str(uuid.uuid4())
+                    if 'assignments' not in item:
+                        item['assignments'] = []
+                
+                # Set default values
+                json_response.setdefault('tip', 0.0)
+                json_response.setdefault('gratuity', 0.0)
+                
+                # Calculate totals
+                items_total = sum(
+                    item.get('total_price', 0) or 0 
+                    for item in json_response.get('line_items', [])
+                )
+                json_response.setdefault('items_total', items_total)
+                json_response.setdefault('display_subtotal', json_response.get('subtotal', items_total))
+                json_response.setdefault('pretax_total', json_response.get('subtotal', items_total))
+                
+                # Calculate post-tax total
+                tax = json_response.get('tax', 0) or 0
+                pretax = json_response.get('pretax_total', json_response.get('subtotal', 0)) or 0
+                json_response.setdefault('posttax_total', pretax + tax)
+                
+                # Set final total
+                json_response.setdefault('final_total', json_response.get('total', 0) or 0)
+                if 'total' not in json_response:
+                    json_response['total'] = json_response.get('final_total', 0) or 0
+                
+                validated_data = RegularReceipt(**json_response)
+                return {
+                    "success": True,
+                    "is_receipt": True,
+                    "receipt_data": validated_data.dict()
+                }
+                
+        except json.JSONDecodeError as e:
+            # If initial parsing fails, try to extract JSON from the response
+            json_match = re.search(r'\{.*\}', analysis_text, re.DOTALL)
+            if json_match:
+                try:
+                    return self._with_structured_output(json_match.group())
+                except (json.JSONDecodeError, Exception):
+                    pass
+            
+            return {
+                "success": False,
+                "error": f"Could not parse structured output: {str(e)}",
+                "raw_text": analysis_text
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"Schema validation failed: {str(e)}",
+                "raw_text": analysis_text
+            }
+
     def _get_system_prompt(self):
         """Get the system prompt for receipt analysis"""
         return """
@@ -152,7 +310,7 @@ class ImageAnalyzer:
         3. List of items with:
            - Item name
            - Quantity (if available)
-           - Price per item
+           - Price per item (0 if not present)
            - Total price for the item
            - Id using a random uuid
            - Assignments an empty array to be used for the people who are assigned to the item
@@ -219,13 +377,15 @@ class ImageAnalyzer:
         If you can't determine some of these special fields, make your best estimation based on the values you can see.
         The most important thing is to correctly identify if tax is included in items or added separately.
         
-        Use null for any other fields that cannot be determined. Ensure all numbers are formatted as numbers, not strings.
+        Use null for any other fields that cannot be determined and are not supposed to be numbers. Ensure all numbers are formatted as numbers, not strings.
+        Use 0 for amounts that are not present or cannot be determined.
         Note: Use 'line_items' (not 'items') as the key for the list of purchased items.
-
+        Note: For restaurant receipts, the line item can spread across multiple lines. For example Curry Chicken Sandwich with a side of salada can be in two lines because the side of salad was a part of the item itself. You can combine these two into one.
+        Please use your best judgement to combine these into one line item.
         """
 
     def _process_response(self, analysis_text):
-        """Process and validate the AI response"""
+        """Process and validate the AI response using structured output"""
         try:
             # Check if response is wrapped in markdown code blocks
             if analysis_text.strip().startswith("```") and "```" in analysis_text:
@@ -236,85 +396,20 @@ class ImageAnalyzer:
                         potential_json = potential_json.split("\n", 1)[1]
                     analysis_text = potential_json.strip()
                 else:
-                    import re
                     match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', analysis_text)
                     if match:
                         analysis_text = match.group(1).strip()
             
             print(f"JSON response: {analysis_text}")
             
-            receipt_data = json.loads(analysis_text)
-            
-            # Process the receipt data based on type
-            if receipt_data.get('document_type') == 'transportation_ticket':
-                return self._process_transportation_ticket(receipt_data)
-            else:
-                return self._process_regular_receipt(receipt_data)
+            # Use structured output validation
+            return self._with_structured_output(analysis_text)
                 
-        except json.JSONDecodeError:
+        except Exception as e:
             return {
-                "success": True,
-                "is_receipt": False,
-                "error": "Could not parse receipt data",
+                "success": False,
+                "error": f"Error processing response: {str(e)}",
                 "raw_text": analysis_text
             }
 
-    def _process_transportation_ticket(self, receipt_data):
-        """Process transportation ticket data"""
-        if 'fare' not in receipt_data or receipt_data['fare'] is None:
-            receipt_data['fare'] = receipt_data.get('total', 0)
-        
-        if 'total' not in receipt_data or receipt_data['total'] is None:
-            receipt_data['total'] = receipt_data.get('fare', 0)
-        
-        receipt_data['is_receipt'] = True
-        
-        return {
-            "success": True,
-            "is_receipt": True,
-            "is_transportation_ticket": True,
-            "receipt_data": receipt_data
-        }
-
-    def _process_regular_receipt(self, receipt_data):
-        """Process regular receipt data"""
-        # Handle backward compatibility
-        if 'items' in receipt_data and 'line_items' not in receipt_data:
-            receipt_data['line_items'] = receipt_data.pop('items')
-        
-        # Initialize default values
-        receipt_data.setdefault('tip', 0.0)
-        receipt_data.setdefault('gratuity', 0.0)
-        
-        # Process totals and tax information
-        self._process_totals(receipt_data)
-        
-        return {
-            "success": True,
-            "is_receipt": receipt_data.get("is_receipt", False),
-            "receipt_data": receipt_data
-        }
-
-    def _process_totals(self, receipt_data):
-        """Process and validate totals in receipt data"""
-        # Calculate items total if not present
-        if 'items_total' not in receipt_data:
-            items_total = sum(
-                item.get('total_price', 0) or 0 
-                for item in receipt_data.get('line_items', [])
-            )
-            receipt_data['items_total'] = items_total
-        
-        # Set default values for other total fields
-        receipt_data.setdefault('display_subtotal', receipt_data.get('subtotal', receipt_data.get('items_total', 0)))
-        receipt_data.setdefault('pretax_total', receipt_data.get('subtotal', receipt_data.get('items_total', 0)))
-        
-        # Calculate post-tax total
-        tax = receipt_data.get('tax', 0) or 0
-        pretax = receipt_data.get('pretax_total', receipt_data.get('subtotal', 0)) or 0
-        receipt_data.setdefault('posttax_total', pretax + tax)
-        
-        # Set final total
-        receipt_data.setdefault('final_total', receipt_data.get('total', 0) or 0)
-        if 'total' not in receipt_data:
-            receipt_data['total'] = receipt_data.get('final_total', 0) or 0 
+ 
