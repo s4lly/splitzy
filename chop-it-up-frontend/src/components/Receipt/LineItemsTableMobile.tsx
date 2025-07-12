@@ -57,15 +57,21 @@ export default function ReceiptLineItemsTableMobile({
           transition={{ delay: 0.05 }}
           className={clsx(
             "border-4 rounded-lg border-border/40 overflow-hidden mb-3 text-base",
-            editItemId === item.id && "border-4",
-            activeItemId === item.id &&
-              !editItemId &&
-              " ring-2 ring-primary bg-primary/10"
+            editItemId === item.id && "ring-2 ring-accent ring-blue-300"
           )}
+          tabIndex={0}
+          role="button"
+          aria-pressed={editItemId === item.id}
           onTouchStart={() => handleTouchStart(item.id)}
           onTouchEnd={() => handleTouchEnd(item.id)}
           onTouchCancel={() => handleTouchCancel(item.id)}
           onClick={(e) => handleEditStart(e, item.id)}
+          onKeyDown={(e) => {
+            if ((e.key === "Enter" || e.key === " ") && editItemId !== item.id) {
+              setEditItemId(item.id);
+              e.stopPropagation();
+            }
+          }}
         >
           {editItemId === item.id ? (
             <ReceiptLineItemEditMobile
