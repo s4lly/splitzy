@@ -288,80 +288,20 @@ const ReceiptAnalysisDisplay = ({
         <CardContent className="px-3 sm:px-6">
           {receipt_data.line_items && receipt_data.line_items.length > 0 ? (
             <div className="space-y-4">
-              {/* Table headers and rows for desktop (md+) */}
-              <div className="hidden md:grid md:grid-cols-12 border-b-2 border-border pb-3 gap-3 text-base font-medium">
-                <div className="col-span-5">Item</div>
-                <div className="col-span-1 text-right">Qty</div>
-                <div className="col-span-2 text-right">Price</div>
-                <div className="col-span-2 text-right">Total</div>
-                <div className="col-span-2 text-center">Assigned To</div>
-              </div>
-
-              {/* Mobile layout remains unchanged */}
-              {receipt_data.line_items.map((item) => {
-                const searchValue = searchInputs[item.id] || "";
-
-                // Touch event handlers for active state
-                const handleTouchStart = () => setActiveItemId(item.id);
-                const handleTouchEnd = () =>
-                  setActiveItemId((prev) => (prev === item.id ? null : prev));
-                const handleTouchCancel = () =>
-                  setActiveItemId((prev) => (prev === item.id ? null : prev));
-
-                // Edit mode handlers
-                const handleEditStart = (
-                  e: React.TouchEvent | React.MouseEvent
-                ) => {
-                  // Only trigger on touch or click, not on drag
-                  if (isMobile && editItemId !== item.id) {
-                    setEditItemId(item.id);
-                  }
-                  e.stopPropagation();
-                };
-                const handleEditCancel = () => setEditItemId(null);
-
-                return (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.05 }}
-                    className={
-                      `border-4 rounded-lg border-border/40 overflow-hidden mb-3
-                      md:mb-0 md:border-0 md:rounded-none md:grid md:grid-cols-12
-                      md:gap-3 text-base md:py-3 md:border-b md:last:border-0
-                      md:items-center ${
-                        editItemId === item.id ? "border-4" : ""
-                      }` +
-                      (activeItemId === item.id && !editItemId
-                        ? " ring-2 ring-primary bg-primary/10"
-                        : "")
-                    }
-                    onTouchStart={handleTouchStart}
-                    onTouchEnd={handleTouchEnd}
-                    onTouchCancel={handleTouchCancel}
-                    onClick={handleEditStart}
-                  >
-                    {/* Mobile layout */}
-                    <LineItemsTableMobile
-                      item={item}
-                      result={result}
-                      editLineItemsEnabled={editLineItemsEnabled}
-                      people={people}
-                      togglePersonAssignment={togglePersonAssignment}
-                      isEditMode={editItemId === item.id}
-                      onEditCancel={handleEditCancel}
-                    />
-
-                    {/* Desktop layout */}
-                    <LineItemsTableDesktop
-                      item={item}
-                      people={people}
-                      togglePersonAssignment={togglePersonAssignment}
-                    />
-                  </motion.div>
-                );
-              })}
+              {isMobile ? (
+                <LineItemsTableMobile
+                  line_items={receipt_data.line_items}
+                  result={result}
+                  editLineItemsEnabled={editLineItemsEnabled}
+                  people={people}
+                  togglePersonAssignment={togglePersonAssignment}
+                />
+              ) : (
+                <LineItemsTableDesktop
+                  line_items={receipt_data.line_items}
+                  people={people}
+                />
+              )}
             </div>
           ) : (
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-lg p-4 text-center">

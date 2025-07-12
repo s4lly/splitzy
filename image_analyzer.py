@@ -221,10 +221,21 @@ class ImageAnalyzer:
                 if 'items' in json_response and 'line_items' not in json_response:
                     json_response['line_items'] = json_response.pop('items')
                 
-                # Ensure line items have proper structure
+                # Ensure line items have proper structure and unique, valid UUIDs for id
+                seen_ids = set()
                 for item in json_response.get('line_items', []):
-                    if 'id' not in item:
-                        item['id'] = str(uuid.uuid4())
+                    # Validate or assign UUID
+                    id_value = item.get('id')
+                    try:
+                        uuid_obj = uuid.UUID(str(id_value))
+                        id_str = str(uuid_obj)
+                    except Exception:
+                        id_str = str(uuid.uuid4())
+                    # Ensure uniqueness
+                    while id_str in seen_ids:
+                        id_str = str(uuid.uuid4())
+                    item['id'] = id_str
+                    seen_ids.add(id_str)
                     if 'assignments' not in item:
                         item['assignments'] = []
                 
@@ -312,7 +323,7 @@ class ImageAnalyzer:
            - Quantity (if available)
            - Price per item (0 if not present)
            - Total price for the item
-           - Id using a random uuid
+           - Id uniquely generated UUID for each item
            - Assignments an empty array to be used for the people who are assigned to the item
         4. Subtotal (before tax)
         5. Tax amount
@@ -335,7 +346,7 @@ class ImageAnalyzer:
           "date": "YYYY-MM-DD",
           "line_items": [
             {
-              "id": "random_uuid",
+              "id": "cfe820aa-634e-4c99-8b78-571d5720a04e",
               "name": "Item 1",
               "quantity": 2,
               "price_per_item": 10.99,

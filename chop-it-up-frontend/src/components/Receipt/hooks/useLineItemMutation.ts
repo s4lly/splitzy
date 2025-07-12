@@ -1,16 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import receiptService from "../../../services/receiptService";
-import {
-  LineItemSchema,
-  ReceiptResponseSchema,
-} from "../../../lib/receiptSchemas";
+import receiptService from "@/services/receiptService";
+import { LineItemSchema, ReceiptResponseSchema } from "@/lib/receiptSchemas";
 import { z } from "zod";
-import { useCallback } from "react";
 
 export function useLineItemMutation() {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: ({
       receiptId,
       itemId,
@@ -63,24 +59,4 @@ export function useLineItemMutation() {
       });
     },
   });
-
-  const withIdentifiers = useCallback(
-    (
-      receiptId: string | number,
-      itemId: string,
-      itemObject: Partial<z.infer<typeof LineItemSchema>>
-    ) => {
-      mutation.mutate({
-        receiptId: String(receiptId),
-        itemId: itemId,
-        ...itemObject,
-      });
-    },
-    [mutation]
-  );
-
-  return {
-    withIdentifiers,
-    mutation,
-  };
 }
