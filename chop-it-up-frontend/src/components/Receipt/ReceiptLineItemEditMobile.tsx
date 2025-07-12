@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -32,20 +32,30 @@ export default function ReceiptLineItemEditMobile({
 
   const formTotal = Number(formQuantity) * (parseFloat(formPricePerItem) || 0);
 
-  const { withIdentifiers, mutation } = useLineItemMutation();
+  const { mutate } = useLineItemMutation();
 
-  const debouncedPersistName = useCallback(
-    debounce((value: string) => {
-      withIdentifiers(result?.id, item.id, { name: value });
-    }, 300),
-    [result?.id, item.id, withIdentifiers]
+  const debouncedPersistName = useMemo(
+    () =>
+      debounce((value: string) => {
+        mutate({
+          receiptId: String(result?.id),
+          itemId: item.id,
+          name: value,
+        });
+      }, 300),
+    [result?.id, item.id, mutate]
   );
 
-  const debouncedPersistQuantity = useCallback(
-    debounce((value: number) => {
-      withIdentifiers(result?.id, item.id, { quantity: value });
-    }, 300),
-    [result?.id, item.id, withIdentifiers]
+  const debouncedPersistQuantity = useMemo(
+    () =>
+      debounce((value: number) => {
+        mutate({
+          receiptId: String(result?.id),
+          itemId: item.id,
+          quantity: value,
+        });
+      }, 300),
+    [result?.id, item.id, mutate]
   );
 
   useEffect(() => {
@@ -75,18 +85,36 @@ export default function ReceiptLineItemEditMobile({
 
   const handlePriceBlur = () => {
     const num = parseFloat(formPricePerItem);
+    const originalTruncated = Math.trunc(item.price_per_item * 100) / 100;
     if (!isNaN(num)) {
       const truncated = Math.trunc(num * 100) / 100;
       const truncatedStr = truncateToTwoDecimals(truncated);
       setFormPricePerItem(truncatedStr);
-      withIdentifiers(result?.id, item.id, {
-        price_per_item: truncated,
-      });
+      if (truncated !== originalTruncated) {
+        mutate({
+          receiptId: String(result?.id),
+          itemId: item.id,
+          price_per_item: truncated,
+        });
+      }
     } else {
       setFormPricePerItem("0.00");
-      withIdentifiers(result?.id, item.id, {
-        price_per_item: 0,
-      });
+      if (originalTruncated !== 0) {
+        mutate({
+          receiptId: String(result?.id),
+          itemId: item.id,
+          price_per_item: 0,
+        });
+      }
+    }
+  };
+
+  // Persist price per item when Enter is pressed
+  const handlePriceKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      // Prevent form submission
+      e.preventDefault();
+      handlePriceBlur();
     }
   };
 
@@ -124,7 +152,11 @@ export default function ReceiptLineItemEditMobile({
                 onClick={() => {
                   setFormQuantity((q: number) => {
                     const newQ = Math.max(1, q - 1);
-                    withIdentifiers(result?.id, item.id, { quantity: newQ });
+                    mutate({
+                      receiptId: String(result?.id),
+                      itemId: item.id,
+                      quantity: newQ,
+                    });
                     return newQ;
                   });
                 }}
@@ -149,7 +181,11 @@ export default function ReceiptLineItemEditMobile({
                 onClick={() => {
                   setFormQuantity((q: number) => {
                     const newQ = q + 1;
-                    withIdentifiers(result?.id, item.id, { quantity: newQ });
+                    mutate({
+                      receiptId: String(result?.id),
+                      itemId: item.id,
+                      quantity: newQ,
+                    });
                     return newQ;
                   });
                 }}
@@ -171,6 +207,7 @@ export default function ReceiptLineItemEditMobile({
                 value={formPricePerItem}
                 onChange={handlePriceChange}
                 onBlur={handlePriceBlur}
+                onKeyDown={handlePriceKeyDown}
                 placeholder="Unit price"
                 min={0}
                 step="0.01"
