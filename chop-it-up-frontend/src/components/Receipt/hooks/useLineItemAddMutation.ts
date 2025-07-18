@@ -1,27 +1,27 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import receiptService from "@/services/receiptService";
-import { ReceiptResponseSchema } from "@/lib/receiptSchemas";
+import { LineItemSchema, ReceiptResponseSchema } from "@/lib/receiptSchemas";
 import { z } from "zod";
 
-export function useDeleteLineItemMutation() {
+export function useLineItemAddMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({
       receiptId,
-      itemId,
+      lineItemData,
     }: {
       receiptId: string;
-      itemId: string;
+      lineItemData: Partial<z.infer<typeof LineItemSchema>>;
     }) => {
-      return receiptService.deleteLineItem(receiptId, itemId);
+      return receiptService.addLineItem(receiptId, lineItemData);
     },
     onMutate: ({
       receiptId,
-      itemId,
+      lineItemData,
     }: {
       receiptId: string;
-      itemId: string;
+      lineItemData: Partial<z.infer<typeof LineItemSchema>>;
     }) => {
       queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
 
@@ -31,6 +31,8 @@ export function useDeleteLineItemMutation() {
         queryClient.setQueryData(
           ["receipt", receiptId],
           (old: z.infer<typeof ReceiptResponseSchema>) => {
+            if (!old) return old;
+            
             // Create a completely new object to ensure TanStack Query detects the change
             const newData = {
               ...old,
@@ -38,9 +40,17 @@ export function useDeleteLineItemMutation() {
                 ...old.receipt,
                 receipt_data: {
                   ...old.receipt.receipt_data,
-                  line_items: old.receipt.receipt_data.line_items.filter(
-                    (item) => item.id !== itemId
-                  )
+                  line_items: [
+                    {
+                      id: `temp-${Date.now()}`, // Temporary ID for optimistic update
+                      name: lineItemData.name,
+                      quantity: lineItemData.quantity || 1,
+                      price_per_item: lineItemData.price_per_item || 0,
+                      total_price: lineItemData.total_price || 0,
+                      assignments: [],
+                    },
+                    ...old.receipt.receipt_data.line_items,
+                  ]
                 }
               }
             };
@@ -48,7 +58,7 @@ export function useDeleteLineItemMutation() {
           }
         );
       } catch (error) {
-        console.error("Error removing line item:", error);
+        console.error("Error adding line item:", error);
       }
 
       return { previousData };
@@ -61,11 +71,12 @@ export function useDeleteLineItemMutation() {
       );
     },
     onSuccess: (data, variables, context) => {
-      // Ensure the cache is properly updated after successful deletion
+      // Update the cache with the actual response data
       queryClient.setQueryData(
         ["receipt", variables.receiptId],
         (old: z.infer<typeof ReceiptResponseSchema>) => {
           if (!old) return old;
+          
           // Create a completely new object to ensure TanStack Query detects the change
           const newData = {
             ...old,
@@ -73,9 +84,12 @@ export function useDeleteLineItemMutation() {
               ...old.receipt,
               receipt_data: {
                 ...old.receipt.receipt_data,
-                line_items: old.receipt.receipt_data.line_items.filter(
-                  (item) => item.id !== variables.itemId
-                )
+                line_items: [
+                  data.line_item, // Use the actual line item from the response
+                  ...old.receipt.receipt_data.line_items.filter(
+                    (item) => !item.id.startsWith('temp-') // Remove temporary items
+                  ),
+                ]
               }
             }
           };
@@ -90,4 +104,4 @@ export function useDeleteLineItemMutation() {
       });
     },
   });
-}
+} 

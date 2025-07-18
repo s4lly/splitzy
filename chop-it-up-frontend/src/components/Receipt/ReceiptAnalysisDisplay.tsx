@@ -25,7 +25,7 @@ import {
   DialogClose,
   DialogDescription,
 } from "../ui/dialog";
-import { useUpdateItemAssignmentsMutation } from "./hooks/useUpdateItemAssignmentsMutation";
+import { useItemAssignmentsUpdateMutation } from "./hooks/useItemAssignmentsUpdateMutation";
 import { useFeatureFlag } from "../../context/FeatureFlagProvider";
 import PersonBadge from "./PersonBadge";
 import LineItemsTableMobile from "./LineItemsTableMobile";
@@ -44,6 +44,8 @@ import {
   filterPeople,
 } from "./utils/receipt-calculation";
 import { useMobile } from "../../hooks/use-mobile";
+import LineItemCard from "./components/LineItemCard";
+import LineItemAddForm from "./LineItemAddForm";
 
 const getPeopleFromLineItems = (
   lineItems: z.infer<typeof LineItemSchema>[]
@@ -74,8 +76,8 @@ const ReceiptAnalysisDisplay = ({
   const [searchInputs, setSearchInputs] = useState<Record<string, string>>({});
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [editItemId, setEditItemId] = useState<string | null>(null);
-
-  const updateItemAssignmentsMutation = useUpdateItemAssignmentsMutation();
+  const [isAddingItem, setIsAddingItem] = useState(false);
+  const updateItemAssignmentsMutation = useItemAssignmentsUpdateMutation();
   const editLineItemsEnabledRaw = useFeatureFlag("edit-line-items");
   const editLineItemsEnabled = !!editLineItemsEnabledRaw;
   const isMobile = useMobile();
@@ -220,13 +222,14 @@ const ReceiptAnalysisDisplay = ({
     }[] = [];
     receipt_data.line_items.forEach((item) => {
       const assignedPeople = item.assignments || [];
+      const totalPrice = item.price_per_item * item.quantity;
 
       if (assignedPeople.includes(person)) {
-        const pricePerPerson = item.total_price / assignedPeople.length;
+        const pricePerPerson = totalPrice / assignedPeople.length;
         personItems.push({
           name: item.name,
           quantity: item.quantity || 1,
-          originalPrice: item.total_price,
+          originalPrice: totalPrice,
           price: pricePerPerson,
           shared: assignedPeople.length > 1,
           sharedWith: assignedPeople.filter((p) => p !== person),
@@ -285,14 +288,35 @@ const ReceiptAnalysisDisplay = ({
       {/* Items Card - Second position */}
       <Card className="shadow-md border-2 overflow-hidden rounded-none sm:rounded-lg">
         <CardHeader className="pb-2 px-3 sm:px-6">
-          <CardTitle className="text-xl font-bold flex items-center gap-3">
-            <ShoppingBag className="h-6 w-6" />
-            Items
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl font-bold flex items-center gap-3">
+              <ShoppingBag className="h-6 w-6" />
+              Items
+            </CardTitle>
+            <div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAddingItem(true)}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add Item
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="px-3 sm:px-6">
+          {isAddingItem && (
+            <LineItemCard selected={true}>
+              <LineItemAddForm
+                result={result}
+                onAddCancel={() => setIsAddingItem(false)}
+              />
+            </LineItemCard>
+          )}
+
           {receipt_data.line_items && receipt_data.line_items.length > 0 ? (
-            <div className="space-y-4">
+            <>
               {isMobile ? (
                 <LineItemsTableMobile
                   line_items={receipt_data.line_items}
@@ -307,7 +331,7 @@ const ReceiptAnalysisDisplay = ({
                   people={people}
                 />
               )}
-            </div>
+            </>
           ) : (
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-lg p-4 text-center">
               <AlertCircle className="h-10 w-10 mx-auto mb-2 text-amber-500 dark:text-amber-400" />

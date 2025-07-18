@@ -324,6 +324,21 @@ const receiptService = {
       { withCredentials: true }
     );
     return response.data;
+  },
+
+  /**
+   * Add a new line item to a receipt
+   * @param {number} receiptId - The ID of the receipt to update
+   * @param {Object} lineItemData - The line item data to add
+   * @returns {Promise} - A promise that resolves to the added line item
+   */
+  addLineItem: async (receiptId, lineItemData) => {
+    const response = await axios.post(
+      `${API_URL}/user/receipts/${receiptId}/line-items`,
+      lineItemData,
+      { withCredentials: true }
+    );
+    return response.data;
   }
 };
 
