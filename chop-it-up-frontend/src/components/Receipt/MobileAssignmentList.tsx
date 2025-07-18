@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Trash, X } from "lucide-react";
+import { X } from "lucide-react";
 import {
   filterPeople,
   getPersonPreTaxTotalForItem,
-  getTotalForAllItems,
 } from "./utils/receipt-calculation";
 import { formatCurrency } from "./utils/format-currency";
 import { LineItemSchema } from "@/lib/receiptSchemas";
@@ -16,9 +15,9 @@ interface MobileAssignmentListProps {
   onAddAssignment: (person: string) => void;
   onRemoveAssignment: (person: string) => void;
   item: z.infer<typeof LineItemSchema>;
-  total: number;
   formPricePerItem: number;
   formQuantity: number;
+  onAssignmentCancel: () => void;
 }
 
 const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
@@ -26,9 +25,9 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
   onAddAssignment,
   onRemoveAssignment,
   item,
-  total,
   formPricePerItem,
   formQuantity,
+  onAssignmentCancel,
 }) => {
   const [newPerson, setNewPerson] = useState("");
   const newPersonSanitized = newPerson.trim();
@@ -52,12 +51,12 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
 
   return (
     <div className="flex flex-col gap-4 p-3 bg-background rounded-md shadow-sm">
-      <div>
+      <div className="flex flex-col gap-2">
         <div className="flex justify-between items-center">
-          <div className="font-semibold mb-2">Assigned</div>
-          <div className="text-sm text-muted-foreground mb-2">
-            Item Total: {formatCurrency(total)}
-          </div>
+          <div className="font-semibold">Assigned</div>
+          <Button size="icon" variant="outline" onClick={onAssignmentCancel}>
+            <X className="size-4" />
+          </Button>
         </div>
 
         {item.assignments.length === 0 ? (
@@ -121,18 +120,22 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
           </Button>
         </div>
         <ul className="flex flex-col gap-2 max-h-40 overflow-y-auto">
-        <div className="mb-2">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => filteredPeople.forEach((person) => handleAdd(person))}
-            disabled={filteredPeople.length === 0}
-            className="w-full"
-          >
-            Assign All
-          </Button>
-        </div>
+          {filteredPeople.length > 0 && (
+            <div className="mb-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  filteredPeople.forEach((person) => handleAdd(person))
+                }
+                disabled={filteredPeople.length === 0}
+                className="w-full"
+              >
+                Assign All
+              </Button>
+            </div>
+          )}
           {filteredPeople.length === 0 ? (
             <div className="px-3">
               {newPersonSanitized ? (

@@ -19,7 +19,7 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
   const isMobile = useMobile();
 
   const classes = isMobile
-    ? "mt-2 pt-2 border-t border-border/20"
+    ? "pt-2 border-t border-border/20"
     : "flex flex-wrap gap-1 justify-center";
 
   return (
@@ -43,7 +43,7 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
               key={personIdx}
               className={clsx(
                 isMobile &&
-                  "flex items-center gap-1 bg-muted/20 rounded py-1 px-2 group"
+                  "flex items-center gap-1 bg-muted/20 rounded py-1 group"
               )}
             >
               <PersonBadge
