@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Calendar,
@@ -79,6 +79,11 @@ const ReceiptAnalysisDisplay = ({
   const editLineItemsEnabledRaw = useFeatureFlag("edit-line-items");
   const editLineItemsEnabled = !!editLineItemsEnabledRaw;
   const isMobile = useMobile();
+
+  // Update people state when result changes (e.g., when line items are deleted)
+  useEffect(() => {
+    setPeople(getPeopleFromLineItems(result.receipt_data.line_items));
+  }, [result.receipt_data.line_items]);
 
   if (!result) return null;
   const { receipt_data } = result;

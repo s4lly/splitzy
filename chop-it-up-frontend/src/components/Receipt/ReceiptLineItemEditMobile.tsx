@@ -8,6 +8,7 @@ import { LineItemSchema, ReceiptSchema } from "@/lib/receiptSchemas";
 import { z } from "zod";
 import debounce from "lodash.debounce";
 import { useLineItemMutation } from "./hooks/useLineItemMutation";
+import { useDeleteLineItemMutation } from "./hooks/useDeleteLineItemMutation";
 
 export default function ReceiptLineItemEditMobile({
   item,
@@ -27,6 +28,7 @@ export default function ReceiptLineItemEditMobile({
   const formTotal = Number(formQuantity) * (parseFloat(formPricePerItem) || 0);
 
   const { mutate } = useLineItemMutation();
+  const { mutate: deleteItem, isPending: isDeleting } = useDeleteLineItemMutation();
 
   const debouncedPersistName = useMemo(
     () =>
@@ -112,20 +114,27 @@ export default function ReceiptLineItemEditMobile({
     }
   };
 
+  // Handle delete item
+  const handleDeleteItem = () => {
+    deleteItem({
+      receiptId: String(result?.id),
+      itemId: item.id,
+    });
+    onEditCancel(); // Close the edit form after deletion
+  };
+
   return (
     <div className="w-full">
       <div className="flex justify-between items-center p-2">
         <Button
           type="button"
           variant="outline"
-          onClick={() => {
-            // TODO: implement delete item mutation
-            // deleteItemMutation(result?.receipt?.id || result?.id, item.id);
-          }}
+          onClick={handleDeleteItem}
+          disabled={isDeleting}
           className="text-red-500 border-red-500"
         >
           <Trash className="w-4 h-4 mr-2" />
-          Delete
+          {isDeleting ? "Deleting..." : "Delete"}
         </Button>
 
         <Button variant="outline" size="icon" onClick={onEditCancel}>

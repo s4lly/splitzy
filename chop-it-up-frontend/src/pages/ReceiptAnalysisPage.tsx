@@ -90,7 +90,6 @@ const ReceiptAnalysisPage = () => {
             try {
               const imageUrl = await receiptService.getReceiptImage(parseInt(receiptId));
               if (imageUrl) {
-                console.log('Successfully fetched image from backend API');
                 if (imageUrl.startsWith('blob:')) {
                   objectUrlsToRevoke.push(imageUrl);
                 }
@@ -98,19 +97,15 @@ const ReceiptAnalysisPage = () => {
               } else {
                 // If backend image fetch fails, check for image URL in receipt data
                 if (receiptData.receipt.image_url) {
-                  console.log('Using image URL from receipt data (backend image not available)');
                   setPreviewImage(receiptData.receipt.image_url);
                 } else {
-                  console.log('No image available for this receipt (neither from backend nor receipt data)');
                   setPreviewImage(null);
                 }
               }
             } catch (imageError) {
-              console.error('Error fetching image from backend:', imageError);
               
               // Fall back to image URL in receipt data
               if (receiptData.receipt.image_url) {
-                console.log('Falling back to image URL in receipt data after error');
                 setPreviewImage(receiptData.receipt.image_url);
               } else {
                 setPreviewImage(null);
@@ -123,7 +118,6 @@ const ReceiptAnalysisPage = () => {
           }
         } catch (apiError) {
           // Fallback to mock data for development
-          console.log('API error, checking mock data', apiError);
           const mockHistoryResponse = await receiptService.getUserReceiptHistory();
           const mockReceipt = mockHistoryResponse.receipts.find(r => r.id === parseInt(receiptId));
           
@@ -139,7 +133,6 @@ const ReceiptAnalysisPage = () => {
                 }
                 setPreviewImage(imageUrl);
               } else if (mockReceipt.image_url) {
-                console.log('Using image URL from mock receipt data');
                 setPreviewImage(mockReceipt.image_url);
               } else {
                 setPreviewImage(null);
@@ -159,7 +152,6 @@ const ReceiptAnalysisPage = () => {
           }
         }
       } catch (err) {
-        console.error('Error fetching receipt:', err);
         setError(err.message || 'Failed to load receipt details');
       }
     };
@@ -173,7 +165,6 @@ const ReceiptAnalysisPage = () => {
       objectUrlsToRevoke.forEach(url => {
         if (url && url.startsWith('blob:')) {
           URL.revokeObjectURL(url);
-          console.log('Revoked object URL:', url);
         }
       });
     };
@@ -216,12 +207,10 @@ const ReceiptAnalysisPage = () => {
           blob = await response.blob();
           downloadUrl = URL.createObjectURL(blob);
         } catch (error) {
-          console.error('Failed to fetch image for download:', error);
           alert('Sorry, this image cannot be downloaded.');
           return;
         }
       } else {
-        console.error('Invalid image URL format for download:', previewImage);
         alert('Sorry, this image cannot be downloaded.');
         return;
       }
@@ -246,7 +235,6 @@ const ReceiptAnalysisPage = () => {
         URL.revokeObjectURL(downloadUrl);
       }
     } catch (error) {
-      console.error('Error during image download:', error);
       alert('Failed to download the image. Please try again.');
     }
   };
@@ -342,7 +330,6 @@ const ReceiptAnalysisPage = () => {
                           alt="Receipt" 
                           className={`mx-auto max-h-[75vh] object-contain transition-transform duration-100 touch-none`}
                           onError={(e) => {
-                            console.error('Error loading image:', e);
                             // Don't try to load another image, just hide this one and show fallback
                             e.target.style.display = 'none';
                             
@@ -387,7 +374,12 @@ const ReceiptAnalysisPage = () => {
               </Card>
             </motion.div>
             
-            {receipt && <ReceiptAnalysisDisplay result={receipt} />}
+            {receiptData?.receipt && (
+              <ReceiptAnalysisDisplay 
+                key={`receipt-${receiptId}-${receiptData.receipt.receipt_data.line_items.length}`}
+                result={receiptData.receipt} 
+              />
+            )}
           </div>
         </div>
       )}
