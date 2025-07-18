@@ -310,6 +310,20 @@ const receiptService = {
       { withCredentials: true }
     );
     return response.data;
+  },
+
+  /**
+   * Delete a line item from a receipt
+   * @param {number} receiptId - The ID of the receipt to update
+   * @param {number} itemId - The ID of the line item to delete
+   * @returns {Promise} - A promise that resolves when the line item is deleted
+   */
+  deleteLineItem: async (receiptId, itemId) => {
+    const response = await axios.delete(
+      `${API_URL}/user/receipts/${receiptId}/line-items/${itemId}`,
+      { withCredentials: true }
+    );
+    return response.data;
   }
 };
 
