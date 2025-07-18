@@ -1,13 +1,14 @@
 import { getIndividualItemTotalPrice } from "./utils/receipt-calculation";
 import PersonAssignmentSection from "./PersonAssignmentSection";
 import ReceiptLineItemEditMobile from "./ReceiptLineItemEditMobile";
+import MobileAssignmentList from "./MobileAssignmentList";
 import { formatCurrency } from "./utils/format-currency";
 import { LineItemSchema, ReceiptSchema } from "@/lib/receiptSchemas";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { useMobile } from "@/hooks/use-mobile";
 import clsx from "clsx";
+import { Separator } from "../ui/separator";
 
 export default function ReceiptLineItemsTableMobile({
   line_items,
@@ -22,30 +23,30 @@ export default function ReceiptLineItemsTableMobile({
   people: string[];
   togglePersonAssignment: (itemId: string, person: string) => void;
 }) {
-  const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [editItemId, setEditItemId] = useState<string | null>(null);
-
-  const isMobile = useMobile();
-
-  // Touch event handlers for active state
-  const handleTouchStart = (itemId: string) => setActiveItemId(itemId);
-  const handleTouchEnd = (itemId: string) =>
-    setActiveItemId((prev) => (prev === itemId ? null : prev));
-  const handleTouchCancel = (itemId: string) =>
-    setActiveItemId((prev) => (prev === itemId ? null : prev));
+  const [assignmentItemId, setAssignmentItemId] = useState<string | null>(null);
 
   // Edit mode handlers
-  const handleEditStart = (
-    e: React.TouchEvent | React.MouseEvent,
-    itemId: string
-  ) => {
-    // Only trigger on touch or click, not on drag
-    if (isMobile && editItemId !== itemId) {
-      setEditItemId(itemId);
-    }
+  const handleEditOpen = (e: React.MouseEvent, itemId: string) => {
+    setEditItemId(itemId);
+    setAssignmentItemId(null);
+
     e.stopPropagation();
   };
-  const handleEditCancel = () => setEditItemId(null);
+  const handleEditClose = () => setEditItemId(null);
+
+  // Assignment list handlers
+  const handleAssignmentOpen = (e: React.MouseEvent, itemId: string) => {
+    e.stopPropagation();
+    setEditItemId(null);
+
+    setAssignmentItemId((prevItemId) =>
+      prevItemId === itemId ? null : itemId
+    );
+  };
+  const handleAssignmentClose = () => {
+    setAssignmentItemId(null);
+  };
 
   return (
     <>
@@ -57,32 +58,32 @@ export default function ReceiptLineItemsTableMobile({
           transition={{ delay: 0.05 }}
           className={clsx(
             "border-4 rounded-lg border-border/40 overflow-hidden mb-3 text-base",
-            editItemId === item.id && "ring-2 ring-accent ring-blue-300"
+            (editItemId === item.id || assignmentItemId === item.id) &&
+              "ring-2 ring-accent ring-blue-300"
           )}
-          tabIndex={0}
-          role="button"
-          aria-pressed={editItemId === item.id}
-          onTouchStart={() => handleTouchStart(item.id)}
-          onTouchEnd={() => handleTouchEnd(item.id)}
-          onTouchCancel={() => handleTouchCancel(item.id)}
-          onClick={(e) => handleEditStart(e, item.id)}
-          onKeyDown={(e) => {
-            if ((e.key === "Enter" || e.key === " ") && editItemId !== item.id) {
-              setEditItemId(item.id);
-              e.stopPropagation();
-            }
-          }}
         >
           {editItemId === item.id ? (
             <ReceiptLineItemEditMobile
               item={item}
               result={result}
-              people={people}
-              togglePersonAssignment={togglePersonAssignment}
-              onEditCancel={handleEditCancel}
+              onEditCancel={handleEditClose}
             />
           ) : (
-            <div className="md:hidden">
+            <div
+              tabIndex={0}
+              role="button"
+              aria-pressed={editItemId === item.id}
+              onClick={(e) => handleEditOpen(e, item.id)}
+              onKeyDown={(e) => {
+                if (
+                  (e.key === "Enter" || e.key === " ") &&
+                  editItemId !== item.id
+                ) {
+                  setEditItemId(item.id);
+                  e.stopPropagation();
+                }
+              }}
+            >
               <div className="p-2 bg-muted/10 border-b border-border/40 flex justify-between items-center gap-2">
                 <span className="text-base font-medium">{item.name}</span>
                 <div className="text-right font-semibold">
@@ -93,7 +94,7 @@ export default function ReceiptLineItemsTableMobile({
                   )}
                 </div>
               </div>
-              <div className="p-2 sm:p-3 flex flex-col gap-2">
+              <div className="p-2 flex flex-col gap-2">
                 <div className="flex gap-2 items-baseline text-sm">
                   <span className="text-muted-foreground">Quantity:</span>
                   <span className="text-base font-medium text-right flex-1">
@@ -106,9 +107,33 @@ export default function ReceiptLineItemsTableMobile({
                     {formatCurrency(item.price_per_item)}
                   </span>
                 </div>
-
-                <PersonAssignmentSection item={item} people={people} />
               </div>
+            </div>
+          )}
+
+          {assignmentItemId === item.id ? (
+            <>
+            <Separator />
+              <MobileAssignmentList
+                possiblePeople={people}
+                onAddAssignment={(person) =>
+                  togglePersonAssignment(item.id, person)
+                }
+                onRemoveAssignment={(person) =>
+                  togglePersonAssignment(item.id, person)
+                }
+                item={item}
+                formPricePerItem={item.price_per_item}
+                formQuantity={item.quantity}
+                onAssignmentCancel={handleAssignmentClose}
+              />
+            </>
+          ) : (
+            <div
+              className="p-2"
+              onClick={(e) => handleAssignmentOpen(e, item.id)}
+            >
+              <PersonAssignmentSection item={item} people={people} />
             </div>
           )}
         </motion.div>
