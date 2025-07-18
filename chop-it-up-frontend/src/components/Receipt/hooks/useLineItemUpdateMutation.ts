@@ -1,28 +1,28 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import receiptService from "../../../services/receiptService";
+import receiptService from "@/services/receiptService";
 import { LineItemSchema, ReceiptResponseSchema } from "@/lib/receiptSchemas";
 import { z } from "zod";
 
-export function useUpdateItemAssignmentsMutation() {
+export function useLineItemUpdateMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({
       receiptId,
-      lineItems,
-    }: {
-      receiptId: string;
-      lineItems: z.infer<typeof LineItemSchema>[];
-    }) => {
-      return receiptService.updateAssignments(receiptId, lineItems);
+      itemId,
+      ...rest
+    }: { receiptId: string; itemId: string } & Partial<
+      z.infer<typeof LineItemSchema>
+    >) => {
+      return receiptService.updateLineItem(receiptId, itemId, rest);
     },
     onMutate: ({
       receiptId,
-      lineItems,
-    }: {
-      receiptId: string;
-      lineItems: z.infer<typeof LineItemSchema>[];
-    }) => {
+      itemId,
+      ...rest
+    }: { receiptId: string; itemId: string } & Partial<
+      z.infer<typeof LineItemSchema>
+    >) => {
       queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
 
       const previousData = queryClient.getQueryData(["receipt", receiptId]);
@@ -32,12 +32,17 @@ export function useUpdateItemAssignmentsMutation() {
           ["receipt", receiptId],
           (old: z.infer<typeof ReceiptResponseSchema>) => {
             const newData = { ...old };
-            newData.receipt.receipt_data.line_items = lineItems;
+            const item = newData.receipt.receipt_data.line_items.find(
+              (item) => item.id === itemId
+            );
+            if (item && rest.name) {
+              item.name = rest.name;
+            }
             return newData;
           }
         );
       } catch (error) {
-        console.error("Error updating item assignments:", error);
+        console.error("Error updating item name:", error);
       }
 
       return { previousData };
@@ -54,4 +59,4 @@ export function useUpdateItemAssignmentsMutation() {
       });
     },
   });
-}
+} 

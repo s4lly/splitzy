@@ -2,13 +2,14 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify, session
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from image_analyzer import ImageAnalyzer
+from image_analyzer import ImageAnalyzer, LineItem
 from dotenv import load_dotenv
 from flask_cors import CORS
 import sqlite3
 import uuid
 import datetime
 import json
+from pydantic import ValidationError
 
 # Load environment variables
 load_dotenv()
@@ -650,6 +651,68 @@ def delete_line_item(receipt_id, item_id):
     except Exception as e:
         app.logger.error(f"[delete_line_item] Error: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to delete line item'}), 500
+
+@app.route('/api/user/receipts/<int:receipt_id>/line-items', methods=['POST'])
+def add_line_item(receipt_id):
+    """Add a new line item to a receipt"""
+    current_user = get_current_user()
+    if not current_user:
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'error': 'No line item data provided'}), 400
+
+    try:
+        # Validate the incoming data using the LineItem model
+        # Remove id and assignments from data since we'll generate/override them
+        validation_data = {k: v for k, v in data.items() if k not in ['id', 'assignments']}
+        line_item = LineItem(**validation_data)
+    except ValidationError as e:
+        return jsonify({'success': False, 'error': f'Invalid line item data: {e}'}), 400
+
+    try:
+        conn = get_db_connection()
+        # Fetch the receipt to ensure it belongs to the user
+        row = conn.execute(
+            'SELECT receipt_data FROM user_receipts WHERE id = ? AND user_id = ?',
+            (receipt_id, current_user['id'])
+        ).fetchone()
+
+        if not row:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Receipt not found'}), 404
+
+        receipt_data = json.loads(row['receipt_data'])
+        
+        # Create new line item with generated UUID and default assignments
+        new_line_item = {
+            'id': str(uuid.uuid4()),
+            'assignments': [],
+            **line_item.dict(exclude={'id', 'assignments'})  # Include validated data but exclude id and assignments
+        }
+        
+        # Add the new item to the top of the line_items array (index 0)
+        if 'line_items' not in receipt_data:
+            receipt_data['line_items'] = []
+        
+        receipt_data['line_items'].insert(0, new_line_item)
+
+        # Save updated receipt_data
+        conn.execute(
+            'UPDATE user_receipts SET receipt_data = ? WHERE id = ?',
+            (json.dumps(receipt_data), receipt_id)
+        )
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'line_item': new_line_item
+        })
+    except Exception as e:
+        app.logger.error(f"[add_line_item] Error: {str(e)}")
+        return jsonify({'success': False, 'error': 'Failed to add line item'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001) 

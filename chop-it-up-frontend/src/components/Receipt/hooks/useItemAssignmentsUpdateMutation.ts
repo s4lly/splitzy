@@ -1,28 +1,28 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import receiptService from "@/services/receiptService";
+import receiptService from "../../../services/receiptService";
 import { LineItemSchema, ReceiptResponseSchema } from "@/lib/receiptSchemas";
 import { z } from "zod";
 
-export function useLineItemMutation() {
+export function useItemAssignmentsUpdateMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({
       receiptId,
-      itemId,
-      ...rest
-    }: { receiptId: string; itemId: string } & Partial<
-      z.infer<typeof LineItemSchema>
-    >) => {
-      return receiptService.updateLineItem(receiptId, itemId, rest);
+      lineItems,
+    }: {
+      receiptId: string;
+      lineItems: z.infer<typeof LineItemSchema>[];
+    }) => {
+      return receiptService.updateAssignments(receiptId, lineItems);
     },
     onMutate: ({
       receiptId,
-      itemId,
-      ...rest
-    }: { receiptId: string; itemId: string } & Partial<
-      z.infer<typeof LineItemSchema>
-    >) => {
+      lineItems,
+    }: {
+      receiptId: string;
+      lineItems: z.infer<typeof LineItemSchema>[];
+    }) => {
       queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
 
       const previousData = queryClient.getQueryData(["receipt", receiptId]);
@@ -32,17 +32,12 @@ export function useLineItemMutation() {
           ["receipt", receiptId],
           (old: z.infer<typeof ReceiptResponseSchema>) => {
             const newData = { ...old };
-            const item = newData.receipt.receipt_data.line_items.find(
-              (item) => item.id === itemId
-            );
-            if (item && rest.name) {
-              item.name = rest.name;
-            }
+            newData.receipt.receipt_data.line_items = lineItems;
             return newData;
           }
         );
       } catch (error) {
-        console.error("Error updating item name:", error);
+        console.error("Error updating item assignments:", error);
       }
 
       return { previousData };
@@ -59,4 +54,4 @@ export function useLineItemMutation() {
       });
     },
   });
-}
+} 
