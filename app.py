@@ -2,14 +2,15 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify, session
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from image_analyzer import ImageAnalyzer, LineItem
+from image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
 from dotenv import load_dotenv
 from flask_cors import CORS
 import sqlite3
 import uuid
 import datetime
 import json
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel
+from typing import Optional
 
 # Load environment variables
 load_dotenv()
@@ -606,6 +607,67 @@ def update_line_item(receipt_id, item_id):
     except Exception as e:
         app.logger.error(f"[update_line_item] Error: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to update line item'}), 500
+
+@app.route('/api/user/receipts/<int:receipt_id>/receipt-data', methods=['PUT'])
+def update_receipt_data(receipt_id):
+    """Update any property of the receipt data (RegularReceipt)"""
+    current_user = get_current_user()
+    if not current_user:
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'error': 'No update data provided'}), 400
+
+    try:
+        # Validate the incoming data by creating a partial RegularReceipt
+        # We'll merge the update data with existing receipt data for validation
+        conn = get_db_connection()
+        # Fetch the receipt to ensure it belongs to the user
+        row = conn.execute(
+            'SELECT receipt_data FROM user_receipts WHERE id = ? AND user_id = ?',
+            (receipt_id, current_user['id'])
+        ).fetchone()
+
+        if not row:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Receipt not found'}), 404
+
+        receipt_data = json.loads(row['receipt_data'])
+        
+        # Merge existing data with update data for validation
+        validation_data = {**receipt_data, **data}
+        
+        # Validate using RegularReceipt model (this will catch invalid field names and types)
+        try:
+            validated_receipt = RegularReceipt(**validation_data)
+        except ValidationError as e:
+            conn.close()
+            return jsonify({'success': False, 'error': f'Invalid receipt data update: {e}'}), 400
+        
+        # Extract only the fields that were provided in the update
+        update_dict = {k: v for k, v in data.items() if k in validation_data}
+        
+        # Update the receipt data properties
+        for key, value in update_dict.items():
+            # Only allow updating valid RegularReceipt properties
+            # Exclude line_items as they have their own endpoint
+            if key != 'line_items' and key != 'id':
+                receipt_data[key] = value
+
+        # Save updated receipt_data
+        conn.execute(
+            'UPDATE user_receipts SET receipt_data = ? WHERE id = ?',
+            (json.dumps(receipt_data), receipt_id)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+    except ValidationError as e:
+        return jsonify({'success': False, 'error': f'Invalid receipt data update: {e}'}), 400
+    except Exception as e:
+        app.logger.error(f"[update_receipt_data] Error: {str(e)}")
+        return jsonify({'success': False, 'error': 'Failed to update receipt data'}), 500
 
 @app.route('/api/user/receipts/<int:receipt_id>/line-items/<item_id>', methods=['DELETE'])
 def delete_line_item(receipt_id, item_id):

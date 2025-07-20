@@ -339,6 +339,21 @@ const receiptService = {
       { withCredentials: true }
     );
     return response.data;
+  },
+
+  /**
+   * Update receipt data properties
+   * @param {number} receiptId - The ID of the receipt to update
+   * @param {Object} updateObj - The object containing the updates to make
+   * @returns {Promise} - A promise that resolves to the updated receipt data
+   */
+  updateReceiptData: async (receiptId, updateObj) => {
+    const response = await axios.put(
+      `${API_URL}/user/receipts/${receiptId}/receipt-data`,
+      updateObj,
+      { withCredentials: true }
+    );
+    return response.data;
   }
 };
 
