@@ -8,6 +8,10 @@ export function truncateToTwoDecimals(val: number): string {
   }
 }
 
+export function truncateFloatByNDecimals(val: number, n: number): number {
+  return Math.trunc(val * 10 ** n) / 10 ** n;
+}
+
 export function formatCurrency(val: number): string {
   return "$" + truncateToTwoDecimals(val);
 }
