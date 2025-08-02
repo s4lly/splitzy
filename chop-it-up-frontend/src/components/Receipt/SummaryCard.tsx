@@ -216,86 +216,86 @@ const SummaryCard = ({
           )}
 
           {/* Tip and Gratuity */}
-          <div className="border rounded-sm p-2 py-1 -ml-2 -mr-2 px-2">
-            {isEditingTip ? (
-              <form
-                className="flex flex-col gap-3 py-1 bg-background"
-                onSubmit={(e) => e.preventDefault()} // No submit action
-              >
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2 justify-between">
-                    <Label htmlFor="tip" className="text-sm font-medium">
-                      Tip:
-                    </Label>
-                    <Button
-                      variant="outline"
-                      className="size-8"
-                      onClick={() => setIsEditingTip(false)}
-                    >
-                      <X />
-                    </Button>
-                  </div>
+          {(receipt_data.tip ?? 0) > 0 && (
+            <div className="border rounded-sm p-2 py-1 -ml-2 -mr-2 px-2">
+              {isEditingTip ? (
+                <form
+                  className="flex flex-col gap-3 py-1 bg-background"
+                  onSubmit={(e) => e.preventDefault()} // No submit action
+                >
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2 justify-between">
+                      <Label htmlFor="tip" className="text-sm font-medium">
+                        Tip:
+                      </Label>
+                      <Button
+                        variant="outline"
+                        className="size-8"
+                        onClick={() => setIsEditingTip(false)}
+                      >
+                        <X />
+                      </Button>
+                    </div>
 
-                  <Tabs defaultValue="exact" className="">
-                    <TabsList>
-                      <TabsTrigger value="exact">Exact</TabsTrigger>
-                      <TabsTrigger value="percentage">Percentage</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="exact" className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground text-lg pr-1 select-none">
-                          $
-                        </span>
-                        <Input
-                          type="number"
-                          value={tip}
-                          onChange={handleTipChange}
-                          placeholder="Tip"
-                          min={0}
-                          step="0.01"
-                          required
-                          className="text-center"
-                          id="tip"
-                        />
-                        <Button
-                          onClick={handleSaveTip}
-                          variant="outline"
-                          className="size-8"
-                          type="button"
-                        >
-                          <Check />
-                        </Button>
-                      </div>
-                      <div className="text-muted-foreground text-sm flex justify-center">
-                        percentage of total{" "}
-                        {truncateToTwoDecimals((tip / itemsTotal) * 100)}%
-                      </div>
-                    </TabsContent>
-                    <TabsContent value="percentage">
-                      <div className="grid grid-flow-col gap-2">
-                        <PercentageTipButton
-                          percentage={10}
-                          itemsTotal={itemsTotal}
-                          onTipSelect={handlePercentageTipSelect}
-                        />
-                        <PercentageTipButton
-                          percentage={15}
-                          itemsTotal={itemsTotal}
-                          onTipSelect={handlePercentageTipSelect}
-                        />
-                        <PercentageTipButton
-                          percentage={20}
-                          itemsTotal={itemsTotal}
-                          onTipSelect={handlePercentageTipSelect}
-                        />
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              </form>
-            ) : (
-              <>
-                {(receipt_data.tip ?? 0) > 0 && (
+                    <Tabs defaultValue="exact" className="">
+                      <TabsList>
+                        <TabsTrigger value="exact">Exact</TabsTrigger>
+                        <TabsTrigger value="percentage">Percentage</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="exact" className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground text-lg pr-1 select-none">
+                            $
+                          </span>
+                          <Input
+                            type="number"
+                            value={tip}
+                            onChange={handleTipChange}
+                            placeholder="Tip"
+                            min={0}
+                            step="0.01"
+                            required
+                            className="text-center"
+                            id="tip"
+                          />
+                          <Button
+                            onClick={handleSaveTip}
+                            variant="outline"
+                            className="size-8"
+                            type="button"
+                          >
+                            <Check />
+                          </Button>
+                        </div>
+                        <div className="text-muted-foreground text-sm flex justify-center">
+                          percentage of total{" "}
+                          {truncateToTwoDecimals((tip / itemsTotal) * 100)}%
+                        </div>
+                      </TabsContent>
+                      <TabsContent value="percentage">
+                        <div className="grid grid-flow-col gap-2">
+                          <PercentageTipButton
+                            percentage={10}
+                            itemsTotal={itemsTotal}
+                            onTipSelect={handlePercentageTipSelect}
+                          />
+                          <PercentageTipButton
+                            percentage={15}
+                            itemsTotal={itemsTotal}
+                            onTipSelect={handlePercentageTipSelect}
+                          />
+                          <PercentageTipButton
+                            percentage={20}
+                            itemsTotal={itemsTotal}
+                            onTipSelect={handlePercentageTipSelect}
+                          />
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                </form>
+              ) : (
+                <>
                   <div
                     className="flex justify-between items-center py-1 sm:py-2"
                     onClick={handleEditTip}
@@ -305,60 +305,60 @@ const SummaryCard = ({
                       {formatCurrency(receipt_data.tip ?? 0)}
                     </span>
                   </div>
-                )}
-              </>
-            )}
-          </div>
+                </>
+              )}
+            </div>
+          )}
 
-          <div className="border rounded-sm p-2 py-1 -ml-2 -mr-2 px-2">
-            {isEditingGratuity ? (
-              <form
-                className="flex flex-col gap-3 py-1 bg-background"
-                onSubmit={(e) => e.preventDefault()} // No submit action
-              >
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2 justify-between">
-                    <Label htmlFor="gratuity" className="text-sm font-medium">
-                      Gratuity:
-                    </Label>
-                    <Button
-                      variant="outline"
-                      className="size-8"
-                      onClick={() => setIsEditingGratuity(false)}
-                    >
-                      <X />
-                    </Button>
-                  </div>
+          {(receipt_data.gratuity ?? 0) > 0 && (
+            <div className="border rounded-sm p-2 py-1 -ml-2 -mr-2 px-2">
+              {isEditingGratuity ? (
+                <form
+                  className="flex flex-col gap-3 py-1 bg-background"
+                  onSubmit={(e) => e.preventDefault()} // No submit action
+                >
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2 justify-between">
+                      <Label htmlFor="gratuity" className="text-sm font-medium">
+                        Gratuity:
+                      </Label>
+                      <Button
+                        variant="outline"
+                        className="size-8"
+                        onClick={() => setIsEditingGratuity(false)}
+                      >
+                        <X />
+                      </Button>
+                    </div>
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-lg pr-1 select-none">
-                      $
-                    </span>
-                    <Input
-                      type="number"
-                      value={gratuity}
-                      onChange={handleGratuityChange}
-                      placeholder="Gratuity"
-                      min={0}
-                      step="1"
-                      required
-                      className="text-center"
-                      id="gratuity"
-                    />
-                    <Button
-                      onClick={handleSaveGratuity}
-                      variant="outline"
-                      className="size-8"
-                      type="button"
-                    >
-                      <Check />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground text-lg pr-1 select-none">
+                        $
+                      </span>
+                      <Input
+                        type="number"
+                        value={gratuity}
+                        onChange={handleGratuityChange}
+                        placeholder="Gratuity"
+                        min={0}
+                        step="1"
+                        required
+                        className="text-center"
+                        id="gratuity"
+                      />
+                      <Button
+                        onClick={handleSaveGratuity}
+                        variant="outline"
+                        className="size-8"
+                        type="button"
+                      >
+                        <Check />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </form>
-            ) : (
-              <>
-                {(receipt_data.gratuity ?? 0) > 0 && (
+                </form>
+              ) : (
+                <>
                   <div
                     className="flex justify-between items-center py-1 sm:py-2"
                     onClick={handleEditGratuity}
@@ -368,10 +368,10 @@ const SummaryCard = ({
                       {formatCurrency(receipt_data.gratuity ?? 0)}
                     </span>
                   </div>
-                )}
-              </>
-            )}
-          </div>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Final Total */}
           <div className="flex justify-between items-center pt-3 border-t-2 border-border mt-2">
