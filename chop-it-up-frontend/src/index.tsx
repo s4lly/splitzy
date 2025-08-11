@@ -17,17 +17,31 @@ const options = {
   defaults: "2025-05-24",
 };
 
+// Extract shared JSX content to avoid duplication
+const appContent = (
+  <FeatureFlagProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </BrowserRouter>
+  </FeatureFlagProvider>
+);
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
-      <FeatureFlagProvider>
-        <BrowserRouter>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </BrowserRouter>
-      </FeatureFlagProvider>
-    </PostHogProvider>
+    {Boolean(POSTHOG_PROJECT_API_KEY) ? (
+      <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
+        {appContent}
+      </PostHogProvider>
+    ) : (
+      (() => {
+        console.info(
+          "PostHog API key not found, skipping PostHogProvider initialization"
+        );
+        return appContent;
+      })()
+    )}
   </React.StrictMode>
 );
