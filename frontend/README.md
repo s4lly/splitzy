@@ -1,4 +1,4 @@
-# Chop it up - React Frontend
+# Splitzy - React Frontend
 
 This is the React frontend for the Receipt Splitting App, built with React Spectrum. It allows users to upload receipts for analysis, create splitting sessions, and collaborate with friends to divide bills.
 
@@ -26,7 +26,7 @@ This is the React frontend for the Receipt Splitting App, built with React Spect
    ```bash
    npm install
    ```
-3. Create a `.env` file in `chop-it-up-frontend`:
+3. Create a `.env` file in `frontend`:
    ```
    VITE_API_URL=http://localhost:5000/api
    ```

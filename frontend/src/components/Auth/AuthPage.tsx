@@ -24,7 +24,7 @@ const AuthPage = () => {
         <div className="text-center mb-4">
           <div className="flex items-center justify-center gap-2 mb-1">
             <Receipt className="h-6 w-6" />
-            <h1 className="text-xl font-bold">Chop It Up</h1>
+            <h1 className="text-xl font-bold">Splitzy</h1>
           </div>
           <p className="text-sm text-muted-foreground">Receipt Analysis Tool</p>
         </div>
