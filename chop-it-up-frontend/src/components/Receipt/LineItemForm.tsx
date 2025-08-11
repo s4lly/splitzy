@@ -92,7 +92,7 @@ export default function LineItemForm({
   return (
     <div>
       <form
-        className="md:hidden p-3 flex flex-col gap-3 bg-background"
+        className="p-3 flex flex-col gap-3 bg-background"
         onSubmit={(e) => e.preventDefault()} // No submit action
       >
         <div className="flex flex-col gap-2">

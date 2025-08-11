@@ -121,7 +121,6 @@ function FeatureFlagsSettings() {
   const dispatch = useFeatureFlagDispatch();
 
   const receiptDesktopTable = useFeatureFlag("receipt-desktop-table");
-  const editLineItems = useFeatureFlag("edit-line-items");
   const { isOverridden } = useContext(FeatureFlagStateContext);
 
   return (
@@ -169,29 +168,6 @@ function FeatureFlagsSettings() {
                 value: {
                   location: "local",
                   value: !receiptDesktopTable,
-                },
-              });
-            }}
-          />
-        </div>
-        <Separator />
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="experimental-ui">Editable Line Items</Label>
-            <p className="text-sm text-muted-foreground">
-              Edit line items in the receipt analysis page.
-            </p>
-          </div>
-          <Switch
-            id="experimental-ui"
-            checked={editLineItems}
-            onCheckedChange={() => {
-              dispatch({
-                type: "SET_FLAG",
-                name: "edit-line-items",
-                value: {
-                  location: "local",
-                  value: !editLineItems,
                 },
               });
             }}
