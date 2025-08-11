@@ -4,6 +4,8 @@ import { LineItemSchema } from "@/lib/receiptSchemas";
 import { z } from "zod";
 import { useMobile } from "@/hooks/use-mobile";
 import clsx from "clsx";
+import { getColorForName } from "./utils/get-color-for-name";
+import { cn } from "@/lib/utils";
 
 interface PersonAssignmentSectionProps {
   item: z.infer<typeof LineItemSchema>;
@@ -17,6 +19,8 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
   className = "",
 }) => {
   const isMobile = useMobile();
+  const MAX = isMobile ? Infinity : 3;
+  const visibleAssignedPeople = item.assignments.slice(0, MAX);
 
   const classes = isMobile
     ? "pt-2 border-t border-border/20"
@@ -36,25 +40,45 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
         </div>
       )}
 
-      {people.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {item.assignments.map((person, personIdx) => (
-            <div
-              key={personIdx}
-              className={clsx(
-                isMobile &&
-                  "flex items-center gap-1 bg-muted/20 rounded py-1 group"
-              )}
-            >
-              <PersonBadge
-                name={person}
-                personIndex={people.indexOf(person)}
-                totalPeople={people.length}
-                size="sm"
-              />
-              <span className="text-xs">{person}</span>
+      {visibleAssignedPeople.length > 0 && (
+        <div
+          className={cn(
+            "flex items-center gap-2 rounded-full w-full p-2",
+            !isMobile && "bg-gray-100"
+          )}
+        >
+          {visibleAssignedPeople.map((person, personIdx) => {
+            const [bgColor, textColor, hoverBgColor, hoverTextColor] =
+              getColorForName(person, personIdx, people.length);
+
+            return (
+              <div
+                key={personIdx}
+                className={cn(
+                  isMobile &&
+                    "flex items-center gap-1 bg-muted/20 rounded py-1 group",
+                  !isMobile && "[&:nth-child(n+2)]:-ml-4"
+                )}
+              >
+                <PersonBadge
+                  name={person}
+                  size={isMobile ? "sm" : "md"}
+                  className={cn(
+                    bgColor,
+                    textColor,
+                    !isMobile && "border-white border-2",
+                    `dark:${hoverBgColor}`,
+                    `dark:${hoverTextColor}`
+                  )}
+                />
+              </div>
+            );
+          })}
+          {item.assignments.length > MAX && (
+            <div className="text-xs text-muted-foreground">
+              +{item.assignments.length - MAX}
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>

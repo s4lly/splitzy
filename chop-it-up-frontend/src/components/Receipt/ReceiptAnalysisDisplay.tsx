@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Calendar,
@@ -29,6 +29,7 @@ import { useFeatureFlag } from "../../context/FeatureFlagProvider";
 import PersonBadge from "./PersonBadge";
 import LineItemsTableMobile from "./LineItemsTableMobile";
 import LineItemsTableDesktop from "./LineItemsTableDesktop";
+import LineItemsTableDesktopV2 from "./LineItemsTableDesktopV2";
 import { getColorForName } from "./utils/get-color-for-name";
 import { Input } from "../ui/input";
 import { LineItemSchema, ReceiptSchema } from "@/lib/receiptSchemas";
@@ -38,7 +39,6 @@ import {
   getTotal,
   getPersonPreTaxItemTotals,
   getPersonFinalTotals,
-  filterPeople,
 } from "./utils/receipt-calculation";
 import { useMobile } from "../../hooks/use-mobile";
 import LineItemCard from "./components/LineItemCard";
@@ -72,12 +72,11 @@ const ReceiptAnalysisDisplay = ({
   const [newPersonName, setNewPersonName] = useState("");
   const [showPeopleManager, setShowPeopleManager] = useState(false);
   const [searchInputs, setSearchInputs] = useState<Record<string, string>>({});
-  const [activeItemId, setActiveItemId] = useState<string | null>(null);
-  const [editItemId, setEditItemId] = useState<string | null>(null);
   const [isAddingItem, setIsAddingItem] = useState(false);
   const updateItemAssignmentsMutation = useItemAssignmentsUpdateMutation();
   const editLineItemsEnabledRaw = useFeatureFlag("edit-line-items");
   const editLineItemsEnabled = !!editLineItemsEnabledRaw;
+  const receiptDesktopTableV2Enabled = useFeatureFlag("receipt-desktop-table");
   const isMobile = useMobile();
 
   // Update people state when result changes (e.g., when line items are deleted)
@@ -324,10 +323,20 @@ const ReceiptAnalysisDisplay = ({
                   togglePersonAssignment={togglePersonAssignment}
                 />
               ) : (
-                <LineItemsTableDesktop
-                  line_items={receipt_data.line_items}
-                  people={people}
-                />
+                <>
+                  {receiptDesktopTableV2Enabled ? (
+                    <LineItemsTableDesktopV2
+                      line_items={receipt_data.line_items}
+                      people={people}
+                      result={result}
+                    />
+                  ) : (
+                    <LineItemsTableDesktop
+                      line_items={receipt_data.line_items}
+                      people={people}
+                    />
+                  )}
+                </>
               )}
             </>
           ) : (

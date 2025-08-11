@@ -1,18 +1,14 @@
-import { getColorForName } from "./utils/get-color-for-name";
+import { cn } from "@/lib/utils";
 
 const PersonBadge = ({
   name,
-  personIndex,
-  totalPeople,
+  className,
   size = "md",
 }: {
   name: string;
-  personIndex: number;
-  totalPeople: number;
+  className?: string;
   size: "sm" | "md" | "lg";
 }) => {
-  const colorPair = getColorForName(name, personIndex, totalPeople);
-
   const sizeClasses = {
     sm: "h-5 w-5 text-[10px]",
     md: "h-6 w-6 text-xs",
@@ -21,12 +17,11 @@ const PersonBadge = ({
 
   return (
     <div
-      className={`
-        flex items-center justify-center rounded-full font-medium
-        ${sizeClasses[size as keyof typeof sizeClasses]}
-        ${colorPair[0]} ${colorPair[1]}
-        dark:${colorPair[2]} dark:${colorPair[3]}
-      `}
+      className={cn(
+        "flex items-center justify-center rounded-full font-medium",
+        sizeClasses[size as keyof typeof sizeClasses],
+        className
+      )}
       title={name}
     >
       {name.substring(0, 1).toUpperCase()}

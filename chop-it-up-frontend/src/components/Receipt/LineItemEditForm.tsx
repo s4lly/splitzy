@@ -1,12 +1,14 @@
 import { useEffect, useMemo } from "react";
 import { Button } from "../ui/button";
-import { X, Trash } from "lucide-react";
+import { X, Trash, Loader2 } from "lucide-react";
 import { LineItemSchema, ReceiptSchema } from "@/lib/receiptSchemas";
 import { z } from "zod";
 import debounce from "lodash.debounce";
 import { useLineItemUpdateMutation } from "./hooks/useLineItemUpdateMutation";
 import { useLineItemDeleteMutation } from "./hooks/useLineItemDeleteMutation";
 import LineItemForm from "./LineItemForm";
+import { cn } from "@/lib/utils";
+import { useMobile } from "@/hooks/use-mobile";
 
 export default function LineItemEditForm({
   item,
@@ -17,32 +19,34 @@ export default function LineItemEditForm({
   result: z.infer<typeof ReceiptSchema>;
   onEditCancel: () => void;
 }) {
-  const { mutate } = useLineItemUpdateMutation();
+  const { mutate: updateItem, isPending: isUpdating } =
+    useLineItemUpdateMutation();
   const { mutate: deleteItem, isPending: isDeleting } =
     useLineItemDeleteMutation();
+  const isMobile = useMobile();
 
   const debouncedPersistName = useMemo(
     () =>
       debounce((value: string) => {
-        mutate({
+        updateItem({
           receiptId: String(result?.id),
           itemId: item.id,
           name: value,
         });
       }, 300),
-    [result?.id, item.id, mutate]
+    [result?.id, item.id, updateItem]
   );
 
   const debouncedPersistQuantity = useMemo(
     () =>
       debounce((value: number) => {
-        mutate({
+        updateItem({
           receiptId: String(result?.id),
           itemId: item.id,
           quantity: value,
         });
       }, 300),
-    [result?.id, item.id, mutate]
+    [result?.id, item.id, updateItem]
   );
 
   useEffect(() => {
@@ -73,28 +77,36 @@ export default function LineItemEditForm({
 
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center p-2">
+      <div
+        className={cn(
+          "flex justify-between items-center p-2 bg-background",
+          !isMobile && "justify-end"
+        )}
+      >
         <Button
           type="button"
           variant="outline"
           onClick={handleDeleteItem}
-          disabled={isDeleting}
-          className="text-red-500 border-red-500"
+          disabled={isDeleting || isUpdating}
+          className={cn("text-red-500 border-red-500", !isMobile && "hidden")}
         >
           <Trash className="w-4 h-4 mr-2" />
           {isDeleting ? "Deleting..." : "Delete"}
         </Button>
 
-        <Button variant="outline" size="icon" onClick={onEditCancel}>
-          <X className="w-4 h-4" />
-        </Button>
+        <div className="flex items-center">
+          {isUpdating && <Loader2 className="w-4 h-4 animate-spin" />}
+          <Button variant="outline" size="icon" onClick={onEditCancel}>
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
       <LineItemForm
         item={item}
         result={result}
         onNameChange={handleNameChange}
         onQuantityChange={handleQuantityChange}
-        mutate={mutate}
+        mutate={updateItem}
       />
     </div>
   );
