@@ -62,7 +62,7 @@ function App() {
             <div className="font-bold text-2xl mr-auto flex items-center gap-2">
               <Link to="/" className="flex items-center gap-2">
                 <Receipt className="h-6 w-6" />
-                Chop It Up
+                Splitzy
               </Link>
             </div>
             
@@ -126,7 +126,7 @@ function App() {
             <div className="flex items-center gap-1">
               <Receipt className="h-4 w-4" />
               <p className="text-xs font-medium">
-                © {new Date().getFullYear()} Chop It Up
+                © {new Date().getFullYear()} Splitzy
               </p>
             </div>
             <p className="text-xs text-muted-foreground">
