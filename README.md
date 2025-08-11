@@ -95,9 +95,9 @@ project-root/
 
 3. Start the development server:
    ```bash
-   npm start
+   npm run dev
    ```
-   The frontend will start at http://localhost:3000
+   The frontend will start at http://localhost:5173
 
 ## API Endpoints
 
