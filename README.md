@@ -1,10 +1,10 @@
-# Chop It Up
+# Splitzy
 
 A full-stack application for receipt analysis, expense tracking, and bill splitting among friends.
 
 ## Overview
 
-Chop It Up is a web application that allows users to upload receipts or bills, analyzes them using AI to extract line items and amounts, and provides an interface to split expenses among friends. The application consists of a Flask backend API that processes receipt images using OpenAI's vision capabilities, and a React frontend that provides a user-friendly interface.
+Splitzy is a web application that allows users to upload receipts or bills, analyzes them using AI to extract line items and amounts, and provides an interface to split expenses among friends. The application consists of a Flask backend API that processes receipt images using OpenAI's vision capabilities, and a React frontend that provides a user-friendly interface.
 
 ## Features
 
@@ -24,7 +24,7 @@ project-root/
 ├── image_analyzer.py       # Receipt analysis logic using OpenAI
 ├── requirements.txt        # Python dependencies
 ├── uploads/                # Directory for uploaded receipt images
-└── chop-it-up-frontend/    # React frontend application
+└── frontend/               # React frontend application
     ├── src/                # React source code
     ├── public/             # Static assets
     ├── package.json        # Node.js dependencies
@@ -85,7 +85,7 @@ project-root/
 
 1. Navigate to the frontend directory:
    ```bash
-   cd chop-it-up-frontend
+   cd frontend
    ```
 
 2. Install Node.js dependencies:
@@ -134,7 +134,7 @@ project-root/
 pytest
 
 # Frontend tests
-cd chop-it-up-frontend
+cd frontend
 npm test
 ```
 
