@@ -6,8 +6,11 @@ import "./index.css";
 import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
 import { PostHogProvider } from "posthog-js/react";
-import { POSTHOG_KEY, POSTHOG_HOST } from "./utils/constants";
+import { POSTHOG_HOST } from "./utils/constants";
 import { FeatureFlagProvider } from "./context/FeatureFlagProvider";
+
+const POSTHOG_PROJECT_API_KEY = import.meta.env
+  .REACT_APP_POSTHOG_PROJECT_API_KEY;
 
 const options = {
   api_host: POSTHOG_HOST,
@@ -17,7 +20,7 @@ const options = {
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <PostHogProvider apiKey={POSTHOG_KEY} options={options}>
+    <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
       <FeatureFlagProvider>
         <BrowserRouter>
           <AuthProvider>
