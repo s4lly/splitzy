@@ -45,7 +45,7 @@ BACKEND_PID=$!
 sleep 2
 
 # Navigate to frontend directory and ensure node modules are installed
-cd "$REPO_ROOT/frontend"
+cd "$REPO_ROOT/frontend" || exit
 if [ ! -d "node_modules" ]; then
     echo -e "${BLUE}Installing frontend dependencies...${NC}"
     npm install
