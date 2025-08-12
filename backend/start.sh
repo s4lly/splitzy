@@ -53,7 +53,7 @@ fi
 
 # Start frontend
 echo -e "${GREEN}Starting React frontend...${NC}"
-npm start &
+npm run dev &
 FRONTEND_PID=$!
 
 # Function to handle script termination
@@ -69,7 +69,20 @@ trap cleanup SIGINT
 
 # Keep the script running
 echo -e "${GREEN}Both servers are running.${NC}"
-echo -e "Backend: http://localhost:5001"
-echo -e "Frontend: http://localhost:3000"
+
+# Extract port from REACT_APP_API_URL environment variable
+if [ -n "$REACT_APP_API_URL" ]; then
+    # Extract port from URL like http://localhost:5000/api
+    BACKEND_PORT=$(echo "$REACT_APP_API_URL" | sed -n 's/.*localhost:\([0-9]*\).*/\1/p')
+    if [ -n "$BACKEND_PORT" ]; then
+        echo -e "Backend: http://localhost:$BACKEND_PORT"
+    else
+        echo -e "Backend: http://localhost:5001"
+    fi
+else
+    echo -e "Backend: http://localhost:5001"
+fi
+
+echo -e "Frontend: http://localhost:5173"
 echo -e "Press Ctrl+C to stop both servers."
 wait 

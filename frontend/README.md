@@ -28,7 +28,7 @@ This is the React frontend for the Receipt Splitting App, built with React Spect
    ```
 3. Create a `.env` file in `frontend`:
    ```
-   VITE_API_URL=http://localhost:5000/api
+   REACT_APP_API_URL=http://localhost:5000/api
    ```
 
 ### Development

@@ -41,10 +41,27 @@ if not exist node_modules (
 
 :: Start frontend in a new window
 echo Starting React frontend...
-start cmd /k "npm start"
+start cmd /k "npm run dev"
 
 echo.
 echo Both servers are running.
-echo Backend: http://localhost:5001
-echo Frontend: http://localhost:3000
+
+:: Extract port from REACT_APP_API_URL environment variable
+if defined REACT_APP_API_URL (
+    :: Extract port from URL like http://localhost:5000/api
+    for /f "tokens=2 delims=:" %%a in ("%REACT_APP_API_URL%") do (
+        for /f "tokens=1 delims=/" %%b in ("%%a") do (
+            set BACKEND_PORT=%%b
+        )
+    )
+    if defined BACKEND_PORT (
+        echo Backend: http://localhost:%BACKEND_PORT%
+    ) else (
+        echo Backend: http://localhost:5001
+    )
+) else (
+    echo Backend: http://localhost:5001
+)
+
+echo Frontend: http://localhost:5173
 echo Close the command windows to stop the servers. 
