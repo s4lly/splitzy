@@ -39,6 +39,8 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def get_db_connection():
     db_path = BASE_DIR / 'users.db'
     conn = sqlite3.connect(str(db_path))
+    # Enforce foreign key constraints
+    conn.execute('PRAGMA foreign_keys = ON')
     conn.row_factory = sqlite3.Row
     return conn
 
