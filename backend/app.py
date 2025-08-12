@@ -85,6 +85,29 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def resolve_image_path(image_path):
+    """
+    Resolve image path with backwards compatibility.
+    Tries absolute path first, then falls back to relative path from backend/uploads/
+    """
+    # First try the path as-is (absolute path)
+    if os.path.isfile(image_path):
+        return image_path
+    
+    # If that fails, try as relative path from backend/uploads/
+    # Handle both formats: "uploads/filename.png" and "filename.png"
+    filename = os.path.basename(image_path)
+    if image_path.startswith('uploads/'):
+        filename = image_path[8:]  # Remove "uploads/" prefix
+    
+    # Try relative path from backend/uploads/
+    relative_path = os.path.join(BASE_DIR, 'uploads', filename)
+    if os.path.isfile(relative_path):
+        return relative_path
+    
+    # If still not found, return the original path (will cause 404)
+    return image_path
+
 # Authentication Middleware
 def get_current_user():
     user_id = session.get('user_id')
@@ -202,16 +225,20 @@ def uploaded_file(filename):
 @app.route('/analyze/<filename>')
 def analyze(filename):
     image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    # Resolve image path with backwards compatibility
+    resolved_path = resolve_image_path(image_path)
     analyzer = ImageAnalyzer()
-    analysis_result = analyzer.analyze_image(image_path)
+    analysis_result = analyzer.analyze_image(resolved_path)
     print("analysis_result done: ", analysis_result)
     return render_template('analysis.html', filename=filename, result=analysis_result)
 
 @app.route('/api/analyze/<filename>')
 def api_analyze(filename):
     image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    # Resolve image path with backwards compatibility
+    resolved_path = resolve_image_path(image_path)
     analyzer = ImageAnalyzer()
-    analysis_result = analyzer.analyze_image(image_path)
+    analysis_result = analyzer.analyze_image(resolved_path)
     print("analysis_result done: ", analysis_result)
     return jsonify(analysis_result)
 
@@ -433,8 +460,11 @@ def get_receipt_image(receipt_id):
         
         image_path = row['image_path']
         
+        # Resolve image path with backwards compatibility
+        resolved_path = resolve_image_path(image_path)
+        
         # Check if the file exists on disk
-        if not os.path.isfile(image_path):
+        if not os.path.isfile(resolved_path):
             return jsonify({'success': False, 'error': 'Receipt image file not found on server'}), 404
         
         # Determine the content type based on the file extension
@@ -451,8 +481,8 @@ def get_receipt_image(receipt_id):
         
         # Return the image file
         return send_from_directory(
-            os.path.dirname(image_path),
-            os.path.basename(image_path),
+            os.path.dirname(resolved_path),
+            os.path.basename(resolved_path),
             mimetype=content_type
         )
         
