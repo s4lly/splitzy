@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import base64
 from dotenv import load_dotenv
 import openai
@@ -11,8 +12,9 @@ from enum import Enum
 from typing import List, Optional, Union
 from pydantic import BaseModel, Field, validator
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from nearest .env (typically repo root)
+from dotenv import find_dotenv
+load_dotenv(find_dotenv())
 
 class AIProvider(Enum):
     AZURE = "azure"

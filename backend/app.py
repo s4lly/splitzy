@@ -1,9 +1,10 @@
 import os
+from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify, session
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
-from dotenv import load_dotenv
+from .image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
+from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
 import sqlite3
 import uuid
@@ -12,8 +13,8 @@ import json
 from pydantic import ValidationError, BaseModel
 from typing import Optional
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from nearest .env (typically repo root)
+load_dotenv(find_dotenv())
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)  # Enable CORS with credentials support
@@ -22,8 +23,11 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=7)
 
-# Configure upload folder
-UPLOAD_FOLDER = 'uploads'
+# Resolve important paths relative to this file so running from anywhere works
+BASE_DIR = Path(__file__).resolve().parent
+
+# Configure upload folder (absolute path)
+UPLOAD_FOLDER = str(BASE_DIR / 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -33,7 +37,10 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Initialize SQLite database
 def get_db_connection():
-    conn = sqlite3.connect('users.db')
+    db_path = BASE_DIR / 'users.db'
+    conn = sqlite3.connect(str(db_path))
+    # Enforce foreign key constraints
+    conn.execute('PRAGMA foreign_keys = ON')
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -79,6 +86,29 @@ init_db()
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def resolve_image_path(image_path):
+    """
+    Resolve image path with backwards compatibility.
+    Tries absolute path first, then falls back to relative path from backend/uploads/
+    """
+    # First try the path as-is (absolute path)
+    if os.path.isfile(image_path):
+        return image_path
+    
+    # If that fails, try as relative path from backend/uploads/
+    # Handle both formats: "uploads/filename.png" and "filename.png"
+    filename = os.path.basename(image_path)
+    if image_path.startswith('uploads/'):
+        filename = image_path[8:]  # Remove "uploads/" prefix
+    
+    # Try relative path from backend/uploads/
+    relative_path = os.path.join(BASE_DIR, 'uploads', filename)
+    if os.path.isfile(relative_path):
+        return relative_path
+    
+    # If still not found, return the original path (will cause 404)
+    return image_path
 
 # Authentication Middleware
 def get_current_user():
@@ -197,16 +227,20 @@ def uploaded_file(filename):
 @app.route('/analyze/<filename>')
 def analyze(filename):
     image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    # Resolve image path with backwards compatibility
+    resolved_path = resolve_image_path(image_path)
     analyzer = ImageAnalyzer()
-    analysis_result = analyzer.analyze_image(image_path)
+    analysis_result = analyzer.analyze_image(resolved_path)
     print("analysis_result done: ", analysis_result)
     return render_template('analysis.html', filename=filename, result=analysis_result)
 
 @app.route('/api/analyze/<filename>')
 def api_analyze(filename):
     image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    # Resolve image path with backwards compatibility
+    resolved_path = resolve_image_path(image_path)
     analyzer = ImageAnalyzer()
-    analysis_result = analyzer.analyze_image(image_path)
+    analysis_result = analyzer.analyze_image(resolved_path)
     print("analysis_result done: ", analysis_result)
     return jsonify(analysis_result)
 
@@ -428,8 +462,11 @@ def get_receipt_image(receipt_id):
         
         image_path = row['image_path']
         
+        # Resolve image path with backwards compatibility
+        resolved_path = resolve_image_path(image_path)
+        
         # Check if the file exists on disk
-        if not os.path.isfile(image_path):
+        if not os.path.isfile(resolved_path):
             return jsonify({'success': False, 'error': 'Receipt image file not found on server'}), 404
         
         # Determine the content type based on the file extension
@@ -446,8 +483,8 @@ def get_receipt_image(receipt_id):
         
         # Return the image file
         return send_from_directory(
-            os.path.dirname(image_path),
-            os.path.basename(image_path),
+            os.path.dirname(resolved_path),
+            os.path.basename(resolved_path),
             mimetype=content_type
         )
         

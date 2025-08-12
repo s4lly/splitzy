@@ -64,7 +64,7 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-uploads/
+backend/uploads/
 temp/
 .env
 *.log
