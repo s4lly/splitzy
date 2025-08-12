@@ -20,10 +20,13 @@ Splitzy is a web application that allows users to upload receipts or bills, anal
 
 ```
 project-root/
-├── app.py                  # Flask backend application
-├── image_analyzer.py       # Receipt analysis logic using OpenAI
-├── requirements.txt        # Python dependencies
-├── uploads/                # Directory for uploaded receipt images
+├── backend/
+│   ├── app.py              # Flask backend application
+│   ├── image_analyzer.py   # Receipt analysis logic using OpenAI
+│   ├── requirements.txt    # Python dependencies
+│   ├── uploads/            # Directory for uploaded receipt images
+│   ├── templates/          # Jinja templates
+│   └── static/             # Static assets for Flask
 └── frontend/               # React frontend application
     ├── src/                # React source code
     ├── public/             # Static assets
@@ -64,7 +67,7 @@ project-root/
 
 3. Install Python dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip install -r backend/requirements.txt
    ```
 
 4. Create a `.env` file in the root directory with the following variables:
@@ -77,9 +80,9 @@ project-root/
 
 5. Run the Flask application:
    ```bash
-   python app.py
+   python -m backend.app
    ```
-   The backend will start at http://localhost:5000
+   The backend will start at http://localhost:5001
 
 ### Frontend Setup
 

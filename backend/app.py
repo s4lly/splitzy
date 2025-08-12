@@ -1,9 +1,10 @@
 import os
+from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify, session
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
-from dotenv import load_dotenv
+from .image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
+from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
 import sqlite3
 import uuid
@@ -12,8 +13,8 @@ import json
 from pydantic import ValidationError, BaseModel
 from typing import Optional
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from nearest .env (typically repo root)
+load_dotenv(find_dotenv())
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)  # Enable CORS with credentials support
@@ -22,8 +23,11 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=7)
 
-# Configure upload folder
-UPLOAD_FOLDER = 'uploads'
+# Resolve important paths relative to this file so running from anywhere works
+BASE_DIR = Path(__file__).resolve().parent
+
+# Configure upload folder (absolute path)
+UPLOAD_FOLDER = str(BASE_DIR / 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -33,7 +37,8 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Initialize SQLite database
 def get_db_connection():
-    conn = sqlite3.connect('users.db')
+    db_path = BASE_DIR / 'users.db'
+    conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
     return conn
 

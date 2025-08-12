@@ -8,18 +8,22 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}Starting Chop It Up Application...${NC}"
 
-# Check for Python virtual environment
-if [ ! -d "venv" ]; then
+# Resolve paths relative to the repo root regardless of current working directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Check for Python virtual environment (create it under repo root)
+if [ ! -d "$REPO_ROOT/venv" ]; then
     echo -e "${BLUE}Setting up Python virtual environment...${NC}"
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
+    python3 -m venv "$REPO_ROOT/venv"
+    source "$REPO_ROOT/venv/bin/activate"
+    pip install -r "$REPO_ROOT/backend/requirements.txt"
 else
-    source venv/bin/activate
+    source "$REPO_ROOT/venv/bin/activate"
 fi
 
-# Check if .env file exists
-if [ ! -f ".env" ]; then
+# Check if .env file exists at repo root
+if [ ! -f "$REPO_ROOT/.env" ]; then
     echo -e "${RED}Error: .env file not found. Please create a .env file with your configuration.${NC}"
     echo -e "Example .env file:"
     echo -e "${BLUE}AZURE_OPENAI_KEY=your_azure_openai_key"
@@ -29,19 +33,19 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
-# Make the uploads directory if it doesn't exist
-mkdir -p uploads
+# Make the uploads directory if it doesn't exist (under backend)
+mkdir -p "$REPO_ROOT/backend/uploads"
 
 # Start the backend in the background
 echo -e "${GREEN}Starting Flask backend server...${NC}"
-python app.py &
+(cd "$REPO_ROOT" && python -m backend.app) &
 BACKEND_PID=$!
 
 # Wait for backend to start
 sleep 2
 
 # Navigate to frontend directory and ensure node modules are installed
-cd chop-it-up-frontend
+cd "$REPO_ROOT/frontend"
 if [ ! -d "node_modules" ]; then
     echo -e "${BLUE}Installing frontend dependencies...${NC}"
     npm install
@@ -65,7 +69,7 @@ trap cleanup SIGINT
 
 # Keep the script running
 echo -e "${GREEN}Both servers are running.${NC}"
-echo -e "Backend: http://localhost:5000"
+echo -e "Backend: http://localhost:5001"
 echo -e "Frontend: http://localhost:3000"
 echo -e "Press Ctrl+C to stop both servers."
 wait 
