@@ -142,17 +142,12 @@ def get_user_receipts():
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>', methods=['GET'])
 def get_user_receipt(receipt_id):
     """Get a specific receipt by ID"""
-    # Check if user is authenticated
-    current_user = get_current_user()
-    if not current_user:
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
-
     try:
         conn = get_db_connection()
         # Get the specific receipt, ensuring it belongs to the current user
         row = conn.execute(
-            'SELECT id, receipt_data, image_path, created_at FROM user_receipts WHERE id = ? AND user_id = ?',
-            (receipt_id, current_user['id'])
+            'SELECT id, receipt_data, image_path, created_at FROM user_receipts WHERE id = ?',
+            (receipt_id,)
         ).fetchone()
         conn.close()
 
@@ -224,17 +219,12 @@ def health_check():
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/image', methods=['GET'])
 def get_receipt_image(receipt_id):
     """Get the image for a specific receipt"""
-    # Check if user is authenticated
-    current_user = get_current_user()
-    if not current_user:
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
-
     try:
         conn = get_db_connection()
         # Get the receipt image path from the database
         row = conn.execute(
-            'SELECT image_path FROM user_receipts WHERE id = ? AND user_id = ?',
-            (receipt_id, current_user['id'])
+            'SELECT image_path FROM user_receipts WHERE id = ?',
+            (receipt_id,)
         ).fetchone()
         conn.close()
 
@@ -277,14 +267,9 @@ def get_receipt_image(receipt_id):
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/assignments', methods=['PUT'])
 def update_receipt_assignments(receipt_id):
     """Update the assignments for line items in a specific receipt"""
-    current_user = get_current_user()
-    if not current_user:
-        current_app.logger.error(f"[update_receipt_assignments] Authentication required for receipt_id={receipt_id}")
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
-
     data = request.get_json()
     if not data or 'line_items' not in data:
-        current_app.logger.error(f"[update_receipt_assignments] Missing line_items data for receipt_id={receipt_id}, user_id={current_user.get('id') if current_user else None}")
+        current_app.logger.error(f"[update_receipt_assignments] Missing line_items data for receipt_id={receipt_id}")
         return jsonify({'success': False, 'error': 'Missing line_items data'}), 400
 
     try:
@@ -292,23 +277,23 @@ def update_receipt_assignments(receipt_id):
         try:
             # Fetch the receipt to ensure it belongs to the user
             row = conn.execute(
-                'SELECT receipt_data FROM user_receipts WHERE id = ? AND user_id = ?',
-                (receipt_id, current_user['id'])
+                'SELECT receipt_data FROM user_receipts WHERE id = ?',
+                (receipt_id,)
             ).fetchone()
         except Exception as e:
-            current_app.logger.error(f"[update_receipt_assignments] Error fetching receipt: receipt_id={receipt_id}, user_id={current_user['id']}, error={str(e)}")
+            current_app.logger.error(f"[update_receipt_assignments] Error fetching receipt: receipt_id={receipt_id}, error={str(e)}")
             conn.close()
             return jsonify({'success': False, 'error': 'Database error while fetching receipt'}), 500
 
         if not row:
-            current_app.logger.error(f"[update_receipt_assignments] Receipt not found: receipt_id={receipt_id}, user_id={current_user['id']}")
+            current_app.logger.error(f"[update_receipt_assignments] Receipt not found: receipt_id={receipt_id}")
             conn.close()
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
         try:
             receipt_data = json.loads(row['receipt_data'])
         except Exception as e:
-            current_app.logger.error(f"[update_receipt_assignments] Error decoding receipt_data: receipt_id={receipt_id}, user_id={current_user['id']}, error={str(e)}")
+            current_app.logger.error(f"[update_receipt_assignments] Error decoding receipt_data: receipt_id={receipt_id}, error={str(e)}")
             conn.close()
             return jsonify({'success': False, 'error': 'Corrupt receipt data'}), 500
 
@@ -320,7 +305,7 @@ def update_receipt_assignments(receipt_id):
                     line_items_by_id[updated_item['id']]['assignments'] = updated_item.get('assignments', [])
             receipt_data['line_items'] = list(line_items_by_id.values())
         except Exception as e:
-            current_app.logger.error(f"[update_receipt_assignments] Error updating line items: receipt_id={receipt_id}, user_id={current_user['id']}, error={str(e)}")
+            current_app.logger.error(f"[update_receipt_assignments] Error updating line items: receipt_id={receipt_id}, error={str(e)}")
             conn.close()
             return jsonify({'success': False, 'error': 'Failed to update line items'}), 500
 
@@ -332,22 +317,19 @@ def update_receipt_assignments(receipt_id):
             )
             conn.commit()
         except Exception as e:
-            current_app.logger.error(f"[update_receipt_assignments] Error saving updated receipt_data: receipt_id={receipt_id}, user_id={current_user['id']}, error={str(e)}")
+            current_app.logger.error(f"[update_receipt_assignments] Error saving updated receipt_data: receipt_id={receipt_id}, error={str(e)}")
             conn.close()
             return jsonify({'success': False, 'error': 'Failed to save updated assignments'}), 500
+
         conn.close()
         return jsonify({'success': True})
     except Exception as e:
-        current_app.logger.error(f"[update_receipt_assignments] Unexpected error: receipt_id={receipt_id}, user_id={current_user['id']}, error={str(e)}")
+        current_app.logger.error(f"[update_receipt_assignments] Unexpected error: receipt_id={receipt_id}, error={str(e)}")
         return jsonify({'success': False, 'error': 'Failed to update assignments'}), 500
 
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/line-items/<item_id>', methods=['PUT'])
 def update_line_item(receipt_id, item_id):
     """Update any property of a specific line item in a receipt"""
-    current_user = get_current_user()
-    if not current_user:
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
-
     data = request.get_json()
     if not data:
         return jsonify({'success': False, 'error': 'No update data provided'}), 400
@@ -356,8 +338,8 @@ def update_line_item(receipt_id, item_id):
         conn = get_db_connection()
         # Fetch the receipt to ensure it belongs to the user
         row = conn.execute(
-            'SELECT receipt_data FROM user_receipts WHERE id = ? AND user_id = ?',
-            (receipt_id, current_user['id'])
+            'SELECT receipt_data FROM user_receipts WHERE id = ?',
+            (receipt_id,)
         ).fetchone()
 
         if not row:
@@ -385,6 +367,7 @@ def update_line_item(receipt_id, item_id):
             (json.dumps(receipt_data), receipt_id)
         )
         conn.commit()
+
         conn.close()
         return jsonify({'success': True})
     except Exception as e:
@@ -394,10 +377,6 @@ def update_line_item(receipt_id, item_id):
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/receipt-data', methods=['PUT'])
 def update_receipt_data(receipt_id):
     """Update any property of the receipt data (RegularReceipt)"""
-    current_user = get_current_user()
-    if not current_user:
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
-
     data = request.get_json()
     if not data:
         return jsonify({'success': False, 'error': 'No update data provided'}), 400
@@ -408,8 +387,8 @@ def update_receipt_data(receipt_id):
         conn = get_db_connection()
         # Fetch the receipt to ensure it belongs to the user
         row = conn.execute(
-            'SELECT receipt_data FROM user_receipts WHERE id = ? AND user_id = ?',
-            (receipt_id, current_user['id'])
+            'SELECT receipt_data FROM user_receipts WHERE id = ?',
+            (receipt_id,)
         ).fetchone()
 
         if not row:
@@ -444,6 +423,7 @@ def update_receipt_data(receipt_id):
             (json.dumps(receipt_data), receipt_id)
         )
         conn.commit()
+
         conn.close()
         return jsonify({'success': True})
     except ValidationError as e:
@@ -455,16 +435,12 @@ def update_receipt_data(receipt_id):
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/line-items/<item_id>', methods=['DELETE'])
 def delete_line_item(receipt_id, item_id):
     """Delete a specific line item from a receipt"""
-    current_user = get_current_user()
-    if not current_user:
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
-
     try:
         conn = get_db_connection()
         # Fetch the receipt to ensure it belongs to the user
         row = conn.execute(
-            'SELECT receipt_data FROM user_receipts WHERE id = ? AND user_id = ?',
-            (receipt_id, current_user['id'])
+            'SELECT receipt_data FROM user_receipts WHERE id = ?',
+            (receipt_id,)
         ).fetchone()
 
         if not row:
@@ -491,6 +467,7 @@ def delete_line_item(receipt_id, item_id):
             (json.dumps(receipt_data), receipt_id)
         )
         conn.commit()
+
         conn.close()
         return jsonify({'success': True})
     except Exception as e:
@@ -500,10 +477,6 @@ def delete_line_item(receipt_id, item_id):
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/line-items', methods=['POST'])
 def add_line_item(receipt_id):
     """Add a new line item to a receipt"""
-    current_user = get_current_user()
-    if not current_user:
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
-
     data = request.get_json()
     if not data:
         return jsonify({'success': False, 'error': 'No line item data provided'}), 400
@@ -520,8 +493,8 @@ def add_line_item(receipt_id):
         conn = get_db_connection()
         # Fetch the receipt to ensure it belongs to the user
         row = conn.execute(
-            'SELECT receipt_data FROM user_receipts WHERE id = ? AND user_id = ?',
-            (receipt_id, current_user['id'])
+            'SELECT receipt_data FROM user_receipts WHERE id = ?',
+            (receipt_id,)
         ).fetchone()
 
         if not row:
@@ -549,8 +522,8 @@ def add_line_item(receipt_id):
             (json.dumps(receipt_data), receipt_id)
         )
         conn.commit()
-        conn.close()
 
+        conn.close()
         return jsonify({
             'success': True,
             'line_item': new_line_item
