@@ -15,8 +15,14 @@ const AuthenticatedOnly: React.FC<AuthenticatedOnlyProps> = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      <div 
+        className="flex items-center justify-center min-h-[60vh]"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <Loader2 className="h-10 w-10 animate-spin text-primary" aria-hidden="true" />
+        <span className="sr-only">Loading…</span>
       </div>
     );
   }
