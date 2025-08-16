@@ -5,6 +5,7 @@ import { AlertCircle, Database } from 'lucide-react';
 import ModernReceiptUploader from '../components/Receipt/ModernReceiptUploader';
 import ReceiptHistory from '../components/Receipt/ReceiptHistory';
 import receiptService from '../services/receiptService';
+import AuthenticatedOnly from '@/components/Auth/AuthenticatedOnly';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -59,26 +60,11 @@ const HomePage = () => {
               <p className="text-destructive">API is currently unavailable. Please try again later.</p>
             </div>
           )}
-          
-          {apiStatus === 'healthy' && (
-            <motion.div 
-              className="p-8 border-2 border-border rounded-lg bg-card text-center shadow-md"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <Database className="h-16 w-16 mx-auto mb-6 text-muted-foreground" />
-              <h3 className="text-xl font-medium mb-3">Ready to Analyze</h3>
-              <p className="text-base text-muted-foreground">
-                Upload a receipt, invoice, or bill image above to see the analysis results, or view previous documents below.
-              </p>
-            </motion.div>
-          )}
         </motion.div>
         
-        <div>
+        <AuthenticatedOnly>
           <ReceiptHistory />
-        </div>
+        </AuthenticatedOnly>
       </div>
     </div>
   );
