@@ -12,6 +12,7 @@ import {
   Check,
   Plus,
   X,
+  QrCode,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
@@ -44,6 +45,7 @@ import { useMobile } from "../../hooks/use-mobile";
 import LineItemCard from "./components/LineItemCard";
 import LineItemAddForm from "./LineItemAddForm";
 import SummaryCard from "./SummaryCard";
+import { QRCode } from "../ui/kibo-ui/qr-code";
 
 const getPeopleFromLineItems = (
   lineItems: z.infer<typeof LineItemSchema>[]
@@ -71,6 +73,7 @@ const ReceiptAnalysisDisplay = ({
 
   const [newPersonName, setNewPersonName] = useState("");
   const [showPeopleManager, setShowPeopleManager] = useState(false);
+  const [showQrCode, setShowQrCode] = useState(false);
   const [searchInputs, setSearchInputs] = useState<Record<string, string>>({});
   const [isAddingItem, setIsAddingItem] = useState(false);
   const updateItemAssignmentsMutation = useItemAssignmentsUpdateMutation();
@@ -252,12 +255,30 @@ const ReceiptAnalysisDisplay = ({
       {/* Document Details Card - Now first */}
       <Card className="shadow-md border-2 overflow-hidden rounded-none sm:rounded-lg">
         <CardHeader className="pb-2 px-3 sm:px-6">
-          <CardTitle className="text-xl font-bold flex items-center gap-3">
-            <ShoppingBag className="h-6 w-6" />
-            Document Details
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl font-bold flex items-center gap-3">
+              <ShoppingBag className="h-6 w-6" />
+              Document Details
+            </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowQrCode(!showQrCode)}
+            >
+              <QrCode className="h-4 w-4 mr-1" />
+              {showQrCode ? "Hide QR Code" : "Show QR Code"}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="px-3 sm:px-6">
+          {showQrCode && (
+            <div className="flex justify-center py-4">
+              <QRCode
+                value={window.location.href}
+                className="w-48 h-48"
+              />
+            </div>
+          )}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
             <div className="flex items-center gap-3 overflow-hidden">
               <Tag className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
