@@ -1,13 +1,46 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import authService from '../services/authService';
 
-// Create the context
-const AuthContext = createContext();
+// Define the user type
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  name?: string;
+}
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+// Define credential types
+interface LoginCredentials {
+  username?: string;
+  email?: string;
+  password: string;
+}
+
+interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+  name?: string;
+}
+
+// Define the auth context type
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  isAuthenticated: boolean;
+  login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
+  register: (userData: RegisterData) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<{ success: boolean; error?: string }>;
+}
+
+// Create the context
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Check if user is already logged in on initial load
   useEffect(() => {
@@ -33,26 +66,36 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login function
-  const login = async (credentials) => {
+  const login = async (credentials: LoginCredentials): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true);
       setError(null);
-      const response = await authService.login(credentials);
+      
+      // Normalize credentials: derive username from either username or email
+      const username = credentials.username ?? credentials.email;
+      if (!username) {
+        return { success: false, error: 'Username or email is required' };
+      }
+      
+      const normalizedCredentials = { username, password: credentials.password };
+      const response = await authService.login(normalizedCredentials);
       
       if (response.success) {
         setUser(response.user);
         return { success: true };
       }
+      return { success: false, error: 'Login failed' };
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
-      return { success: false, error: err.response?.data?.error || 'Login failed' };
+      const errorMessage = err instanceof Error ? err.message : 'Login failed';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
   };
 
   // Register function
-  const register = async (userData) => {
+  const register = async (userData: RegisterData): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true);
       setError(null);
@@ -62,24 +105,27 @@ export const AuthProvider = ({ children }) => {
         setUser(response.user);
         return { success: true };
       }
+      return { success: false, error: 'Registration failed' };
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
-      return { success: false, error: err.response?.data?.error || 'Registration failed' };
+      const errorMessage = err instanceof Error ? err.message : 'Registration failed';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
   };
 
   // Logout function
-  const logout = async () => {
+  const logout = async (): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true);
       await authService.logout();
       setUser(null);
       return { success: true };
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Logout failed';
       console.error('Logout error:', err);
-      return { success: false, error: 'Logout failed' };
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }

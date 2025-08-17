@@ -274,25 +274,7 @@ const ReceiptAnalysisPage = () => {
         </div>
       ) : (
         <div className="py-8 max-w-4xl mx-auto">
-          <Button 
-            variant="ghost" 
-            className="mb-6" 
-            onClick={handleBackClick}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Button>
-          
           <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold">
-                Receipt Analysis
-              </h1>
-              <div className="text-sm text-muted-foreground">
-                ID: {receiptId}
-              </div>
-            </div>
-            
             {/* Receipt Image Section */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}

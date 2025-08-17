@@ -12,6 +12,7 @@ import LoginButton from './components/Auth/LoginButton';
 import HomePage from './pages/HomePage';
 import SettingsPage from './pages/SettingsPage';
 import ReceiptAnalysisPage from './pages/ReceiptAnalysisPage';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
@@ -35,22 +36,7 @@ function App() {
     checkApiHealth();
   }, []);
 
-  // Protected route component
-  const ProtectedRoute = ({ children }) => {
-    if (loading) {
-      return (
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        </div>
-      );
-    }
-    
-    if (!isAuthenticated) {
-      return <Navigate to="/auth" />;
-    }
-    
-    return children;
-  };
+
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -103,14 +89,10 @@ function App() {
               isAuthenticated ? <Navigate to="/" /> : <AuthPage />
             } />
             <Route path="/" element={
-              <ProtectedRoute>
-                <HomePage />
-              </ProtectedRoute>
+              <HomePage />
             } />
             <Route path="/receipt/:receiptId" element={
-              <ProtectedRoute>
-                <ReceiptAnalysisPage />
-              </ProtectedRoute>
+              <ReceiptAnalysisPage />
             } />
             <Route path="/settings" element={
               <ProtectedRoute>
