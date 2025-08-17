@@ -11,7 +11,8 @@ interface User {
 
 // Define credential types
 interface LoginCredentials {
-  username: string;
+  username?: string;
+  email?: string;
   password: string;
 }
 
@@ -69,7 +70,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await authService.login(credentials);
+      
+      // Normalize credentials: derive username from either username or email
+      const username = credentials.username ?? credentials.email;
+      if (!username) {
+        return { success: false, error: 'Username or email is required' };
+      }
+      
+      const normalizedCredentials = { username, password: credentials.password };
+      const response = await authService.login(normalizedCredentials);
       
       if (response.success) {
         setUser(response.user);
