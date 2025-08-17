@@ -3,19 +3,20 @@ import authService from '../services/authService';
 
 // Define the user type
 interface User {
-  id: string;
+  id: number;
+  username: string;
   email: string;
   name?: string;
-  [key: string]: any;
 }
 
 // Define credential types
 interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
 }
 
 interface RegisterData {
+  username: string;
   email: string;
   password: string;
   name?: string;
