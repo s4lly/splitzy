@@ -3,7 +3,8 @@ from werkzeug.utils import secure_filename
 import os
 import json
 import uuid
-from backend.db import get_db_connection
+from backend.models import db
+from backend.models.user_receipt import UserReceipt
 from backend.image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
 from pydantic import ValidationError
 from backend.blueprints.auth import get_current_user
@@ -81,20 +82,20 @@ def analyze_receipt():
 
         if result.get('success') and result.get('is_receipt'):
             # Save the receipt to the database
-            conn = get_db_connection()
-            cursor = conn.execute(
-                'INSERT INTO user_receipts (user_id, receipt_data, image_path) VALUES (?, ?, ?)',
-                (current_user['id'], json.dumps(result['receipt_data']), temp_path)
+            new_receipt = UserReceipt(
+                user_id=current_user.id,
+                receipt_data=json.dumps(result['receipt_data']),
+                image_path=temp_path
             )
-            receipt_id = cursor.lastrowid
-            conn.commit()
-            conn.close()
+            db.session.add(new_receipt)
+            db.session.commit()
 
             # Add the receipt ID to the response
-            result['receipt_data']['id'] = receipt_id
+            result['receipt_data']['id'] = new_receipt.id
 
         return jsonify(result)
     except Exception as e:
+        db.session.rollback()
         current_app.logger.error(f"Error analyzing receipt: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
     finally:
@@ -110,24 +111,17 @@ def get_user_receipts():
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
 
     try:
-        conn = get_db_connection()
-        # Get all receipts for the user, ordered by most recent first
-        rows = conn.execute(
-            'SELECT id, receipt_data, image_path, created_at FROM user_receipts WHERE user_id = ? ORDER BY created_at DESC',
-            (current_user['id'],)
-        ).fetchall()
-        conn.close()
+        user_receipts = UserReceipt.query.filter_by(user_id=current_user.id).order_by(UserReceipt.created_at.desc()).all()
 
         # Format receipts for the response
         receipts = []
-        for row in rows:
-            # The receipt_data is already the receipt data object
-            receipt_data = json.loads(row['receipt_data'])
+        for receipt in user_receipts:
+            receipt_data = json.loads(receipt.receipt_data)
             receipts.append({
-                'id': row['id'],
+                'id': receipt.id,
                 'receipt_data': receipt_data,
-                'image_path': row['image_path'],
-                'created_at': row['created_at']
+                'image_path': receipt.image_path,
+                'created_at': receipt.created_at.isoformat()
             })
 
         return jsonify({
@@ -143,29 +137,23 @@ def get_user_receipts():
 def get_user_receipt(receipt_id):
     """Get a specific receipt by ID"""
     try:
-        conn = get_db_connection()
-        # Get the specific receipt, ensuring it belongs to the current user
-        row = conn.execute(
-            'SELECT id, receipt_data, image_path, created_at FROM user_receipts WHERE id = ?',
-            (receipt_id,)
-        ).fetchone()
-        conn.close()
+        receipt = UserReceipt.query.get(receipt_id)
 
-        if not row:
+        if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
         # Format receipt for the response
-        receipt_data = json.loads(row['receipt_data'])
-        receipt = {
-            'id': row['id'],
+        receipt_data = json.loads(receipt.receipt_data)
+        response_receipt = {
+            'id': receipt.id,
             'receipt_data': receipt_data,
-            'image_path': row['image_path'],
-            'created_at': row['created_at']
+            'image_path': receipt.image_path,
+            'created_at': receipt.created_at.isoformat()
         }
 
         return jsonify({
             'success': True,
-            'receipt': receipt
+            'receipt': response_receipt
         })
 
     except Exception as e:
@@ -181,26 +169,13 @@ def delete_user_receipt(receipt_id):
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
 
     try:
-        conn = get_db_connection()
+        receipt = UserReceipt.query.filter_by(id=receipt_id, user_id=current_user.id).first()
 
-        # First check if the receipt exists and belongs to the user
-        row = conn.execute(
-            'SELECT id FROM user_receipts WHERE id = ? AND user_id = ?',
-            (receipt_id, current_user['id'])
-        ).fetchone()
-
-        if not row:
-            conn.close()
+        if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found or you do not have permission to delete it'}), 404
 
-        # Delete the receipt
-        conn.execute(
-            'DELETE FROM user_receipts WHERE id = ?',
-            (receipt_id,)
-        )
-
-        conn.commit()
-        conn.close()
+        db.session.delete(receipt)
+        db.session.commit()
 
         return jsonify({
             'success': True,
@@ -208,6 +183,7 @@ def delete_user_receipt(receipt_id):
         })
 
     except Exception as e:
+        db.session.rollback()
         current_app.logger.error(f"Error deleting receipt: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to delete receipt'}), 500
 
@@ -220,19 +196,13 @@ def health_check():
 def get_receipt_image(receipt_id):
     """Get the image for a specific receipt"""
     try:
-        conn = get_db_connection()
-        # Get the receipt image path from the database
-        row = conn.execute(
-            'SELECT image_path FROM user_receipts WHERE id = ?',
-            (receipt_id,)
-        ).fetchone()
-        conn.close()
+        receipt = UserReceipt.query.get(receipt_id)
 
         # Check if receipt exists and has an image path
-        if not row or not row['image_path']:
+        if not receipt or not receipt.image_path:
             return jsonify({'success': False, 'error': 'Receipt image not found'}), 404
 
-        image_path = row['image_path']
+        image_path = receipt.image_path
 
         # Resolve image path with backwards compatibility
         resolved_path = resolve_image_path(image_path)
@@ -273,28 +243,16 @@ def update_receipt_assignments(receipt_id):
         return jsonify({'success': False, 'error': 'Missing line_items data'}), 400
 
     try:
-        conn = get_db_connection()
-        try:
-            # Fetch the receipt to ensure it belongs to the user
-            row = conn.execute(
-                'SELECT receipt_data FROM user_receipts WHERE id = ?',
-                (receipt_id,)
-            ).fetchone()
-        except Exception as e:
-            current_app.logger.error(f"[update_receipt_assignments] Error fetching receipt: receipt_id={receipt_id}, error={str(e)}")
-            conn.close()
-            return jsonify({'success': False, 'error': 'Database error while fetching receipt'}), 500
+        receipt = UserReceipt.query.get(receipt_id)
 
-        if not row:
+        if not receipt:
             current_app.logger.error(f"[update_receipt_assignments] Receipt not found: receipt_id={receipt_id}")
-            conn.close()
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
         try:
-            receipt_data = json.loads(row['receipt_data'])
+            receipt_data = json.loads(receipt.receipt_data)
         except Exception as e:
             current_app.logger.error(f"[update_receipt_assignments] Error decoding receipt_data: receipt_id={receipt_id}, error={str(e)}")
-            conn.close()
             return jsonify({'success': False, 'error': 'Corrupt receipt data'}), 500
 
         # Update assignments for each line item by id
@@ -306,22 +264,17 @@ def update_receipt_assignments(receipt_id):
             receipt_data['line_items'] = list(line_items_by_id.values())
         except Exception as e:
             current_app.logger.error(f"[update_receipt_assignments] Error updating line items: receipt_id={receipt_id}, error={str(e)}")
-            conn.close()
             return jsonify({'success': False, 'error': 'Failed to update line items'}), 500
 
         # Save updated receipt_data
         try:
-            conn.execute(
-                'UPDATE user_receipts SET receipt_data = ? WHERE id = ?',
-                (json.dumps(receipt_data), receipt_id)
-            )
-            conn.commit()
+            receipt.receipt_data = json.dumps(receipt_data)
+            db.session.commit()
         except Exception as e:
+            db.session.rollback()
             current_app.logger.error(f"[update_receipt_assignments] Error saving updated receipt_data: receipt_id={receipt_id}, error={str(e)}")
-            conn.close()
             return jsonify({'success': False, 'error': 'Failed to save updated assignments'}), 500
 
-        conn.close()
         return jsonify({'success': True})
     except Exception as e:
         current_app.logger.error(f"[update_receipt_assignments] Unexpected error: receipt_id={receipt_id}, error={str(e)}")
@@ -335,18 +288,12 @@ def update_line_item(receipt_id, item_id):
         return jsonify({'success': False, 'error': 'No update data provided'}), 400
 
     try:
-        conn = get_db_connection()
-        # Fetch the receipt to ensure it belongs to the user
-        row = conn.execute(
-            'SELECT receipt_data FROM user_receipts WHERE id = ?',
-            (receipt_id,)
-        ).fetchone()
+        receipt = UserReceipt.query.get(receipt_id)
 
-        if not row:
-            conn.close()
+        if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
-        receipt_data = json.loads(row['receipt_data'])
+        receipt_data = json.loads(receipt.receipt_data)
         updated = False
 
         # Find the line item by id and update its properties
@@ -358,19 +305,15 @@ def update_line_item(receipt_id, item_id):
                 break
 
         if not updated:
-            conn.close()
             return jsonify({'success': False, 'error': 'Line item not found'}), 404
 
         # Save updated receipt_data
-        conn.execute(
-            'UPDATE user_receipts SET receipt_data = ? WHERE id = ?',
-            (json.dumps(receipt_data), receipt_id)
-        )
-        conn.commit()
+        receipt.receipt_data = json.dumps(receipt_data)
+        db.session.commit()
 
-        conn.close()
         return jsonify({'success': True})
     except Exception as e:
+        db.session.rollback()
         current_app.logger.error(f"[update_line_item] Error: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to update line item'}), 500
 
@@ -382,20 +325,12 @@ def update_receipt_data(receipt_id):
         return jsonify({'success': False, 'error': 'No update data provided'}), 400
 
     try:
-        # Validate the incoming data by creating a partial RegularReceipt
-        # We'll merge the update data with existing receipt data for validation
-        conn = get_db_connection()
-        # Fetch the receipt to ensure it belongs to the user
-        row = conn.execute(
-            'SELECT receipt_data FROM user_receipts WHERE id = ?',
-            (receipt_id,)
-        ).fetchone()
+        receipt = UserReceipt.query.get(receipt_id)
 
-        if not row:
-            conn.close()
+        if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
-        receipt_data = json.loads(row['receipt_data'])
+        receipt_data = json.loads(receipt.receipt_data)
 
         # Merge existing data with update data for validation
         validation_data = {**receipt_data, **data}
@@ -404,7 +339,6 @@ def update_receipt_data(receipt_id):
         try:
             validated_receipt = RegularReceipt(**validation_data)
         except ValidationError as e:
-            conn.close()
             return jsonify({'success': False, 'error': f'Invalid receipt data update: {e}'}), 400
 
         # Extract only the fields that were provided in the update
@@ -418,17 +352,14 @@ def update_receipt_data(receipt_id):
                 receipt_data[key] = value
 
         # Save updated receipt_data
-        conn.execute(
-            'UPDATE user_receipts SET receipt_data = ? WHERE id = ?',
-            (json.dumps(receipt_data), receipt_id)
-        )
-        conn.commit()
+        receipt.receipt_data = json.dumps(receipt_data)
+        db.session.commit()
 
-        conn.close()
         return jsonify({'success': True})
     except ValidationError as e:
         return jsonify({'success': False, 'error': f'Invalid receipt data update: {e}'}), 400
     except Exception as e:
+        db.session.rollback()
         current_app.logger.error(f"[update_receipt_data] Error: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to update receipt data'}), 500
 
@@ -436,18 +367,12 @@ def update_receipt_data(receipt_id):
 def delete_line_item(receipt_id, item_id):
     """Delete a specific line item from a receipt"""
     try:
-        conn = get_db_connection()
-        # Fetch the receipt to ensure it belongs to the user
-        row = conn.execute(
-            'SELECT receipt_data FROM user_receipts WHERE id = ?',
-            (receipt_id,)
-        ).fetchone()
+        receipt = UserReceipt.query.get(receipt_id)
 
-        if not row:
-            conn.close()
+        if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
-        receipt_data = json.loads(row['receipt_data'])
+        receipt_data = json.loads(receipt.receipt_data)
 
         # Find and remove the line item by id
         original_length = len(receipt_data.get('line_items', []))
@@ -458,19 +383,15 @@ def delete_line_item(receipt_id, item_id):
 
         # Check if the item was actually found and removed
         if len(receipt_data['line_items']) == original_length:
-            conn.close()
             return jsonify({'success': False, 'error': 'Line item not found'}), 404
 
         # Save updated receipt_data
-        conn.execute(
-            'UPDATE user_receipts SET receipt_data = ? WHERE id = ?',
-            (json.dumps(receipt_data), receipt_id)
-        )
-        conn.commit()
+        receipt.receipt_data = json.dumps(receipt_data)
+        db.session.commit()
 
-        conn.close()
         return jsonify({'success': True})
     except Exception as e:
+        db.session.rollback()
         current_app.logger.error(f"[delete_line_item] Error: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to delete line item'}), 500
 
@@ -490,18 +411,12 @@ def add_line_item(receipt_id):
         return jsonify({'success': False, 'error': f'Invalid line item data: {e}'}), 400
 
     try:
-        conn = get_db_connection()
-        # Fetch the receipt to ensure it belongs to the user
-        row = conn.execute(
-            'SELECT receipt_data FROM user_receipts WHERE id = ?',
-            (receipt_id,)
-        ).fetchone()
+        receipt = UserReceipt.query.get(receipt_id)
 
-        if not row:
-            conn.close()
+        if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
-        receipt_data = json.loads(row['receipt_data'])
+        receipt_data = json.loads(receipt.receipt_data)
 
         # Create new line item with generated UUID and default assignments
         new_line_item = {
@@ -517,17 +432,14 @@ def add_line_item(receipt_id):
         receipt_data['line_items'].insert(0, new_line_item)
 
         # Save updated receipt_data
-        conn.execute(
-            'UPDATE user_receipts SET receipt_data = ? WHERE id = ?',
-            (json.dumps(receipt_data), receipt_id)
-        )
-        conn.commit()
+        receipt.receipt_data = json.dumps(receipt_data)
+        db.session.commit()
 
-        conn.close()
         return jsonify({
             'success': True,
             'line_item': new_line_item
         })
     except Exception as e:
+        db.session.rollback()
         current_app.logger.error(f"Error adding line item: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to add line item'}), 500

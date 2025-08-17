@@ -25,9 +25,16 @@ def create_app():
     # Create uploads folder if it doesn't exist
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-    # Initialize database
-    from . import db
+    # Configure database
+    db_path = BASE_DIR / 'users.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # Initialize extensions
+    from backend.models import db
+    from flask_migrate import Migrate
     db.init_app(app)
+    migrate = Migrate(app, db)
 
     # Register blueprints
     from .blueprints import main, auth, receipts
