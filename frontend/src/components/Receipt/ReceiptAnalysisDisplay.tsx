@@ -272,12 +272,17 @@ const ReceiptAnalysisDisplay = ({
         </CardHeader>
         <CardContent className="px-3 sm:px-6">
           {showQrCode && (
-            <div className="flex justify-center py-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex justify-center py-4"
+            >
               <QRCode
-                value={window.location.href}
+                data={window.location.href}
                 className="w-48 h-48"
               />
-            </div>
+            </motion.div>
           )}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
             <div className="flex items-center gap-3 overflow-hidden">
