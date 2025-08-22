@@ -1,1 +1,1 @@
-from backend.models import db
+from .models import db

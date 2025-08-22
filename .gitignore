@@ -43,6 +43,11 @@ dist/
 # IDEs and Editors
 .idea/
 .vscode/
+# Keep project-specific VS Code settings but ignore user-specific ones
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
 *.swp
 *.swo
 *~

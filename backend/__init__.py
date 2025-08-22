@@ -33,7 +33,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialize extensions
-    from backend.models import db
+    from .models import db
     from flask_migrate import Migrate
     db.init_app(app)
     

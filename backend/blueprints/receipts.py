@@ -3,11 +3,11 @@ from werkzeug.utils import secure_filename
 import os
 import json
 import uuid
-from backend.models import db
-from backend.models.user_receipt import UserReceipt
-from backend.image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
+from ..models import db
+from ..models.user_receipt import UserReceipt
+from ..image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
 from pydantic import ValidationError
-from backend.blueprints.auth import get_current_user
+from .auth import get_current_user
 
 receipts_bp = Blueprint('receipts', __name__)
 
