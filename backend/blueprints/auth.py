@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
-import sqlite3
-from backend.db import get_db_connection
+from models import db
+from models.user import User
+from sqlalchemy.exc import IntegrityError
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api')
 
@@ -10,11 +11,8 @@ def get_current_user():
     if not user_id:
         return None
 
-    conn = get_db_connection()
-    user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
-    conn.close()
-
-    return dict(user) if user else None
+    user = User.query.get(user_id)
+    return user
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
@@ -29,30 +27,27 @@ def register():
 
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
+    new_user = User(username=username, email=email, password=hashed_password)
+
     try:
-        conn = get_db_connection()
-        conn.execute(
-            'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-            (username, email, hashed_password)
-        )
-        conn.commit()
+        db.session.add(new_user)
+        db.session.commit()
 
-        user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
-        conn.close()
-
-        session['user_id'] = user['id']
+        session['user_id'] = new_user.id
 
         return jsonify({
             'success': True,
             'user': {
-                'id': user['id'],
-                'username': user['username'],
-                'email': user['email']
+                'id': new_user.id,
+                'username': new_user.username,
+                'email': new_user.email
             }
         }), 201
-    except sqlite3.IntegrityError:
+    except IntegrityError:
+        db.session.rollback()
         return jsonify({'success': False, 'error': 'Username or email already exists'}), 409
     except Exception as e:
+        db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @auth_bp.route('/login', methods=['POST'])
@@ -65,21 +60,19 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    conn = get_db_connection()
-    user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
-    conn.close()
+    user = User.query.filter_by(username=username).first()
 
-    if not user or not check_password_hash(user['password'], password):
+    if not user or not check_password_hash(user.password, password):
         return jsonify({'success': False, 'error': 'Invalid credentials'}), 401
 
-    session['user_id'] = user['id']
+    session['user_id'] = user.id
 
     return jsonify({
         'success': True,
         'user': {
-            'id': user['id'],
-            'username': user['username'],
-            'email': user['email']
+            'id': user.id,
+            'username': user.username,
+            'email': user.email
         }
     })
 
@@ -97,8 +90,8 @@ def get_user():
     return jsonify({
         'success': True,
         'user': {
-            'id': user['id'],
-            'username': user['username'],
-            'email': user['email']
+            'id': user.id,
+            'username': user.username,
+            'email': user.email
         }
     })

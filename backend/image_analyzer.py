@@ -12,9 +12,13 @@ from enum import Enum
 from typing import List, Optional, Union
 from pydantic import BaseModel, Field, validator
 
-# Load environment variables from nearest .env (typically repo root)
-from dotenv import find_dotenv
-load_dotenv(find_dotenv())
+# Load environment variables from backend .env file
+from pathlib import Path
+from dotenv import load_dotenv
+
+backend_dir = Path(__file__).resolve().parent
+env_path = backend_dir / '.env'
+load_dotenv(env_path)
 
 class AIProvider(Enum):
     AZURE = "azure"
