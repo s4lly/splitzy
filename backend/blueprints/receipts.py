@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app, send_from_directory, session
+from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from werkzeug.utils import secure_filename
 import os
 import json
@@ -33,16 +33,6 @@ def resolve_image_path(image_path):
 
     # If still not found, return the original path (will cause 404)
     return image_path
-
-@receipts_bp.route('/analyze/<filename>')
-def analyze(filename):
-    image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-    # Resolve image path with backwards compatibility
-    resolved_path = resolve_image_path(image_path)
-    analyzer = ImageAnalyzer()
-    analysis_result = analyzer.analyze_image(resolved_path)
-    print("analysis_result done: ", analysis_result)
-    return jsonify(analysis_result)
 
 @receipts_bp.route('/api/analyze/<filename>')
 def api_analyze(filename):

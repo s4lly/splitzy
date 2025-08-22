@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from flask import Flask
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 from flask_cors import CORS
 import datetime
 
@@ -22,7 +22,6 @@ def create_app():
     BASE_DIR = Path(__file__).resolve().parent
     UPLOAD_FOLDER = str(BASE_DIR / 'uploads')
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-    app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
     # Create uploads folder if it doesn't exist
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -42,8 +41,7 @@ def create_app():
     migrate = Migrate(app, db, directory=migrations_dir)
 
     # Register blueprints
-    from .blueprints import main, auth, receipts
-    app.register_blueprint(main.main_bp)
+    from .blueprints import auth, receipts
     app.register_blueprint(auth.auth_bp)
     app.register_blueprint(receipts.receipts_bp)
 
