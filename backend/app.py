@@ -4,7 +4,7 @@ import os
 # Add the current directory to Python path if running directly
 if __name__ == '__main__':
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    # Also add parent directory to handle relative imports
+    # Also add parent directory to handle relative imports for local development
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:

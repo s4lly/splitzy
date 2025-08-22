@@ -1,13 +1,12 @@
-from flask import Blueprint, request, jsonify, current_app, send_from_directory
-from werkzeug.utils import secure_filename
 import os
 import json
-import uuid
-from ..models import db
-from ..models.user_receipt import UserReceipt
-from ..image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
-from pydantic import ValidationError
-from .auth import get_current_user
+from datetime import datetime
+from flask import Blueprint, request, jsonify, current_app
+from models import db
+from models.user_receipt import UserReceipt
+from image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
+from werkzeug.utils import secure_filename
+from blueprints.auth import get_current_user
 
 receipts_bp = Blueprint('receipts', __name__)
 
