@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from models import db
 from models.user_receipt import UserReceipt
 from image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
