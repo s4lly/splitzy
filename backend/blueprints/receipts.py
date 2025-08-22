@@ -1,5 +1,6 @@
 import os
 import json
+import uuid
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from models import db
@@ -7,6 +8,7 @@ from models.user_receipt import UserReceipt
 from image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
 from werkzeug.utils import secure_filename
 from blueprints.auth import get_current_user
+from pydantic import ValidationError
 
 receipts_bp = Blueprint('receipts', __name__)
 
