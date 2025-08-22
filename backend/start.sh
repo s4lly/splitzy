@@ -12,18 +12,18 @@ echo -e "${GREEN}Starting Chop It Up Application...${NC}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Check for Python virtual environment (create it under repo root)
-if [ ! -d "$REPO_ROOT/venv" ]; then
+# Check for Python virtual environment (create it under backend directory)
+if [ ! -d "$SCRIPT_DIR/venv" ]; then
     echo -e "${BLUE}Setting up Python virtual environment...${NC}"
-    python3 -m venv "$REPO_ROOT/venv"
-    source "$REPO_ROOT/venv/bin/activate"
-    pip install -r "$REPO_ROOT/backend/requirements.txt"
+    python3 -m venv "$SCRIPT_DIR/venv"
+    source "$SCRIPT_DIR/venv/bin/activate"
+    pip install -r "$SCRIPT_DIR/requirements.txt"
 else
-    source "$REPO_ROOT/venv/bin/activate"
+    source "$SCRIPT_DIR/venv/bin/activate"
 fi
 
-# Check if .env file exists at repo root
-if [ ! -f "$REPO_ROOT/.env" ]; then
+# Check if .env file exists in backend directory
+if [ ! -f "$SCRIPT_DIR/.env" ]; then
     echo -e "${RED}Error: .env file not found. Please create a .env file with your configuration.${NC}"
     echo -e "Example .env file:"
     echo -e "${BLUE}AZURE_OPENAI_KEY=your_azure_openai_key"
@@ -33,12 +33,12 @@ if [ ! -f "$REPO_ROOT/.env" ]; then
     exit 1
 fi
 
-# Make the uploads directory if it doesn't exist (under backend)
-mkdir -p "$REPO_ROOT/backend/uploads"
+# Make the uploads directory if it doesn't exist
+mkdir -p "$SCRIPT_DIR/uploads"
 
 # Start the backend in the background
 echo -e "${GREEN}Starting Flask backend server...${NC}"
-(cd "$REPO_ROOT" && python -m backend.app) &
+(cd "$SCRIPT_DIR" && python app.py) &
 BACKEND_PID=$!
 
 # Wait for backend to start

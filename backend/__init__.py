@@ -6,8 +6,10 @@ from flask_cors import CORS
 import datetime
 
 def create_app():
-    # Load environment variables
-    load_dotenv(find_dotenv())
+    # Load environment variables from backend directory
+    backend_dir = Path(__file__).resolve().parent
+    env_path = backend_dir / '.env'
+    load_dotenv(env_path)
 
     app = Flask(__name__)
     CORS(app, supports_credentials=True)
@@ -34,7 +36,10 @@ def create_app():
     from backend.models import db
     from flask_migrate import Migrate
     db.init_app(app)
-    migrate = Migrate(app, db)
+    
+    # Configure migrations directory
+    migrations_dir = os.path.join(os.path.dirname(__file__), 'migrations')
+    migrate = Migrate(app, db, directory=migrations_dir)
 
     # Register blueprints
     from .blueprints import main, auth, receipts

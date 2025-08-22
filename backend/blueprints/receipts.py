@@ -58,8 +58,6 @@ def api_analyze(filename):
 def analyze_receipt():
     # Check if user is authenticated
     current_user = get_current_user()
-    if not current_user:
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
 
     if 'file' not in request.files:
         return jsonify({'success': False, 'error': 'No file provided'}), 400
@@ -83,7 +81,7 @@ def analyze_receipt():
         if result.get('success') and result.get('is_receipt'):
             # Save the receipt to the database
             new_receipt = UserReceipt(
-                user_id=current_user.id,
+                user_id=current_user.id if current_user else None,
                 receipt_data=json.dumps(result['receipt_data']),
                 image_path=temp_path
             )
