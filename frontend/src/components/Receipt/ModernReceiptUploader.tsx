@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, FileText, X, Loader2, Receipt } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { AlertCircle } from 'lucide-react';
 import receiptService from '../../services/receiptService';
 
@@ -13,7 +12,6 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
   const [preview, setPreview] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState(null);
-  const [provider, setProvider] = useState('azure');
 
   const onDrop = useCallback((acceptedFiles) => {
     const selectedFile = acceptedFiles[0];
@@ -47,7 +45,7 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
       setError(null);
       
       // Pass the preview URL and provider to the receipt service
-      const result = await receiptService.analyzeReceipt(file, preview, provider);
+      const result = await receiptService.analyzeReceipt(file, preview);
       
       if (result.success && result.is_receipt) {
         // Clear previous inputs
@@ -93,20 +91,6 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
       
       <CardContent>
         <div className="space-y-4">
-          {/* Provider Selection */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">AI Provider:</span>
-            <Select value={provider} onValueChange={setProvider}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select provider" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="azure">Azure OpenAI</SelectItem>
-                <SelectItem value="gemini">Google Gemini</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Drop Zone */}
           <div
             {...getRootProps()}

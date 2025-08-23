@@ -58,7 +58,7 @@ def analyze_receipt():
         return jsonify({'success': False, 'error': 'No file selected'}), 400
 
     # Get the provider from the request, default to environment variable
-    provider = request.form.get('provider', os.getenv('DEFAULT_AI_PROVIDER', 'azure'))
+    provider = 'gemini'
 
     # Save the file temporarily
     temp_path = os.path.join(current_app.config['UPLOAD_FOLDER'], secure_filename(file.filename))
