@@ -22,11 +22,36 @@ def upgrade():
     
     # First, copy data from item_uuid to id
     connection = op.get_bind()
-    connection.execute(text("""
-        UPDATE receipt_line_items 
-        SET id = item_uuid 
-        WHERE item_uuid IS NOT NULL
-    """))
+from sqlalchemy import text
+import uuid
+
+ def upgrade():
+-    # First, copy data from item_uuid to id
+-    connection = op.get_bind()
+-    connection.execute(text("""
+-        UPDATE receipt_line_items 
+-        SET id = item_uuid 
+-        WHERE item_uuid IS NOT NULL
+    # Copy data from item_uuid to id with safeguards:
+    # - generate UUIDs for rows missing item_uuid
+    # - avoid collisions if item_uuid duplicates exist
+    connection = op.get_bind()
+    rows = connection.execute(text("SELECT id, item_uuid FROM receipt_line_items")).fetchall()
+    seen = set()
+    updates = []
+    for old_id, item_uuid in rows:
+        target = item_uuid or str(uuid.uuid4())
+        # Ensure uniqueness across the table
+        while target in seen:
+            target = str(uuid.uuid4())
+        seen.add(target)
+        if target != old_id:
+            updates.append({"new": target, "old": old_id})
+    for u in updates:
+        connection.execute(
+            text("UPDATE receipt_line_items SET id = :new WHERE id = :old"),
+            u
+        )
     
     # Then remove the item_uuid column and its index
     with op.batch_alter_table('receipt_line_items', schema=None) as batch_op:
