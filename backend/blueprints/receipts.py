@@ -68,8 +68,33 @@ def analyze_receipt():
 
     try:
         analyzer = ImageAnalyzer(provider=provider)
-        receipt_model = analyzer.analyze_image(temp_path)
+        try:
+            receipt_model = analyzer.analyze_image(temp_path)
+        except Exception as analyzer_error:
+            current_app.logger.error(f"Error from image analyzer: {str(analyzer_error)}")
+            return jsonify({
+                'success': False,
+                'error': f"Image analysis failed: {str(analyzer_error)}"
+            }), 500
 
+        # Check if receipt_model is an error dict from _process_response
+        if isinstance(receipt_model, dict):
+            if receipt_model.get("error") or receipt_model.get("success") == False:
+                # Return error response directly
+                return jsonify({
+                    'success': False,
+                    'error': receipt_model.get("error", "Unknown error occurred")
+                }), 400
+            else:
+                # It's a dict but not an error - could be a non-receipt response
+                # Return it directly without calling model_dump()
+                return jsonify({
+                    'success': True,
+                    'is_receipt': False,
+                    'receipt_data': receipt_model
+                })
+
+        # receipt_model is a Pydantic model
         if hasattr(receipt_model, 'is_receipt') and receipt_model.is_receipt:
             receipt_create_data = UserReceiptCreate.model_validate(receipt_model)
             
@@ -78,7 +103,7 @@ def analyze_receipt():
             receipt_create_data.image_path = temp_path
             
             # Create the SQLAlchemy model instance
-            new_receipt = UserReceipt(**receipt_create_data.model_dump()            )
+            new_receipt = UserReceipt(**receipt_create_data.model_dump())
             db.session.add(new_receipt)
             
             if hasattr(receipt_model, 'line_items') and receipt_model.line_items:
