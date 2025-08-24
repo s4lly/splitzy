@@ -1,4 +1,5 @@
 from typing import List, Optional
+from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
 class LineItem(BaseModel):
@@ -14,7 +15,7 @@ class LineItemResponse(LineItem):
     model_config = ConfigDict(from_attributes=True)
     
     id: str
-    created_at: Optional[str] = None
+    created_at: Optional[datetime] = None
 
 class TransportationTicket(BaseModel):
     model_config = ConfigDict(from_attributes=True)
