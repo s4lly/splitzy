@@ -5,7 +5,9 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from models import db
 from models.user_receipt import UserReceipt
-from image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
+from models.receipt_line_item import ReceiptLineItem
+from image_analyzer import ImageAnalyzer
+from schemas.receipt import LineItem, RegularReceipt, RegularReceiptResponse, UserReceiptCreate, ReceiptLineItemCreate
 from werkzeug.utils import secure_filename
 from blueprints.auth import get_current_user
 from pydantic import ValidationError
@@ -65,24 +67,45 @@ def analyze_receipt():
     file.save(temp_path)
 
     try:
-        # Initialize the analyzer with the selected provider
         analyzer = ImageAnalyzer(provider=provider)
-        result = analyzer.analyze_image(temp_path)
+        receipt_model = analyzer.analyze_image(temp_path)
 
-        if result.get('success') and result.get('is_receipt'):
-            # Save the receipt to the database
-            new_receipt = UserReceipt(
-                user_id=current_user.id if current_user else None,
-                receipt_data=json.dumps(result['receipt_data']),
-                image_path=temp_path
-            )
+        if hasattr(receipt_model, 'is_receipt') and receipt_model.is_receipt:
+            receipt_create_data = UserReceiptCreate.model_validate(receipt_model)
+            
+            # Add the additional fields that aren't in the Pydantic model
+            receipt_create_data.user_id = current_user.id if current_user else None
+            receipt_create_data.image_path = temp_path
+            
+            # Create the SQLAlchemy model instance
+            new_receipt = UserReceipt(**receipt_create_data.model_dump()            )
             db.session.add(new_receipt)
+            
+            if hasattr(receipt_model, 'line_items') and receipt_model.line_items:
+                for item in receipt_model.line_items:
+                    # Use Pydantic model_validate to automatically map fields
+                    line_item_data = ReceiptLineItemCreate.model_validate(item)
+                    
+                    # Create the SQLAlchemy model instance (receipt_id will be set automatically)
+                    line_item = ReceiptLineItem(**line_item_data.model_dump())
+                    
+                    # Use the relationship to automatically set the foreign key
+                    new_receipt.line_items.append(line_item)
+            
             db.session.commit()
 
-            # Add the receipt ID to the response
-            result['receipt_data']['id'] = new_receipt.id
-
-        return jsonify(result)
+            return jsonify({
+                'success': True,
+                'is_receipt': True,
+                'receipt_data': RegularReceiptResponse.model_validate(new_receipt).model_dump()
+            })
+        else:
+            # Not a receipt
+            return jsonify({
+                'success': True,
+                'is_receipt': False,
+                'receipt_data': receipt_model.model_dump()
+            })
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error analyzing receipt: {str(e)}")
@@ -132,10 +155,9 @@ def get_user_receipt(receipt_id):
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
         # Format receipt for the response
-        receipt_data = json.loads(receipt.receipt_data)
         response_receipt = {
             'id': receipt.id,
-            'receipt_data': receipt_data,
+            'receipt_data': RegularReceiptResponse.model_validate(receipt).model_dump(exclude={'id'}),
             'image_path': receipt.image_path,
             'created_at': receipt.created_at.isoformat()
         }
