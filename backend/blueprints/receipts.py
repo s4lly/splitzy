@@ -7,7 +7,7 @@ from models import db
 from models.user_receipt import UserReceipt
 from models.receipt_line_item import ReceiptLineItem
 from image_analyzer import ImageAnalyzer
-from schemas.receipt import LineItem, RegularReceipt, RegularReceiptResponse, UserReceiptCreate, ReceiptLineItemCreate
+from schemas.receipt import LineItem, LineItemResponse, RegularReceipt, RegularReceiptResponse, UserReceiptCreate, ReceiptLineItemCreate
 from werkzeug.utils import secure_filename
 from blueprints.auth import get_current_user
 from pydantic import ValidationError
@@ -384,17 +384,11 @@ def get_line_items(receipt_id):
         # Get line items from the database
         line_items = ReceiptLineItem.query.filter_by(receipt_id=receipt_id).all()
 
-        # Format line items for response
+        # Format line items for response using Pydantic serialization
         items = []
         for item in line_items:
-            items.append({
-                'id': item.id,
-                'name': item.name,
-                'quantity': item.quantity,
-                'price_per_item': item.price_per_item,
-                'total_price': item.total_price,
-                'assignments': item.assignments
-            })
+            line_item_response = LineItemResponse.model_validate(item)
+            items.append(line_item_response.model_dump())
 
         return jsonify({
             'success': True,
@@ -425,26 +419,16 @@ def add_line_item(receipt_id):
         if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
-        # Create new line item in the database
-        new_line_item = ReceiptLineItem(
-            receipt_id=receipt_id,
-            **line_item_validated.model_dump()
-        )
-        
-        db.session.add(new_line_item)
+        # Create new line item using the relationship
+        new_line_item = ReceiptLineItem(**line_item_validated.model_dump())
+        receipt.line_items.append(new_line_item)
         db.session.commit()
 
-        # Return the created line item
+        # Return the created line item using Pydantic serialization
+        line_item_response = LineItemResponse.model_validate(new_line_item)
         return jsonify({
             'success': True,
-            'line_item': {
-                'id': new_line_item.id,
-                'name': new_line_item.name,
-                'quantity': new_line_item.quantity,
-                'price_per_item': new_line_item.price_per_item,
-                'total_price': new_line_item.total_price,
-                'assignments': new_line_item.assignments
-            }
+            'line_item': line_item_response.model_dump()
         })
     except Exception as e:
         db.session.rollback()

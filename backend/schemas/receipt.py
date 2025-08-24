@@ -14,6 +14,7 @@ class LineItemResponse(LineItem):
     model_config = ConfigDict(from_attributes=True)
     
     id: str
+    created_at: Optional[str] = None
 
 class TransportationTicket(BaseModel):
     model_config = ConfigDict(from_attributes=True)
