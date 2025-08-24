@@ -143,13 +143,18 @@ def upgrade():
             'document_type': document_type,
         }
 
-        if not is_receipt:
+        # Explicitly call to_bool once and only skip when it's explicitly False
+        is_receipt_bool = to_bool(is_receipt)
+        if is_receipt_bool is False:
             # Not a receipt; minimal fields
             session.execute(
-                user_receipts_table.update().where(user_receipts_table.c.id == receipt.id).values(update_values)
+                user_receipts_table.update()
+                .where(user_receipts_table.c.id == receipt.id)
+                .values(update_values)
             )
             continue
 
+        # …rest of migration logic for receipts…
         if document_type == 'transportation_ticket':
             update_values.update({
                 'carrier': data.get('carrier'),
