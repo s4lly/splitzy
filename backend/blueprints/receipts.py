@@ -125,10 +125,10 @@ def get_user_receipts():
     try:
         user_receipts = UserReceipt.query.filter_by(user_id=current_user.id).order_by(UserReceipt.created_at.desc()).all()
 
-        # Format receipts for the response
+        # Format receipts for the response using denormalized fields
         receipts = []
         for receipt in user_receipts:
-            receipt_data = json.loads(receipt.receipt_data)
+            receipt_data = RegularReceiptResponse.model_validate(receipt).model_dump(exclude={'id'})
             receipts.append({
                 'id': receipt.id,
                 'receipt_data': receipt_data,
@@ -260,31 +260,24 @@ def update_receipt_assignments(receipt_id):
             current_app.logger.error(f"[update_receipt_assignments] Receipt not found: receipt_id={receipt_id}")
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
+        # Update assignments for each line item by id using the line items table
         try:
-            receipt_data = json.loads(receipt.receipt_data)
-        except Exception as e:
-            current_app.logger.error(f"[update_receipt_assignments] Error decoding receipt_data: receipt_id={receipt_id}, error={str(e)}")
-            return jsonify({'success': False, 'error': 'Corrupt receipt data'}), 500
-
-        # Update assignments for each line item by id
-        try:
-            line_items_by_id = {item['id']: item for item in receipt_data.get('line_items', [])}
             for updated_item in data['line_items']:
-                if updated_item['id'] in line_items_by_id:
-                    line_items_by_id[updated_item['id']]['assignments'] = updated_item.get('assignments', [])
-            receipt_data['line_items'] = list(line_items_by_id.values())
-        except Exception as e:
-            current_app.logger.error(f"[update_receipt_assignments] Error updating line items: receipt_id={receipt_id}, error={str(e)}")
-            return jsonify({'success': False, 'error': 'Failed to update line items'}), 500
-
-        # Save updated receipt_data
-        try:
-            receipt.receipt_data = json.dumps(receipt_data)
+                line_item = ReceiptLineItem.query.filter_by(
+                    id=updated_item['id'], 
+                    receipt_id=receipt_id
+                ).first()
+                
+                if line_item:
+                    line_item.assignments = updated_item.get('assignments', [])
+                else:
+                    current_app.logger.warning(f"[update_receipt_assignments] Line item not found: item_id={updated_item['id']}, receipt_id={receipt_id}")
+                    
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            current_app.logger.error(f"[update_receipt_assignments] Error saving updated receipt_data: receipt_id={receipt_id}, error={str(e)}")
-            return jsonify({'success': False, 'error': 'Failed to save updated assignments'}), 500
+            current_app.logger.error(f"[update_receipt_assignments] Error updating line items: receipt_id={receipt_id}, error={str(e)}")
+            return jsonify({'success': False, 'error': 'Failed to update line items'}), 500
 
         return jsonify({'success': True})
     except Exception as e:
@@ -299,27 +292,22 @@ def update_line_item(receipt_id, item_id):
         return jsonify({'success': False, 'error': 'No update data provided'}), 400
 
     try:
-        receipt = UserReceipt.query.get(receipt_id)
+        # Find the line item by id in the line items table
+        line_item = ReceiptLineItem.query.filter_by(
+            id=item_id, 
+            receipt_id=receipt_id
+        ).first()
 
-        if not receipt:
-            return jsonify({'success': False, 'error': 'Receipt not found'}), 404
-
-        receipt_data = json.loads(receipt.receipt_data)
-        updated = False
-
-        # Find the line item by id and update its properties
-        for item in receipt_data.get('line_items', []):
-            if str(item.get('id')) == str(item_id):
-                for key, value in data.items():
-                    item[key] = value
-                updated = True
-                break
-
-        if not updated:
+        if not line_item:
             return jsonify({'success': False, 'error': 'Line item not found'}), 404
 
-        # Save updated receipt_data
-        receipt.receipt_data = json.dumps(receipt_data)
+        # Update the line item properties
+        for key, value in data.items():
+            if hasattr(line_item, key):
+                setattr(line_item, key, value)
+            else:
+                current_app.logger.warning(f"[update_line_item] Invalid field '{key}' for line item")
+
         db.session.commit()
 
         return jsonify({'success': True})
@@ -341,34 +329,21 @@ def update_receipt_data(receipt_id):
         if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
-        receipt_data = json.loads(receipt.receipt_data)
+        # Update the receipt properties directly on the model
+        for key, value in data.items():
+            # Only allow updating valid UserReceipt properties
+            # Exclude line_items as they have their own endpoint, and id/user_id for security
+            if key not in ['line_items', 'id', 'user_id', 'created_at'] and hasattr(receipt, key):
+                setattr(receipt, key, value)
+            else:
+                if key in ['line_items', 'id', 'user_id', 'created_at']:
+                    current_app.logger.warning(f"[update_receipt_data] Attempted to update restricted field: {key}")
+                else:
+                    current_app.logger.warning(f"[update_receipt_data] Invalid field '{key}' for receipt")
 
-        # Merge existing data with update data for validation
-        validation_data = {**receipt_data, **data}
-
-        # Validate using RegularReceipt model (this will catch invalid field names and types)
-        try:
-            validated_receipt = RegularReceipt(**validation_data)
-        except ValidationError as e:
-            return jsonify({'success': False, 'error': f'Invalid receipt data update: {e}'}), 400
-
-        # Extract only the fields that were provided in the update
-        update_dict = {k: v for k, v in data.items() if k in validation_data}
-
-        # Update the receipt data properties
-        for key, value in update_dict.items():
-            # Only allow updating valid RegularReceipt properties
-            # Exclude line_items as they have their own endpoint
-            if key != 'line_items' and key != 'id':
-                receipt_data[key] = value
-
-        # Save updated receipt_data
-        receipt.receipt_data = json.dumps(receipt_data)
         db.session.commit()
 
         return jsonify({'success': True})
-    except ValidationError as e:
-        return jsonify({'success': False, 'error': f'Invalid receipt data update: {e}'}), 400
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"[update_receipt_data] Error: {str(e)}")
@@ -378,26 +353,17 @@ def update_receipt_data(receipt_id):
 def delete_line_item(receipt_id, item_id):
     """Delete a specific line item from a receipt"""
     try:
-        receipt = UserReceipt.query.get(receipt_id)
+        # Find the line item by id in the line items table
+        line_item = ReceiptLineItem.query.filter_by(
+            id=item_id, 
+            receipt_id=receipt_id
+        ).first()
 
-        if not receipt:
-            return jsonify({'success': False, 'error': 'Receipt not found'}), 404
-
-        receipt_data = json.loads(receipt.receipt_data)
-
-        # Find and remove the line item by id
-        original_length = len(receipt_data.get('line_items', []))
-        receipt_data['line_items'] = [
-            item for item in receipt_data.get('line_items', [])
-            if str(item.get('id')) != str(item_id)
-        ]
-
-        # Check if the item was actually found and removed
-        if len(receipt_data['line_items']) == original_length:
+        if not line_item:
             return jsonify({'success': False, 'error': 'Line item not found'}), 404
 
-        # Save updated receipt_data
-        receipt.receipt_data = json.dumps(receipt_data)
+        # Delete the line item
+        db.session.delete(line_item)
         db.session.commit()
 
         return jsonify({'success': True})
@@ -405,6 +371,39 @@ def delete_line_item(receipt_id, item_id):
         db.session.rollback()
         current_app.logger.error(f"[delete_line_item] Error: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to delete line item'}), 500
+
+@receipts_bp.route('/api/user/receipts/<int:receipt_id>/line-items', methods=['GET'])
+def get_line_items(receipt_id):
+    """Get all line items for a specific receipt"""
+    try:
+        receipt = UserReceipt.query.get(receipt_id)
+
+        if not receipt:
+            return jsonify({'success': False, 'error': 'Receipt not found'}), 404
+
+        # Get line items from the database
+        line_items = ReceiptLineItem.query.filter_by(receipt_id=receipt_id).all()
+
+        # Format line items for response
+        items = []
+        for item in line_items:
+            items.append({
+                'id': item.id,
+                'name': item.name,
+                'quantity': item.quantity,
+                'price_per_item': item.price_per_item,
+                'total_price': item.total_price,
+                'assignments': item.assignments
+            })
+
+        return jsonify({
+            'success': True,
+            'line_items': items
+        })
+
+    except Exception as e:
+        current_app.logger.error(f"Error fetching line items: {str(e)}")
+        return jsonify({'success': False, 'error': 'Failed to fetch line items'}), 500
 
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/line-items', methods=['POST'])
 def add_line_item(receipt_id):
@@ -415,9 +414,8 @@ def add_line_item(receipt_id):
 
     try:
         # Validate the incoming data using the LineItem model
-        # Remove id and assignments from data since we'll generate/override them
-        validation_data = {k: v for k, v in data.items() if k not in ['id', 'assignments']}
-        line_item = LineItem(**validation_data)
+        validation_data = {k: v for k, v in data.items() if k not in ['id']}
+        line_item_validated = LineItem(**validation_data)
     except ValidationError as e:
         return jsonify({'success': False, 'error': f'Invalid line item data: {e}'}), 400
 
@@ -427,28 +425,26 @@ def add_line_item(receipt_id):
         if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
-        receipt_data = json.loads(receipt.receipt_data)
-
-        # Create new line item with generated UUID and default assignments
-        new_line_item = {
-            'id': str(uuid.uuid4()),
-            'assignments': [],
-            **line_item.dict(exclude={'id', 'assignments'})  # Include validated data but exclude id and assignments
-        }
-
-        # Add the new item to the top of the line_items array (index 0)
-        if 'line_items' not in receipt_data:
-            receipt_data['line_items'] = []
-
-        receipt_data['line_items'].insert(0, new_line_item)
-
-        # Save updated receipt_data
-        receipt.receipt_data = json.dumps(receipt_data)
+        # Create new line item in the database
+        new_line_item = ReceiptLineItem(
+            receipt_id=receipt_id,
+            **line_item_validated.model_dump()
+        )
+        
+        db.session.add(new_line_item)
         db.session.commit()
 
+        # Return the created line item
         return jsonify({
             'success': True,
-            'line_item': new_line_item
+            'line_item': {
+                'id': new_line_item.id,
+                'name': new_line_item.name,
+                'quantity': new_line_item.quantity,
+                'price_per_item': new_line_item.price_per_item,
+                'total_price': new_line_item.total_price,
+                'assignments': new_line_item.assignments
+            }
         })
     except Exception as e:
         db.session.rollback()
