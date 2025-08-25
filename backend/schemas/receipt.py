@@ -21,7 +21,7 @@ class LineItem(BaseModel):
     @model_validator(mode="after")
     def _compute_total_price(self):
         # Only compute if not explicitly provided
-        if self.total_price == 0 and self.price_per_item is not None:
+        if self.total_price == Decimal("0"):
             self.total_price = (self.price_per_item * self.quantity).quantize(Decimal("0.01"))
         else:
             # Normalize any provided total_price to 2 decimals
@@ -36,7 +36,7 @@ class LineItemResponse(LineItem):
     created_at: Optional[datetime] = None
 
 class TransportationTicket(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
     
     document_type: Literal["transportation_ticket"] = "transportation_ticket"
     is_receipt: bool = True
@@ -59,10 +59,14 @@ class TransportationTicket(BaseModel):
     
     @model_validator(mode="after")
     def _reconcile_totals(self):
+        # Normalize components to cents
+        self.fare = Decimal(self.fare).quantize(Decimal("0.01"))
+        self.taxes = Decimal(self.taxes).quantize(Decimal("0.01"))
         # Prefer explicit total; else compute
-        computed = (self.fare or Decimal("0")) + (self.taxes or Decimal("0"))
         if not self.total or self.total == 0:
-            self.total = computed.quantize(Decimal("0.01"))
+            self.total = (self.fare + self.taxes).quantize(Decimal("0.01"))
+        else:
+            self.total = Decimal(self.total).quantize(Decimal("0.01"))
         return self
 
 class RegularReceipt(BaseModel):
@@ -97,14 +101,25 @@ class RegularReceipt(BaseModel):
         self.items_total = (self.items_total or items_sum).quantize(Decimal("0.01"))
         if not self.subtotal or self.subtotal == 0:
             self.subtotal = (items_sum if not self.tax_included_in_items else (items_sum - self.tax)).quantize(Decimal("0.01"))
+        if self.subtotal < Decimal("0.00"):
+            self.subtotal = Decimal("0.00")
         self.pretax_total = (self.subtotal).quantize(Decimal("0.01"))
         self.posttax_total = (self.pretax_total + self.tax).quantize(Decimal("0.01"))
+        if self.posttax_total < Decimal("0.00"):
+            self.posttax_total = Decimal("0.00")
         # Prefer explicit total/final_total if provided, else compute
         computed_total = (self.posttax_total + self.tip + self.gratuity).quantize(Decimal("0.01"))
         if not self.total or self.total == 0:
             self.total = computed_total
         if not self.final_total or self.final_total == 0:
             self.final_total = self.total
+        # Normalize inputs to 2 decimals
+        for attr in ("subtotal", "tax", "tip", "gratuity", "total",
+                     "display_subtotal", "items_total", "pretax_total",
+                     "posttax_total", "final_total"):
+            value = getattr(self, attr)
+            if isinstance(value, Decimal):
+                setattr(self, attr, value.quantize(Decimal("0.01")))
         return self
 
 class RegularReceiptResponse(RegularReceipt):
