@@ -1,5 +1,5 @@
 from models import db
-from sqlalchemy import JSON
+from sqlalchemy import JSON, Numeric
 import uuid
 
 
@@ -10,7 +10,7 @@ class ReceiptLineItem(db.Model):
     receipt_id = db.Column(db.Integer, db.ForeignKey('user_receipts.id'), nullable=False, index=True)
     name = db.Column(db.String(255), nullable=True)
     quantity = db.Column(db.Integer, nullable=True, default=1)
-    price_per_item = db.Column(db.Float, nullable=True, default=0.0)
-    total_price = db.Column(db.Float, nullable=True, default=0.0)
-    assignments = db.Column(JSON, nullable=True, default=db.text('[]'))  # JSON array of strings
+    price_per_item = db.Column(Numeric(12, 2), nullable=True, default=0)
+    total_price = db.Column(Numeric(12, 2), nullable=True, default=0)
+    assignments = db.Column(JSON, nullable=True, default=list)  # JSON array of strings
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())

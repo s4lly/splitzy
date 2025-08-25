@@ -1,4 +1,5 @@
 from models import db
+from sqlalchemy import Numeric
 from sqlalchemy.sql import func
 from models.receipt_line_item import ReceiptLineItem
 
@@ -18,18 +19,18 @@ class UserReceipt(db.Model):
     # Regular receipt fields
     merchant = db.Column(db.String(255), nullable=True)
     date = db.Column(db.String(50), nullable=True)
-    subtotal = db.Column(db.Float, nullable=True, default=0.0)
-    tax = db.Column(db.Float, nullable=True, default=0.0)
-    tip = db.Column(db.Float, nullable=True, default=0.0)
-    gratuity = db.Column(db.Float, nullable=True, default=0.0)
-    total = db.Column(db.Float, nullable=True, default=0.0)
+    subtotal = db.Column(Numeric(12, 2), nullable=True, default=0)
+    tax = db.Column(Numeric(12, 2), nullable=True, default=0)
+    tip = db.Column(Numeric(12, 2), nullable=True, default=0)
+    gratuity = db.Column(Numeric(12, 2), nullable=True, default=0)
+    total = db.Column(Numeric(12, 2), nullable=True, default=0)
     payment_method = db.Column(db.String(120), nullable=True)
     tax_included_in_items = db.Column(db.Boolean, nullable=True, default=False)
-    display_subtotal = db.Column(db.Float, nullable=True, default=0.0)
-    items_total = db.Column(db.Float, nullable=True, default=0.0)
-    pretax_total = db.Column(db.Float, nullable=True, default=0.0)
-    posttax_total = db.Column(db.Float, nullable=True, default=0.0)
-    final_total = db.Column(db.Float, nullable=True, default=0.0)
+    display_subtotal = db.Column(Numeric(12, 2), nullable=True, default=0)
+    items_total = db.Column(Numeric(12, 2), nullable=True, default=0)
+    pretax_total = db.Column(Numeric(12, 2), nullable=True, default=0)
+    posttax_total = db.Column(Numeric(12, 2), nullable=True, default=0)
+    final_total = db.Column(Numeric(12, 2), nullable=True, default=0)
 
     # Transportation ticket-specific fields
     carrier = db.Column(db.String(255), nullable=True)
@@ -38,9 +39,9 @@ class UserReceipt(db.Model):
     destination = db.Column(db.String(255), nullable=True)
     passenger = db.Column(db.String(255), nullable=True)
     class_ = db.Column('class', db.String(50), nullable=True)
-    fare = db.Column(db.Float, nullable=True, default=0.0)
+    fare = db.Column(Numeric(12, 2), nullable=True, default=0)
     currency = db.Column(db.String(10), nullable=True)
-    taxes = db.Column(db.Float, nullable=True, default=0.0)
+    taxes = db.Column(Numeric(12, 2), nullable=True, default=0)
 
     user = db.relationship('User', backref=db.backref('receipts', lazy=True))
 
