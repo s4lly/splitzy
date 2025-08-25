@@ -20,8 +20,9 @@ depends_on = None
 # --- File: backend/migrations/versions/2cb916bbb47d_copy_item_uuid_to_id_and_remove_item_.py ---
 
 def upgrade():
-    # Copy item_uuid -> id with robust collision handling.
-    # Phase 1: compute targets and move only colliding rows to temporary UUIDs.
+    # Copy item_uuid -> id with optimized collision handling.
+    # Phase 1: compute targets allowing targets equal to other rows' current ids
+    # but ensuring targets are unique among themselves
     connection = op.get_bind()
     import uuid
 
@@ -30,25 +31,50 @@ def upgrade():
     ).mappings().all()
 
     existing_ids = {r["id"] for r in rows}
-    used_ids = set(existing_ids)
     target_by_old = {}
+    target_to_old = {}  # Track which old_id each target is assigned to
 
-    # Determine unique final targets per row
+    # Determine unique final targets per row, allowing targets equal to other rows' current ids
     for r in rows:
         old_id = r["id"]
         target = r["item_uuid"] or str(uuid.uuid4())
-        while target in used_ids:
+        
+        # If target is already assigned to another row, generate new UUID
+        while target in target_to_old and target_to_old[target] != old_id:
             target = str(uuid.uuid4())
+        
         target_by_old[old_id] = target
-        used_ids.add(target)
+        target_to_old[target] = old_id
 
-    # Phase 1: move rows that would collide with any current id to a temp UUID
+    # Phase 1: update rows whose final target does not collide with any current id
+    # directly to their final target
+    for old_id, target in target_by_old.items():
+        if target not in existing_ids or target == old_id:
+            if target != old_id:
+                connection.execute(
+                    text("UPDATE receipt_line_items SET id = :new WHERE id = :old"),
+                    {"new": target, "old": old_id},
+                )
+
+    # Phase 2: for rows where final target collides with some current id,
+    # first set them to distinct temporary UUID placeholders
     temp_for_old = {}
+    used_ids = set(existing_ids)
+    
+    # Update used_ids with the changes from Phase 1
+    for old_id, target in target_by_old.items():
+        if target not in existing_ids or target == old_id:
+            if target != old_id:
+                used_ids.remove(old_id)
+                used_ids.add(target)
+
     for old_id, target in target_by_old.items():
         if target in existing_ids and target != old_id:
-            tmp = str(uuid.uuid4())  # 36 chars fits String(36)
-            while tmp in used_ids:
+            # Generate temporary UUID that doesn't conflict with any current or target ID
+            tmp = str(uuid.uuid4())
+            while tmp in used_ids or tmp in target_by_old.values():
                 tmp = str(uuid.uuid4())
+            
             connection.execute(
                 text("UPDATE receipt_line_items SET id = :tmp WHERE id = :old"),
                 {"tmp": tmp, "old": old_id},
@@ -56,10 +82,10 @@ def upgrade():
             temp_for_old[old_id] = tmp
             used_ids.add(tmp)
 
-    # Phase 2: set final targets (from placeholder when applicable)
+    # Phase 3: set temporary placeholders to intended final targets
     for original_old, final_target in target_by_old.items():
-        current_old = temp_for_old.get(original_old, original_old)
-        if final_target != current_old:
+        if original_old in temp_for_old:
+            current_old = temp_for_old[original_old]
             connection.execute(
                 text("UPDATE receipt_line_items SET id = :new WHERE id = :old"),
                 {"new": final_target, "old": current_old},
