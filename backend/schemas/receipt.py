@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import List, Optional, Literal
 from decimal import Decimal
 from datetime import date as date_type, datetime
-from pydantic import BaseModel, Field, ConfigDict, AliasChoices, model_validator
+from pydantic import BaseModel, Field, ConfigDict, AliasChoices, model_validator, field_serializer
 
 class LineItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -12,6 +12,11 @@ class LineItem(BaseModel):
     price_per_item: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     total_price: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     assignments: List[str] = Field(default_factory=list)
+    
+    @field_serializer('price_per_item', 'total_price')
+    def _serialize_decimals(self, v: Decimal) -> float:
+        # Serializing to float for frontend until can implement similar Decimal handling logic in frontend
+        return float(v)
     
     @model_validator(mode="after")
     def _compute_total_price(self):
@@ -47,6 +52,11 @@ class TransportationTicket(BaseModel):
     taxes: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     
+    @field_serializer('fare', 'taxes', 'total')
+    def _serialize_decimals(self, v: Decimal) -> float:
+        # Serializing to float for frontend until can implement similar Decimal handling logic in frontend
+        return float(v)
+    
     @model_validator(mode="after")
     def _reconcile_totals(self):
         # Prefer explicit total; else compute
@@ -74,6 +84,11 @@ class RegularReceipt(BaseModel):
     pretax_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     posttax_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     final_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
+
+    @field_serializer('subtotal', 'tax', 'tip', 'gratuity', 'total', 'display_subtotal', 'items_total', 'pretax_total', 'posttax_total', 'final_total')
+    def _serialize_decimals(self, v: Decimal) -> float:
+        # Serializing to float for frontend until can implement similar Decimal handling logic in frontend
+        return float(v)
 
     @model_validator(mode="after")
     def _recompute_aggregates(self):
@@ -131,6 +146,11 @@ class UserReceiptCreate(BaseModel):
     posttax_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     final_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     
+    @field_serializer('subtotal', 'tax', 'tip', 'gratuity', 'total', 'display_subtotal', 'items_total', 'pretax_total', 'posttax_total', 'final_total')
+    def _serialize_decimals(self, v: Decimal) -> float:
+        # Serializing to float for frontend until can implement similar Decimal handling logic in frontend
+        return float(v)
+    
     # Transportation ticket fields
     # consider adding fields for transportation ticket
 
@@ -147,3 +167,8 @@ class ReceiptLineItemCreate(BaseModel):
     price_per_item: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     total_price: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     assignments: List[str] = Field(default_factory=list)
+    
+    @field_serializer('price_per_item', 'total_price')
+    def _serialize_decimals(self, v: Decimal) -> float:
+        # Serializing to float for frontend until can implement similar Decimal handling logic in frontend
+        return float(v)
