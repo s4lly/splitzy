@@ -79,7 +79,7 @@ def analyze_receipt():
 
         # Check if receipt_model is an error dict from _process_response
         if isinstance(receipt_model, dict):
-            if receipt_model.get("error") or receipt_model.get("success") == False:
+            if receipt_model.get("error") or (receipt_model.get("success") is False):
                 # Return error response directly
                 return jsonify({
                     'success': False,
@@ -326,12 +326,17 @@ def update_line_item(receipt_id, item_id):
         if not line_item:
             return jsonify({'success': False, 'error': 'Line item not found'}), 404
 
-        # Update the line item properties
+        # Define explicit allowlist of mutable fields for line items
+        MUTABLE_LINE_ITEM_FIELDS = {
+            'name', 'quantity', 'price_per_item', 'total_price', 'assignments'
+        }
+        
+        # Update only allowed line item properties
         for key, value in data.items():
-            if hasattr(line_item, key):
+            if key in MUTABLE_LINE_ITEM_FIELDS:
                 setattr(line_item, key, value)
             else:
-                current_app.logger.warning(f"[update_line_item] Invalid field '{key}' for line item")
+                current_app.logger.warning(f"[update_line_item] Attempted to update disallowed field '{key}' for line item (ignored)")
 
         db.session.commit()
 
