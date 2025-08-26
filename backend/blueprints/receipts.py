@@ -1,11 +1,10 @@
 import os
-import json
-import uuid
-from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from models import db
 from models.user_receipt import UserReceipt
-from image_analyzer import ImageAnalyzer, LineItem, RegularReceipt
+from models.receipt_line_item import ReceiptLineItem
+from image_analyzer import ImageAnalyzer
+from schemas.receipt import LineItem, LineItemResponse, RegularReceiptResponse, UserReceiptCreate, ReceiptLineItemCreate
 from werkzeug.utils import secure_filename
 from blueprints.auth import get_current_user
 from pydantic import ValidationError
@@ -65,24 +64,70 @@ def analyze_receipt():
     file.save(temp_path)
 
     try:
-        # Initialize the analyzer with the selected provider
         analyzer = ImageAnalyzer(provider=provider)
-        result = analyzer.analyze_image(temp_path)
+        try:
+            receipt_model = analyzer.analyze_image(temp_path)
+        except Exception as analyzer_error:
+            current_app.logger.error(f"Error from image analyzer: {str(analyzer_error)}")
+            return jsonify({
+                'success': False,
+                'error': f"Image analysis failed: {str(analyzer_error)}"
+            }), 500
 
-        if result.get('success') and result.get('is_receipt'):
-            # Save the receipt to the database
-            new_receipt = UserReceipt(
-                user_id=current_user.id if current_user else None,
-                receipt_data=json.dumps(result['receipt_data']),
-                image_path=temp_path
-            )
+        # Check if receipt_model is an error dict from _process_response
+        if isinstance(receipt_model, dict):
+            if receipt_model.get("error") or (receipt_model.get("success") is False):
+                # Return error response directly
+                return jsonify({
+                    'success': False,
+                    'error': receipt_model.get("error", "Unknown error occurred")
+                }), 400
+            else:
+                # It's a dict but not an error - could be a non-receipt response
+                # Return it directly without calling model_dump()
+                return jsonify({
+                    'success': True,
+                    'is_receipt': False,
+                    'receipt_data': receipt_model
+                })
+
+        # receipt_model is a Pydantic model
+        if hasattr(receipt_model, 'is_receipt') and receipt_model.is_receipt:
+            receipt_create_data = UserReceiptCreate.model_validate(receipt_model)
+            
+            # Add the additional fields that aren't in the Pydantic model
+            receipt_create_data.user_id = current_user.id if current_user else None
+            receipt_create_data.image_path = temp_path
+            
+            # Create the SQLAlchemy model instance
+            new_receipt = UserReceipt(**receipt_create_data.model_dump())
             db.session.add(new_receipt)
+            
+            if hasattr(receipt_model, 'line_items') and receipt_model.line_items:
+                for item in receipt_model.line_items:
+                    # Use Pydantic model_validate to automatically map fields
+                    line_item_data = ReceiptLineItemCreate.model_validate(item)
+                    
+                    # Create the SQLAlchemy model instance (receipt_id will be set automatically)
+                    line_item = ReceiptLineItem(**line_item_data.model_dump())
+                    
+                    # Use the relationship to automatically set the foreign key
+                    new_receipt.line_items.append(line_item)
+            
             db.session.commit()
 
-            # Add the receipt ID to the response
-            result['receipt_data']['id'] = new_receipt.id
-
-        return jsonify(result)
+            return jsonify({
+                'success': True,
+                'is_receipt': True,
+                'receipt_data': RegularReceiptResponse.model_validate(new_receipt).model_dump()
+            })
+        else:
+            # Not a receipt
+            return jsonify({
+                'success': True,
+                'is_receipt': False,
+                'receipt_data': receipt_model.model_dump()
+            })
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error analyzing receipt: {str(e)}")
@@ -102,10 +147,10 @@ def get_user_receipts():
     try:
         user_receipts = UserReceipt.query.filter_by(user_id=current_user.id).order_by(UserReceipt.created_at.desc()).all()
 
-        # Format receipts for the response
+        # Format receipts for the response using denormalized fields
         receipts = []
         for receipt in user_receipts:
-            receipt_data = json.loads(receipt.receipt_data)
+            receipt_data = RegularReceiptResponse.model_validate(receipt).model_dump(exclude={'id'})
             receipts.append({
                 'id': receipt.id,
                 'receipt_data': receipt_data,
@@ -132,10 +177,9 @@ def get_user_receipt(receipt_id):
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
         # Format receipt for the response
-        receipt_data = json.loads(receipt.receipt_data)
         response_receipt = {
             'id': receipt.id,
-            'receipt_data': receipt_data,
+            'receipt_data': RegularReceiptResponse.model_validate(receipt).model_dump(exclude={'id'}),
             'image_path': receipt.image_path,
             'created_at': receipt.created_at.isoformat()
         }
@@ -238,31 +282,24 @@ def update_receipt_assignments(receipt_id):
             current_app.logger.error(f"[update_receipt_assignments] Receipt not found: receipt_id={receipt_id}")
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
+        # Update assignments for each line item by id using the line items table
         try:
-            receipt_data = json.loads(receipt.receipt_data)
-        except Exception as e:
-            current_app.logger.error(f"[update_receipt_assignments] Error decoding receipt_data: receipt_id={receipt_id}, error={str(e)}")
-            return jsonify({'success': False, 'error': 'Corrupt receipt data'}), 500
-
-        # Update assignments for each line item by id
-        try:
-            line_items_by_id = {item['id']: item for item in receipt_data.get('line_items', [])}
             for updated_item in data['line_items']:
-                if updated_item['id'] in line_items_by_id:
-                    line_items_by_id[updated_item['id']]['assignments'] = updated_item.get('assignments', [])
-            receipt_data['line_items'] = list(line_items_by_id.values())
-        except Exception as e:
-            current_app.logger.error(f"[update_receipt_assignments] Error updating line items: receipt_id={receipt_id}, error={str(e)}")
-            return jsonify({'success': False, 'error': 'Failed to update line items'}), 500
-
-        # Save updated receipt_data
-        try:
-            receipt.receipt_data = json.dumps(receipt_data)
+                line_item = ReceiptLineItem.query.filter_by(
+                    id=updated_item['id'], 
+                    receipt_id=receipt_id
+                ).first()
+                
+                if line_item:
+                    line_item.assignments = updated_item.get('assignments', [])
+                else:
+                    current_app.logger.warning(f"[update_receipt_assignments] Line item not found: item_id={updated_item['id']}, receipt_id={receipt_id}")
+                    
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            current_app.logger.error(f"[update_receipt_assignments] Error saving updated receipt_data: receipt_id={receipt_id}, error={str(e)}")
-            return jsonify({'success': False, 'error': 'Failed to save updated assignments'}), 500
+            current_app.logger.error(f"[update_receipt_assignments] Error updating line items: receipt_id={receipt_id}, error={str(e)}")
+            return jsonify({'success': False, 'error': 'Failed to update line items'}), 500
 
         return jsonify({'success': True})
     except Exception as e:
@@ -277,27 +314,27 @@ def update_line_item(receipt_id, item_id):
         return jsonify({'success': False, 'error': 'No update data provided'}), 400
 
     try:
-        receipt = UserReceipt.query.get(receipt_id)
+        # Find the line item by id in the line items table
+        line_item = ReceiptLineItem.query.filter_by(
+            id=item_id, 
+            receipt_id=receipt_id
+        ).first()
 
-        if not receipt:
-            return jsonify({'success': False, 'error': 'Receipt not found'}), 404
-
-        receipt_data = json.loads(receipt.receipt_data)
-        updated = False
-
-        # Find the line item by id and update its properties
-        for item in receipt_data.get('line_items', []):
-            if str(item.get('id')) == str(item_id):
-                for key, value in data.items():
-                    item[key] = value
-                updated = True
-                break
-
-        if not updated:
+        if not line_item:
             return jsonify({'success': False, 'error': 'Line item not found'}), 404
 
-        # Save updated receipt_data
-        receipt.receipt_data = json.dumps(receipt_data)
+        # Define explicit allowlist of mutable fields for line items
+        MUTABLE_LINE_ITEM_FIELDS = {
+            'name', 'quantity', 'price_per_item', 'total_price', 'assignments'
+        }
+        
+        # Update only allowed line item properties
+        for key, value in data.items():
+            if key in MUTABLE_LINE_ITEM_FIELDS:
+                setattr(line_item, key, value)
+            else:
+                current_app.logger.warning(f"[update_line_item] Attempted to update disallowed field '{key}' for line item (ignored)")
+
         db.session.commit()
 
         return jsonify({'success': True})
@@ -319,34 +356,21 @@ def update_receipt_data(receipt_id):
         if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
-        receipt_data = json.loads(receipt.receipt_data)
+        # Update the receipt properties directly on the model
+        for key, value in data.items():
+            # Only allow updating valid UserReceipt properties
+            # Exclude line_items as they have their own endpoint, and id/user_id for security
+            if key not in ['line_items', 'id', 'user_id', 'created_at'] and hasattr(receipt, key):
+                setattr(receipt, key, value)
+            else:
+                if key in ['line_items', 'id', 'user_id', 'created_at']:
+                    current_app.logger.warning(f"[update_receipt_data] Attempted to update restricted field: {key}")
+                else:
+                    current_app.logger.warning(f"[update_receipt_data] Invalid field '{key}' for receipt")
 
-        # Merge existing data with update data for validation
-        validation_data = {**receipt_data, **data}
-
-        # Validate using RegularReceipt model (this will catch invalid field names and types)
-        try:
-            validated_receipt = RegularReceipt(**validation_data)
-        except ValidationError as e:
-            return jsonify({'success': False, 'error': f'Invalid receipt data update: {e}'}), 400
-
-        # Extract only the fields that were provided in the update
-        update_dict = {k: v for k, v in data.items() if k in validation_data}
-
-        # Update the receipt data properties
-        for key, value in update_dict.items():
-            # Only allow updating valid RegularReceipt properties
-            # Exclude line_items as they have their own endpoint
-            if key != 'line_items' and key != 'id':
-                receipt_data[key] = value
-
-        # Save updated receipt_data
-        receipt.receipt_data = json.dumps(receipt_data)
         db.session.commit()
 
         return jsonify({'success': True})
-    except ValidationError as e:
-        return jsonify({'success': False, 'error': f'Invalid receipt data update: {e}'}), 400
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"[update_receipt_data] Error: {str(e)}")
@@ -356,26 +380,17 @@ def update_receipt_data(receipt_id):
 def delete_line_item(receipt_id, item_id):
     """Delete a specific line item from a receipt"""
     try:
-        receipt = UserReceipt.query.get(receipt_id)
+        # Find the line item by id in the line items table
+        line_item = ReceiptLineItem.query.filter_by(
+            id=item_id, 
+            receipt_id=receipt_id
+        ).first()
 
-        if not receipt:
-            return jsonify({'success': False, 'error': 'Receipt not found'}), 404
-
-        receipt_data = json.loads(receipt.receipt_data)
-
-        # Find and remove the line item by id
-        original_length = len(receipt_data.get('line_items', []))
-        receipt_data['line_items'] = [
-            item for item in receipt_data.get('line_items', [])
-            if str(item.get('id')) != str(item_id)
-        ]
-
-        # Check if the item was actually found and removed
-        if len(receipt_data['line_items']) == original_length:
+        if not line_item:
             return jsonify({'success': False, 'error': 'Line item not found'}), 404
 
-        # Save updated receipt_data
-        receipt.receipt_data = json.dumps(receipt_data)
+        # Delete the line item
+        db.session.delete(line_item)
         db.session.commit()
 
         return jsonify({'success': True})
@@ -383,6 +398,33 @@ def delete_line_item(receipt_id, item_id):
         db.session.rollback()
         current_app.logger.error(f"[delete_line_item] Error: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to delete line item'}), 500
+
+@receipts_bp.route('/api/user/receipts/<int:receipt_id>/line-items', methods=['GET'])
+def get_line_items(receipt_id):
+    """Get all line items for a specific receipt"""
+    try:
+        receipt = UserReceipt.query.get(receipt_id)
+
+        if not receipt:
+            return jsonify({'success': False, 'error': 'Receipt not found'}), 404
+
+        # Get line items from the database
+        line_items = ReceiptLineItem.query.filter_by(receipt_id=receipt_id).all()
+
+        # Format line items for response using Pydantic serialization
+        items = []
+        for item in line_items:
+            line_item_response = LineItemResponse.model_validate(item)
+            items.append(line_item_response.model_dump())
+
+        return jsonify({
+            'success': True,
+            'line_items': items
+        })
+
+    except Exception as e:
+        current_app.logger.error(f"Error fetching line items: {str(e)}")
+        return jsonify({'success': False, 'error': 'Failed to fetch line items'}), 500
 
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/line-items', methods=['POST'])
 def add_line_item(receipt_id):
@@ -393,9 +435,8 @@ def add_line_item(receipt_id):
 
     try:
         # Validate the incoming data using the LineItem model
-        # Remove id and assignments from data since we'll generate/override them
-        validation_data = {k: v for k, v in data.items() if k not in ['id', 'assignments']}
-        line_item = LineItem(**validation_data)
+        validation_data = {k: v for k, v in data.items() if k not in ['id']}
+        line_item_validated = LineItem(**validation_data)
     except ValidationError as e:
         return jsonify({'success': False, 'error': f'Invalid line item data: {e}'}), 400
 
@@ -405,28 +446,16 @@ def add_line_item(receipt_id):
         if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
-        receipt_data = json.loads(receipt.receipt_data)
-
-        # Create new line item with generated UUID and default assignments
-        new_line_item = {
-            'id': str(uuid.uuid4()),
-            'assignments': [],
-            **line_item.dict(exclude={'id', 'assignments'})  # Include validated data but exclude id and assignments
-        }
-
-        # Add the new item to the top of the line_items array (index 0)
-        if 'line_items' not in receipt_data:
-            receipt_data['line_items'] = []
-
-        receipt_data['line_items'].insert(0, new_line_item)
-
-        # Save updated receipt_data
-        receipt.receipt_data = json.dumps(receipt_data)
+        # Create new line item using the relationship
+        new_line_item = ReceiptLineItem(**line_item_validated.model_dump())
+        receipt.line_items.append(new_line_item)
         db.session.commit()
 
+        # Return the created line item using Pydantic serialization
+        line_item_response = LineItemResponse.model_validate(new_line_item)
         return jsonify({
             'success': True,
-            'line_item': new_line_item
+            'line_item': line_item_response.model_dump()
         })
     except Exception as e:
         db.session.rollback()
