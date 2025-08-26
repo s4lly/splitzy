@@ -107,12 +107,8 @@ def analyze_receipt():
             receipt_create_data.user_id = current_user.id if current_user else None
             receipt_create_data.image_path = temp_path
             
-            # Create the SQLAlchemy model instance, excluding line_items since they're handled separately
-            receipt_dict = receipt_create_data.model_dump()
-            if 'line_items' in receipt_dict:
-                del receipt_dict['line_items']  # Remove line_items, they're handled separately
-            
-            new_receipt = UserReceipt(**receipt_dict)
+            # Create the SQLAlchemy model instance
+            new_receipt = UserReceipt(**receipt_create_data.model_dump())
             db.session.add(new_receipt)
             
             if hasattr(receipt_model, 'line_items') and receipt_model.line_items:
@@ -120,12 +116,8 @@ def analyze_receipt():
                     # Use Pydantic model_validate to automatically map fields
                     line_item_data = ReceiptLineItemCreate.model_validate(item)
                     
-                    # Create the SQLAlchemy model instance, excluding receipt_id since it's set by relationship
-                    line_item_dict = line_item_data.model_dump()
-                    if 'receipt_id' in line_item_dict:
-                        del line_item_dict['receipt_id']  # Remove receipt_id, it will be set by relationship
-                    
-                    line_item = ReceiptLineItem(**line_item_dict)
+                    # Create the SQLAlchemy model instance
+                    line_item = ReceiptLineItem(**line_item_data.model_dump())
                     
                     # Use the relationship to automatically set the foreign key
                     new_receipt.line_items.append(line_item)

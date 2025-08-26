@@ -110,7 +110,7 @@ class RegularReceiptBase(BaseModel, ReceiptDecimalSerializerMixin, DecimalValida
     is_receipt: bool = True
     merchant: Optional[str] = None
     date: Optional[str] = None
-    line_items: List[LineItem] = Field(default_factory=list)
+    line_items: List[LineItem] = Field(default_factory=list, exclude=True)  # Exclude from database creation
     subtotal: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     tax: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     tip: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
@@ -166,7 +166,8 @@ class RegularReceiptBase(BaseModel, ReceiptDecimalSerializerMixin, DecimalValida
         return self
 
 class RegularReceipt(RegularReceiptBase):
-    pass
+    # Override line_items to include them in API responses
+    line_items: List[LineItem] = Field(default_factory=list)
 
 class RegularReceiptResponse(RegularReceipt):
     model_config = ConfigDict(from_attributes=True)
@@ -184,28 +185,24 @@ class DatabaseCreateBase(BaseModel, DecimalValidatorMixin):
     model_config = ConfigDict(from_attributes=True)
     
     # Common fields for database creation
-    user_id: Optional[int] = None
-    image_path: Optional[str] = None
+    # Note: user_id and image_path are set programmatically, not from Pydantic models
     is_receipt: bool = True
     document_type: Optional[str] = None
 
 # Model for creating UserReceipt instances from Pydantic models
 class UserReceiptCreate(DatabaseCreateBase, RegularReceiptBase):
-    # Inherits all fields from both DatabaseCreateBase and RegularReceiptBase
-    # No need to redefine fields that are already in the parent classes
+    # Add fields that are set programmatically but needed for database creation
+    user_id: Optional[int] = None
+    image_path: Optional[str] = None
     
     # Transportation ticket fields can be added here if needed
     # consider adding fields for transportation ticket
-    pass
 
 # Model for creating ReceiptLineItem instances from Pydantic models
 class ReceiptLineItemCreate(BaseModel, LineItemDecimalSerializerMixin):
     model_config = ConfigDict(from_attributes=True)
     
-    # Required fields
-    receipt_id: Optional[int] = None
-    
-    # Line item fields
+    # Line item fields (receipt_id is set by SQLAlchemy relationship)
     name: Optional[str] = None
     quantity: float = Field(1.0, ge=0.0)
     price_per_item: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
