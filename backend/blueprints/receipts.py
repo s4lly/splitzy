@@ -83,15 +83,23 @@ def analyze_receipt():
                     'error': receipt_model.get("error", "Unknown error occurred")
                 }), 400
             else:
-                # It's a dict but not an error - could be a non-receipt response
-                # Return it directly without calling model_dump()
+                # It's a dict but not an error - this shouldn't happen with proper Pydantic validation
+                # but handle it gracefully
                 return jsonify({
                     'success': True,
                     'is_receipt': False,
                     'receipt_data': receipt_model
                 })
 
-        # receipt_model is a Pydantic model
+        # receipt_model should be a Pydantic model at this point
+        if not hasattr(receipt_model, 'model_dump'):
+            # This shouldn't happen, but handle it gracefully
+            current_app.logger.error(f"Unexpected receipt_model type: {type(receipt_model)}")
+            return jsonify({
+                'success': False,
+                'error': 'Invalid response format from image analyzer'
+            }), 500
+
         if hasattr(receipt_model, 'is_receipt') and receipt_model.is_receipt:
             receipt_create_data = UserReceiptCreate.model_validate(receipt_model)
             
@@ -99,8 +107,12 @@ def analyze_receipt():
             receipt_create_data.user_id = current_user.id if current_user else None
             receipt_create_data.image_path = temp_path
             
-            # Create the SQLAlchemy model instance
-            new_receipt = UserReceipt(**receipt_create_data.model_dump())
+            # Create the SQLAlchemy model instance, excluding line_items since they're handled separately
+            receipt_dict = receipt_create_data.model_dump()
+            if 'line_items' in receipt_dict:
+                del receipt_dict['line_items']  # Remove line_items, they're handled separately
+            
+            new_receipt = UserReceipt(**receipt_dict)
             db.session.add(new_receipt)
             
             if hasattr(receipt_model, 'line_items') and receipt_model.line_items:
@@ -108,8 +120,12 @@ def analyze_receipt():
                     # Use Pydantic model_validate to automatically map fields
                     line_item_data = ReceiptLineItemCreate.model_validate(item)
                     
-                    # Create the SQLAlchemy model instance (receipt_id will be set automatically)
-                    line_item = ReceiptLineItem(**line_item_data.model_dump())
+                    # Create the SQLAlchemy model instance, excluding receipt_id since it's set by relationship
+                    line_item_dict = line_item_data.model_dump()
+                    if 'receipt_id' in line_item_dict:
+                        del line_item_dict['receipt_id']  # Remove receipt_id, it will be set by relationship
+                    
+                    line_item = ReceiptLineItem(**line_item_dict)
                     
                     # Use the relationship to automatically set the foreign key
                     new_receipt.line_items.append(line_item)
@@ -123,10 +139,17 @@ def analyze_receipt():
             })
         else:
             # Not a receipt
+            # Check if receipt_model has model_dump method (Pydantic model) or is a dict
+            if hasattr(receipt_model, 'model_dump'):
+                receipt_data = receipt_model.model_dump()
+            else:
+                # It's already a dict, use it directly
+                receipt_data = receipt_model
+                
             return jsonify({
                 'success': True,
                 'is_receipt': False,
-                'receipt_data': receipt_model.model_dump()
+                'receipt_data': receipt_data
             })
     except Exception as e:
         db.session.rollback()
