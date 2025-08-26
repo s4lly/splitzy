@@ -45,9 +45,6 @@ def register():
             }
         }), 201)
         
-        # Ensure proper cookie settings for cross-origin
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-        
         return response
     except IntegrityError:
         db.session.rollback()
@@ -83,9 +80,6 @@ def login():
         }
     }))
     
-    # Ensure proper cookie settings for cross-origin
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
-    
     return response
 
 @auth_bp.route('/logout', methods=['POST'])
@@ -94,7 +88,6 @@ def logout():
     session.clear()
     
     response = make_response(jsonify({'success': True, 'message': 'Logged out successfully'}))
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
     
     return response
 
