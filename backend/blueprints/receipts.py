@@ -150,13 +150,18 @@ def get_user_receipts():
         # Format receipts for the response using denormalized fields
         receipts = []
         for receipt in user_receipts:
-            receipt_data = RegularReceiptResponse.model_validate(receipt).model_dump(exclude={'id'})
-            receipts.append({
-                'id': receipt.id,
-                'receipt_data': receipt_data,
-                'image_path': receipt.image_path,
-                'created_at': receipt.created_at.isoformat()
-            })
+            try:
+                receipt_data = RegularReceiptResponse.model_validate(receipt).model_dump(exclude={'id'})
+                receipts.append({
+                    'id': receipt.id,
+                    'receipt_data': receipt_data,
+                    'image_path': receipt.image_path,
+                    'created_at': receipt.created_at.isoformat()
+                })
+            except Exception as receipt_error:
+                current_app.logger.error(f"Error processing receipt ID {receipt.id}: {str(receipt_error)}")
+                # Continue processing other receipts instead of failing completely
+                continue
 
         return jsonify({
             'success': True,
@@ -190,7 +195,7 @@ def get_user_receipt(receipt_id):
         })
 
     except Exception as e:
-        current_app.logger.error(f"Error fetching receipt: {str(e)}")
+        current_app.logger.error(f"Error fetching receipt ID {receipt_id}: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to fetch receipt'}), 500
 
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>', methods=['DELETE'])
@@ -217,7 +222,7 @@ def delete_user_receipt(receipt_id):
 
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Error deleting receipt: {str(e)}")
+        current_app.logger.error(f"Error deleting receipt ID {receipt_id}: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to delete receipt'}), 500
 
 @receipts_bp.route('/api/health', methods=['GET'])
@@ -264,7 +269,7 @@ def get_receipt_image(receipt_id):
         )
 
     except Exception as e:
-        current_app.logger.error(f"Error retrieving receipt image: {str(e)}")
+        current_app.logger.error(f"Error retrieving receipt image for receipt ID {receipt_id}: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to retrieve receipt image'}), 500
 
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/assignments', methods=['PUT'])
@@ -340,7 +345,7 @@ def update_line_item(receipt_id, item_id):
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"[update_line_item] Error: {str(e)}")
+        current_app.logger.error(f"[update_line_item] Error for receipt ID {receipt_id}, item ID {item_id}: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to update line item'}), 500
 
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/receipt-data', methods=['PUT'])
@@ -373,7 +378,7 @@ def update_receipt_data(receipt_id):
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"[update_receipt_data] Error: {str(e)}")
+        current_app.logger.error(f"[update_receipt_data] Error for receipt ID {receipt_id}: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to update receipt data'}), 500
 
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/line-items/<item_id>', methods=['DELETE'])
@@ -396,7 +401,7 @@ def delete_line_item(receipt_id, item_id):
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"[delete_line_item] Error: {str(e)}")
+        current_app.logger.error(f"[delete_line_item] Error for receipt ID {receipt_id}, item ID {item_id}: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to delete line item'}), 500
 
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/line-items', methods=['GET'])
@@ -423,7 +428,7 @@ def get_line_items(receipt_id):
         })
 
     except Exception as e:
-        current_app.logger.error(f"Error fetching line items: {str(e)}")
+        current_app.logger.error(f"Error fetching line items for receipt ID {receipt_id}: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to fetch line items'}), 500
 
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/line-items', methods=['POST'])
@@ -459,5 +464,5 @@ def add_line_item(receipt_id):
         })
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Error adding line item: {str(e)}")
+        current_app.logger.error(f"Error adding line item to receipt ID {receipt_id}: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to add line item'}), 500
