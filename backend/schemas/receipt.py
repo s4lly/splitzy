@@ -4,25 +4,60 @@ from decimal import Decimal
 from datetime import date as date_type, datetime
 from pydantic import BaseModel, Field, ConfigDict, AliasChoices, model_validator, field_serializer
 
-class LineItem(BaseModel):
+# Base class for common decimal validation logic
+class DecimalValidatorMixin:
+    """Mixin for models that need safe decimal validation"""
+    
+    def safe_decimal(self, value) -> Decimal:
+        """Convert None values to Decimal("0.00") for calculations"""
+        if value is None:
+            return Decimal("0.00")
+        return Decimal(value)
+
+# Mixin for line item decimal serialization
+class LineItemDecimalSerializerMixin:
+    """Mixin for models that need to serialize line item Decimal fields to float for frontend"""
+    
+    @field_serializer('price_per_item', 'total_price')
+    def _serialize_line_item_decimals(self, v: Decimal) -> float:
+        return float(v)
+
+# Mixin for receipt decimal serialization
+class ReceiptDecimalSerializerMixin:
+    """Mixin for models that need to serialize receipt Decimal fields to float for frontend"""
+    
+    @field_serializer('subtotal', 'tax', 'tip', 'gratuity', 'total', 'display_subtotal', 'items_total', 'pretax_total', 'posttax_total', 'final_total')
+    def _serialize_receipt_decimals(self, v: Optional[Decimal]) -> float:
+        if v is None:
+            return 0.0
+        return float(v)
+
+# Mixin for transportation decimal serialization
+class TransportationDecimalSerializerMixin:
+    """Mixin for models that need to serialize transportation Decimal fields to float for frontend"""
+    
+    @field_serializer('fare', 'taxes', 'total')
+    def _serialize_transportation_decimals(self, v: Optional[Decimal]) -> float:
+        if v is None:
+            return 0.0
+        return float(v)
+
+class LineItem(BaseModel, LineItemDecimalSerializerMixin):
     model_config = ConfigDict(from_attributes=True)
     
     name: str
-    quantity: int = Field(1, ge=1)
+    quantity: float = Field(1.0, ge=0.0)
     price_per_item: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     total_price: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     assignments: List[str] = Field(default_factory=list)
-    
-    @field_serializer('price_per_item', 'total_price')
-    def _serialize_decimals(self, v: Decimal) -> float:
-        # Serializing to float for frontend until can implement similar Decimal handling logic in frontend
-        return float(v)
     
     @model_validator(mode="after")
     def _compute_total_price(self):
         # Only compute if not explicitly provided
         if self.total_price == Decimal("0"):
-            self.total_price = (self.price_per_item * self.quantity).quantize(Decimal("0.01"))
+            # Convert quantity to Decimal for calculation
+            quantity_decimal = Decimal(str(self.quantity))
+            self.total_price = (self.price_per_item * quantity_decimal).quantize(Decimal("0.01"))
         else:
             # Normalize any provided total_price to 2 decimals
             self.total_price = Decimal(self.total_price).quantize(Decimal("0.01"))
@@ -35,7 +70,8 @@ class LineItemResponse(LineItem):
     id: str
     created_at: Optional[datetime] = None
 
-class TransportationTicket(BaseModel):
+# Base class for transportation ticket fields
+class TransportationTicketBase(BaseModel, TransportationDecimalSerializerMixin, DecimalValidatorMixin):
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
     
     document_type: Literal["transportation_ticket"] = "transportation_ticket"
@@ -47,80 +83,90 @@ class TransportationTicket(BaseModel):
     destination: Optional[str] = None
     passenger: Optional[str] = None
     class_: Optional[str] = Field(None, alias='class', validation_alias=AliasChoices('class_', 'class'))
-    fare: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    fare: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     currency: Optional[str] = None
-    taxes: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    
-    @field_serializer('fare', 'taxes', 'total')
-    def _serialize_decimals(self, v: Decimal) -> float:
-        # Serializing to float for frontend until can implement similar Decimal handling logic in frontend
-        return float(v)
+    taxes: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     
     @model_validator(mode="after")
     def _reconcile_totals(self):
         # Normalize components to cents
-        self.fare = Decimal(self.fare).quantize(Decimal("0.01"))
-        self.taxes = Decimal(self.taxes).quantize(Decimal("0.01"))
+        self.fare = self.safe_decimal(self.fare).quantize(Decimal("0.01"))
+        self.taxes = self.safe_decimal(self.taxes).quantize(Decimal("0.01"))
         # Prefer explicit total; else compute
         if not self.total or self.total == 0:
             self.total = (self.fare + self.taxes).quantize(Decimal("0.01"))
         else:
-            self.total = Decimal(self.total).quantize(Decimal("0.01"))
+            self.total = self.safe_decimal(self.total).quantize(Decimal("0.01"))
         return self
 
-class RegularReceipt(BaseModel):
+class TransportationTicket(TransportationTicketBase):
+    pass
+
+# Base class for regular receipt fields
+class RegularReceiptBase(BaseModel, ReceiptDecimalSerializerMixin, DecimalValidatorMixin):
     model_config = ConfigDict(from_attributes=True)
     
     is_receipt: bool = True
     merchant: Optional[str] = None
     date: Optional[str] = None
     line_items: List[LineItem] = Field(default_factory=list)
-    subtotal: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    tax: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    tip: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    gratuity: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    subtotal: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    tax: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    tip: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    gratuity: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     payment_method: Optional[str] = None
     tax_included_in_items: bool = False
-    display_subtotal: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    items_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    pretax_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    posttax_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    final_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-
-    @field_serializer('subtotal', 'tax', 'tip', 'gratuity', 'total', 'display_subtotal', 'items_total', 'pretax_total', 'posttax_total', 'final_total')
-    def _serialize_decimals(self, v: Decimal) -> float:
-        # Serializing to float for frontend until can implement similar Decimal handling logic in frontend
-        return float(v)
+    display_subtotal: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    items_total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    pretax_total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    posttax_total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    final_total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
 
     @model_validator(mode="after")
     def _recompute_aggregates(self):
         items_sum = sum((li.total_price for li in self.line_items), start=Decimal("0"))
+        
         # Fill missing or zeroed derived fields
-        self.items_total = (self.items_total or items_sum).quantize(Decimal("0.01"))
+        self.items_total = self.safe_decimal(self.items_total or items_sum).quantize(Decimal("0.01"))
+        
         if not self.subtotal or self.subtotal == 0:
-            self.subtotal = (items_sum if not self.tax_included_in_items else (items_sum - self.tax)).quantize(Decimal("0.01"))
+            tax_value = self.safe_decimal(self.tax)
+            self.subtotal = (items_sum if not self.tax_included_in_items else (items_sum - tax_value)).quantize(Decimal("0.01"))
+        
+        self.subtotal = self.safe_decimal(self.subtotal)
         if self.subtotal < Decimal("0.00"):
             self.subtotal = Decimal("0.00")
-        self.pretax_total = (self.subtotal).quantize(Decimal("0.01"))
-        self.posttax_total = (self.pretax_total + self.tax).quantize(Decimal("0.01"))
+        
+        self.pretax_total = self.subtotal.quantize(Decimal("0.01"))
+        tax_value = self.safe_decimal(self.tax)
+        self.posttax_total = (self.pretax_total + tax_value).quantize(Decimal("0.01"))
+        
         if self.posttax_total < Decimal("0.00"):
             self.posttax_total = Decimal("0.00")
+        
         # Prefer explicit total/final_total if provided, else compute
-        computed_total = (self.posttax_total + self.tip + self.gratuity).quantize(Decimal("0.01"))
+        tip_value = self.safe_decimal(self.tip)
+        gratuity_value = self.safe_decimal(self.gratuity)
+        computed_total = (self.posttax_total + tip_value + gratuity_value).quantize(Decimal("0.01"))
+        
         if not self.total or self.total == 0:
             self.total = computed_total
         if not self.final_total or self.final_total == 0:
             self.final_total = self.total
+            
         # Normalize inputs to 2 decimals
         for attr in ("subtotal", "tax", "tip", "gratuity", "total",
                      "display_subtotal", "items_total", "pretax_total",
                      "posttax_total", "final_total"):
             value = getattr(self, attr)
-            if isinstance(value, Decimal):
-                setattr(self, attr, value.quantize(Decimal("0.01")))
+            if value is not None:
+                setattr(self, attr, self.safe_decimal(value).quantize(Decimal("0.01")))
         return self
+
+class RegularReceipt(RegularReceiptBase):
+    pass
 
 class RegularReceiptResponse(RegularReceipt):
     model_config = ConfigDict(from_attributes=True)
@@ -133,44 +179,27 @@ class NotAReceipt(BaseModel):
     
     is_receipt: bool = False
 
-# New model for creating UserReceipt instances from Pydantic models
-class UserReceiptCreate(BaseModel):
+# Base class for database creation models
+class DatabaseCreateBase(BaseModel, DecimalValidatorMixin):
     model_config = ConfigDict(from_attributes=True)
     
-    # Required fields
+    # Common fields for database creation
     user_id: Optional[int] = None
     image_path: Optional[str] = None
-    
-    # Receipt fields
     is_receipt: bool = True
     document_type: Optional[str] = None
-    
-    # Regular receipt fields
-    merchant: Optional[str] = None
-    date: Optional[str] = None
-    subtotal: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    tax: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    tip: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    gratuity: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    payment_method: Optional[str] = None
-    tax_included_in_items: bool = False
-    display_subtotal: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    items_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    pretax_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    posttax_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    final_total: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    
-    @field_serializer('subtotal', 'tax', 'tip', 'gratuity', 'total', 'display_subtotal', 'items_total', 'pretax_total', 'posttax_total', 'final_total')
-    def _serialize_decimals(self, v: Decimal) -> float:
-        # Serializing to float for frontend until can implement similar Decimal handling logic in frontend
-        return float(v)
-    
-    # Transportation ticket fields
-    # consider adding fields for transportation ticket
 
-# New model for creating ReceiptLineItem instances from Pydantic models
-class ReceiptLineItemCreate(BaseModel):
+# Model for creating UserReceipt instances from Pydantic models
+class UserReceiptCreate(DatabaseCreateBase, RegularReceiptBase):
+    # Inherits all fields from both DatabaseCreateBase and RegularReceiptBase
+    # No need to redefine fields that are already in the parent classes
+    
+    # Transportation ticket fields can be added here if needed
+    # consider adding fields for transportation ticket
+    pass
+
+# Model for creating ReceiptLineItem instances from Pydantic models
+class ReceiptLineItemCreate(BaseModel, LineItemDecimalSerializerMixin):
     model_config = ConfigDict(from_attributes=True)
     
     # Required fields
@@ -178,12 +207,7 @@ class ReceiptLineItemCreate(BaseModel):
     
     # Line item fields
     name: Optional[str] = None
-    quantity: int = Field(1, ge=1)
+    quantity: float = Field(1.0, ge=0.0)
     price_per_item: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     total_price: Decimal = Field(Decimal("0.00"), ge=Decimal("0.00"))
     assignments: List[str] = Field(default_factory=list)
-    
-    @field_serializer('price_per_item', 'total_price')
-    def _serialize_decimals(self, v: Decimal) -> float:
-        # Serializing to float for frontend until can implement similar Decimal handling logic in frontend
-        return float(v)
