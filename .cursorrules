@@ -1,4 +1,4 @@
-# Cursor AI Assistant Rules for brits-and-pieces
+# Cursor AI Assistant Rules for Splitzy
 
 ## Backend Development
 - **Always start the backend by running `python app.py` from the `backend/` directory**
