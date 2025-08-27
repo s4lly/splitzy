@@ -26,5 +26,5 @@ def test_update_receipt_assignments(test_client, new_user, new_receipt, new_line
     assert response_data['success'] is True
 
     # Check the database
-    updated_line_item = ReceiptLineItem.query.get(new_line_item.id)
+    updated_line_item = db.session.get(ReceiptLineItem, new_line_item.id)
     assert updated_line_item.assignments == ["testuser"]
