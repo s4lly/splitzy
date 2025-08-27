@@ -12,10 +12,31 @@ def create_app():
     load_dotenv(env_path)
 
     app = Flask(__name__)
-    CORS(app, supports_credentials=True)
+    
+    # Configure CORS for cross-origin requests
+    # Get allowed origins from environment variable, with fallback for development
+    cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS')
+    if cors_origins:
+        # Split comma-separated origins
+        allowed_origins = [origin.strip() for origin in cors_origins.split(',')]
+    else:
+        # Fallback for development
+        allowed_origins = [
+            'http://localhost:3000',  # For local development
+            'http://localhost:5173'   # For Vite dev server
+        ]
+    
+    CORS(app, 
+         origins=allowed_origins,
+         supports_credentials=True,
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         allow_headers=['Content-Type', 'Authorization'])
+    
     app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
     app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Required for cross-origin
+    app.config['SESSION_COOKIE_SECURE'] = True      # Required for HTTPS
+    app.config['SESSION_COOKIE_DOMAIN'] = None      # Let Flask set the domain
     app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=7)
 
     # Configure paths

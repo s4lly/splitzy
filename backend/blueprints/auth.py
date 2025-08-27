@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db
 from models.user import User
@@ -34,15 +34,18 @@ def register():
         db.session.commit()
 
         session['user_id'] = new_user.id
+        session.permanent = True  # Make session persistent
 
-        return jsonify({
+        response = make_response(jsonify({
             'success': True,
             'user': {
                 'id': new_user.id,
                 'username': new_user.username,
                 'email': new_user.email
             }
-        }), 201
+        }), 201)
+        
+        return response
     except IntegrityError:
         db.session.rollback()
         return jsonify({'success': False, 'error': 'Username or email already exists'}), 409
@@ -66,20 +69,27 @@ def login():
         return jsonify({'success': False, 'error': 'Invalid credentials'}), 401
 
     session['user_id'] = user.id
+    session.permanent = True  # Make session persistent
 
-    return jsonify({
+    response = make_response(jsonify({
         'success': True,
         'user': {
             'id': user.id,
             'username': user.username,
             'email': user.email
         }
-    })
+    }))
+    
+    return response
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
     session.pop('user_id', None)
-    return jsonify({'success': True, 'message': 'Logged out successfully'})
+    session.clear()
+    
+    response = make_response(jsonify({'success': True, 'message': 'Logged out successfully'}))
+    
+    return response
 
 @auth_bp.route('/user', methods=['GET'])
 def get_user():
