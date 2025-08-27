@@ -1,4 +1,17 @@
 import pytest
+import sys
+import os
+
+# Add the parent directory to the Python path to find the backend module
+# This works whether we're running from root or backend directory
+current_dir = os.path.dirname(os.path.abspath(__file__))  # tests directory
+backend_dir = os.path.dirname(current_dir)  # backend directory
+parent_dir = os.path.dirname(backend_dir)  # root directory
+
+# Add both the backend directory and parent directory to the path
+sys.path.insert(0, parent_dir)
+sys.path.insert(0, backend_dir)
+
 from backend import create_app
 from backend.models import db
 from backend.models.user import User
