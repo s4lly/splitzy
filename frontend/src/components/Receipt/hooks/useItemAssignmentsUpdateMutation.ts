@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import receiptService from "../../../services/receiptService";
-import { LineItemSchema, ReceiptResponseSchema } from "@/lib/receiptSchemas";
+import { ReceiptResponseSchema } from "@/lib/receiptSchemas";
 import { z } from "zod";
 
 export function useItemAssignmentsUpdateMutation() {
@@ -9,46 +9,64 @@ export function useItemAssignmentsUpdateMutation() {
   return useMutation({
     mutationFn: ({
       receiptId,
-      lineItems,
+      lineItemId,
+      assignments,
     }: {
       receiptId: string;
-      lineItems: z.infer<typeof LineItemSchema>[];
+      lineItemId: string;
+      assignments: string[];
     }) => {
-      return receiptService.updateAssignments(receiptId, lineItems);
+      return receiptService.updateAssignments(receiptId, lineItemId, assignments);
     },
-    onMutate: ({
+    onMutate: async ({
       receiptId,
-      lineItems,
+      lineItemId,
+      assignments,
     }: {
       receiptId: string;
-      lineItems: z.infer<typeof LineItemSchema>[];
+      lineItemId: string;
+      assignments: string[];
     }) => {
-      queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
+      await queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
 
       const previousData = queryClient.getQueryData(["receipt", receiptId]);
 
-      try {
-        queryClient.setQueryData(
-          ["receipt", receiptId],
-          (old: z.infer<typeof ReceiptResponseSchema>) => {
-            const newData = { ...old };
-            newData.receipt.receipt_data.line_items = lineItems;
-            return newData;
-          }
-        );
-      } catch (error) {
-        console.error("Error updating item assignments:", error);
-      }
+      queryClient.setQueryData(
+        ["receipt", receiptId],
+        (old: z.infer<typeof ReceiptResponseSchema>) => {
+          if (!old) return old;
+
+          const newLineItems = old.receipt.receipt_data.line_items.map((item) => {
+            if (item.id === lineItemId) {
+              return { ...item, assignments };
+            }
+            return item;
+          });
+
+          return {
+            ...old,
+            receipt: {
+              ...old.receipt,
+              receipt_data: {
+                ...old.receipt.receipt_data,
+                line_items: newLineItems,
+              },
+            },
+          };
+        }
+      );
 
       return { previousData };
     },
     onError: (error, variables, context) => {
-      queryClient.setQueryData(
-        ["receipt", variables.receiptId],
-        context?.previousData
-      );
+      if (context?.previousData) {
+        queryClient.setQueryData(
+          ["receipt", variables.receiptId],
+          context.previousData
+        );
+      }
     },
-    onSettled: (data, error, variables, context) => {
+    onSettled: (data, error, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["receipt", variables.receiptId],
       });

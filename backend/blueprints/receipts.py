@@ -1,12 +1,12 @@
 import os
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
-from models import db
-from models.user_receipt import UserReceipt
-from models.receipt_line_item import ReceiptLineItem
-from image_analyzer import ImageAnalyzer
-from schemas.receipt import LineItem, LineItemResponse, RegularReceiptResponse, UserReceiptCreate, ReceiptLineItemCreate
+from backend.models import db
+from backend.models.user_receipt import UserReceipt
+from backend.models.receipt_line_item import ReceiptLineItem
+from backend.image_analyzer import ImageAnalyzer
+from backend.schemas.receipt import LineItem, LineItemResponse, RegularReceiptResponse, UserReceiptCreate, ReceiptLineItemCreate
 from werkzeug.utils import secure_filename
-from blueprints.auth import get_current_user
+from backend.blueprints.auth import get_current_user
 from pydantic import ValidationError
 
 receipts_bp = Blueprint('receipts', __name__)
@@ -289,41 +289,27 @@ def get_receipt_image(receipt_id):
 
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/assignments', methods=['PUT'])
 def update_receipt_assignments(receipt_id):
-    """Update the assignments for line items in a specific receipt"""
+    """Update the assignments for a single line item in a specific receipt"""
     data = request.get_json()
-    if not data or 'line_items' not in data:
-        current_app.logger.error(f"[update_receipt_assignments] Missing line_items data for receipt_id={receipt_id}")
-        return jsonify({'success': False, 'error': 'Missing line_items data'}), 400
+    if not data or 'line_item_id' not in data or 'assignments' not in data:
+        return jsonify({'success': False, 'error': 'Missing line_item_id or assignments data'}), 400
 
     try:
-        receipt = UserReceipt.query.get(receipt_id)
+        line_item_id = data['line_item_id']
+        assignments = data['assignments']
 
-        if not receipt:
-            current_app.logger.error(f"[update_receipt_assignments] Receipt not found: receipt_id={receipt_id}")
-            return jsonify({'success': False, 'error': 'Receipt not found'}), 404
+        line_item = ReceiptLineItem.query.filter_by(id=line_item_id, receipt_id=receipt_id).first()
 
-        # Update assignments for each line item by id using the line items table
-        try:
-            for updated_item in data['line_items']:
-                line_item = ReceiptLineItem.query.filter_by(
-                    id=updated_item['id'], 
-                    receipt_id=receipt_id
-                ).first()
-                
-                if line_item:
-                    line_item.assignments = updated_item.get('assignments', [])
-                else:
-                    current_app.logger.warning(f"[update_receipt_assignments] Line item not found: item_id={updated_item['id']}, receipt_id={receipt_id}")
-                    
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            current_app.logger.error(f"[update_receipt_assignments] Error updating line items: receipt_id={receipt_id}, error={str(e)}")
-            return jsonify({'success': False, 'error': 'Failed to update line items'}), 500
+        if not line_item:
+            return jsonify({'success': False, 'error': 'Line item not found'}), 404
+
+        line_item.assignments = assignments
+        db.session.commit()
 
         return jsonify({'success': True})
     except Exception as e:
-        current_app.logger.error(f"[update_receipt_assignments] Unexpected error: receipt_id={receipt_id}, error={str(e)}")
+        db.session.rollback()
+        current_app.logger.error(f"Error updating assignments for line item {line_item_id}: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to update assignments'}), 500
 
 @receipts_bp.route('/api/user/receipts/<int:receipt_id>/line-items/<item_id>', methods=['PUT'])

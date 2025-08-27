@@ -144,9 +144,14 @@ const ReceiptAnalysisDisplay = ({
     });
 
     // Persist to backend
-    updateItemAssignmentsMutation.mutate({
-      receiptId: String(result.id),
-      lineItems: receipt_data.line_items,
+    receipt_data.line_items.forEach((item) => {
+      if (item.assignments && item.assignments.includes(personToRemove)) {
+        updateItemAssignmentsMutation.mutate({
+          receiptId: String(result.id),
+          lineItemId: item.id,
+          assignments: item.assignments.filter((p) => p !== personToRemove),
+        });
+      }
     });
   };
 
@@ -173,7 +178,8 @@ const ReceiptAnalysisDisplay = ({
     // Persist to backend
     updateItemAssignmentsMutation.mutate({
       receiptId: String(result.id),
-      lineItems: receipt_data.line_items,
+      lineItemId: itemId,
+      assignments: item.assignments,
     });
   };
 

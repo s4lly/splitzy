@@ -9,7 +9,7 @@ import json
 import re
 import uuid
 from enum import Enum
-from schemas.receipt import TransportationTicket, RegularReceipt, NotAReceipt
+from backend.schemas.receipt import TransportationTicket, RegularReceipt, NotAReceipt
 
 # Load environment variables from backend .env file
 backend_dir = Path(__file__).resolve().parent

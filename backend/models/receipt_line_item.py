@@ -1,4 +1,4 @@
-from models import db
+from backend.models import db
 from sqlalchemy import JSON, Numeric
 import uuid
 
