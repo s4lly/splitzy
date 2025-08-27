@@ -1,0 +1,32 @@
+# Cursor AI Assistant Rules for brits-and-pieces
+
+## Backend Development
+- **Always start the backend by running `python app.py` from the `backend/` directory**
+- The virtual environment is located at `backend/venv/`
+- When running Python commands, always activate the virtual environment first: `cd backend && source venv/bin/activate && python ...`
+- When checking syntax or imports, use: `cd backend && source venv/bin/activate && python -m py_compile <file>`
+- The backend uses the original imports (no try/except import handling needed)
+
+## Project Structure
+- Backend code is in the `backend/` directory
+- Frontend code is in the `frontend/` directory
+- Database models are in `backend/models/`
+- API blueprints are in `backend/blueprints/`
+- Pydantic schemas are in `backend/schemas/`
+
+## Database
+- The project uses SQLAlchemy with denormalized receipt fields
+- UserReceipt model has denormalized fields instead of JSON receipt_data column
+- Line items are stored in separate ReceiptLineItem table
+- Always use proper SQLAlchemy relationships and foreign keys
+
+## Code Style
+- Follow existing code patterns in the project
+- Use proper error handling and logging
+- Validate data using Pydantic models
+- Maintain backwards compatibility when possible
+
+## Testing
+- Always test Python syntax using the virtual environment
+- Verify imports work before completing tasks
+- Run database migrations if schema changes are made
