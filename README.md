@@ -59,18 +59,19 @@ project-root/
    cd <repository-name>
    ```
 
-2. Create and activate a virtual environment:
+2. Navigate to the backend directory and create/activate a virtual environment:
    ```bash
+   cd backend
    python -m venv venv
    source venv/bin/activate  # On Windows, use: venv\Scripts\activate
    ```
 
 3. Install Python dependencies:
    ```bash
-   pip install -r backend/requirements.txt
+   pip install -r requirements.txt
    ```
 
-4. Create a `.env` file in the root directory with the following variables:
+4. Create a `.env` file in the backend directory with the following variables:
    ```
    AZURE_OPENAI_KEY=your_azure_openai_key
    AZURE_OPENAI_ENDPOINT=your_azure_openai_endpoint
@@ -78,9 +79,9 @@ project-root/
    SECRET_KEY=your_flask_secret_key
    ```
 
-5. Run the Flask application:
+5. **Start the Flask application:**
    ```bash
-   python -m backend.app
+   python app.py
    ```
    The backend will start at http://localhost:5001
 
