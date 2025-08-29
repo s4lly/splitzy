@@ -358,7 +358,7 @@ const ReceiptAnalysisPage = () => {
             
             {receiptData?.receipt && (
               <ReceiptAnalysisDisplay 
-                key={`receipt-${receiptId}-${receiptData.receipt.receipt_data.line_items.length}`}
+                key={`receipt-${receiptId}-${receiptData.receipt.receipt_data.line_items.length}-${receiptData.receipt.receipt_data.gratuity ?? 0}-${receiptData.receipt.receipt_data.tip ?? 0}`}
                 result={receiptData.receipt} 
               />
             )}
