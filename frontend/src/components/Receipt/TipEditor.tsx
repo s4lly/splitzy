@@ -1,6 +1,4 @@
-import { Plus, Trash } from "lucide-react";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { formatCurrency } from "./utils/format-currency";
@@ -9,6 +7,7 @@ import { useReceiptDataUpdateMutation } from "./hooks/useReceiptDataUpdateMutati
 import PercentageTipButton from "./components/PercentageTipButton";
 import ActionButtons from "./ActionButtons";
 import ClickableRow from "./components/ClickableRow";
+import AddableRow from "./components/AddableRow";
 
 interface TipEditorProps {
   receiptId: string;
@@ -124,16 +123,10 @@ const TipEditor = ({
 
   if (isValueEmpty && !isEditing) {
     return (
-      <div className="flex gap-2 justify-between items-center border rounded-sm p-2 py-1 -ml-2 -mr-2 px-2">
-        <span className="text-base">Tip:</span>
-        <Button
-          onClick={handleEditTip}
-          variant="outline"
-          className="size-8"
-        >
-          <Plus />
-        </Button>
-      </div>
+      <AddableRow
+        label="Tip"
+        onClick={handleEditTip}
+      />
     );
   }
 

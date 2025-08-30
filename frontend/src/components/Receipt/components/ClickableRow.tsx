@@ -16,7 +16,7 @@ const ClickableRow: React.FC<ClickableRowProps> = ({
   return (
     <button
       type="button"
-      className={`flex w-full items-center justify-between rounded-sm px-2 py-1 text-left transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 sm:py-2 ${className}`}
+      className={`flex w-full items-center justify-between rounded-sm p-2 text-left transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 sm:py-2 ${className}`}
       onClick={onClick}
       aria-label={`Edit ${label.toLowerCase()}: ${value}`}
     >

@@ -1,12 +1,11 @@
-import { Plus, Trash } from "lucide-react";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { formatCurrency } from "./utils/format-currency";
 import { useState, useEffect } from "react";
 import { useReceiptDataUpdateMutation } from "./hooks/useReceiptDataUpdateMutation";
 import ActionButtons from "./ActionButtons";
 import ClickableRow from "./components/ClickableRow";
+import AddableRow from "./components/AddableRow";
 
 interface GratuityEditorProps {
   receiptId: string;
@@ -100,16 +99,10 @@ const GratuityEditor = ({
 
   if (isValueEmpty && !isEditing) {
     return (
-      <div className="flex gap-2 justify-between items-center border rounded-sm p-2 py-1 -ml-2 -mr-2 px-2">
-        <span className="text-base">Gratuity:</span>
-        <Button
-          onClick={handleEditGratuity}
-          variant="outline"
-          className="size-8"
-        >
-          <Plus />
-        </Button>
-      </div>
+      <AddableRow
+        label="Gratuity"
+        onClick={handleEditGratuity}
+      />
     );
   }
 
