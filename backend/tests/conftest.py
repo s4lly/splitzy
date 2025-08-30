@@ -28,6 +28,11 @@ def test_app():
         "WTF_CSRF_ENABLED": False,
         "SESSION_COOKIE_SAMESITE": "None",
         "SESSION_COOKIE_SECURE": True,
+        "SQLALCHEMY_ENGINE_OPTIONS": {
+            "connect_args": {
+                "check_same_thread": False
+            }
+        }
     })
 
     with app.app_context():
@@ -48,8 +53,10 @@ def new_user(test_app):
         db.session.add(user)
         db.session.commit()
         yield user
-        db.session.delete(user)
-        db.session.commit()
+        # Clean up - check if user still exists before deleting
+        if user in db.session:
+            db.session.delete(user)
+            db.session.commit()
 
 @pytest.fixture(scope='function')
 def new_receipt(test_app, new_user):
@@ -58,8 +65,10 @@ def new_receipt(test_app, new_user):
         db.session.add(receipt)
         db.session.commit()
         yield receipt
-        db.session.delete(receipt)
-        db.session.commit()
+        # Clean up - check if receipt still exists before deleting
+        if receipt in db.session:
+            db.session.delete(receipt)
+            db.session.commit()
 
 @pytest.fixture(scope='function')
 def new_line_item(test_app, new_receipt):
@@ -74,8 +83,10 @@ def new_line_item(test_app, new_receipt):
         db.session.add(line_item)
         db.session.commit()
         yield line_item
-        db.session.delete(line_item)
-        db.session.commit()
+        # Clean up - check if line item still exists before deleting
+        if line_item in db.session:
+            db.session.delete(line_item)
+            db.session.commit()
 
 
 @pytest.fixture(scope='function')
