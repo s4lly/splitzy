@@ -5,6 +5,10 @@
     {
       "source": "/api/(.*)",
       "destination": "https://epaphus.pythonanywhere.com/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
