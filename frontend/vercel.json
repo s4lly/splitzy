@@ -3,8 +3,12 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://epaphus.pythonanywhere.com/api/$1"
+      "source": "/api/:path*",
+      "destination": "https://epaphus.pythonanywhere.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
