@@ -18,7 +18,7 @@ const GratuityEditor = ({
 }: GratuityEditorProps) => {
   const [gratuity, setGratuity] = useState(receiptGratuity ?? 0);
   const [gratuityInput, setGratuityInput] = useState(
-    String(receiptGratuity ?? 0)
+    receiptGratuity ? receiptGratuity.toFixed(2) : "0.00"
   );
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,13 +27,13 @@ const GratuityEditor = ({
 
   useEffect(() => {
     setGratuity(receiptGratuity ?? 0);
-    setGratuityInput(String(receiptGratuity ?? 0));
+    setGratuityInput(receiptGratuity ? receiptGratuity.toFixed(2) : "0.00");
   }, [receiptGratuity]);
 
   const { mutate, isPending } = useReceiptDataUpdateMutation();
 
   const handleEditGratuity = () => {
-    setGratuityInput(String(receiptGratuity ?? 0));
+    setGratuityInput(receiptGratuity ? receiptGratuity.toFixed(2) : "0.00");
     setGratuity(receiptGratuity ?? 0);
     setError(null);
     setIsEditing(true);
@@ -64,14 +64,29 @@ const GratuityEditor = ({
   };
 
   const handleGratuityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = parseFloat(e.target.value);
+    const inputValue = e.target.value;
+    
+    // Allow empty input for better UX
+    if (inputValue === '') {
+      setGratuityInput('');
+      setGratuity(0);
+      return;
+    }
+    
+    // Validate the input pattern
+    const pattern = /^\d*(\.\d{0,2})?$/;
+    if (!pattern.test(inputValue)) {
+      return; // Don't update if pattern doesn't match
+    }
+    
+    const v = parseFloat(inputValue);
     const newValue = Number.isFinite(v) ? Math.max(0, v) : 0;
     setGratuity(newValue);
-    setGratuityInput(e.target.value);
+    setGratuityInput(inputValue);
   };
 
   const handleCancelGratuity = () => {
-    setGratuityInput(String(receiptGratuity ?? 0));
+    setGratuityInput(receiptGratuity ? receiptGratuity.toFixed(2) : "0.00");
     setGratuity(receiptGratuity ?? 0);
     setError(null);
     setIsEditing(false);
@@ -135,8 +150,10 @@ const GratuityEditor = ({
                 value={gratuityInput}
                 onChange={handleGratuityChange}
                 placeholder="Gratuity"
-                min={0}
-                step="1"
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                pattern="^\d*(\.\d{0,2})?$"
                 required
                 className="text-center"
                 id="gratuity"
