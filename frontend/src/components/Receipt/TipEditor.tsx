@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { useReceiptDataUpdateMutation } from "./hooks/useReceiptDataUpdateMutation";
 import PercentageTipButton from "./components/PercentageTipButton";
 import ActionButtons from "./ActionButtons";
+import ClickableRow from "./components/ClickableRow";
 
 interface TipEditorProps {
   receiptId: string;
@@ -22,6 +23,7 @@ const TipEditor = ({
 }: TipEditorProps) => {
   const [tip, setTip] = useState(receiptTip ?? 0);
   const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const isValueEmpty = receiptTip === 0;
 
@@ -29,43 +31,95 @@ const TipEditor = ({
     setTip(receiptTip ?? 0);
   }, [receiptTip]);
 
-  const { mutate } = useReceiptDataUpdateMutation();
+  const { mutate, isPending } = useReceiptDataUpdateMutation();
 
   const handleEditTip = () => {
+    setTip(receiptTip ?? 0);
+    setError(null);
     setIsEditing(true);
   };
 
   const handleSaveTip = () => {
-    setIsEditing(false);
-    if (tip !== (receiptTip ?? 0)) {
-      mutate({
-        receiptId,
-        tip: tip,
-      });
+    const currentCents = Math.round((receiptTip ?? 0) * 100);
+    const nextCents = Math.round(Math.max(0, tip) * 100);
+  
+    if (nextCents !== currentCents) {
+      setError(null);
+      mutate(
+        {
+          receiptId,
+          tip: nextCents / 100,
+        },
+        {
+          onSuccess: () => {
+            setIsEditing(false);
+            setError(null);
+          },
+          onError: (error) => {
+            const errorMessage = error?.message || 'Failed to save tip. Please try again.';
+            setError(errorMessage);
+          }
+        }
+      );
+    } else {
+      setIsEditing(false);
     }
   };
 
   const handleTipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTip(Number(e.target.value));
+    const rawValue = e.target.value;
+    
+    // Treat empty or "." as 0
+    if (rawValue === '' || rawValue === '.') {
+      setTip(0);
+      return;
+    }
+    
+    // Parse with parseFloat, fallback to 0 on NaN
+    const parsedValue = parseFloat(rawValue) || 0;
+    
+    // Clamp to non-negative value
+    const clampedValue = Math.max(0, parsedValue);
+    
+    // Round to two decimals
+    const roundedValue = roundToTwoDecimals(clampedValue);
+    
+    setTip(roundedValue);
   };
 
   const handleDeleteTip = () => {
-    mutate({
-      receiptId,
-      tip: 0,
-    });
+    setError(null);
+    mutate(
+      {
+        receiptId,
+        tip: 0,
+      },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          setError(null);
+        },
+        onError: (error) => {
+          const errorMessage = error?.message || 'Failed to delete tip. Please try again.';
+          setError(errorMessage);
+        }
+      }
+    );
   };
 
   const handleCancelTip = () => {
+    setTip(receiptTip ?? 0);
+    setError(null);
     setIsEditing(false);
   };
 
   const handlePercentageTipSelect = (percentage: number) => {
     const calculatedTip = (itemsTotal * percentage) / 100;
-    setTip(calculatedTip);
+    const roundedTip = roundToTwoDecimals(calculatedTip);
+    setTip(roundedTip);
   };
 
-  const truncateToTwoDecimals = (num: number) => {
+  const roundToTwoDecimals = (num: number) => {
     return Math.round(num * 100) / 100;
   };
 
@@ -85,13 +139,19 @@ const TipEditor = ({
   }
 
   return (
-    <div className="border rounded-sm p-2 py-1 -ml-2 -mr-2 px-2">
+    <div className="border rounded-sm -ml-2 -mr-2 ">
       {isEditing ? (
         <form
           className="flex flex-col gap-3 py-1 bg-background"
           onSubmit={(e) => e.preventDefault()} // No submit action
         >
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 py-1 px-2">
+            {error && (
+              <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 flex items-center gap-2">
+                <div className="text-destructive text-sm">{error}</div>
+              </div>
+            )}
+            
             <Tabs defaultValue="exact" className="">
               <div className="flex items-center justify-between">
                 <Label htmlFor="tip" className="text-sm font-medium">
@@ -120,11 +180,14 @@ const TipEditor = ({
                     required
                     className="text-center"
                     id="tip"
+                    disabled={isPending}
                   />
                 </div>
                 <div className="text-muted-foreground text-sm flex justify-center">
                   percentage of total{" "}
-                  {truncateToTwoDecimals((tip / itemsTotal) * 100)}%
+                  {itemsTotal > 0
+                    ? `${roundToTwoDecimals((tip / itemsTotal) * 100)}%`
+                    : "—"}
                 </div>
               </TabsContent>
               <TabsContent value="percentage">
@@ -153,21 +216,16 @@ const TipEditor = ({
               onDelete={handleDeleteTip}
               onCancel={handleCancelTip}
               onSave={handleSaveTip}
+              isPending={isPending}
             />
           </div>
         </form>
       ) : (
-        <>
-          <div
-            className="flex justify-between items-center py-1 sm:py-2"
-            onClick={handleEditTip}
-          >
-            <span className="text-base">Tip:</span>
-            <span className="text-base font-medium">
-              {formatCurrency(receiptTip ?? 0)}
-            </span>
-          </div>
-        </>
+        <ClickableRow
+          label="Tip"
+          value={formatCurrency(receiptTip ?? 0)}
+          onClick={handleEditTip}
+        />
       )}
     </div>
   );

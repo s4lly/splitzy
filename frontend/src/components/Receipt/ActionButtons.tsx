@@ -7,6 +7,7 @@ interface ActionButtonsProps {
   onDelete: () => void;
   onCancel: () => void;
   onSave: () => void;
+  isPending?: boolean;
 }
 
 const ActionButtons = ({
@@ -14,6 +15,7 @@ const ActionButtons = ({
   onDelete,
   onCancel,
   onSave,
+  isPending = false,
 }: ActionButtonsProps) => {
   return (
     <div className={cn("flex justify-between", isValueEmpty && "justify-end")}>
@@ -23,15 +25,16 @@ const ActionButtons = ({
           size="icon"
           className="text-red-500 border-red-500"
           onClick={onDelete}
+          disabled={isPending}
         >
           <Trash className="size-4" />
         </Button>
       )}
       <div className="flex gap-2">
-        <Button onClick={onCancel} variant="outline">
+        <Button onClick={onCancel} variant="outline" disabled={isPending}>
           Cancel
         </Button>
-        <Button onClick={onSave} variant="outline">
+        <Button onClick={onSave} variant="outline" disabled={isPending}>
           Done
         </Button>
       </div>

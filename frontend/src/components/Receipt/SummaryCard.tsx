@@ -22,8 +22,6 @@ const SummaryCard = ({
   receipt_data,
   editLineItemsEnabled,
 }: SummaryCardProps) => {
-  console.log("receipt_data.gratuity", receipt_data.gratuity);
-
   const itemsTotal = editLineItemsEnabled
     ? getTotalForAllItems(receipt_data)
     : receipt_data.items_total || 0;

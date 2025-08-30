@@ -13,29 +13,24 @@ export function useReceiptDataUpdateMutation() {
     }: { receiptId: string } & Partial<
       z.infer<typeof ReceiptDataSchema>
     >) => {
-      console.log("Mutation function called with:", { receiptId, ...rest });
       return receiptService.updateReceiptData(receiptId, rest);
     },
-    onMutate: ({
+    onMutate: async ({
       receiptId,
       ...rest
     }: { receiptId: string } & Partial<
       z.infer<typeof ReceiptDataSchema>
     >) => {
-      console.log("onMutate called with:", { receiptId, ...rest });
-      queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
+      // Cancel any in-flight queries to prevent races
+      await queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
 
-      const previousData = queryClient.getQueryData(["receipt", receiptId]);
-      console.log("Previous data:", previousData);
+      const previousData = queryClient.getQueryData<z.infer<typeof ReceiptResponseSchema>>(["receipt", receiptId]);
 
       try {
         queryClient.setQueryData(
           ["receipt", receiptId],
-          (old: z.infer<typeof ReceiptResponseSchema>) => {
+          (old: z.infer<typeof ReceiptResponseSchema> | undefined) => {
             if (!old) return old;
-            
-            console.log("Updating cache from:", old.receipt.receipt_data);
-            console.log("With updates:", rest);
             
             // Create a new immutable object structure
             const newData = {
@@ -49,7 +44,6 @@ export function useReceiptDataUpdateMutation() {
               }
             };
             
-            console.log("New cache data:", newData.receipt.receipt_data);
             return newData;
           }
         );
@@ -59,18 +53,19 @@ export function useReceiptDataUpdateMutation() {
 
       return { previousData };
     },
-    onSuccess: (data, variables, context) => {
-      console.log("Mutation succeeded:", data);
-    },
     onError: (error, variables, context) => {
-      console.error("Mutation failed:", error);
-      queryClient.setQueryData(
-        ["receipt", variables.receiptId],
-        context?.previousData
-      );
+      if (context && context.previousData) {
+        queryClient.setQueryData(
+          ["receipt", variables.receiptId],
+          context.previousData
+        );
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: ["receipt", variables.receiptId],
+        });
+      }
     },
     onSettled: (data, error, variables, context) => {
-      console.log("Mutation settled:", { data, error, variables });
       queryClient.invalidateQueries({
         queryKey: ["receipt", variables.receiptId],
       });
