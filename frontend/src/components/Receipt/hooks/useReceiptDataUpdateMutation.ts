@@ -15,23 +15,35 @@ export function useReceiptDataUpdateMutation() {
     >) => {
       return receiptService.updateReceiptData(receiptId, rest);
     },
-    onMutate: ({
+    onMutate: async ({
       receiptId,
       ...rest
     }: { receiptId: string } & Partial<
       z.infer<typeof ReceiptDataSchema>
     >) => {
-      queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
+      // Cancel any in-flight queries to prevent races
+      await queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
 
-      const previousData = queryClient.getQueryData(["receipt", receiptId]);
+      const previousData = queryClient.getQueryData<z.infer<typeof ReceiptResponseSchema>>(["receipt", receiptId]);
 
       try {
         queryClient.setQueryData(
           ["receipt", receiptId],
-          (old: z.infer<typeof ReceiptResponseSchema>) => {
-            const newData = { ...old };
-            // Update receipt_data properties
-            Object.assign(newData.receipt.receipt_data, rest);
+          (old: z.infer<typeof ReceiptResponseSchema> | undefined) => {
+            if (!old) return old;
+            
+            // Create a new immutable object structure
+            const newData = {
+              ...old,
+              receipt: {
+                ...old.receipt,
+                receipt_data: {
+                  ...old.receipt.receipt_data,
+                  ...rest
+                }
+              }
+            };
+            
             return newData;
           }
         );
@@ -42,10 +54,16 @@ export function useReceiptDataUpdateMutation() {
       return { previousData };
     },
     onError: (error, variables, context) => {
-      queryClient.setQueryData(
-        ["receipt", variables.receiptId],
-        context?.previousData
-      );
+      if (context && context.previousData) {
+        queryClient.setQueryData(
+          ["receipt", variables.receiptId],
+          context.previousData
+        );
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: ["receipt", variables.receiptId],
+        });
+      }
     },
     onSettled: (data, error, variables, context) => {
       queryClient.invalidateQueries({
