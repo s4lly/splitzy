@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface ClickableRowProps {
   label: string;
@@ -11,12 +11,12 @@ const ClickableRow: React.FC<ClickableRowProps> = ({
   label,
   value,
   onClick,
-  className = "",
+  className = '',
 }) => {
   return (
     <button
       type="button"
-      className={`flex py-1 px-2 justify-between items-center sm:py-2 w-full text-left hover:bg-muted/50 focus:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-sm transition-colors ${className}`}
+      className={`flex w-full items-center justify-between rounded-sm px-2 py-1 text-left transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 sm:py-2 ${className}`}
       onClick={onClick}
       aria-label={`Edit ${label.toLowerCase()}: ${value}`}
     >
