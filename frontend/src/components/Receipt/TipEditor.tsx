@@ -113,10 +113,9 @@ const TipEditor = ({
     setIsEditing(false);
   };
 
-  const handlePercentageTipSelect = (percentage: number) => {
-    const calculatedTip = (itemsTotal * percentage) / 100;
-    const roundedTip = roundToTwoDecimals(calculatedTip);
-    setTip(roundedTip);
+  const handlePercentageTipSelect = (amount: number) => {
+    const roundedAmount = roundToTwoDecimals(amount);
+    setTip(roundedAmount);
   };
 
   const roundToTwoDecimals = (num: number) => {
