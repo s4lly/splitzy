@@ -191,7 +191,7 @@ def get_user_receipts():
 def get_user_receipt(receipt_id):
     """Get a specific receipt by ID"""
     try:
-        receipt = UserReceipt.query.get(receipt_id)
+        receipt = db.session.get(UserReceipt, receipt_id)
 
         if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
@@ -249,7 +249,7 @@ def health_check():
 def get_receipt_image(receipt_id):
     """Get the image for a specific receipt"""
     try:
-        receipt = UserReceipt.query.get(receipt_id)
+        receipt = db.session.get(UserReceipt, receipt_id)
 
         # Check if receipt exists and has an image path
         if not receipt or not receipt.image_path:
@@ -357,7 +357,7 @@ def update_receipt_data(receipt_id):
         return jsonify({'success': False, 'error': 'No update data provided'}), 400
 
     try:
-        receipt = UserReceipt.query.get(receipt_id)
+        receipt = db.session.get(UserReceipt, receipt_id)
 
         if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
@@ -409,7 +409,7 @@ def delete_line_item(receipt_id, item_id):
 def get_line_items(receipt_id):
     """Get all line items for a specific receipt"""
     try:
-        receipt = UserReceipt.query.get(receipt_id)
+        receipt = db.session.get(UserReceipt, receipt_id)
 
         if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
@@ -447,7 +447,7 @@ def add_line_item(receipt_id):
         return jsonify({'success': False, 'error': f'Invalid line item data: {e}'}), 400
 
     try:
-        receipt = UserReceipt.query.get(receipt_id)
+        receipt = db.session.get(UserReceipt, receipt_id)
 
         if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404

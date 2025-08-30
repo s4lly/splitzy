@@ -11,7 +11,7 @@ def get_current_user():
     if not user_id:
         return None
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     return user
 
 @auth_bp.route('/register', methods=['POST'])
