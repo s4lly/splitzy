@@ -19,9 +19,12 @@ const AddableRow: React.FC<AddableRowProps> = ({
       <Button
         onClick={onClick}
         variant="outline"
+        type="button"
+        aria-label={`Add ${label}`}
+        title={`Add ${label}`}
         className="size-8"
       >
-        <Plus />
+        <Plus aria-hidden="true" />
       </Button>
     </div>
   );
