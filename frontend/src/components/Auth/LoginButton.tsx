@@ -11,7 +11,7 @@ const LoginButton = () => {
   };
 
   return (
-    <Button 
+    <Button
       onClick={handleLoginClick}
       variant="outline"
       className="flex items-center gap-2"
@@ -22,4 +22,4 @@ const LoginButton = () => {
   );
 };
 
-export default LoginButton; 
+export default LoginButton;

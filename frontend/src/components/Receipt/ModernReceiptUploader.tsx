@@ -3,7 +3,13 @@ import { useDropzone } from 'react-dropzone';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, FileText, X, Loader2, Receipt } from 'lucide-react';
 import { Button } from '../ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../ui/card';
 import { AlertCircle } from 'lucide-react';
 import receiptService from '../../services/receiptService';
 
@@ -18,7 +24,7 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
     if (selectedFile) {
       setFile(selectedFile);
       setError(null);
-      
+
       // Create a preview URL
       const previewUrl = URL.createObjectURL(selectedFile);
       setPreview(previewUrl);
@@ -30,10 +36,10 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
     accept: {
       'image/jpeg': [],
       'image/png': [],
-      'image/jpg': []
+      'image/jpg': [],
     },
     maxFiles: 1,
-    multiple: false
+    multiple: false,
   });
 
   const handleSubmit = async (e) => {
@@ -43,29 +49,33 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
     try {
       setIsUploading(true);
       setError(null);
-      
+
       // Pass the preview URL and provider to the receipt service
       const result = await receiptService.analyzeReceipt(file, preview);
-      
+
       if (result.success && result.is_receipt) {
         // Clear previous inputs
         setTimeout(() => {
           setFile(null);
           setPreview(null);
         }, 2000);
-        
+
         // Call the onAnalysisComplete callback with the result
         if (onAnalysisComplete) {
           onAnalysisComplete(result);
         }
       } else if (result.success && !result.is_receipt) {
-        setError('The uploaded image does not appear to be a payment document (receipt, invoice, bill, etc.). Please upload an image that contains items, prices, and totals.');
+        setError(
+          'The uploaded image does not appear to be a payment document (receipt, invoice, bill, etc.). Please upload an image that contains items, prices, and totals.'
+        );
       } else {
         setError(result.error || 'Failed to analyze document');
       }
     } catch (error) {
       console.error('Error analyzing document:', error);
-      setError('An error occurred while analyzing the document. Please try again.');
+      setError(
+        'An error occurred while analyzing the document. Please try again.'
+      );
     } finally {
       setIsUploading(false);
     }
@@ -81,21 +91,20 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="mx-auto w-full max-w-2xl">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-2xl font-bold">
           <Receipt className="h-6 w-6" />
           Upload Document
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent>
         <div className="space-y-4">
           {/* Drop Zone */}
           <div
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-              ${isDragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+            className={`cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors ${isDragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
           >
             <input {...getInputProps()} />
             <AnimatePresence>
@@ -109,14 +118,14 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
                   <img
                     src={preview}
                     alt="Preview"
-                    className="max-h-[300px] mx-auto rounded-lg"
+                    className="mx-auto max-h-[300px] rounded-lg"
                   />
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       clearFile();
                     }}
-                    className="absolute top-2 right-2 p-1 bg-background/80 backdrop-blur-sm rounded-full hover:bg-background"
+                    className="absolute right-2 top-2 rounded-full bg-background/80 p-1 backdrop-blur-sm hover:bg-background"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -144,7 +153,7 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
 
           {/* Error Message */}
           {error && (
-            <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
               <AlertCircle className="h-4 w-4" />
               {error}
             </div>
@@ -152,7 +161,7 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
         </div>
       </CardContent>
 
-      <CardFooter className="py-4 border-t border-border bg-muted/20">
+      <CardFooter className="border-t border-border bg-muted/20 py-4">
         <Button
           className="w-full py-6 text-base font-medium"
           size="lg"
@@ -176,4 +185,4 @@ const ModernReceiptUploader = ({ onAnalysisComplete }) => {
   );
 };
 
-export default ModernReceiptUploader; 
+export default ModernReceiptUploader;

@@ -4,3 +4,6 @@ build
 coverage
 *.min.js
 *.min.css
+package-lock.json
+.DS_Store
+public/sample-receipts/

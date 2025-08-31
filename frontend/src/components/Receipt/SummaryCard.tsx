@@ -1,15 +1,15 @@
-import { DollarSign, AlertCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { ReceiptDataSchema } from "@/lib/receiptSchemas";
-import { z } from "zod";
-import { formatCurrency } from "./utils/format-currency";
+import { DollarSign, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { ReceiptDataSchema } from '@/lib/receiptSchemas';
+import { z } from 'zod';
+import { formatCurrency } from './utils/format-currency';
 import {
   getTotalForAllItems,
   getTaxAmount,
   getTotal,
-} from "./utils/receipt-calculation";
-import GratuityEditor from "./GratuityEditor";
-import TipEditor from "./TipEditor";
+} from './utils/receipt-calculation';
+import GratuityEditor from './GratuityEditor';
+import TipEditor from './TipEditor';
 
 interface SummaryCardProps {
   receiptId: string;
@@ -27,9 +27,9 @@ const SummaryCard = ({
     : receipt_data.items_total || 0;
 
   return (
-    <Card className="shadow-md border-2 overflow-hidden rounded-none sm:rounded-lg">
-      <CardHeader className="pb-2 px-3 sm:px-6">
-        <CardTitle className="text-xl font-bold flex items-center gap-3">
+    <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
+      <CardHeader className="px-3 pb-2 sm:px-6">
+        <CardTitle className="flex items-center gap-3 text-xl font-bold">
           <DollarSign className="h-6 w-6" />
           Summary
         </CardTitle>
@@ -38,8 +38,8 @@ const SummaryCard = ({
         <div className="space-y-4">
           {/* Tax Information Alert */}
           {receipt_data.tax_included_in_items && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 sm:p-3 rounded-md mb-3 text-sm flex items-start">
-              <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+            <div className="mb-3 flex items-start rounded-md bg-blue-50 p-2 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 sm:p-3">
+              <AlertCircle className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0" />
               <div>
                 <p className="font-medium">Tax Included in Prices</p>
                 <p>
@@ -52,8 +52,8 @@ const SummaryCard = ({
 
           {!receipt_data.tax_included_in_items &&
             (receipt_data.tax ?? 0) > 0 && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 sm:p-3 rounded-md mb-3 text-sm flex items-start">
-                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+              <div className="mb-3 flex items-start rounded-md bg-blue-50 p-2 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 sm:p-3">
+                <AlertCircle className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0" />
                 <div>
                   <p className="font-medium">Tax Calculation</p>
                   <p>
@@ -76,7 +76,7 @@ const SummaryCard = ({
             )}
 
           {/* Items Total */}
-          <div className="flex justify-between items-center py-2">
+          <div className="flex items-center justify-between py-2">
             <span className="text-base">Items Total:</span>
             <span className="text-base font-medium">
               {editLineItemsEnabled
@@ -90,7 +90,7 @@ const SummaryCard = ({
             (receipt_data.display_subtotal || 0) -
               (receipt_data.items_total || 0)
           ) > 0.01 && (
-            <div className="flex justify-between items-center py-1 sm:py-2">
+            <div className="flex items-center justify-between py-1 sm:py-2">
               <span className="text-base">Subtotal (as shown):</span>
               <span className="text-base font-medium">
                 {formatCurrency(receipt_data.display_subtotal || 0)}
@@ -103,7 +103,7 @@ const SummaryCard = ({
             (receipt_data.pretax_total || 0) -
               (receipt_data.display_subtotal || 0)
           ) > 0.01 && (
-            <div className="flex justify-between items-center py-1 sm:py-2">
+            <div className="flex items-center justify-between py-1 sm:py-2">
               <span className="text-base">Pre-tax Total:</span>
               <span className="text-base font-medium">
                 {formatCurrency(receipt_data.pretax_total || 0)}
@@ -112,11 +112,11 @@ const SummaryCard = ({
           )}
 
           {/* Tax Amount */}
-          <div className="flex justify-between  items-center py-1 sm:py-2">
+          <div className="flex items-center justify-between py-1 sm:py-2">
             <div className="flex items-center">
               <span className="text-base">Tax:</span>
               {receipt_data.tax_included_in_items && (
-                <span className="ml-2 text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-full">
+                <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
                   Included in prices
                 </span>
               )}
@@ -136,7 +136,7 @@ const SummaryCard = ({
           {/* Post-tax total if different from final total */}
           {((receipt_data.tip ?? 0) > 0 ||
             (receipt_data.gratuity ?? 0) > 0) && (
-            <div className="flex justify-between items-center py-1 sm:py-2">
+            <div className="flex items-center justify-between py-1 sm:py-2">
               <span className="text-base">Post-tax Total:</span>
               <span className="text-base font-medium">
                 {formatCurrency(
@@ -164,9 +164,9 @@ const SummaryCard = ({
           />
 
           {/* Final Total */}
-          <div className="flex justify-between items-center pt-3 border-t-2 border-border mt-2">
-            <span className="font-semibold text-base">Final Total:</span>
-            <span className="font-bold text-xl">
+          <div className="mt-2 flex items-center justify-between border-t-2 border-border pt-3">
+            <span className="text-base font-semibold">Final Total:</span>
+            <span className="text-xl font-bold">
               {editLineItemsEnabled
                 ? formatCurrency(getTotal(receipt_data))
                 : formatCurrency(

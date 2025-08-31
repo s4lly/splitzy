@@ -1,10 +1,10 @@
-import { Trash, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import LineItemForm from "@/components/Receipt/LineItemForm";
-import { LineItemSchema, ReceiptSchema } from "@/lib/receiptSchemas";
-import { z } from "zod";
-import { useState } from "react";
-import { useLineItemAddMutation } from "@/components/Receipt/hooks/useLineItemAddMutation";
+import { Trash, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import LineItemForm from '@/components/Receipt/LineItemForm';
+import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
+import { z } from 'zod';
+import { useState } from 'react';
+import { useLineItemAddMutation } from '@/components/Receipt/hooks/useLineItemAddMutation';
 
 export default function LineItemAddForm({
   result,
@@ -14,80 +14,88 @@ export default function LineItemAddForm({
   onAddCancel: () => void;
 }) {
   const addLineItemMutation = useLineItemAddMutation();
-  
+
   // Local state for form values with default values
   const [formData, setFormData] = useState({
-    name: "",
+    name: '',
     quantity: 1,
     price_per_item: 0,
   });
 
   const handleAddItem = () => {
-    addLineItemMutation.mutate({
-      receiptId: result.id.toString(),
-      lineItemData: formData,
-    }, {
-      onSuccess: () => {
-        onAddCancel(); // Close the form after successful addition
+    addLineItemMutation.mutate(
+      {
+        receiptId: result.id.toString(),
+        lineItemData: formData,
+      },
+      {
+        onSuccess: () => {
+          onAddCancel(); // Close the form after successful addition
+        },
       }
-    });
+    );
   };
 
   const handleNameChange = (name: string) => {
-    setFormData(prev => ({ ...prev, name }));
+    setFormData((prev) => ({ ...prev, name }));
   };
 
   const handleQuantityChange = (quantity: number) => {
-    setFormData(prev => ({ 
-      ...prev, 
+    setFormData((prev) => ({
+      ...prev,
       quantity,
     }));
   };
 
   // Create a mutate function that updates local state instead of calling the API
-  const mutate = (data: Partial<z.infer<typeof LineItemSchema>> & { receiptId: string; itemId: string }) => {
+  const mutate = (
+    data: Partial<z.infer<typeof LineItemSchema>> & {
+      receiptId: string;
+      itemId: string;
+    }
+  ) => {
     // Update local state based on what field changed
     if ('price_per_item' in data) {
-      setFormData(prev => ({ 
-        ...prev, 
+      setFormData((prev) => ({
+        ...prev,
         price_per_item: data.price_per_item || 0,
       }));
     }
     if ('quantity' in data) {
-      setFormData(prev => ({ 
-        ...prev, 
+      setFormData((prev) => ({
+        ...prev,
         quantity: data.quantity || 1,
       }));
     }
     if ('name' in data) {
-      setFormData(prev => ({ 
-        ...prev, 
-        name: data.name || ""
+      setFormData((prev) => ({
+        ...prev,
+        name: data.name || '',
       }));
     }
   };
 
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center p-2">
+      <div className="flex items-center justify-between p-2">
         <Button
           type="button"
           variant="outline"
           onClick={handleAddItem}
           disabled={addLineItemMutation.isPending}
-          className="text-blue-500 border-blue-500"
+          className="border-blue-500 text-blue-500"
         >
-          <Trash className="w-4 h-4 mr-2" />
-          {addLineItemMutation.isPending ? "Adding..." : "Add"}
+          <Trash className="mr-2 h-4 w-4" />
+          {addLineItemMutation.isPending ? 'Adding...' : 'Add'}
         </Button>
 
         <Button variant="outline" size="icon" onClick={onAddCancel}>
-          <X className="w-4 h-4" />
+          <X className="h-4 w-4" />
         </Button>
       </div>
       <LineItemForm
         item={{
-          id: "temp", // Temporary ID for the form
+          id: 'temp', // Temporary ID for the form
           name: formData.name,
           quantity: formData.quantity,
           price_per_item: formData.price_per_item,

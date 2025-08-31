@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import {
   Calendar,
   ShoppingBag,
@@ -13,9 +13,9 @@ import {
   Plus,
   X,
   QrCode,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
 import {
   Dialog,
   DialogContent,
@@ -24,28 +24,28 @@ import {
   DialogTrigger,
   DialogClose,
   DialogDescription,
-} from "../ui/dialog";
-import { useItemAssignmentsUpdateMutation } from "./hooks/useItemAssignmentsUpdateMutation";
-import { useFeatureFlag } from "../../context/FeatureFlagProvider";
-import PersonBadge from "./PersonBadge";
-import LineItemsTableMobile from "./LineItemsTableMobile";
-import LineItemsTableDesktop from "./LineItemsTableDesktop";
-import LineItemsTableDesktopV2 from "./LineItemsTableDesktopV2";
-import { getColorForName } from "./utils/get-color-for-name";
-import { Input } from "../ui/input";
-import { LineItemSchema, ReceiptSchema } from "@/lib/receiptSchemas";
-import { z } from "zod";
-import { formatCurrency } from "./utils/format-currency";
+} from '../ui/dialog';
+import { useItemAssignmentsUpdateMutation } from './hooks/useItemAssignmentsUpdateMutation';
+import { useFeatureFlag } from '../../context/FeatureFlagProvider';
+import PersonBadge from './PersonBadge';
+import LineItemsTableMobile from './LineItemsTableMobile';
+import LineItemsTableDesktop from './LineItemsTableDesktop';
+import LineItemsTableDesktopV2 from './LineItemsTableDesktopV2';
+import { getColorForName } from './utils/get-color-for-name';
+import { Input } from '../ui/input';
+import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
+import { z } from 'zod';
+import { formatCurrency } from './utils/format-currency';
 import {
   getTotal,
   getPersonPreTaxItemTotals,
   getPersonFinalTotals,
-} from "./utils/receipt-calculation";
-import { useMobile } from "../../hooks/use-mobile";
-import LineItemCard from "./components/LineItemCard";
-import LineItemAddForm from "./LineItemAddForm";
-import SummaryCard from "./SummaryCard";
-import { QRCode } from "../ui/kibo-ui/qr-code";
+} from './utils/receipt-calculation';
+import { useMobile } from '../../hooks/use-mobile';
+import LineItemCard from './components/LineItemCard';
+import LineItemAddForm from './LineItemAddForm';
+import SummaryCard from './SummaryCard';
+import { QRCode } from '../ui/kibo-ui/qr-code';
 
 const getPeopleFromLineItems = (
   lineItems: z.infer<typeof LineItemSchema>[]
@@ -71,15 +71,15 @@ const ReceiptAnalysisDisplay = ({
     return getPeopleFromLineItems(result.receipt_data.line_items);
   });
 
-  const [newPersonName, setNewPersonName] = useState("");
+  const [newPersonName, setNewPersonName] = useState('');
   const [showPeopleManager, setShowPeopleManager] = useState(false);
   const [showQrCode, setShowQrCode] = useState(false);
   const [searchInputs, setSearchInputs] = useState<Record<string, string>>({});
   const [isAddingItem, setIsAddingItem] = useState(false);
   const updateItemAssignmentsMutation = useItemAssignmentsUpdateMutation();
-  const editLineItemsEnabledRaw = useFeatureFlag("edit-line-items");
+  const editLineItemsEnabledRaw = useFeatureFlag('edit-line-items');
   const editLineItemsEnabled = !!editLineItemsEnabledRaw;
-  const receiptDesktopTableV2Enabled = useFeatureFlag("receipt-desktop-table");
+  const receiptDesktopTableV2Enabled = useFeatureFlag('receipt-desktop-table');
   const isMobile = useMobile();
 
   // Update people state when result changes (e.g., when line items are deleted)
@@ -117,7 +117,7 @@ const ReceiptAnalysisDisplay = ({
   );
   const receiptTotal = editLineItemsEnabled
     ? getTotal(receipt_data)
-    : receipt_data.total ?? 0;
+    : (receipt_data.total ?? 0);
   const unassignedAmount = Math.max(0, receiptTotal - totalAssigned);
   const isFullyAssigned = Math.abs(totalAssigned - receiptTotal) < 0.01; // Account for floating point rounding
 
@@ -126,7 +126,7 @@ const ReceiptAnalysisDisplay = ({
       // see TODO above
       setPeople([...people, newPersonName.trim()]);
 
-      setNewPersonName("");
+      setNewPersonName('');
     }
   };
 
@@ -210,7 +210,7 @@ const ReceiptAnalysisDisplay = ({
     // Clear the search input for this item
     setSearchInputs({
       ...searchInputs,
-      [itemId]: "",
+      [itemId]: '',
     });
   };
 
@@ -251,18 +251,18 @@ const ReceiptAnalysisDisplay = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="space-y-4 px-0 sm:px-4 max-w-full"
+      className="max-w-full space-y-4 px-0 sm:px-4"
     >
-      <div className="flex items-center gap-3 mb-2 px-2 sm:px-0">
+      <div className="mb-2 flex items-center gap-3 px-2 sm:px-0">
         <Receipt className="h-6 w-6" />
         <h2 className="text-2xl font-bold">Document Analysis</h2>
       </div>
 
       {/* Document Details Card - Now first */}
-      <Card className="shadow-md border-2 overflow-hidden rounded-none sm:rounded-lg">
-        <CardHeader className="pb-2 px-3 sm:px-6">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-xl font-bold flex items-center gap-3">
+      <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
+        <CardHeader className="px-3 pb-2 sm:px-6">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-3 text-xl font-bold">
               <ShoppingBag className="h-6 w-6" />
               Document Details
             </CardTitle>
@@ -271,8 +271,8 @@ const ReceiptAnalysisDisplay = ({
               size="sm"
               onClick={() => setShowQrCode(!showQrCode)}
             >
-              <QrCode className="h-4 w-4 mr-1" />
-              {showQrCode ? "Hide QR Code" : "Show QR Code"}
+              <QrCode className="mr-1 h-4 w-4" />
+              {showQrCode ? 'Hide QR Code' : 'Show QR Code'}
             </Button>
           </div>
         </CardHeader>
@@ -284,30 +284,27 @@ const ReceiptAnalysisDisplay = ({
               transition={{ duration: 0.5 }}
               className="flex justify-center py-4"
             >
-              <QRCode
-                data={window.location.href}
-                className="w-48 h-48"
-              />
+              <QRCode data={window.location.href} className="h-48 w-48" />
             </motion.div>
           )}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
             <div className="flex items-center gap-3 overflow-hidden">
               <Tag className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
-              <span className="text-base font-medium whitespace-nowrap">
+              <span className="whitespace-nowrap text-base font-medium">
                 Merchant:
               </span>
-              <span className="text-base ml-auto font-semibold truncate">
-                {receipt_data.merchant || "Unknown"}
+              <span className="ml-auto truncate text-base font-semibold">
+                {receipt_data.merchant || 'Unknown'}
               </span>
             </div>
 
             <div className="flex items-center gap-3 overflow-hidden">
               <Calendar className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
-              <span className="text-base font-medium whitespace-nowrap">
+              <span className="whitespace-nowrap text-base font-medium">
                 Date:
               </span>
-              <span className="text-base ml-auto font-semibold truncate">
-                {receipt_data.date || "Unknown"}
+              <span className="ml-auto truncate text-base font-semibold">
+                {receipt_data.date || 'Unknown'}
               </span>
             </div>
           </div>
@@ -315,10 +312,10 @@ const ReceiptAnalysisDisplay = ({
       </Card>
 
       {/* Items Card - Second position */}
-      <Card className="shadow-md border-2 overflow-hidden rounded-none sm:rounded-lg">
-        <CardHeader className="pb-2 px-3 sm:px-6">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-xl font-bold flex items-center gap-3">
+      <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
+        <CardHeader className="px-3 pb-2 sm:px-6">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-3 text-xl font-bold">
               <ShoppingBag className="h-6 w-6" />
               Items
             </CardTitle>
@@ -328,7 +325,7 @@ const ReceiptAnalysisDisplay = ({
                 size="sm"
                 onClick={() => setIsAddingItem(true)}
               >
-                <Plus className="h-4 w-4 mr-1" />
+                <Plus className="mr-1 h-4 w-4" />
                 Add Item
               </Button>
             </div>
@@ -372,16 +369,16 @@ const ReceiptAnalysisDisplay = ({
               )}
             </>
           ) : (
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-lg p-4 text-center">
-              <AlertCircle className="h-10 w-10 mx-auto mb-2 text-amber-500 dark:text-amber-400" />
-              <p className="text-base font-medium text-amber-800 dark:text-amber-200 mb-1">
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-center dark:border-amber-800/30 dark:bg-amber-900/20">
+              <AlertCircle className="mx-auto mb-2 h-10 w-10 text-amber-500 dark:text-amber-400" />
+              <p className="mb-1 text-base font-medium text-amber-800 dark:text-amber-200">
                 No Item Details Available
               </p>
               <p className="text-sm text-amber-700 dark:text-amber-300">
-                This{" "}
+                This{' '}
                 {receipt_data.merchant
-                  ? "document from " + receipt_data.merchant
-                  : "document"}{" "}
+                  ? 'document from ' + receipt_data.merchant
+                  : 'document'}{' '}
                 doesn't include detailed line items. The total amount has been
                 equally divided among all people.
               </p>
@@ -398,9 +395,9 @@ const ReceiptAnalysisDisplay = ({
       />
 
       {/* People Manager Section - Now at the bottom */}
-      <Card className="shadow-md border-2 overflow-hidden rounded-none sm:rounded-lg">
-        <CardHeader className="pb-2 px-3 sm:px-6">
-          <CardTitle className="text-xl font-bold flex items-center justify-between">
+      <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
+        <CardHeader className="px-3 pb-2 sm:px-6">
+          <CardTitle className="flex items-center justify-between text-xl font-bold">
             <div className="flex items-center gap-3">
               <Users className="h-6 w-6" />
               Split with Friends
@@ -410,7 +407,7 @@ const ReceiptAnalysisDisplay = ({
               size="sm"
               onClick={() => setShowPeopleManager(!showPeopleManager)}
             >
-              {showPeopleManager ? "Hide" : "Manage People"}
+              {showPeopleManager ? 'Hide' : 'Manage People'}
             </Button>
           </CardTitle>
         </CardHeader>
@@ -419,14 +416,14 @@ const ReceiptAnalysisDisplay = ({
           {/* Assignment Progress */}
           {people.length > 0 && (
             <div
-              className={`mb-4 p-2 sm:p-3 border rounded-lg ${
+              className={`mb-4 rounded-lg border p-2 sm:p-3 ${
                 isFullyAssigned
-                  ? "bg-green-100 border-green-300 dark:bg-green-900/30 dark:border-green-700"
-                  : "bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800/30"
+                  ? 'border-green-300 bg-green-100 dark:border-green-700 dark:bg-green-900/30'
+                  : 'border-amber-200 bg-amber-50 dark:border-amber-800/30 dark:bg-amber-900/20'
               }`}
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
-                <div className="flex items-center gap-2 mb-2 sm:mb-0">
+              <div className="mb-2 flex flex-col justify-between sm:flex-row sm:items-center">
+                <div className="mb-2 flex items-center gap-2 sm:mb-0">
                   {isFullyAssigned ? (
                     <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
                   ) : (
@@ -435,29 +432,29 @@ const ReceiptAnalysisDisplay = ({
                   <h3
                     className={`font-medium ${
                       isFullyAssigned
-                        ? "text-green-800 dark:text-green-300"
-                        : "text-amber-800 dark:text-amber-300"
+                        ? 'text-green-800 dark:text-green-300'
+                        : 'text-amber-800 dark:text-amber-300'
                     }`}
                   >
                     {isFullyAssigned
-                      ? "All items assigned"
-                      : "Assignment in progress"}
+                      ? 'All items assigned'
+                      : 'Assignment in progress'}
                   </h3>
                 </div>
                 <span
                   className={`text-sm font-semibold ${
                     isFullyAssigned
-                      ? "text-green-700 dark:text-green-400"
-                      : "text-amber-700 dark:text-amber-400"
+                      ? 'text-green-700 dark:text-green-400'
+                      : 'text-amber-700 dark:text-amber-400'
                   }`}
                 >
-                  {formatCurrency(totalAssigned as number)} /{" "}
+                  {formatCurrency(totalAssigned as number)} /{' '}
                   {formatCurrency(receiptTotal)}
                 </span>
               </div>
 
               {!isFullyAssigned && (
-                <div className="flex justify-between items-center mt-1 text-sm">
+                <div className="mt-1 flex items-center justify-between text-sm">
                   <span className="text-amber-700 dark:text-amber-400">
                     Unassigned amount:
                   </span>
@@ -467,12 +464,12 @@ const ReceiptAnalysisDisplay = ({
                 </div>
               )}
 
-              <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full mt-2 overflow-hidden">
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                 <div
                   className={`h-full rounded-full ${
                     isFullyAssigned
-                      ? "bg-green-500 dark:bg-green-600"
-                      : "bg-amber-500 dark:bg-amber-600"
+                      ? 'bg-green-500 dark:bg-green-600'
+                      : 'bg-amber-500 dark:bg-amber-600'
                   }`}
                   style={{
                     width: `${Math.min(
@@ -487,9 +484,9 @@ const ReceiptAnalysisDisplay = ({
 
           {/* Equal Split Banner */}
           {useEqualSplit && people.length > 0 && (
-            <div className="mb-4 p-3 border rounded-lg bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800/30">
+            <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800/30 dark:bg-blue-900/20">
               <div className="flex items-start gap-2">
-                <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400" />
                 <div>
                   <h3 className="font-medium text-blue-800 dark:text-blue-300">
                     Equal Split Mode
@@ -497,7 +494,7 @@ const ReceiptAnalysisDisplay = ({
                   <p className="text-sm text-blue-700 dark:text-blue-400">
                     {!hasLineItems
                       ? "This receipt doesn't contain detailed line items, so the total amount has been divided equally among all people."
-                      : "No items have been assigned yet. The total has been divided equally among all people by default."}
+                      : 'No items have been assigned yet. The total has been divided equally among all people by default.'}
                   </p>
                 </div>
               </div>
@@ -505,14 +502,14 @@ const ReceiptAnalysisDisplay = ({
           )}
 
           {showPeopleManager && (
-            <div className="mb-4 p-3 border rounded-lg bg-muted/20">
-              <h3 className="font-medium mb-2">Add People to Split With</h3>
-              <div className="flex flex-col sm:flex-row gap-2 mb-3">
+            <div className="mb-4 rounded-lg border bg-muted/20 p-3">
+              <h3 className="mb-2 font-medium">Add People to Split With</h3>
+              <div className="mb-3 flex flex-col gap-2 sm:flex-row">
                 <Input
                   placeholder="Enter name"
                   value={newPersonName}
                   onChange={(e) => setNewPersonName(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAddPerson()}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddPerson()}
                   className="w-full sm:max-w-xs"
                 />
                 <Button
@@ -520,7 +517,7 @@ const ReceiptAnalysisDisplay = ({
                   size="sm"
                   className="w-full sm:w-auto"
                 >
-                  <Plus className="h-4 w-4 mr-1" />
+                  <Plus className="mr-1 h-4 w-4" />
                   Add
                 </Button>
               </div>
@@ -531,7 +528,7 @@ const ReceiptAnalysisDisplay = ({
                   return (
                     <div
                       key={idx}
-                      className={`py-1 px-3 rounded-full flex items-center ${colorPair[0]} ${colorPair[1]} dark:${colorPair[2]} dark:${colorPair[3]}`}
+                      className={`flex items-center rounded-full px-3 py-1 ${colorPair[0]} ${colorPair[1]} dark:${colorPair[2]} dark:${colorPair[3]}`}
                     >
                       <PersonBadge
                         name={person}
@@ -543,7 +540,7 @@ const ReceiptAnalysisDisplay = ({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-5 w-5 ml-1 hover:bg-destructive/20 rounded-full p-0"
+                        className="ml-1 h-5 w-5 rounded-full p-0 hover:bg-destructive/20"
                         onClick={() => handleRemovePerson(person)}
                       >
                         <X className="h-3 w-3" />
@@ -564,8 +561,8 @@ const ReceiptAnalysisDisplay = ({
           <div>
             {people.length > 0 ? (
               <div className="space-y-2">
-                <h3 className="font-medium mb-1">Bill Breakdown</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <h3 className="mb-1 font-medium">Bill Breakdown</h3>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {people.map((person, idx) => {
                     const colorPair = getColorForName(
                       person,
@@ -576,23 +573,23 @@ const ReceiptAnalysisDisplay = ({
                     const percentage =
                       receiptTotal > 0
                         ? ((personAmount / receiptTotal) * 100).toFixed(1)
-                        : "0";
+                        : '0';
                     const personItems = getPersonItems(person);
 
                     return (
                       <Dialog key={idx}>
                         <DialogTrigger asChild>
                           <div
-                            className={`p-4 border rounded-lg ${colorPair[0]}/5 ${colorPair[1]}/80 dark:${colorPair[2]}/20 dark:${colorPair[3]}/90 cursor-pointer hover:shadow-md transition-shadow`}
+                            className={`rounded-lg border p-4 ${colorPair[0]}/5 ${colorPair[1]}/80 dark:${colorPair[2]}/20 dark:${colorPair[3]}/90 cursor-pointer transition-shadow hover:shadow-md`}
                           >
-                            <div className="flex items-center gap-2 mb-2">
+                            <div className="mb-2 flex items-center gap-2">
                               <PersonBadge
                                 name={person}
                                 personIndex={idx}
                                 totalPeople={people.length}
                                 size="md"
                               />
-                              <span className="font-medium truncate">
+                              <span className="truncate font-medium">
                                 {person}
                               </span>
                             </div>
@@ -605,14 +602,14 @@ const ReceiptAnalysisDisplay = ({
                                       personFinalTotals.get(person) || 0
                                     )}
                                   </div>
-                                  <div className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300 rounded-full">
+                                  <div className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-800/30 dark:text-blue-300">
                                     Equal split
                                   </div>
                                 </div>
-                                <div className="text-xs text-muted-foreground mt-1">
+                                <div className="mt-1 text-xs text-muted-foreground">
                                   {people.length > 0
                                     ? `1/${people.length} of the total`
-                                    : ""}
+                                    : ''}
                                 </div>
                               </>
                             ) : !receipt_data.tax_included_in_items &&
@@ -628,7 +625,7 @@ const ReceiptAnalysisDisplay = ({
                                     )}
                                   </div>
                                 </div>
-                                <div className="flex items-end justify-between mt-1">
+                                <div className="mt-1 flex items-end justify-between">
                                   <div className="flex items-center text-sm text-muted-foreground">
                                     <span>Tax:</span>
                                   </div>
@@ -646,7 +643,7 @@ const ReceiptAnalysisDisplay = ({
                                     })()}
                                   </div>
                                 </div>
-                                <div className="flex items-end justify-between mt-1 pt-1 border-t">
+                                <div className="mt-1 flex items-end justify-between border-t pt-1">
                                   <div className="text-base font-semibold">
                                     Total:
                                   </div>
@@ -666,22 +663,22 @@ const ReceiptAnalysisDisplay = ({
                               </div>
                             )}
 
-                            <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                            <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
                               {!useEqualSplit ? (
                                 <>
                                   <FileText className="h-3 w-3" />
                                   {`${personItems.length} item${
-                                    personItems.length !== 1 ? "s" : ""
+                                    personItems.length !== 1 ? 's' : ''
                                   } assigned`}
                                 </>
                               ) : (
-                                "Equal amount split"
+                                'Equal amount split'
                               )}
                             </div>
                           </div>
                         </DialogTrigger>
 
-                        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+                        <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-md">
                           <DialogHeader>
                             <DialogTitle className="flex items-center gap-2">
                               <PersonBadge
@@ -697,9 +694,9 @@ const ReceiptAnalysisDisplay = ({
                             </DialogDescription>
                           </DialogHeader>
 
-                          <div className="overflow-y-auto flex-grow">
+                          <div className="flex-grow overflow-y-auto">
                             {personItems.length > 0 ? (
-                              <div className="border rounded-md overflow-hidden">
+                              <div className="overflow-hidden rounded-md border">
                                 <table className="w-full">
                                   <thead>
                                     <tr className="bg-muted/50">
@@ -719,7 +716,7 @@ const ReceiptAnalysisDisplay = ({
                                       <tr
                                         key={itemIdx}
                                         className={`border-t ${
-                                          itemIdx % 2 ? "bg-muted/20" : ""
+                                          itemIdx % 2 ? 'bg-muted/20' : ''
                                         }`}
                                       >
                                         <td className="px-3 py-2.5 align-top">
@@ -727,22 +724,22 @@ const ReceiptAnalysisDisplay = ({
                                             {item.name}
                                           </div>
                                           {item.shared && (
-                                            <div className="text-xs text-muted-foreground mt-0.5">
-                                              Shared with{" "}
-                                              {item.sharedWith.join(", ")}
+                                            <div className="mt-0.5 text-xs text-muted-foreground">
+                                              Shared with{' '}
+                                              {item.sharedWith.join(', ')}
                                             </div>
                                           )}
                                         </td>
-                                        <td className="px-3 py-2.5 text-right text-sm align-top">
+                                        <td className="px-3 py-2.5 text-right align-top text-sm">
                                           {item.quantity}
                                         </td>
-                                        <td className="px-3 py-2.5 text-right text-sm whitespace-nowrap align-top">
+                                        <td className="whitespace-nowrap px-3 py-2.5 text-right align-top text-sm">
                                           <div className="font-medium">
                                             {formatCurrency(item.price)}
                                           </div>
                                           {item.shared && (
                                             <div className="text-xs text-muted-foreground">
-                                              of{" "}
+                                              of{' '}
                                               {formatCurrency(
                                                 item.originalPrice
                                               )}
@@ -833,8 +830,8 @@ const ReceiptAnalysisDisplay = ({
                               <div className="py-12 text-center">
                                 <p className="text-muted-foreground">
                                   {useEqualSplit
-                                    ? "Equal split - no specific items assigned"
-                                    : "No items assigned yet"}
+                                    ? 'Equal split - no specific items assigned'
+                                    : 'No items assigned yet'}
                                 </p>
                               </div>
                             )}
@@ -852,12 +849,12 @@ const ReceiptAnalysisDisplay = ({
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center p-6 text-center bg-muted/30 rounded-lg">
-                <UserPlus className="h-10 w-10 text-muted-foreground mb-2" />
-                <h3 className="text-lg font-medium mb-1">
+              <div className="flex flex-col items-center justify-center rounded-lg bg-muted/30 p-6 text-center">
+                <UserPlus className="mb-2 h-10 w-10 text-muted-foreground" />
+                <h3 className="mb-1 text-lg font-medium">
                   Add People to Split the Bill
                 </h3>
-                <p className="text-sm text-muted-foreground max-w-md">
+                <p className="max-w-md text-sm text-muted-foreground">
                   Click "Manage People" to add friends and assign items to them.
                   Then tag each item with who should pay for it.
                 </p>
@@ -867,7 +864,7 @@ const ReceiptAnalysisDisplay = ({
                   className="mt-4"
                   onClick={() => setShowPeopleManager(true)}
                 >
-                  <UserPlus className="h-4 w-4 mr-1" />
+                  <UserPlus className="mr-1 h-4 w-4" />
                   Manage People
                 </Button>
               </div>

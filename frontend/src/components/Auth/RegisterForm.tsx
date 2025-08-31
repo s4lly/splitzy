@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../ui/card';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Alert, AlertDescription } from '../ui/alert';
@@ -11,7 +18,7 @@ const RegisterForm = ({ onSuccess, onLoginClick }) => {
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [formError, setFormError] = useState(null);
   const { register, loading } = useAuth();
@@ -20,7 +27,7 @@ const RegisterForm = ({ onSuccess, onLoginClick }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -29,7 +36,12 @@ const RegisterForm = ({ onSuccess, onLoginClick }) => {
     setFormError(null);
 
     // Simple validation
-    if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (
+      !formData.username ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
       setFormError('Please fill in all fields');
       return;
     }
@@ -66,9 +78,9 @@ const RegisterForm = ({ onSuccess, onLoginClick }) => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="mx-auto w-full max-w-md">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-2xl font-bold">
           <UserPlus className="h-6 w-6" />
           Create Account
         </CardTitle>
@@ -83,7 +95,7 @@ const RegisterForm = ({ onSuccess, onLoginClick }) => {
               <AlertDescription>{formError}</AlertDescription>
             </Alert>
           )}
-          
+
           <div className="space-y-2">
             <label htmlFor="username" className="text-sm font-medium">
               Username
@@ -99,7 +111,7 @@ const RegisterForm = ({ onSuccess, onLoginClick }) => {
               disabled={loading}
             />
           </div>
-          
+
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
               Email
@@ -115,7 +127,7 @@ const RegisterForm = ({ onSuccess, onLoginClick }) => {
               disabled={loading}
             />
           </div>
-          
+
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium">
               Password
@@ -134,7 +146,7 @@ const RegisterForm = ({ onSuccess, onLoginClick }) => {
               Password must be at least 8 characters long
             </p>
           </div>
-          
+
           <div className="space-y-2">
             <label htmlFor="confirmPassword" className="text-sm font-medium">
               Confirm Password
@@ -150,12 +162,8 @@ const RegisterForm = ({ onSuccess, onLoginClick }) => {
               disabled={loading}
             />
           </div>
-          
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={loading}
-          >
+
+          <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -168,11 +176,11 @@ const RegisterForm = ({ onSuccess, onLoginClick }) => {
         </form>
       </CardContent>
       <CardFooter className="flex flex-col space-y-2">
-        <div className="text-sm text-center">
+        <div className="text-center text-sm">
           Already have an account?{' '}
-          <Button 
-            variant="link" 
-            className="p-0 h-auto" 
+          <Button
+            variant="link"
+            className="h-auto p-0"
             onClick={onLoginClick}
             disabled={loading}
           >
@@ -184,4 +192,4 @@ const RegisterForm = ({ onSuccess, onLoginClick }) => {
   );
 };
 
-export default RegisterForm; 
+export default RegisterForm;

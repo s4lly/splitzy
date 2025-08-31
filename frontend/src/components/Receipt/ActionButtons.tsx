@@ -1,6 +1,6 @@
-import { Trash } from "lucide-react";
-import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
+import { Trash } from 'lucide-react';
+import { Button } from '../ui/button';
+import { cn } from '@/lib/utils';
 
 interface ActionButtonsProps {
   isValueEmpty: boolean;
@@ -18,12 +18,12 @@ const ActionButtons = ({
   isPending = false,
 }: ActionButtonsProps) => {
   return (
-    <div className={cn("flex justify-between", isValueEmpty && "justify-end")}>
+    <div className={cn('flex justify-between', isValueEmpty && 'justify-end')}>
       {!isValueEmpty && (
         <Button
           variant="outline"
           size="icon"
-          className="text-red-500 border-red-500"
+          className="border-red-500 text-red-500"
           onClick={onDelete}
           disabled={isPending}
         >

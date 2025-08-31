@@ -1,7 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import receiptService from "@/services/receiptService";
-import { LineItemSchema, ReceiptResponseSchema } from "@/lib/receiptSchemas";
-import { z } from "zod";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import receiptService from '@/services/receiptService';
+import { LineItemSchema, ReceiptResponseSchema } from '@/lib/receiptSchemas';
+import { z } from 'zod';
 
 export function useLineItemUpdateMutation() {
   const queryClient = useQueryClient();
@@ -23,13 +23,13 @@ export function useLineItemUpdateMutation() {
     }: { receiptId: string; itemId: string } & Partial<
       z.infer<typeof LineItemSchema>
     >) => {
-      queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
+      queryClient.cancelQueries({ queryKey: ['receipt', receiptId] });
 
-      const previousData = queryClient.getQueryData(["receipt", receiptId]);
+      const previousData = queryClient.getQueryData(['receipt', receiptId]);
 
       try {
         queryClient.setQueryData(
-          ["receipt", receiptId],
+          ['receipt', receiptId],
           (old: z.infer<typeof ReceiptResponseSchema>) => {
             const newData = { ...old };
             const item = newData.receipt.receipt_data.line_items.find(
@@ -42,21 +42,21 @@ export function useLineItemUpdateMutation() {
           }
         );
       } catch (error) {
-        console.error("Error updating item name:", error);
+        console.error('Error updating item name:', error);
       }
 
       return { previousData };
     },
     onError: (error, variables, context) => {
       queryClient.setQueryData(
-        ["receipt", variables.receiptId],
+        ['receipt', variables.receiptId],
         context?.previousData
       );
     },
     onSettled: (data, error, variables, context) => {
       queryClient.invalidateQueries({
-        queryKey: ["receipt", variables.receiptId],
+        queryKey: ['receipt', variables.receiptId],
       });
     },
   });
-} 
+}

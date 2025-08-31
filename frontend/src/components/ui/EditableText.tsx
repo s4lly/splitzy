@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
-import { Pencil } from "lucide-react";
-import clsx from "clsx";
+import { useState, useRef, useEffect } from 'react';
+import { Pencil } from 'lucide-react';
+import clsx from 'clsx';
 
 /**
  * EditableText
@@ -15,12 +15,12 @@ import clsx from "clsx";
 export default function EditableText({
   value,
   onSave,
-  className = "",
-  inputClassName = "",
-  placeholder = "",
-  type = "text",
+  className = '',
+  inputClassName = '',
+  placeholder = '',
+  type = 'text',
   formatter = (value) => value,
-  device = "desktop",
+  device = 'desktop',
 }) {
   const [isEditing, setIsEditing] = useState(false);
   // const isEditing = true;
@@ -44,7 +44,7 @@ export default function EditableText({
 
   const handleSave = () => {
     if (inputValue !== value) {
-      if (type === "number" && isNaN(inputValue)) {
+      if (type === 'number' && isNaN(inputValue)) {
         return;
       }
 
@@ -62,19 +62,19 @@ export default function EditableText({
     <div
       data-foo
       className={clsx(
-        "flex-1 truncate rounded p-1 cursor-pointer w-full",
-        focused && "p-[3px] border border-gray-300 dark:border-gray-600",
-        isEditing && "text-base",
+        'w-full flex-1 cursor-pointer truncate rounded p-1',
+        focused && 'border border-gray-300 p-[3px] dark:border-gray-600',
+        isEditing && 'text-base',
         !isEditing &&
           !focused &&
-          "hover:p-[3px] hover:border hover:border-gray-300 dark:hover:border-gray-600",
+          'hover:border hover:border-gray-300 hover:p-[3px] dark:hover:border-gray-600',
         className
       )}
       tabIndex={0}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       onKeyDown={(e) => {
-        if (!isEditing && (e.key === "Enter" || e.key === " ")) {
+        if (!isEditing && (e.key === 'Enter' || e.key === ' ')) {
           setIsEditing(true);
         }
       }}
@@ -90,7 +90,7 @@ export default function EditableText({
           placeholder={placeholder}
           type={type}
           onChange={(e) => {
-            if (type === "number") {
+            if (type === 'number') {
               setInputValue(e.target.valueAsNumber);
             } else {
               setInputValue(e.target.value);
@@ -98,15 +98,15 @@ export default function EditableText({
           }}
           onBlur={handleSave}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
+            if (e.key === 'Enter') {
               handleSave();
-            } else if (e.key === "Escape") {
+            } else if (e.key === 'Escape') {
               handleCancel();
             }
           }}
         />
       ) : (
-        <div className={clsx("")}>
+        <div className={clsx('')}>
           <span className="text-base">{formatter(value) || placeholder}</span>
         </div>
       )}

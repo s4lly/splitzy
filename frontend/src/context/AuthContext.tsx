@@ -29,13 +29,19 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
-  login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
-  register: (userData: RegisterData) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    credentials: LoginCredentials
+  ) => Promise<{ success: boolean; error?: string }>;
+  register: (
+    userData: RegisterData
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<{ success: boolean; error?: string }>;
 }
 
 // Create the context
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -48,7 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         setLoading(true);
         const response = await authService.getCurrentUser();
-        
+
         if (response.success) {
           setUser(response.user);
         } else {
@@ -66,20 +72,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   // Login function
-  const login = async (credentials: LoginCredentials): Promise<{ success: boolean; error?: string }> => {
+  const login = async (
+    credentials: LoginCredentials
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Normalize credentials: derive username from either username or email
       const username = credentials.username ?? credentials.email;
       if (!username) {
         return { success: false, error: 'Username or email is required' };
       }
-      
-      const normalizedCredentials = { username, password: credentials.password };
+
+      const normalizedCredentials = {
+        username,
+        password: credentials.password,
+      };
       const response = await authService.login(normalizedCredentials);
-      
+
       if (response.success) {
         setUser(response.user);
         return { success: true };
@@ -95,19 +106,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // Register function
-  const register = async (userData: RegisterData): Promise<{ success: boolean; error?: string }> => {
+  const register = async (
+    userData: RegisterData
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true);
       setError(null);
       const response = await authService.register(userData);
-      
+
       if (response.success) {
         setUser(response.user);
         return { success: true };
       }
       return { success: false, error: 'Registration failed' };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Registration failed';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Registration failed';
       setError(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
@@ -139,13 +153,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     isAuthenticated: !!user,
     login,
     register,
-    logout
+    logout,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 
@@ -157,4 +169,3 @@ export const useAuth = () => {
   }
   return context;
 };
-

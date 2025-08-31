@@ -1,14 +1,14 @@
-import { useEffect, useMemo } from "react";
-import { Button } from "../ui/button";
-import { X, Trash, Loader2 } from "lucide-react";
-import { LineItemSchema, ReceiptSchema } from "@/lib/receiptSchemas";
-import { z } from "zod";
-import debounce from "lodash.debounce";
-import { useLineItemUpdateMutation } from "./hooks/useLineItemUpdateMutation";
-import { useLineItemDeleteMutation } from "./hooks/useLineItemDeleteMutation";
-import LineItemForm from "./LineItemForm";
-import { cn } from "@/lib/utils";
-import { useMobile } from "@/hooks/use-mobile";
+import { useEffect, useMemo } from 'react';
+import { Button } from '../ui/button';
+import { X, Trash, Loader2 } from 'lucide-react';
+import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
+import { z } from 'zod';
+import debounce from 'lodash.debounce';
+import { useLineItemUpdateMutation } from './hooks/useLineItemUpdateMutation';
+import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
+import LineItemForm from './LineItemForm';
+import { cn } from '@/lib/utils';
+import { useMobile } from '@/hooks/use-mobile';
 
 export default function LineItemEditForm({
   item,
@@ -79,8 +79,8 @@ export default function LineItemEditForm({
     <div className="w-full">
       <div
         className={cn(
-          "flex justify-between items-center p-2 bg-background",
-          !isMobile && "justify-end"
+          'flex items-center justify-between bg-background p-2',
+          !isMobile && 'justify-end'
         )}
       >
         <Button
@@ -88,16 +88,16 @@ export default function LineItemEditForm({
           variant="outline"
           onClick={handleDeleteItem}
           disabled={isDeleting || isUpdating}
-          className={cn("text-red-500 border-red-500", !isMobile && "hidden")}
+          className={cn('border-red-500 text-red-500', !isMobile && 'hidden')}
         >
-          <Trash className="w-4 h-4 mr-2" />
-          {isDeleting ? "Deleting..." : "Delete"}
+          <Trash className="mr-2 h-4 w-4" />
+          {isDeleting ? 'Deleting...' : 'Delete'}
         </Button>
 
         <div className="flex items-center">
-          {isUpdating && <Loader2 className="w-4 h-4 animate-spin" />}
+          {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
           <Button variant="outline" size="icon" onClick={onEditCancel}>
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" />
           </Button>
         </div>
       </div>

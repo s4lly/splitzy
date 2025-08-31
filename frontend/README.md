@@ -99,4 +99,4 @@ This frontend connects to the Receipt Analysis API. The main integration points 
 - Axios for API requests
 - React Context for state management
 - Tailwind CSS
-- Vitest & Testing Library for tests 
+- Vitest & Testing Library for tests
