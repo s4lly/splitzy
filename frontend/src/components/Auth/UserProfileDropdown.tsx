@@ -8,9 +8,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "../ui/avatar";
-import { Button } from "../ui/button";
+} from '../ui/dropdown-menu';
+import { Avatar, AvatarFallback } from '../ui/avatar';
+import { Button } from '../ui/button';
 import { User, LogOut, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -54,7 +54,7 @@ const UserProfileDropdown = () => {
             <span>Profile</span>
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer">
-            <Link to="/settings" className="flex items-center w-full">
+            <Link to="/settings" className="flex w-full items-center">
               <Settings className="mr-2 h-4 w-4" />
               <span className="flex-1">Settings</span>
             </Link>
@@ -74,4 +74,4 @@ const UserProfileDropdown = () => {
   );
 };
 
-export default UserProfileDropdown; 
+export default UserProfileDropdown;

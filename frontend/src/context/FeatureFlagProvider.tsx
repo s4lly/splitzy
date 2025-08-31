@@ -1,4 +1,4 @@
-import { useFeatureFlagEnabled } from "posthog-js/react";
+import { useFeatureFlagEnabled } from 'posthog-js/react';
 import {
   createContext,
   useReducer,
@@ -7,41 +7,41 @@ import {
   Dispatch,
   useEffect,
   useState,
-} from "react";
-import { DBSchema, openDB } from "idb";
+} from 'react';
+import { DBSchema, openDB } from 'idb';
 
 // Define the shape of your feature flags
 type FlagValue = {
-  location: "unset" | "local" | "remote";
+  location: 'unset' | 'local' | 'remote';
   value: boolean;
 };
 
 interface FeatureFlags {
-  "receipt-desktop-table": FlagValue;
-  "edit-line-items": FlagValue;
+  'receipt-desktop-table': FlagValue;
+  'edit-line-items': FlagValue;
 }
 
 // Define actions
 interface SetFlagAction {
-  type: "SET_FLAG";
+  type: 'SET_FLAG';
   value: FlagValue;
   name: keyof FeatureFlags;
 }
 
 interface SetFlagsAction {
-  type: "SET_FLAGS";
+  type: 'SET_FLAGS';
   flags: FeatureFlags;
 }
 
 interface ClearFlagsAction {
-  type: "CLEAR_FLAGS";
+  type: 'CLEAR_FLAGS';
 }
 
 type FeatureFlagAction = SetFlagAction | SetFlagsAction | ClearFlagsAction;
 
 // IndexedDB helpers
-const DB_NAME = "feature-flag-store";
-const STORE_NAME = "flags";
+const DB_NAME = 'feature-flag-store';
+const STORE_NAME = 'flags';
 
 interface FeatureFlagDB extends DBSchema {
   flags: {
@@ -84,8 +84,8 @@ async function clearFlagsFromDB() {
 
 // Initial state
 const initialFlags: FeatureFlags = {
-  "receipt-desktop-table": { location: "unset", value: false },
-  "edit-line-items": { location: "unset", value: false },
+  'receipt-desktop-table': { location: 'unset', value: false },
+  'edit-line-items': { location: 'unset', value: false },
 };
 
 // Reducer
@@ -94,10 +94,10 @@ function featureFlagReducer(
   action: FeatureFlagAction
 ): FeatureFlags {
   switch (action.type) {
-    case "SET_FLAGS":
+    case 'SET_FLAGS':
       return action.flags;
 
-    case "SET_FLAG":
+    case 'SET_FLAG':
       setFlagInDB(action.name, action.value);
 
       return {
@@ -105,7 +105,7 @@ function featureFlagReducer(
         [action.name]: action.value,
       };
 
-    case "CLEAR_FLAGS":
+    case 'CLEAR_FLAGS':
       clearFlagsFromDB();
       return initialFlags;
 
@@ -137,7 +137,7 @@ export const FeatureFlagProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchFlags = async () => {
       const flags = await getFlagsFromDB();
-      dispatch({ type: "SET_FLAGS", flags });
+      dispatch({ type: 'SET_FLAGS', flags });
     };
 
     if (isDBCreated) {
@@ -150,7 +150,7 @@ export const FeatureFlagProvider = ({ children }: { children: ReactNode }) => {
       value={{
         featureFlags: state,
         isOverridden: Object.values(state).some(
-          (flag) => flag.location !== "unset"
+          (flag) => flag.location !== 'unset'
         ),
       }}
     >
@@ -167,11 +167,11 @@ export function useFeatureFlag(flag: keyof FeatureFlags) {
   const { featureFlags } = useContext(FeatureFlagStateContext);
   const specificFeatureRemoteValue = useFeatureFlagEnabled(flag);
 
-  if (!featureFlags[flag] || featureFlags[flag].location === "unset") {
+  if (!featureFlags[flag] || featureFlags[flag].location === 'unset') {
     return specificFeatureRemoteValue;
   }
 
-  return featureFlags[flag].location === "local"
+  return featureFlags[flag].location === 'local'
     ? featureFlags[flag].value
     : specificFeatureRemoteValue;
 }
@@ -180,7 +180,7 @@ export function useFeatureFlagDispatch() {
   const context = useContext(FeatureFlagDispatchContext);
   if (context === undefined) {
     throw new Error(
-      "useFeatureFlagDispatch must be used within a FeatureFlagProvider"
+      'useFeatureFlagDispatch must be used within a FeatureFlagProvider'
     );
   }
   return context;

@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL =
+  import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Configure axios to include credentials (cookies)
 axios.defaults.withCredentials = true;
@@ -22,7 +23,10 @@ const authService = {
       const response = await axios.post(`${API_URL}/register`, userData);
       return response.data;
     } catch (error) {
-      console.error('Registration error:', error.response?.data || error.message);
+      console.error(
+        'Registration error:',
+        error.response?.data || error.message
+      );
       throw error;
     }
   },
@@ -70,7 +74,7 @@ const authService = {
       // Not logged in
       return { success: false };
     }
-  }
+  },
 };
 
-export default authService; 
+export default authService;

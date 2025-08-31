@@ -26,7 +26,7 @@ const ReceiptUploader = ({ onAnalysisComplete }) => {
     if (selectedFile) {
       setFile(selectedFile);
       setError(null);
-      
+
       // Create a preview URL
       const previewUrl = URL.createObjectURL(selectedFile);
       setPreview(previewUrl);
@@ -45,16 +45,22 @@ const ReceiptUploader = ({ onAnalysisComplete }) => {
 
     try {
       const result = await receiptService.analyzeReceipt(file);
-      
+
       if (result.success && result.is_receipt) {
         onAnalysisComplete(result);
       } else if (result.success && !result.is_receipt) {
-        setError('The uploaded image does not appear to be a receipt. Please try a different image.');
+        setError(
+          'The uploaded image does not appear to be a receipt. Please try a different image.'
+        );
       } else {
-        setError(result.error || 'Failed to analyze the receipt. Please try again.');
+        setError(
+          result.error || 'Failed to analyze the receipt. Please try again.'
+        );
       }
     } catch (err) {
-      setError('An error occurred while analyzing the receipt. Please try again.');
+      setError(
+        'An error occurred while analyzing the receipt. Please try again.'
+      );
       console.error(err);
     } finally {
       setIsUploading(false);
@@ -64,7 +70,7 @@ const ReceiptUploader = ({ onAnalysisComplete }) => {
   return (
     <Flex direction="column" gap="size-200">
       <Heading level={2}>Upload Receipt</Heading>
-      
+
       {/* File Drop Zone */}
       <Well>
         <Flex
@@ -75,14 +81,14 @@ const ReceiptUploader = ({ onAnalysisComplete }) => {
           height="size-3000"
         >
           {preview ? (
-            <img 
-              src={preview} 
-              alt="Receipt preview" 
-              style={{ 
-                maxHeight: '200px', 
-                maxWidth: '100%', 
-                objectFit: 'contain' 
-              }} 
+            <img
+              src={preview}
+              alt="Receipt preview"
+              style={{
+                maxHeight: '200px',
+                maxWidth: '100%',
+                objectFit: 'contain',
+              }}
             />
           ) : (
             <IllustratedMessage>
@@ -91,7 +97,7 @@ const ReceiptUploader = ({ onAnalysisComplete }) => {
               <Content>Select a JPG, JPEG, or PNG file</Content>
             </IllustratedMessage>
           )}
-          
+
           <input
             type="file"
             accept=".jpg,.jpeg,.png"
@@ -99,26 +105,30 @@ const ReceiptUploader = ({ onAnalysisComplete }) => {
             style={{ display: 'none' }}
             id="receipt-upload"
           />
-          
-          <Button 
-            variant="primary" 
+
+          <Button
+            variant="primary"
             onPress={() => document.getElementById('receipt-upload').click()}
           >
             Select Image
           </Button>
         </Flex>
       </Well>
-      
+
       {/* Error Message */}
       {error && (
         <Flex alignItems="center" gap="size-100">
           <AlertCircle color="negative" />
-          <Text UNSAFE_style={{ color: 'var(--spectrum-semantic-negative-color-default)' }}>
+          <Text
+            UNSAFE_style={{
+              color: 'var(--spectrum-semantic-negative-color-default)',
+            }}
+          >
             {error}
           </Text>
         </Flex>
       )}
-      
+
       {/* Upload Button */}
       <Button
         variant="cta"
@@ -127,13 +137,15 @@ const ReceiptUploader = ({ onAnalysisComplete }) => {
         width="size-2000"
         alignSelf="center"
       >
-        {isUploading ? <ProgressCircle size="S" isIndeterminate /> : <Document />}
-        <Text>
-          {isUploading ? 'Analyzing...' : 'Analyze Receipt'}
-        </Text>
+        {isUploading ? (
+          <ProgressCircle size="S" isIndeterminate />
+        ) : (
+          <Document />
+        )}
+        <Text>{isUploading ? 'Analyzing...' : 'Analyze Receipt'}</Text>
       </Button>
     </Flex>
   );
 };
 
-export default ReceiptUploader; 
+export default ReceiptUploader;

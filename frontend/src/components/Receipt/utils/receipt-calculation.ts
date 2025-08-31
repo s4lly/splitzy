@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { LineItemSchema, ReceiptDataSchema } from "@/lib/receiptSchemas";
+import { z } from 'zod';
+import { LineItemSchema, ReceiptDataSchema } from '@/lib/receiptSchemas';
 
 export function getTotalForAllItems(
   receipt_data: z.infer<typeof ReceiptDataSchema>
@@ -133,7 +133,7 @@ export function getPersonFinalTotals(
   if (hasLineItems && noAssignmentsMade && people.length > 0) {
     const receiptTotal = editLineItemsEnabled
       ? getTotal(receipt_data)
-      : receipt_data.final_total ?? receipt_data.total ?? 0;
+      : (receipt_data.final_total ?? receipt_data.total ?? 0);
 
     const splitAmount = receiptTotal / people.length;
 
@@ -159,10 +159,10 @@ export function getPersonFinalTotals(
   ) {
     const taxAmount = editLineItemsEnabled
       ? getTaxAmount(totalAssignedItemsValue, receipt_data)
-      : receipt_data.tax ?? 0;
+      : (receipt_data.tax ?? 0);
     const pretaxTotal = editLineItemsEnabled
       ? getTotalForAllItems(receipt_data)
-      : receipt_data.pretax_total ?? receipt_data.items_total ?? 0;
+      : (receipt_data.pretax_total ?? receipt_data.items_total ?? 0);
 
     let taxRate = 0;
     if (pretaxTotal > 0) {
@@ -200,7 +200,7 @@ export function getPersonFinalTotals(
   ) {
     const receiptTotal = editLineItemsEnabled
       ? getTotal(receipt_data)
-      : receipt_data.final_total ?? receipt_data.total ?? 0;
+      : (receipt_data.final_total ?? receipt_data.total ?? 0);
 
     const splitAmount = receiptTotal / people.length;
 

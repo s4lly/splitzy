@@ -1,4 +1,4 @@
-import clsx from "clsx";
+import clsx from 'clsx';
 
 export default function LineItemCard({
   selected,
@@ -10,8 +10,8 @@ export default function LineItemCard({
   return (
     <div
       className={clsx(
-        "border-4 rounded-lg border-border/40 overflow-hidden mb-3 text-base",
-        selected && "ring-2 ring-accent ring-blue-300"
+        'mb-3 overflow-hidden rounded-lg border-4 border-border/40 text-base',
+        selected && 'ring-2 ring-accent ring-blue-300'
       )}
     >
       {children}

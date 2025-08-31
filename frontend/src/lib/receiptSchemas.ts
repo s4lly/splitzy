@@ -38,4 +38,4 @@ export const ReceiptSchema = z.object({
 export const ReceiptResponseSchema = z.object({
   receipt: ReceiptSchema,
   success: z.boolean(),
-}); 
+});

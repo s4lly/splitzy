@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../ui/card';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Alert, AlertDescription } from '../ui/alert';
@@ -9,7 +15,7 @@ import { LogIn, Loader2 } from 'lucide-react';
 const LoginForm = ({ onSuccess, onRegisterClick }) => {
   const [formData, setFormData] = useState({
     username: '',
-    password: ''
+    password: '',
   });
   const [formError, setFormError] = useState(null);
   const { login, loading } = useAuth();
@@ -18,7 +24,7 @@ const LoginForm = ({ onSuccess, onRegisterClick }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -45,9 +51,9 @@ const LoginForm = ({ onSuccess, onRegisterClick }) => {
   };
 
   return (
-    <Card className="w-full shadow-sm border">
-      <CardHeader className="py-3 px-4">
-        <CardTitle className="text-base font-medium flex items-center gap-2">
+    <Card className="w-full border shadow-sm">
+      <CardHeader className="px-4 py-3">
+        <CardTitle className="flex items-center gap-2 text-base font-medium">
           <LogIn className="h-4 w-4" />
           Login
         </CardTitle>
@@ -55,11 +61,11 @@ const LoginForm = ({ onSuccess, onRegisterClick }) => {
       <CardContent className="px-4 py-2">
         <form onSubmit={handleSubmit} className="space-y-3">
           {formError && (
-            <Alert variant="destructive" className="py-1 px-3 text-sm">
+            <Alert variant="destructive" className="px-3 py-1 text-sm">
               <AlertDescription>{formError}</AlertDescription>
             </Alert>
           )}
-          
+
           <div className="space-y-1">
             <label htmlFor="username" className="text-sm font-medium">
               Username
@@ -76,7 +82,7 @@ const LoginForm = ({ onSuccess, onRegisterClick }) => {
               className="h-9 text-sm"
             />
           </div>
-          
+
           <div className="space-y-1">
             <label htmlFor="password" className="text-sm font-medium">
               Password
@@ -93,10 +99,10 @@ const LoginForm = ({ onSuccess, onRegisterClick }) => {
               className="h-9 text-sm"
             />
           </div>
-          
-          <Button 
-            type="submit" 
-            className="w-full mt-2 h-9 text-sm" 
+
+          <Button
+            type="submit"
+            className="mt-2 h-9 w-full text-sm"
             disabled={loading}
           >
             {loading ? (
@@ -110,12 +116,12 @@ const LoginForm = ({ onSuccess, onRegisterClick }) => {
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="pt-0 pb-3 px-4">
-        <div className="text-sm text-center w-full">
+      <CardFooter className="px-4 pb-3 pt-0">
+        <div className="w-full text-center text-sm">
           Don't have an account?{' '}
-          <Button 
-            variant="link" 
-            className="p-0 h-auto text-sm" 
+          <Button
+            variant="link"
+            className="h-auto p-0 text-sm"
             onClick={onRegisterClick}
             disabled={loading}
           >
@@ -127,4 +133,4 @@ const LoginForm = ({ onSuccess, onRegisterClick }) => {
   );
 };
 
-export default LoginForm; 
+export default LoginForm;

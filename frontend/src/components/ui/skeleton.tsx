@@ -1,4 +1,4 @@
-import { cn } from "../../lib/utils";
+import { cn } from '../../lib/utils';
 
 /**
  * Skeleton component for loading states
@@ -6,10 +6,10 @@ import { cn } from "../../lib/utils";
 const Skeleton = ({ className, ...props }) => {
   return (
     <div
-      className={cn("animate-pulse rounded-md bg-muted", className)}
+      className={cn('animate-pulse rounded-md bg-muted', className)}
       {...props}
     />
   );
 };
 
-export { Skeleton }; 
+export { Skeleton };

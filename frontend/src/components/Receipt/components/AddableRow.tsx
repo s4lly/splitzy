@@ -1,6 +1,6 @@
 import React from 'react';
-import { Plus } from "lucide-react";
-import { Button } from "../../ui/button";
+import { Plus } from 'lucide-react';
+import { Button } from '../../ui/button';
 
 interface AddableRowProps {
   label: string;
@@ -14,7 +14,9 @@ const AddableRow: React.FC<AddableRowProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`flex gap-2 justify-between items-center border rounded-sm p-2 py-1 -ml-2 -mr-2 px-2 ${className}`}>
+    <div
+      className={`-ml-2 -mr-2 flex items-center justify-between gap-2 rounded-sm border p-2 px-2 py-1 ${className}`}
+    >
       <span className="text-base">{label}:</span>
       <Button
         onClick={onClick}

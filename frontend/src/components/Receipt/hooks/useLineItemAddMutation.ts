@@ -1,7 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import receiptService from "@/services/receiptService";
-import { LineItemSchema, ReceiptResponseSchema } from "@/lib/receiptSchemas";
-import { z } from "zod";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import receiptService from '@/services/receiptService';
+import { LineItemSchema, ReceiptResponseSchema } from '@/lib/receiptSchemas';
+import { z } from 'zod';
 
 export function useLineItemAddMutation() {
   const queryClient = useQueryClient();
@@ -23,16 +23,16 @@ export function useLineItemAddMutation() {
       receiptId: string;
       lineItemData: Partial<z.infer<typeof LineItemSchema>>;
     }) => {
-      queryClient.cancelQueries({ queryKey: ["receipt", receiptId] });
+      queryClient.cancelQueries({ queryKey: ['receipt', receiptId] });
 
-      const previousData = queryClient.getQueryData(["receipt", receiptId]);
+      const previousData = queryClient.getQueryData(['receipt', receiptId]);
 
       try {
         queryClient.setQueryData(
-          ["receipt", receiptId],
+          ['receipt', receiptId],
           (old: z.infer<typeof ReceiptResponseSchema>) => {
             if (!old) return old;
-            
+
             // Create a completely new object to ensure TanStack Query detects the change
             const newData = {
               ...old,
@@ -50,15 +50,15 @@ export function useLineItemAddMutation() {
                       assignments: [],
                     },
                     ...old.receipt.receipt_data.line_items,
-                  ]
-                }
-              }
+                  ],
+                },
+              },
             };
             return newData;
           }
         );
       } catch (error) {
-        console.error("Error adding line item:", error);
+        console.error('Error adding line item:', error);
       }
 
       return { previousData };
@@ -66,17 +66,17 @@ export function useLineItemAddMutation() {
     onError: (error, variables, context) => {
       // Restore the previous data on error
       queryClient.setQueryData(
-        ["receipt", variables.receiptId],
+        ['receipt', variables.receiptId],
         context?.previousData
       );
     },
     onSuccess: (data, variables, context) => {
       // Update the cache with the actual response data
       queryClient.setQueryData(
-        ["receipt", variables.receiptId],
+        ['receipt', variables.receiptId],
         (old: z.infer<typeof ReceiptResponseSchema>) => {
           if (!old) return old;
-          
+
           // Create a completely new object to ensure TanStack Query detects the change
           const newData = {
             ...old,
@@ -89,9 +89,9 @@ export function useLineItemAddMutation() {
                   ...old.receipt.receipt_data.line_items.filter(
                     (item) => !item.id.startsWith('temp-') // Remove temporary items
                   ),
-                ]
-              }
-            }
+                ],
+              },
+            },
           };
           return newData;
         }
@@ -100,8 +100,8 @@ export function useLineItemAddMutation() {
     onSettled: (data, error, variables, context) => {
       // Invalidate and refetch to ensure data consistency
       queryClient.invalidateQueries({
-        queryKey: ["receipt", variables.receiptId],
+        queryKey: ['receipt', variables.receiptId],
       });
     },
   });
-} 
+}

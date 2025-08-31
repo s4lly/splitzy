@@ -7,15 +7,23 @@ import receiptService from '../services/receiptService';
 import AuthenticatedOnly from '@/components/Auth/AuthenticatedOnly';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../components/ui/card';
 
-const ReceiptHistory = React.lazy(() => import('../components/Receipt/ReceiptHistory'));
+const ReceiptHistory = React.lazy(
+  () => import('../components/Receipt/ReceiptHistory')
+);
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [apiStatus, setApiStatus] = useState('checking');
-  
+
   // Check API health
   React.useEffect(() => {
     const checkApiHealth = async () => {
@@ -26,13 +34,18 @@ const HomePage = () => {
         setApiStatus('unhealthy');
       }
     };
-    
+
     checkApiHealth();
   }, []);
-  
+
   const handleAnalysisComplete = (result: any) => {
     // Navigate to the analysis page for the newly created receipt
-    if (result && result.success && result.receipt_data && result.receipt_data.id) {
+    if (
+      result &&
+      result.success &&
+      result.receipt_data &&
+      result.receipt_data.id
+    ) {
       navigate(`/receipt/${result.receipt_data.id}`);
     } else {
       console.error('Invalid receipt data received:', result);
@@ -42,20 +55,20 @@ const HomePage = () => {
   const handleSignInClick = () => {
     navigate('/auth');
   };
-  
+
   return (
-    <div className="px-1 sm:container py-8">
+    <div className="px-1 py-8 sm:container">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-3xl font-bold mb-8 text-center"
+        className="mb-8 text-center text-3xl font-bold"
       >
         Document Analysis Tool
       </motion.h1>
-      
+
       {/* Keep lg:grid-cols-2 for both states to maintain balanced layout with sign-in prompt */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -63,21 +76,23 @@ const HomePage = () => {
           className="space-y-8"
         >
           <ModernReceiptUploader onAnalysisComplete={handleAnalysisComplete} />
-          
+
           {apiStatus === 'unhealthy' && (
-            <div className="p-6 border-2 border-destructive/50 bg-destructive/10 rounded-lg flex items-center gap-3 text-base">
-              <AlertCircle className="h-6 w-6 text-destructive flex-shrink-0" />
-              <p className="text-destructive">API is currently unavailable. Please try again later.</p>
+            <div className="flex items-center gap-3 rounded-lg border-2 border-destructive/50 bg-destructive/10 p-6 text-base">
+              <AlertCircle className="h-6 w-6 flex-shrink-0 text-destructive" />
+              <p className="text-destructive">
+                API is currently unavailable. Please try again later.
+              </p>
             </div>
           )}
         </motion.div>
-        
+
         <Suspense fallback={null}>
           <AuthenticatedOnly>
             <ReceiptHistory />
           </AuthenticatedOnly>
         </Suspense>
-        
+
         {!isAuthenticated && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -90,9 +105,12 @@ const HomePage = () => {
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                   <LogIn className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="text-xl">Sign in to view history</CardTitle>
+                <CardTitle className="text-xl">
+                  Sign in to view history
+                </CardTitle>
                 <CardDescription>
-                  Create an account or sign in to see your receipt analysis history and manage your documents.
+                  Create an account or sign in to see your receipt analysis
+                  history and manage your documents.
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
@@ -109,4 +127,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage; 
+export default HomePage;

@@ -18,11 +18,11 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-58px)]">
+    <div className="flex h-[calc(100vh-58px)] flex-col">
       <div className="flex-1"></div>
-      <div className="w-full max-w-md mx-auto mb-10">
-        <div className="text-center mb-4">
-          <div className="flex items-center justify-center gap-2 mb-1">
+      <div className="mx-auto mb-10 w-full max-w-md">
+        <div className="mb-4 text-center">
+          <div className="mb-1 flex items-center justify-center gap-2">
             <Receipt className="h-6 w-6" />
             <h1 className="text-xl font-bold">Splitzy</h1>
           </div>
@@ -38,9 +38,9 @@ const AuthPage = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <LoginForm 
-                onSuccess={handleAuthSuccess} 
-                onRegisterClick={toggleAuthMode} 
+              <LoginForm
+                onSuccess={handleAuthSuccess}
+                onRegisterClick={toggleAuthMode}
               />
             </motion.div>
           ) : (
@@ -51,9 +51,9 @@ const AuthPage = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <RegisterForm 
-                onSuccess={handleAuthSuccess} 
-                onLoginClick={toggleAuthMode} 
+              <RegisterForm
+                onSuccess={handleAuthSuccess}
+                onLoginClick={toggleAuthMode}
               />
             </motion.div>
           )}
@@ -64,4 +64,4 @@ const AuthPage = () => {
   );
 };
 
-export default AuthPage; 
+export default AuthPage;

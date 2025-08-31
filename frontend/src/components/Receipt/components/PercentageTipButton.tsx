@@ -1,4 +1,4 @@
-import { truncateFloatByNDecimals } from "../utils/format-currency";
+import { truncateFloatByNDecimals } from '../utils/format-currency';
 
 interface PercentageTipButtonProps {
   percentage: number;
@@ -21,7 +21,7 @@ const PercentageTipButton = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
+    if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       onTipSelect(tipAmount);
     }
@@ -29,18 +29,18 @@ const PercentageTipButton = ({
 
   return (
     <div
-      className="border rounded-sm p-2 flex flex-col justify-center items-center cursor-pointer hover:bg-muted focus:bg-muted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
+      className="flex cursor-pointer flex-col items-center justify-center rounded-sm border p-2 transition-colors hover:bg-muted focus:bg-muted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
       tabIndex={0}
       role="button"
       aria-label={`Set tip to ${percentage}%`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
-      <div className="font-semibold text-xl">{percentage}%</div>
-      <div className="text-muted-foreground text-sm">
-        {new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
+      <div className="text-xl font-semibold">{percentage}%</div>
+      <div className="text-sm text-muted-foreground">
+        {new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
         }).format(tipAmount)}
       </div>
     </div>

@@ -1,9 +1,9 @@
-import { formatCurrency } from "./utils/format-currency";
-import PersonAssignmentSection from "./PersonAssignmentSection";
-import { getIndividualItemTotalPrice } from "./utils/receipt-calculation";
-import { motion } from "framer-motion";
-import { LineItemSchema } from "@/lib/receiptSchemas";
-import { z } from "zod";
+import { formatCurrency } from './utils/format-currency';
+import PersonAssignmentSection from './PersonAssignmentSection';
+import { getIndividualItemTotalPrice } from './utils/receipt-calculation';
+import { motion } from 'framer-motion';
+import { LineItemSchema } from '@/lib/receiptSchemas';
+import { z } from 'zod';
 
 export default function LineItemsTableDesktop({
   line_items,
@@ -14,7 +14,7 @@ export default function LineItemsTableDesktop({
 }) {
   return (
     <>
-      <div className="hidden md:grid md:grid-cols-12 border-b-2 border-border pb-3 gap-3 text-base font-medium">
+      <div className="hidden gap-3 border-b-2 border-border pb-3 text-base font-medium md:grid md:grid-cols-12">
         <div className="col-span-5">Item</div>
         <div className="col-span-1 text-right">Qty</div>
         <div className="col-span-2 text-right">Price</div>
@@ -28,23 +28,23 @@ export default function LineItemsTableDesktop({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.05 }}
-          className={`md:grid md:grid-cols-12 md:gap-3 text-base md:py-3 md:border-b md:last:border-0 md:items-center`}
+          className={`text-base md:grid md:grid-cols-12 md:items-center md:gap-3 md:border-b md:py-3 md:last:border-0`}
         >
-          <div className="hidden md:block col-span-5 truncate">
+          <div className="col-span-5 hidden truncate md:block">
             <span className="text-base font-medium">{item.name}</span>
           </div>
-          <div className="hidden md:block col-span-1 text-right">
+          <div className="col-span-1 hidden text-right md:block">
             <span className="text-base font-medium">{item.quantity}</span>
           </div>
-          <div className="hidden md:block col-span-2 text-right">
+          <div className="col-span-2 hidden text-right md:block">
             <span className="text-base font-medium">
               {formatCurrency(item.price_per_item)}
             </span>
           </div>
-          <div className="hidden md:block col-span-2 text-right font-medium">
+          <div className="col-span-2 hidden text-right font-medium md:block">
             {formatCurrency(getIndividualItemTotalPrice(item))}
           </div>
-          <div className="hidden md:flex col-span-2 justify-center">
+          <div className="col-span-2 hidden justify-center md:flex">
             <PersonAssignmentSection
               item={item}
               people={people}

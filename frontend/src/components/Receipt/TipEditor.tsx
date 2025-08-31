@@ -1,13 +1,13 @@
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { formatCurrency } from "./utils/format-currency";
-import { useState, useEffect } from "react";
-import { useReceiptDataUpdateMutation } from "./hooks/useReceiptDataUpdateMutation";
-import PercentageTipButton from "./components/PercentageTipButton";
-import ActionButtons from "./ActionButtons";
-import ClickableRow from "./components/ClickableRow";
-import AddableRow from "./components/AddableRow";
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { formatCurrency } from './utils/format-currency';
+import { useState, useEffect } from 'react';
+import { useReceiptDataUpdateMutation } from './hooks/useReceiptDataUpdateMutation';
+import PercentageTipButton from './components/PercentageTipButton';
+import ActionButtons from './ActionButtons';
+import ClickableRow from './components/ClickableRow';
+import AddableRow from './components/AddableRow';
 
 interface TipEditorProps {
   receiptId: string;
@@ -15,11 +15,7 @@ interface TipEditorProps {
   itemsTotal: number;
 }
 
-const TipEditor = ({
-  receiptId,
-  receiptTip,
-  itemsTotal,
-}: TipEditorProps) => {
+const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
   const [tip, setTip] = useState(receiptTip ?? 0);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +37,7 @@ const TipEditor = ({
   const handleSaveTip = () => {
     const currentCents = Math.round((receiptTip ?? 0) * 100);
     const nextCents = Math.round(Math.max(0, tip) * 100);
-  
+
     if (nextCents !== currentCents) {
       setError(null);
       mutate(
@@ -55,9 +51,10 @@ const TipEditor = ({
             setError(null);
           },
           onError: (error) => {
-            const errorMessage = error?.message || 'Failed to save tip. Please try again.';
+            const errorMessage =
+              error?.message || 'Failed to save tip. Please try again.';
             setError(errorMessage);
-          }
+          },
         }
       );
     } else {
@@ -67,22 +64,22 @@ const TipEditor = ({
 
   const handleTipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
-    
+
     // Treat empty or "." as 0
     if (rawValue === '' || rawValue === '.') {
       setTip(0);
       return;
     }
-    
+
     // Parse with parseFloat, fallback to 0 on NaN
     const parsedValue = parseFloat(rawValue) || 0;
-    
+
     // Clamp to non-negative value
     const clampedValue = Math.max(0, parsedValue);
-    
+
     // Round to two decimals
     const roundedValue = roundToTwoDecimals(clampedValue);
-    
+
     setTip(roundedValue);
   };
 
@@ -99,9 +96,10 @@ const TipEditor = ({
           setError(null);
         },
         onError: (error) => {
-          const errorMessage = error?.message || 'Failed to delete tip. Please try again.';
+          const errorMessage =
+            error?.message || 'Failed to delete tip. Please try again.';
           setError(errorMessage);
-        }
+        },
       }
     );
   };
@@ -122,28 +120,23 @@ const TipEditor = ({
   };
 
   if (isValueEmpty && !isEditing) {
-    return (
-      <AddableRow
-        label="Tip"
-        onClick={handleEditTip}
-      />
-    );
+    return <AddableRow label="Tip" onClick={handleEditTip} />;
   }
 
   return (
-    <div className="border rounded-sm -ml-2 -mr-2 ">
+    <div className="-ml-2 -mr-2 rounded-sm border">
       {isEditing ? (
         <form
-          className="flex flex-col gap-3 py-1 bg-background"
+          className="flex flex-col gap-3 bg-background py-1"
           onSubmit={(e) => e.preventDefault()} // No submit action
         >
-          <div className="flex flex-col gap-4 py-1 px-2">
+          <div className="flex flex-col gap-4 px-2 py-1">
             {error && (
-              <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 flex items-center gap-2">
-                <div className="text-destructive text-sm">{error}</div>
+              <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
+                <div className="text-sm text-destructive">{error}</div>
               </div>
             )}
-            
+
             <Tabs defaultValue="exact" className="">
               <div className="flex items-center justify-between">
                 <Label htmlFor="tip" className="text-sm font-medium">
@@ -152,14 +145,12 @@ const TipEditor = ({
 
                 <TabsList>
                   <TabsTrigger value="exact">Exact</TabsTrigger>
-                  <TabsTrigger value="percentage">
-                    Percentage
-                  </TabsTrigger>
+                  <TabsTrigger value="percentage">Percentage</TabsTrigger>
                 </TabsList>
               </div>
               <TabsContent value="exact" className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground text-lg pr-1 select-none">
+                  <span className="select-none pr-1 text-lg text-muted-foreground">
                     $
                   </span>
                   <Input
@@ -175,11 +166,11 @@ const TipEditor = ({
                     disabled={isPending}
                   />
                 </div>
-                <div className="text-muted-foreground text-sm flex justify-center">
-                  percentage of total{" "}
+                <div className="flex justify-center text-sm text-muted-foreground">
+                  percentage of total{' '}
                   {itemsTotal > 0
                     ? `${roundToTwoDecimals((tip / itemsTotal) * 100)}%`
-                    : "—"}
+                    : '—'}
                 </div>
               </TabsContent>
               <TabsContent value="percentage">

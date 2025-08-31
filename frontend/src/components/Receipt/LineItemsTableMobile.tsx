@@ -1,15 +1,15 @@
-import { getIndividualItemTotalPrice } from "./utils/receipt-calculation";
-import PersonAssignmentSection from "./PersonAssignmentSection";
-import LineItemEditForm from "./LineItemEditForm";
-import MobileAssignmentList from "./MobileAssignmentList";
-import { formatCurrency } from "./utils/format-currency";
-import { LineItemSchema, ReceiptSchema } from "@/lib/receiptSchemas";
-import { z } from "zod";
-import { motion } from "framer-motion";
-import { useState } from "react";
-import clsx from "clsx";
-import { Separator } from "../ui/separator";
-import LineItemCard from "./components/LineItemCard";
+import { getIndividualItemTotalPrice } from './utils/receipt-calculation';
+import PersonAssignmentSection from './PersonAssignmentSection';
+import LineItemEditForm from './LineItemEditForm';
+import MobileAssignmentList from './MobileAssignmentList';
+import { formatCurrency } from './utils/format-currency';
+import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
+import { z } from 'zod';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+import clsx from 'clsx';
+import { Separator } from '../ui/separator';
+import LineItemCard from './components/LineItemCard';
 
 export default function ReceiptLineItemsTableMobile({
   line_items,
@@ -75,7 +75,7 @@ export default function ReceiptLineItemsTableMobile({
                 onClick={(e) => handleEditOpen(e, item.id)}
                 onKeyDown={(e) => {
                   if (
-                    (e.key === "Enter" || e.key === " ") &&
+                    (e.key === 'Enter' || e.key === ' ') &&
                     editItemId !== item.id
                   ) {
                     setEditItemId(item.id);
@@ -83,7 +83,7 @@ export default function ReceiptLineItemsTableMobile({
                   }
                 }}
               >
-                <div className="p-2 bg-muted/10 border-b border-border/40 flex justify-between items-center gap-2">
+                <div className="flex items-center justify-between gap-2 border-b border-border/40 bg-muted/10 p-2">
                   <span className="text-base font-medium">{item.name}</span>
                   <div className="text-right font-semibold">
                     {formatCurrency(
@@ -93,16 +93,16 @@ export default function ReceiptLineItemsTableMobile({
                     )}
                   </div>
                 </div>
-                <div className="p-2 flex flex-col gap-2">
-                  <div className="flex gap-2 items-baseline text-sm">
+                <div className="flex flex-col gap-2 p-2">
+                  <div className="flex items-baseline gap-2 text-sm">
                     <span className="text-muted-foreground">Quantity:</span>
-                    <span className="text-base font-medium text-right flex-1">
+                    <span className="flex-1 text-right text-base font-medium">
                       {item.quantity}
                     </span>
                   </div>
-                  <div className="flex gap-2 items-baseline text-sm">
+                  <div className="flex items-baseline gap-2 text-sm">
                     <span className="text-muted-foreground">Unit Price:</span>
-                    <span className="text-base font-medium text-right flex-1">
+                    <span className="flex-1 text-right text-base font-medium">
                       {formatCurrency(item.price_per_item)}
                     </span>
                   </div>

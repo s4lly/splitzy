@@ -1,23 +1,23 @@
-import { useContext, useState } from "react";
-import { ChevronRight, ArrowLeft, TriangleAlert } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { useMobile } from "@/hooks/use-mobile";
+import { useContext, useState } from 'react';
+import { ChevronRight, ArrowLeft, TriangleAlert } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { useMobile } from '@/hooks/use-mobile';
 import {
   useFeatureFlag,
   useFeatureFlagDispatch,
   FeatureFlagStateContext,
-} from "@/context/FeatureFlagProvider";
+} from '@/context/FeatureFlagProvider';
 
 export default function SettingsPage() {
-  const [selectedCategory, setSelectedCategory] = useState("feature-flags");
+  const [selectedCategory, setSelectedCategory] = useState('feature-flags');
   const [showDetails, setShowDetails] = useState(false);
   const isMobile = useMobile();
 
   const categories = [
-    { id: "feature-flags", name: "Feature Flags" },
+    { id: 'feature-flags', name: 'Feature Flags' },
     // { id: "account", name: "Account" },
     // { id: "notifications", name: "Notifications" },
     // { id: "privacy", name: "Privacy & Security" },
@@ -37,13 +37,13 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 px-4 md:px-6">
-      <h1 className="text-2xl font-bold mb-6">Settings</h1>
+    <div className="container mx-auto px-4 py-6 md:px-6">
+      <h1 className="mb-6 text-2xl font-bold">Settings</h1>
 
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col gap-6 md:flex-row">
         {/* Categories List - Hidden on mobile when details are shown */}
         {(!isMobile || !showDetails) && (
-          <div className="md:w-1/4 w-full">
+          <div className="w-full md:w-1/4">
             <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
               <div className="p-2">
                 <nav className="grid gap-1">
@@ -51,9 +51,9 @@ export default function SettingsPage() {
                     <Button
                       key={category.id}
                       variant={
-                        selectedCategory === category.id ? "secondary" : "ghost"
+                        selectedCategory === category.id ? 'secondary' : 'ghost'
                       }
-                      className="justify-start h-auto py-3 px-4 w-full"
+                      className="h-auto w-full justify-start px-4 py-3"
                       onClick={() => handleCategoryClick(category.id)}
                     >
                       <span className="flex-1 text-left">{category.name}</span>
@@ -68,17 +68,17 @@ export default function SettingsPage() {
 
         {/* Settings Details - Full width on mobile, shown conditionally */}
         {(!isMobile || showDetails) && (
-          <div className="md:w-3/4 w-full">
+          <div className="w-full md:w-3/4">
             <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
               {isMobile && showDetails && (
-                <div className="p-4 border-b">
+                <div className="border-b p-4">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleBackClick}
                     className="mb-2"
                   >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Settings
                   </Button>
                 </div>
@@ -100,17 +100,17 @@ interface SettingsContentProps {
 
 function SettingsContent({ categoryId }: SettingsContentProps) {
   switch (categoryId) {
-    case "feature-flags":
+    case 'feature-flags':
       return <FeatureFlagsSettings />;
-    case "account":
+    case 'account':
       return <AccountSettings />;
-    case "notifications":
+    case 'notifications':
       return <NotificationSettings />;
-    case "privacy":
+    case 'privacy':
       return <PrivacySettings />;
-    case "appearance":
+    case 'appearance':
       return <AppearanceSettings />;
-    case "billing":
+    case 'billing':
       return <BillingSettings />;
     default:
       return <div>Select a category</div>;
@@ -120,7 +120,7 @@ function SettingsContent({ categoryId }: SettingsContentProps) {
 function FeatureFlagsSettings() {
   const dispatch = useFeatureFlagDispatch();
 
-  const receiptDesktopTable = useFeatureFlag("receipt-desktop-table");
+  const receiptDesktopTable = useFeatureFlag('receipt-desktop-table');
   const { isOverridden } = useContext(FeatureFlagStateContext);
 
   return (
@@ -139,7 +139,7 @@ function FeatureFlagsSettings() {
               size="sm"
               onClick={() => {
                 dispatch({
-                  type: "CLEAR_FLAGS",
+                  type: 'CLEAR_FLAGS',
                 });
               }}
             >
@@ -163,10 +163,10 @@ function FeatureFlagsSettings() {
             checked={receiptDesktopTable}
             onCheckedChange={() => {
               dispatch({
-                type: "SET_FLAG",
-                name: "receipt-desktop-table",
+                type: 'SET_FLAG',
+                name: 'receipt-desktop-table',
                 value: {
-                  location: "local",
+                  location: 'local',
                   value: !receiptDesktopTable,
                 },
               });

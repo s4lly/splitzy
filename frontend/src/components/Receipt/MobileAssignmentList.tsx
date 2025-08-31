@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { X } from "lucide-react";
+import React, { useState } from 'react';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { X } from 'lucide-react';
 import {
   filterPeople,
   getPersonPreTaxTotalForItem,
-} from "./utils/receipt-calculation";
-import { formatCurrency } from "./utils/format-currency";
-import { LineItemSchema } from "@/lib/receiptSchemas";
-import { z } from "zod";
+} from './utils/receipt-calculation';
+import { formatCurrency } from './utils/format-currency';
+import { LineItemSchema } from '@/lib/receiptSchemas';
+import { z } from 'zod';
 
 interface MobileAssignmentListProps {
   possiblePeople: string[];
@@ -29,7 +29,7 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
   formQuantity,
   onAssignmentCancel,
 }) => {
-  const [newPerson, setNewPerson] = useState("");
+  const [newPerson, setNewPerson] = useState('');
   const newPersonSanitized = newPerson.trim();
 
   const filteredPeople = filterPeople(
@@ -40,19 +40,19 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
 
   const handleAdd = (person: string) => {
     onAddAssignment(person);
-    setNewPerson("");
+    setNewPerson('');
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && newPersonSanitized) {
+    if (e.key === 'Enter' && newPersonSanitized) {
       handleAdd(newPersonSanitized);
     }
   };
 
   return (
-    <div className="flex flex-col gap-4 p-3 bg-background rounded-md shadow-sm">
+    <div className="flex flex-col gap-4 rounded-md bg-background p-3 shadow-sm">
       <div className="flex flex-col gap-2">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <div className="font-semibold">Assigned</div>
           <Button size="icon" variant="outline" onClick={onAssignmentCancel}>
             <X className="size-4" />
@@ -60,7 +60,7 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
         </div>
 
         {item.assignments.length === 0 ? (
-          <div className="text-muted-foreground text-sm">
+          <div className="text-sm text-muted-foreground">
             No one assigned yet.
           </div>
         ) : (
@@ -68,7 +68,7 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
             {item.assignments.map((person) => (
               <li
                 key={person}
-                className="flex items-center justify-between bg-muted/30 rounded px-3 py-2"
+                className="flex items-center justify-between rounded bg-muted/30 px-3 py-2"
               >
                 <div className="flex items-center">
                   <span>{person}</span>
@@ -100,8 +100,8 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
         )}
       </div>
       <div>
-        <div className="font-semibold mb-2">Assign New</div>
-        <div className="flex gap-2 items-center px-3 mb-2">
+        <div className="mb-2 font-semibold">Assign New</div>
+        <div className="mb-2 flex items-center gap-2 px-3">
           <Input
             type="text"
             value={newPerson}
@@ -119,7 +119,7 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
             Add
           </Button>
         </div>
-        <ul className="flex flex-col gap-2 max-h-40 overflow-y-auto">
+        <ul className="flex max-h-40 flex-col gap-2 overflow-y-auto">
           {filteredPeople.length > 0 && (
             <div className="mb-2">
               <Button
@@ -139,11 +139,11 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
           {filteredPeople.length === 0 ? (
             <div className="px-3">
               {newPersonSanitized ? (
-                <li className="text-muted-foreground text-sm">
+                <li className="text-sm text-muted-foreground">
                   No matching people. Press Enter to add.
                 </li>
               ) : (
-                <li className="text-muted-foreground text-sm">
+                <li className="text-sm text-muted-foreground">
                   All people assigned.
                 </li>
               )}
@@ -152,7 +152,7 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
             filteredPeople.map((person) => (
               <li
                 key={person}
-                className="flex items-center justify-between bg-muted/10 rounded px-3 py-2"
+                className="flex items-center justify-between rounded bg-muted/10 px-3 py-2"
               >
                 <span>{person}</span>
                 <Button

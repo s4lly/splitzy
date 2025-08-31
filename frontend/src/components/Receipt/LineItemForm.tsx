@@ -1,14 +1,14 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Minus, Plus, Trash, X } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Minus, Plus, Trash, X } from 'lucide-react';
 import {
   formatCurrency,
   truncateToTwoDecimals,
-} from "@/components/Receipt/utils/format-currency";
-import { LineItemSchema, ReceiptSchema } from "@/lib/receiptSchemas";
-import { z } from "zod";
-import { useState } from "react";
+} from '@/components/Receipt/utils/format-currency';
+import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
+import { z } from 'zod';
+import { useState } from 'react';
 
 export default function LineItemForm({
   item,
@@ -69,7 +69,7 @@ export default function LineItemForm({
         });
       }
     } else {
-      setFormPricePerItem("0.00");
+      setFormPricePerItem('0.00');
       if (originalTruncated !== 0) {
         mutate({
           receiptId: String(result?.id),
@@ -82,7 +82,7 @@ export default function LineItemForm({
 
   // Persist price per item when Enter is pressed
   const handlePriceKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       // Prevent form submission
       e.preventDefault();
       handlePriceBlur();
@@ -92,7 +92,7 @@ export default function LineItemForm({
   return (
     <div>
       <form
-        className="p-3 flex flex-col gap-3 bg-background"
+        className="flex flex-col gap-3 bg-background p-3"
         onSubmit={(e) => e.preventDefault()} // No submit action
       >
         <div className="flex flex-col gap-2">
@@ -122,10 +122,10 @@ export default function LineItemForm({
                   return newQ;
                 });
               }}
-              className="rounded-full shrink-0"
+              className="shrink-0 rounded-full"
               tabIndex={-1}
             >
-              <Minus className="w-4 h-4" />
+              <Minus className="h-4 w-4" />
             </Button>
             <Input
               type="number"
@@ -151,10 +151,10 @@ export default function LineItemForm({
                   return newQ;
                 });
               }}
-              className="rounded-full shrink-0"
+              className="shrink-0 rounded-full"
               tabIndex={-1}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -162,7 +162,7 @@ export default function LineItemForm({
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Unit Price</label>
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-lg pl-2 pr-1 select-none">
+            <span className="select-none pl-2 pr-1 text-lg text-muted-foreground">
               $
             </span>
             <Input
@@ -182,8 +182,8 @@ export default function LineItemForm({
 
         <Separator />
 
-        <div className="flex flex-col gap-2 mt-2">
-          <div className="flex justify-between items-center text-base font-medium">
+        <div className="mt-2 flex flex-col gap-2">
+          <div className="flex items-center justify-between text-base font-medium">
             <span>Total</span>
             <span>{formatCurrency(formTotal)}</span>
           </div>
