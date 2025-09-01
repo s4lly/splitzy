@@ -3,23 +3,28 @@ import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 
 interface ActionButtonsProps {
-  isValueEmpty: boolean;
+  shouldShowDeleteButton?: boolean;
   onDelete: () => void;
-  onCancel: () => void;
+  onCancel?: () => void;
   onSave: () => void;
   isPending?: boolean;
 }
 
 const ActionButtons = ({
-  isValueEmpty,
+  shouldShowDeleteButton = false,
   onDelete,
   onCancel,
   onSave,
   isPending = false,
 }: ActionButtonsProps) => {
   return (
-    <div className={cn('flex justify-between', isValueEmpty && 'justify-end')}>
-      {!isValueEmpty && (
+    <div
+      className={cn(
+        'flex justify-between',
+        shouldShowDeleteButton && 'justify-end'
+      )}
+    >
+      {!shouldShowDeleteButton && (
         <Button
           variant="outline"
           size="icon"
@@ -31,9 +36,11 @@ const ActionButtons = ({
         </Button>
       )}
       <div className="flex gap-2">
-        <Button onClick={onCancel} variant="outline" disabled={isPending}>
-          Cancel
-        </Button>
+        {onCancel && (
+          <Button onClick={onCancel} variant="outline" disabled={isPending}>
+            Cancel
+          </Button>
+        )}
         <Button onClick={onSave} variant="outline" disabled={isPending}>
           Done
         </Button>

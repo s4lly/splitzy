@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { X } from 'lucide-react';
+import { ChevronDown, Plus, X } from 'lucide-react';
 import {
   filterPeople,
   getPersonPreTaxTotalForItem,
@@ -9,6 +9,12 @@ import {
 import { formatCurrency } from './utils/format-currency';
 import { LineItemSchema } from '@/lib/receiptSchemas';
 import { z } from 'zod';
+import { Toggle } from '../ui/toggle';
+import { Label } from '../ui/label';
+import ActionButtons from './ActionButtons';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
+import { useFeatureFlag } from '@/context/FeatureFlagProvider';
 
 interface MobileAssignmentListProps {
   possiblePeople: string[];
@@ -18,6 +24,7 @@ interface MobileAssignmentListProps {
   formPricePerItem: number;
   formQuantity: number;
   onAssignmentCancel: () => void;
+  receiptId: string;
 }
 
 const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
@@ -28,9 +35,12 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
   formPricePerItem,
   formQuantity,
   onAssignmentCancel,
+  receiptId,
 }) => {
+  const { mutate: deleteItem } = useLineItemDeleteMutation();
   const [newPerson, setNewPerson] = useState('');
   const newPersonSanitized = newPerson.trim();
+  const assignmentsAddAllEnabled = useFeatureFlag('assignments-add-all');
 
   const filteredPeople = filterPeople(
     possiblePeople,
@@ -50,15 +60,17 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-md bg-background p-3 shadow-sm">
+    <div className="flex flex-col gap-4 rounded-md bg-background p-2 shadow-sm">
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <div className="font-semibold">Assigned</div>
-          <Button size="icon" variant="outline" onClick={onAssignmentCancel}>
-            <X className="size-4" />
-          </Button>
+        {/* header */}
+        <div className="flex items-center justify-between border-b border-border/40 pb-2">
+          <div className="font-medium">Assigned to:</div>
+          <Toggle pressed onClick={onAssignmentCancel}>
+            <ChevronDown />
+          </Toggle>
         </div>
 
+        {/* assigned list */}
         {item.assignments.length === 0 ? (
           <div className="text-sm text-muted-foreground">
             No one assigned yet.
@@ -99,10 +111,15 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
           </ul>
         )}
       </div>
-      <div>
-        <div className="mb-2 font-semibold">Assign New</div>
-        <div className="mb-2 flex items-center gap-2 px-3">
+
+      {/* assign new */}
+      <div className="flex flex-col gap-1">
+        <Label htmlFor="new-item-assignment" className="font-semibold">
+          New:
+        </Label>
+        <div className="flex items-center gap-2">
           <Input
+            id="new-item-assignment"
             type="text"
             value={newPerson}
             onChange={(e) => setNewPerson(e.target.value)}
@@ -116,11 +133,14 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
             onClick={() => newPersonSanitized && handleAdd(newPersonSanitized)}
             disabled={!newPersonSanitized}
           >
-            Add
+            Create
           </Button>
         </div>
-        <ul className="flex max-h-40 flex-col gap-2 overflow-y-auto">
-          {filteredPeople.length > 0 && (
+      </div>
+      <ul className="flex max-h-40 flex-col gap-2 overflow-y-auto">
+        {assignmentsAddAllEnabled &&
+          filteredPeople.length > 0 &&
+          newPersonSanitized === '' && (
             <div className="mb-2">
               <Button
                 type="button"
@@ -136,39 +156,46 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
               </Button>
             </div>
           )}
-          {filteredPeople.length === 0 ? (
-            <div className="px-3">
-              {newPersonSanitized ? (
-                <li className="text-sm text-muted-foreground">
-                  No matching people. Press Enter to add.
-                </li>
-              ) : (
-                <li className="text-sm text-muted-foreground">
-                  All people assigned.
-                </li>
-              )}
-            </div>
-          ) : (
-            filteredPeople.map((person) => (
-              <li
-                key={person}
-                className="flex items-center justify-between rounded bg-muted/10 px-3 py-2"
-              >
-                <span>{person}</span>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => handleAdd(person)}
-                  className="ml-2"
-                >
-                  Add
-                </Button>
+        {filteredPeople.length === 0 ? (
+          <div className="text-center">
+            {newPersonSanitized ? (
+              <li className="text-sm text-muted-foreground">
+                No matching people. Press Enter to add.
               </li>
-            ))
-          )}
-        </ul>
-      </div>
+            ) : (
+              <li className="text-sm text-muted-foreground">
+                All people assigned.
+              </li>
+            )}
+          </div>
+        ) : (
+          filteredPeople.map((person) => (
+            <li
+              key={person}
+              className="flex items-center justify-between gap-2 rounded border-b bg-muted/10 pb-2 last-of-type:border-b-0"
+            >
+              <span>{person}</span>
+              <Button
+                variant="outline"
+                onClick={() => handleAdd(person)}
+                className="size-8 rounded-full"
+              >
+                <Plus />
+              </Button>
+            </li>
+          ))
+        )}
+      </ul>
+
+      <ActionButtons
+        onDelete={() =>
+          deleteItem({
+            receiptId: String(receiptId),
+            itemId: item.id,
+          })
+        }
+        onSave={onAssignmentCancel}
+      />
     </div>
   );
 };

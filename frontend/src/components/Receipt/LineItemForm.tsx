@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Minus, Plus, Trash, X } from 'lucide-react';
+import { Minus, Plus, Pencil, Trash, X, ChevronDown } from 'lucide-react';
 import {
   formatCurrency,
   truncateToTwoDecimals,
@@ -9,30 +9,38 @@ import {
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { z } from 'zod';
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import ActionButtons from './ActionButtons';
+import { Toggle } from '../ui/toggle';
 
 export default function LineItemForm({
   item,
   result,
   onNameChange,
   onQuantityChange,
+  handleDeleteItem,
   mutate,
+  onEditCancel,
 }: {
   item: z.infer<typeof LineItemSchema>;
   result: z.infer<typeof ReceiptSchema>;
   onNameChange: (name: string) => void;
   onQuantityChange: (quantity: number) => void;
+  handleDeleteItem: () => void;
   mutate: (
     data: Partial<z.infer<typeof LineItemSchema>> & {
       receiptId: string;
       itemId: string;
     }
   ) => void;
+  onEditCancel: () => void;
 }) {
   const [formName, setFormName] = useState(item.name);
   const [formQuantity, setFormQuantity] = useState<number>(item.quantity);
   const [formPricePerItem, setFormPricePerItem] = useState<string>(
     truncateToTwoDecimals(item.price_per_item)
   );
+  const [isNameFocused, setIsNameFocused] = useState(false);
 
   const formTotal = Number(formQuantity) * (parseFloat(formPricePerItem) || 0);
 
@@ -95,14 +103,59 @@ export default function LineItemForm({
         className="flex flex-col gap-3 bg-background p-3"
         onSubmit={(e) => e.preventDefault()} // No submit action
       >
-        <div className="flex flex-col gap-2">
-          <Input
-            value={formName}
-            onChange={handleNameChange}
-            placeholder="Item name"
-            required
-          />
+        <div className="flex items-center justify-between gap-2">
+          <motion.div
+            className="flex-1"
+            layout
+            transition={{
+              type: 'spring',
+              stiffness: 300,
+              damping: 30,
+              layout: {
+                type: 'spring',
+                stiffness: 300,
+                damping: 30,
+              },
+            }}
+          >
+            <Input
+              value={formName}
+              onChange={handleNameChange}
+              onFocus={() => setIsNameFocused(true)}
+              onBlur={() => setIsNameFocused(false)}
+              placeholder="Item name"
+              required
+            />
+          </motion.div>
+
+          {!isNameFocused && (
+            <motion.span
+              key="formTotal"
+              layout
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 30,
+                layout: {
+                  type: 'spring',
+                  stiffness: 300,
+                  damping: 30,
+                },
+              }}
+              className="whitespace-nowrap text-right font-semibold"
+            >
+              {formatCurrency(formTotal)}
+            </motion.span>
+          )}
+
+          <Toggle pressed onClick={onEditCancel}>
+            <ChevronDown />
+          </Toggle>
         </div>
+
+        <Separator />
 
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Quantity</label>
@@ -123,7 +176,6 @@ export default function LineItemForm({
                 });
               }}
               className="shrink-0 rounded-full"
-              tabIndex={-1}
             >
               <Minus className="h-4 w-4" />
             </Button>
@@ -152,7 +204,6 @@ export default function LineItemForm({
                 });
               }}
               className="shrink-0 rounded-full"
-              tabIndex={-1}
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -180,14 +231,11 @@ export default function LineItemForm({
           </div>
         </div>
 
-        <Separator />
-
-        <div className="mt-2 flex flex-col gap-2">
-          <div className="flex items-center justify-between text-base font-medium">
-            <span>Total</span>
-            <span>{formatCurrency(formTotal)}</span>
-          </div>
-        </div>
+        <ActionButtons
+          onDelete={handleDeleteItem}
+          onSave={onEditCancel}
+          isPending={false}
+        />
       </form>
     </div>
   );

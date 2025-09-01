@@ -20,7 +20,7 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isValueEmpty = receiptTip === 0;
+  const shouldShowDeleteButton = receiptTip === 0;
 
   useEffect(() => {
     setTip(receiptTip ?? 0);
@@ -119,7 +119,7 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
     return Math.round(num * 100) / 100;
   };
 
-  if (isValueEmpty && !isEditing) {
+  if (shouldShowDeleteButton && !isEditing) {
     return <AddableRow label="Tip" onClick={handleEditTip} />;
   }
 
@@ -195,7 +195,7 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
             </Tabs>
 
             <ActionButtons
-              isValueEmpty={isValueEmpty}
+              shouldShowDeleteButton={shouldShowDeleteButton}
               onDelete={handleDeleteTip}
               onCancel={handleCancelTip}
               onSave={handleSaveTip}
