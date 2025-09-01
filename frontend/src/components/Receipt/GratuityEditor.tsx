@@ -23,7 +23,7 @@ const GratuityEditor = ({
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isValueEmpty = receiptGratuity === 0;
+  const shouldShowDeleteButton = receiptGratuity === 0;
 
   useEffect(() => {
     setGratuity(receiptGratuity ?? 0);
@@ -114,7 +114,7 @@ const GratuityEditor = ({
     );
   };
 
-  if (isValueEmpty && !isEditing) {
+  if (shouldShowDeleteButton && !isEditing) {
     return <AddableRow label="Gratuity" onClick={handleEditGratuity} />;
   }
 
@@ -159,7 +159,7 @@ const GratuityEditor = ({
             </div>
 
             <ActionButtons
-              isValueEmpty={isValueEmpty}
+              shouldShowDeleteButton={shouldShowDeleteButton}
               onDelete={handleDeleteGratuity}
               onCancel={handleCancelGratuity}
               onSave={handleSaveGratuity}
