@@ -52,7 +52,8 @@ export default function LineItemForm({
 
   // Persist quantity change with debounce
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
+    const raw = Number(e.target.value);
+    const value = Number.isFinite(raw) ? Math.max(1, raw) : 1;
     setFormQuantity(value);
     onQuantityChange(value);
   };
