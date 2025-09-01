@@ -60,6 +60,7 @@ export default function LineItemsTableMobile({
 
         return (
           <LineItemCard
+            key={item.id}
             selected={editItemId === item.id || assignmentItemId === item.id}
           >
             {/* line item details */}
