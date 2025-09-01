@@ -45,7 +45,7 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
   const filteredPeople = filterPeople(
     possiblePeople,
     item.assignments,
-    newPerson
+    newPersonSanitized
   );
 
   const handleAdd = (person: string) => {
@@ -65,7 +65,11 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
         {/* header */}
         <div className="flex items-center justify-between border-b border-border/40 pb-2">
           <div className="font-medium">Assigned to:</div>
-          <Toggle pressed onClick={onAssignmentCancel}>
+          <Toggle
+            pressed
+            onClick={onAssignmentCancel}
+            aria-label="Close assignments"
+          >
             <ChevronDown />
           </Toggle>
         </div>
@@ -102,6 +106,8 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
                     size="icon"
                     variant="secondary"
                     onClick={() => onRemoveAssignment(person)}
+                    aria-label={`Remove ${person}`}
+                    title={`Remove ${person}`}
                   >
                     <X />
                   </Button>
@@ -179,6 +185,8 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
                 variant="outline"
                 onClick={() => handleAdd(person)}
                 className="size-8 rounded-full"
+                aria-label={`Assign ${person}`}
+                title={`Assign ${person}`}
               >
                 <Plus />
               </Button>
