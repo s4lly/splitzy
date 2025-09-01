@@ -23,7 +23,7 @@ const GratuityEditor = ({
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const shouldShowDeleteButton = receiptGratuity === 0;
+  const shouldShowDeleteButton = receiptGratuity !== 0;
 
   useEffect(() => {
     setGratuity(receiptGratuity ?? 0);

@@ -21,10 +21,10 @@ const ActionButtons = ({
     <div
       className={cn(
         'flex justify-between',
-        shouldShowDeleteButton && 'justify-end'
+        !shouldShowDeleteButton && 'justify-end'
       )}
     >
-      {!shouldShowDeleteButton && (
+      {shouldShowDeleteButton && (
         <Button
           variant="outline"
           size="icon"
