@@ -65,11 +65,17 @@ export default function LineItemEditForm({
 
   // Handle delete item
   const handleDeleteItem = () => {
-    deleteItem({
-      receiptId: String(result?.id),
-      itemId: item.id,
-    });
-    onEditCancel(); // Close the edit form after deletion
+    deleteItem(
+      {
+        receiptId: String(result?.id),
+        itemId: item.id,
+      },
+      {
+        onSuccess: () => {
+          onEditCancel(); // Close the edit form after deletion
+        },
+      }
+    );
   };
 
   return (
