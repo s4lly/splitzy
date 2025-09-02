@@ -1,6 +1,5 @@
 from backend.models import db
 from sqlalchemy import Numeric, text
-from backend.models.receipt_line_item import ReceiptLineItem
 
 
 class UserReceipt(db.Model):

@@ -4,6 +4,9 @@ from flask import Flask
 from dotenv import load_dotenv
 from flask_cors import CORS
 import datetime
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+import sqlite3
 
 def create_app():
     # Load environment variables from backend directory
@@ -63,6 +66,13 @@ def create_app():
     from backend.models import db
     from flask_migrate import Migrate
     db.init_app(app)
+
+    @event.listens_for(Engine, "connect")
+    def set_sqlite_pragma(dbapi_connection, connection_record):
+        if isinstance(dbapi_connection, sqlite3.Connection):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
     
     # Configure migrations directory
     migrations_dir = os.path.join(os.path.dirname(__file__), 'migrations')
