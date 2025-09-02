@@ -13,7 +13,7 @@ class UserReceipt(db.Model):
 
     # Denormalized fields extracted from receipt_data (RegularReceipt / TransportationTicket)
     is_receipt = db.Column(db.Boolean, nullable=True, default=True)
-    document_type = db.Column(db.String(50), nullable=True)
+    document_type = db.Column(db.Text, nullable=True)
 
     # Regular receipt fields
     merchant = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
@@ -23,7 +23,7 @@ class UserReceipt(db.Model):
     tip = db.Column(Numeric(12, 2), nullable=True, default=0)
     gratuity = db.Column(Numeric(12, 2), nullable=True, default=0)
     total = db.Column(Numeric(12, 2), nullable=True, default=0)
-    payment_method = db.Column(db.String(120), nullable=True)
+    payment_method = db.Column(db.Text, nullable=True)
     tax_included_in_items = db.Column(db.Boolean, nullable=True, default=False)
     display_subtotal = db.Column(Numeric(12, 2), nullable=True, default=0)
     items_total = db.Column(Numeric(12, 2), nullable=True, default=0)
@@ -37,9 +37,9 @@ class UserReceipt(db.Model):
     origin = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
     destination = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
     passenger = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
-    class_ = db.Column('class', db.String(50), nullable=True)
+    class_ = db.Column('class', db.Text, nullable=True)
     fare = db.Column(Numeric(12, 2), nullable=True, default=0)
-    currency = db.Column(db.String(10), nullable=True)
+    currency = db.Column(db.Text, nullable=True)
     taxes = db.Column(Numeric(12, 2), nullable=True, default=0)
 
     # Additional metadata field for flexible data storage
