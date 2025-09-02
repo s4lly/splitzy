@@ -1,5 +1,5 @@
 from backend.models import db
-from sqlalchemy import JSON, Numeric
+from sqlalchemy import JSON, Numeric, text
 import uuid
 
 
@@ -13,4 +13,4 @@ class ReceiptLineItem(db.Model):
     price_per_item = db.Column(Numeric(12, 2), nullable=False, default=0)
     total_price = db.Column(Numeric(12, 2), nullable=False, default=0)
     assignments = db.Column(JSON, nullable=True, default=lambda: [])  # JSON array of strings
-    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+    created_at = db.Column(db.DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))

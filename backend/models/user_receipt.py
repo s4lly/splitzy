@@ -1,6 +1,5 @@
 from backend.models import db
-from sqlalchemy import Numeric
-from sqlalchemy.sql import func
+from sqlalchemy import Numeric, text
 from backend.models.receipt_line_item import ReceiptLineItem
 
 
@@ -10,7 +9,7 @@ class UserReceipt(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     image_path = db.Column(db.String(255), nullable=True)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    created_at = db.Column(db.DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
 
     # Denormalized fields extracted from receipt_data (RegularReceipt / TransportationTicket)
     is_receipt = db.Column(db.Boolean, nullable=True, default=True)

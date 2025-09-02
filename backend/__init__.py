@@ -48,8 +48,15 @@ def create_app():
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
     # Configure database
-    db_path = BASE_DIR / 'users.db'
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+    database_url = os.environ.get('DATABASE_URL') or os.environ.get('NEON_DATABASE_URL')
+    if database_url:
+        # Use Neon/PostgreSQL
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    else:
+        # Fallback to SQLite for development
+        db_path = BASE_DIR / 'users.db'
+        app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+    
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialize extensions

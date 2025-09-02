@@ -1,5 +1,5 @@
 from backend.models import db
-from sqlalchemy.sql import func
+from sqlalchemy import text
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -8,7 +8,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    created_at = db.Column(db.DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
 
     def __repr__(self):
         return f'<User {self.username}>'
