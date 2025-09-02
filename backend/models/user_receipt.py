@@ -1,22 +1,23 @@
 from backend.models import db
 from sqlalchemy import Numeric, text
+from sqlalchemy.dialects.postgresql import JSONB
 
 
 class UserReceipt(db.Model):
     __tablename__ = 'user_receipts'
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    image_path = db.Column(db.String(255), nullable=True)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
+    id = db.Column(db.BigInteger, primary_key=True)  # Using BigInteger for better scalability
+    user_id = db.Column(db.BigInteger, db.ForeignKey('users.id'), nullable=True)
+    image_path = db.Column(db.Text, nullable=True)  # Using Text for unlimited length URLs
+    created_at = db.Column(db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
 
     # Denormalized fields extracted from receipt_data (RegularReceipt / TransportationTicket)
     is_receipt = db.Column(db.Boolean, nullable=True, default=True)
     document_type = db.Column(db.String(50), nullable=True)
 
     # Regular receipt fields
-    merchant = db.Column(db.String(255), nullable=True)
-    date = db.Column(db.String(50), nullable=True)
+    merchant = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
+    date = db.Column(db.Date, nullable=True)  # Using proper Date type
     subtotal = db.Column(Numeric(12, 2), nullable=True, default=0)
     tax = db.Column(Numeric(12, 2), nullable=True, default=0)
     tip = db.Column(Numeric(12, 2), nullable=True, default=0)
@@ -31,15 +32,18 @@ class UserReceipt(db.Model):
     final_total = db.Column(Numeric(12, 2), nullable=True, default=0)
 
     # Transportation ticket-specific fields
-    carrier = db.Column(db.String(255), nullable=True)
-    ticket_number = db.Column(db.String(255), nullable=True)
-    origin = db.Column(db.String(255), nullable=True)
-    destination = db.Column(db.String(255), nullable=True)
-    passenger = db.Column(db.String(255), nullable=True)
+    carrier = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
+    ticket_number = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
+    origin = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
+    destination = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
+    passenger = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
     class_ = db.Column('class', db.String(50), nullable=True)
     fare = db.Column(Numeric(12, 2), nullable=True, default=0)
     currency = db.Column(db.String(10), nullable=True)
     taxes = db.Column(Numeric(12, 2), nullable=True, default=0)
+
+    # Additional metadata field for flexible data storage
+    receipt_metadata = db.Column(JSONB, nullable=True, default=dict)  # Using JSONB for better performance and querying
 
     user = db.relationship('User', backref=db.backref('receipts', lazy=True))
 
