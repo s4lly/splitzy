@@ -278,6 +278,7 @@ const receiptService = {
    * Get receipt image from the backend
    * @param {number} receiptId - The ID of the receipt to fetch the image for
    * @returns {Promise<string|null>} - A promise that resolves to the image URL or null if not found
+   * @deprecated - use image_path from receipt data instead
    */
   getReceiptImage: async (receiptId) => {
     try {

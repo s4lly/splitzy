@@ -95,103 +95,22 @@ const ReceiptAnalysisPage = () => {
   );
 
   useEffect(() => {
-    let objectUrlsToRevoke = [];
-
+    // TODO revisit and potentially cleanup this useEffect. no longer need to
+    // make separate fetch for receipt details and image path.
     const fetchReceiptDetails = async () => {
-      try {
-        // Try to get receipt from API
-        try {
-          if (receiptData.receipt) {
-            setReceipt(receiptData.receipt);
-
-            // First try to get the image directly from the backend
-            try {
-              const imageUrl = await receiptService.getReceiptImage(
-                parseInt(receiptId)
-              );
-              if (imageUrl) {
-                if (imageUrl.startsWith('blob:')) {
-                  objectUrlsToRevoke.push(imageUrl);
-                }
-                setPreviewImage(imageUrl);
-              } else {
-                // If backend image fetch fails, check for image URL in receipt data
-                if (receiptData.receipt.image_url) {
-                  setPreviewImage(receiptData.receipt.image_url);
-                } else {
-                  setPreviewImage(null);
-                }
-              }
-            } catch (imageError) {
-              // Fall back to image URL in receipt data
-              if (receiptData.receipt.image_url) {
-                setPreviewImage(receiptData.receipt.image_url);
-              } else {
-                setPreviewImage(null);
-              }
-            }
-
-            setError(null);
-          } else {
-            throw new Error('Failed to retrieve receipt details');
-          }
-        } catch (apiError) {
-          // Fallback to mock data for development
-          const mockHistoryResponse =
-            await receiptService.getUserReceiptHistory();
-          const mockReceipt = mockHistoryResponse.receipts.find(
-            (r) => r.id === parseInt(receiptId)
-          );
-
-          if (mockReceipt) {
-            setReceipt(mockReceipt);
-
-            // Try to get image from backend even for mock data (might exist on server)
-            try {
-              const imageUrl = await receiptService.getReceiptImage(
-                parseInt(receiptId)
-              );
-              if (imageUrl) {
-                if (imageUrl.startsWith('blob:')) {
-                  objectUrlsToRevoke.push(imageUrl);
-                }
-                setPreviewImage(imageUrl);
-              } else if (mockReceipt.image_url) {
-                setPreviewImage(mockReceipt.image_url);
-              } else {
-                setPreviewImage(null);
-              }
-            } catch (imageError) {
-              // Fall back to mock image URL if available
-              if (mockReceipt.image_url) {
-                setPreviewImage(mockReceipt.image_url);
-              } else {
-                setPreviewImage(null);
-              }
-            }
-
-            setError(null);
-          } else {
-            throw new Error('Receipt not found');
-          }
-        }
-      } catch (err) {
-        setError(err.message || 'Failed to load receipt details');
+      if (receiptData?.receipt) {
+        // ideally don't need to save, just use data from useQuery
+        setReceipt(receiptData.receipt);
+        setPreviewImage(receiptData.receipt.image_path);
+        setError(null);
+      } else {
+        throw new Error('Failed to retrieve receipt details');
       }
     };
 
     if (receiptDataStatus === 'success') {
       fetchReceiptDetails();
     }
-
-    // Cleanup function to revoke object URLs when component unmounts
-    return () => {
-      objectUrlsToRevoke.forEach((url) => {
-        if (url && url.startsWith('blob:')) {
-          URL.revokeObjectURL(url);
-        }
-      });
-    };
   }, [receiptDataStatus, receiptData, receiptId]);
 
   const handleBackClick = () => {
