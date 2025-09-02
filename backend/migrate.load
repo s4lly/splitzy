@@ -1,0 +1,42 @@
+LOAD DATABASE
+    FROM sqlite:///Users/jaime/dev/brits-and-pieces/backend/users.db
+    INTO postgresql://neondb_owner:endpoint=ep-floral-dust-afc2u39e-pooler;npg_rwF6bqcSnWy5@ep-floral-dust-afc2u39e-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require
+
+WITH
+    truncate,
+    disable triggers,
+    create no tables,
+    create no indexes,
+    reset no sequences,
+    downcase identifiers
+
+BEFORE LOAD DO
+    $$ ALTER TABLE receipt_line_items ALTER COLUMN price_per_item TYPE text; $$,
+    $$ ALTER TABLE receipt_line_items ALTER COLUMN total_price TYPE text; $$,
+    $$ ALTER TABLE receipt_line_items ALTER COLUMN quantity TYPE text; $$,
+    $$ ALTER TABLE receipt_line_items ALTER COLUMN id TYPE text; $$
+
+CAST
+    -- Cast primary key columns
+    column users.id to bigint,
+    column user_receipts.id to bigint,
+    column receipt_line_items.id to text,
+
+    -- Cast date/time columns
+    column users.created_at to timestamptz using zero-dates-to-null,
+    column user_receipts.created_at to timestamptz using zero-dates-to-null,
+    column receipt_line_items.created_at to timestamptz using zero-dates-to-null,
+
+    -- Cast numeric fields
+    column receipt_line_items.quantity to text,
+    column receipt_line_items.price_per_item to text,
+    column receipt_line_items.total_price to text,
+
+    -- Cast JSON columns to JSONB
+    type json to jsonb
+
+AFTER LOAD DO
+    $$ ALTER TABLE receipt_line_items ALTER COLUMN price_per_item TYPE numeric(12,2) USING REPLACE(price_per_item, 'd0', '')::numeric; $$,
+    $$ ALTER TABLE receipt_line_items ALTER COLUMN total_price TYPE numeric(12,2) USING REPLACE(total_price, 'd0', '')::numeric; $$,
+    $$ ALTER TABLE receipt_line_items ALTER COLUMN quantity TYPE numeric(12,2) USING REPLACE(quantity, 'd0', '')::numeric; $$,
+    $$ ALTER TABLE receipt_line_items ALTER COLUMN id TYPE uuid USING CASE WHEN id ~ '^uuid-\d+$' THEN md5(id)::uuid ELSE id::uuid END; $$;
