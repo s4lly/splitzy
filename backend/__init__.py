@@ -17,23 +17,30 @@ def create_app():
     app = Flask(__name__)
     
     # Configure CORS for cross-origin requests
-    # Get allowed origins from environment variable, with fallback for development
-    cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS')
-    if cors_origins:
+    # Check VERCEL_ENV environment variable for development mode
+    vercel_env = os.environ.get('VERCEL_ENV', 'development')
+    
+    if vercel_env == 'development':
+        # In development mode, allow all origins
+        CORS(app, 
+             origins='*',
+             supports_credentials=False,  # Disable credentials for wildcard origins
+             methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+             allow_headers=['Content-Type', 'Authorization'])
+    else:
+        # In production, use configured allowed origins
+        cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS')
+        if not cors_origins:
+            raise ValueError("CORS_ALLOWED_ORIGINS environment variable must be configured for production")
+        
         # Split comma-separated origins
         allowed_origins = [origin.strip() for origin in cors_origins.split(',')]
-    else:
-        # Fallback for development
-        allowed_origins = [
-            'http://localhost:3000',  # For local development
-            'http://localhost:5173'   # For Vite dev server
-        ]
-    
-    CORS(app, 
-         origins=allowed_origins,
-         supports_credentials=True,
-         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-         allow_headers=['Content-Type', 'Authorization'])
+        
+        CORS(app, 
+             origins=allowed_origins,
+             supports_credentials=True,
+             methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+             allow_headers=['Content-Type', 'Authorization'])
     
     app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
     app.config['SESSION_COOKIE_HTTPONLY'] = True
