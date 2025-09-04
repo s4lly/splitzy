@@ -76,7 +76,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialize extensions
-    from backend.models import db
+    from models import db
     from flask_migrate import Migrate
     db.init_app(app)
 
@@ -92,7 +92,7 @@ def create_app():
     migrate = Migrate(app, db, directory=migrations_dir)
 
     # Register blueprints
-    from backend.blueprints import auth, receipts
+    from blueprints import auth, receipts
     app.register_blueprint(auth.auth_bp)
     app.register_blueprint(receipts.receipts_bp)
 

@@ -1,4 +1,4 @@
-from backend.models import db
+from models import db
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import JSONB
 

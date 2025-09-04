@@ -12,11 +12,11 @@ parent_dir = os.path.dirname(backend_dir)  # root directory
 sys.path.insert(0, parent_dir)
 sys.path.insert(0, backend_dir)
 
-from backend import create_app
-from backend.models import db
-from backend.models.user import User
-from backend.models.user_receipt import UserReceipt
-from backend.models.receipt_line_item import ReceiptLineItem
+from __init__ import create_app
+from models import db
+from models.user import User
+from models.user_receipt import UserReceipt
+from models.receipt_line_item import ReceiptLineItem
 from werkzeug.security import generate_password_hash
 
 @pytest.fixture(scope='function')

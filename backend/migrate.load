@@ -1,6 +1,6 @@
 LOAD DATABASE
     FROM sqlite:///Users/jaime/dev/brits-and-pieces/backend/users.db
-    INTO postgresql://neondb_owner:endpoint=ep-floral-dust-afc2u39e-pooler;npg_rwF6bqcSnWy5@ep-floral-dust-afc2u39e-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require
+    INTO 
 
 WITH
     truncate,

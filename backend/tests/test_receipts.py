@@ -2,9 +2,9 @@ import json
 import os
 from unittest.mock import patch
 
-from backend.models import db
-from backend.models.receipt_line_item import ReceiptLineItem
-from backend.schemas.receipt import RegularReceipt
+from models import db
+from models.receipt_line_item import ReceiptLineItem
+from schemas.receipt import RegularReceipt
 
 
 def test_health_check(test_client):
