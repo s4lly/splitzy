@@ -19,11 +19,8 @@ export default function LineItemEditForm({
   result: z.infer<typeof ReceiptSchema>;
   onEditCancel: () => void;
 }) {
-  const { mutate: updateItem, isPending: isUpdating } =
-    useLineItemUpdateMutation();
-  const { mutate: deleteItem, isPending: isDeleting } =
-    useLineItemDeleteMutation();
-  const isMobile = useMobile();
+  const { mutate: updateItem } = useLineItemUpdateMutation();
+  const { mutate: deleteItem } = useLineItemDeleteMutation();
 
   const debouncedPersistName = useMemo(
     () =>
@@ -68,45 +65,29 @@ export default function LineItemEditForm({
 
   // Handle delete item
   const handleDeleteItem = () => {
-    deleteItem({
-      receiptId: String(result?.id),
-      itemId: item.id,
-    });
-    onEditCancel(); // Close the edit form after deletion
+    deleteItem(
+      {
+        receiptId: String(result?.id),
+        itemId: item.id,
+      },
+      {
+        onSuccess: () => {
+          onEditCancel(); // Close the edit form after deletion
+        },
+      }
+    );
   };
 
   return (
     <div className="w-full">
-      <div
-        className={cn(
-          'flex items-center justify-between bg-background p-2',
-          !isMobile && 'justify-end'
-        )}
-      >
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleDeleteItem}
-          disabled={isDeleting || isUpdating}
-          className={cn('border-red-500 text-red-500', !isMobile && 'hidden')}
-        >
-          <Trash className="mr-2 h-4 w-4" />
-          {isDeleting ? 'Deleting...' : 'Delete'}
-        </Button>
-
-        <div className="flex items-center">
-          {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
-          <Button variant="outline" size="icon" onClick={onEditCancel}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
       <LineItemForm
         item={item}
         result={result}
         onNameChange={handleNameChange}
         onQuantityChange={handleQuantityChange}
         mutate={updateItem}
+        onEditCancel={onEditCancel}
+        handleDeleteItem={handleDeleteItem}
       />
     </div>
   );
