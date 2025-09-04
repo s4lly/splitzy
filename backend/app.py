@@ -1,19 +1,22 @@
-import sys
+#!/usr/bin/env python3
+"""
+Production entry point for the Flask application.
+This file is designed to work with gunicorn from within the backend directory.
+"""
+
 import os
+import sys
 
-# Add the current directory to Python path if running directly
-if __name__ == '__main__':
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    # Also add parent directory to handle relative imports for local development
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add the current directory to Python path to ensure imports work
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
 
-try:
-    from backend import create_app
-except ImportError:
-    # If running from within backend directory, import directly
-    from __init__ import create_app
+# Import the Flask app factory
+from __init__ import create_app
 
+# Create the Flask application instance
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001) 
+    # This will only run if the file is executed directly (not through gunicorn)
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5001)))

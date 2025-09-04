@@ -3,6 +3,7 @@ from typing import List, Optional, Literal
 from decimal import Decimal
 from datetime import date as date_type, datetime
 from pydantic import BaseModel, Field, ConfigDict, AliasChoices, model_validator, field_serializer
+from uuid import UUID
 
 # Base class for common decimal validation logic
 class DecimalValidatorMixin:
@@ -41,6 +42,8 @@ class TransportationDecimalSerializerMixin:
         if v is None:
             return 0.0
         return float(v)
+    
+# ----
 
 class LineItem(BaseModel, LineItemDecimalSerializerMixin):
     model_config = ConfigDict(from_attributes=True)
@@ -67,8 +70,10 @@ class LineItem(BaseModel, LineItemDecimalSerializerMixin):
 class LineItemResponse(LineItem):
     model_config = ConfigDict(from_attributes=True)
     
-    id: str
+    id: UUID
     created_at: Optional[datetime] = None
+
+# ----
 
 # Base class for transportation ticket fields
 class TransportationTicketBase(BaseModel, TransportationDecimalSerializerMixin, DecimalValidatorMixin):
@@ -103,13 +108,15 @@ class TransportationTicketBase(BaseModel, TransportationDecimalSerializerMixin, 
 class TransportationTicket(TransportationTicketBase):
     pass
 
+# ----
+
 # Base class for regular receipt fields
 class RegularReceiptBase(BaseModel, ReceiptDecimalSerializerMixin, DecimalValidatorMixin):
     model_config = ConfigDict(from_attributes=True)
     
     is_receipt: bool = True
     merchant: Optional[str] = None
-    date: Optional[str] = None
+    date: Optional[date_type] = None
     line_items: List[LineItem] = Field(default_factory=list, exclude=True)  # Exclude from database creation
     subtotal: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     tax: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
@@ -117,7 +124,7 @@ class RegularReceiptBase(BaseModel, ReceiptDecimalSerializerMixin, DecimalValida
     gratuity: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     payment_method: Optional[str] = None
-    tax_included_in_items: bool = False
+    tax_included_in_items: Optional[bool] = False
     display_subtotal: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     items_total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     pretax_total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
@@ -175,10 +182,14 @@ class RegularReceiptResponse(RegularReceipt):
     id: int
     line_items: List[LineItemResponse]
 
+# ----
+
 class NotAReceipt(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
     is_receipt: bool = False
+
+# ----
 
 # Base class for database creation models
 class DatabaseCreateBase(BaseModel, DecimalValidatorMixin):
