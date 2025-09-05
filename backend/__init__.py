@@ -23,10 +23,28 @@ def create_app():
     print(f"VERCEL_ENV: {vercel_env}")
 
     if vercel_env == 'development':
-        # In development mode, allow all origins dynamically
+        # In development mode, use dynamic origin handling for credentials support
+        # This allows any origin while maintaining security with credentials
+        from flask import request
+        
+        @app.after_request
+        def add_cors_headers(response):
+            origin = request.headers.get('Origin')
+            if origin:
+                # Allow any origin in development mode
+                response.headers['Access-Control-Allow-Origin'] = origin
+                response.headers['Access-Control-Allow-Credentials'] = 'true'
+                response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+                response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With, Accept, Origin'
+                response.headers['Access-Control-Expose-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+                response.headers['Access-Control-Max-Age'] = '3600'
+                response.headers['Vary'] = 'Origin'
+            return response
+        
+        # Still initialize CORS for basic functionality, but without credentials
         CORS(app, 
-             origins='*',  # Allow all origins in development
-             supports_credentials=True,  # Enable credentials for session cookies
+             origins='*',  # Allow all origins for non-credential requests
+             supports_credentials=False,  # Handle credentials manually above
              methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
              allow_headers=['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
              expose_headers=['Content-Type', 'Authorization', 'X-Requested-With'],
