@@ -17,16 +17,17 @@ def create_app():
     app = Flask(__name__)
     
     # Configure CORS for cross-origin requests
-    # Check VERCEL_ENV environment variable for development mode
-    vercel_env = os.environ.get('VERCEL_ENV', 'development')
+    # Check VERCEL_ENV environment variable for non-production mode
+    vercel_env = os.environ.get('VERCEL_ENV', 'production')
 
-    print(f"VERCEL_ENV: {vercel_env}")
+    app.logger.info("VERCEL_ENV: %s", vercel_env)
 
-    if vercel_env == 'development':
-        # In development mode, allow all origins dynamically
+    if vercel_env != 'production':
+        # In non-production mode, allow all origins without credentials
+        # Simple CORS configuration since we use JWT tokens instead of cookies
         CORS(app, 
-             origins=r'.*',  # Match any origin with regex; header will echo request origin
-             supports_credentials=True,  # Enable credentials for session cookies
+             origins='*',  # Allow all origins
+             supports_credentials=False,  # No credentials needed with JWT tokens
              methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
              allow_headers=['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
              expose_headers=['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -34,6 +35,7 @@ def create_app():
     else:
         # In production, use configured allowed origins
         cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS')
+
         if not cors_origins:
             raise ValueError("CORS_ALLOWED_ORIGINS environment variable must be configured for production")
         
@@ -49,11 +51,18 @@ def create_app():
              max_age=3600)
     
     app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
-    app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Required for cross-origin
-    app.config['SESSION_COOKIE_SECURE'] = True      # Required for HTTPS
-    app.config['SESSION_COOKIE_DOMAIN'] = None      # Let Flask set the domain
-    app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=7)
+    
+    # Configure session cookies based on environment
+    if vercel_env != 'production':
+        # In non-production, minimize session cookie usage since we use JWT tokens
+        app.config['SESSION_COOKIE_HTTPONLY'] = False  # Override default True
+        app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Override default None
+        app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=1)  # Override default 31 days
+    else:
+        # In production, use secure session cookies for cross-origin
+        app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Override default None for cross-origin
+        app.config['SESSION_COOKIE_SECURE'] = True      # Override default False for HTTPS
+        app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=7)  # Override default 31 days
 
     # Configure paths
     BASE_DIR = Path(__file__).resolve().parent
