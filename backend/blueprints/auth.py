@@ -1,18 +1,49 @@
-from flask import Blueprint, request, jsonify, session, make_response
+from flask import Blueprint, request, jsonify, session, make_response, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db
 from models.user import User
 from sqlalchemy.exc import IntegrityError
+import os
+import jwt
+import datetime
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api')
 
 def get_current_user():
+    # Check if we're in development mode and should use JWT tokens
+    vercel_env = os.environ.get('VERCEL_ENV', 'production')
+    
+    if vercel_env == 'development':
+        # Try to get user from JWT token first (for cross-origin requests)
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+            try:
+                payload = jwt.decode(token, current_app.secret_key, algorithms=['HS256'])
+                user_id = payload.get('user_id')
+                if user_id:
+                    user = db.session.get(User, user_id)
+                    return user
+            except jwt.ExpiredSignatureError:
+                pass
+            except jwt.InvalidTokenError:
+                pass
+    
+    # Fall back to session-based authentication
     user_id = session.get('user_id')
     if not user_id:
         return None
 
     user = db.session.get(User, user_id)
     return user
+
+def create_jwt_token(user_id):
+    """Create a JWT token for the user"""
+    payload = {
+        'user_id': user_id,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
+    }
+    return jwt.encode(payload, current_app.secret_key, algorithm='HS256')
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
@@ -36,15 +67,22 @@ def register():
         session['user_id'] = new_user.id
         session.permanent = True  # Make session persistent
 
-        response = make_response(jsonify({
+        response_data = {
             'success': True,
             'user': {
                 'id': new_user.id,
                 'username': new_user.username,
                 'email': new_user.email
             }
-        }), 201)
+        }
         
+        # In development mode, also return a JWT token for cross-origin requests
+        vercel_env = os.environ.get('VERCEL_ENV', 'production')
+        if vercel_env == 'development':
+            jwt_token = create_jwt_token(new_user.id)
+            response_data['token'] = jwt_token
+        
+        response = make_response(jsonify(response_data), 201)
         return response
     except IntegrityError:
         db.session.rollback()
@@ -71,15 +109,22 @@ def login():
     session['user_id'] = user.id
     session.permanent = True  # Make session persistent
 
-    response = make_response(jsonify({
+    response_data = {
         'success': True,
         'user': {
             'id': user.id,
             'username': user.username,
             'email': user.email
         }
-    }))
+    }
     
+    # In development mode, also return a JWT token for cross-origin requests
+    vercel_env = os.environ.get('VERCEL_ENV', 'production')
+    if vercel_env == 'development':
+        jwt_token = create_jwt_token(user.id)
+        response_data['token'] = jwt_token
+    
+    response = make_response(jsonify(response_data))
     return response
 
 @auth_bp.route('/logout', methods=['POST'])

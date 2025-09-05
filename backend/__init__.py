@@ -18,7 +18,7 @@ def create_app():
     
     # Configure CORS for cross-origin requests
     # Check VERCEL_ENV environment variable for development mode
-    vercel_env = os.environ.get('VERCEL_ENV', 'development')
+    vercel_env = os.environ.get('VERCEL_ENV', 'production')
 
     app.logger.info("VERCEL_ENV: %s", vercel_env)
 
@@ -39,6 +39,11 @@ def create_app():
                 response.headers['Access-Control-Expose-Headers'] = 'Content-Type, Authorization, X-Requested-With'
                 response.headers['Access-Control-Max-Age'] = '3600'
                 response.headers['Vary'] = 'Origin'
+                
+                # Debug logging for CORS and cookies
+                app.logger.info(f"CORS: Origin={origin}, Method={request.method}, Path={request.path}")
+                app.logger.info(f"Response headers: Access-Control-Allow-Origin={response.headers.get('Access-Control-Allow-Origin')}")
+                app.logger.info(f"Set-Cookie header: {response.headers.get('Set-Cookie', 'None')}")
             return response
         
         # Still initialize CORS for basic functionality, but without credentials

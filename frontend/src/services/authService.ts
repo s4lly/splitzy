@@ -6,6 +6,35 @@ const API_URL =
 // Configure axios to include credentials (cookies)
 axios.defaults.withCredentials = true;
 
+// JWT token management for development mode
+let authToken: string | null = localStorage.getItem('auth_token');
+
+// Set up axios interceptor to include JWT token in requests
+axios.interceptors.request.use(
+  (config) => {
+    if (authToken) {
+      config.headers.Authorization = `Bearer ${authToken}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Set up axios interceptor to handle token expiration
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid, clear it
+      authToken = null;
+      localStorage.removeItem('auth_token');
+    }
+    return Promise.reject(error);
+  }
+);
+
 /**
  * Service for user authentication
  */
@@ -21,6 +50,13 @@ const authService = {
   register: async (userData) => {
     try {
       const response = await axios.post(`${API_URL}/register`, userData);
+
+      // Store JWT token if provided (for development mode)
+      if (response.data.token) {
+        authToken = response.data.token;
+        localStorage.setItem('auth_token', authToken);
+      }
+
       return response.data;
     } catch (error) {
       console.error(
@@ -41,6 +77,13 @@ const authService = {
   login: async (credentials) => {
     try {
       const response = await axios.post(`${API_URL}/login`, credentials);
+
+      // Store JWT token if provided (for development mode)
+      if (response.data.token) {
+        authToken = response.data.token;
+        localStorage.setItem('auth_token', authToken);
+      }
+
       return response.data;
     } catch (error) {
       console.error('Login error:', error.response?.data || error.message);
@@ -55,6 +98,11 @@ const authService = {
   logout: async () => {
     try {
       const response = await axios.post(`${API_URL}/logout`);
+
+      // Clear JWT token
+      authToken = null;
+      localStorage.removeItem('auth_token');
+
       return response.data;
     } catch (error) {
       console.error('Logout error:', error);
