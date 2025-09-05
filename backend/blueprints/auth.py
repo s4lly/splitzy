@@ -20,12 +20,13 @@ def get_current_user():
             token = auth_header.split(' ')[1]
             
             # Check if secret_key is available before attempting JWT decode
-            if not current_app.secret_key:
-                current_app.logger.error("JWT authentication failed: secret_key is not configured")
+            secret_key = current_app.config.get('SECRET_KEY')
+            if not secret_key:
+                current_app.logger.error("JWT authentication failed: SECRET_KEY is not configured")
                 return None
             
             try:
-                payload = jwt.decode(token, current_app.secret_key, algorithms=['HS256'])
+                payload = jwt.decode(token, secret_key, algorithms=['HS256'])
                 user_id = payload.get('user_id')
                 if user_id:
                     user = db.session.get(User, user_id)
@@ -48,11 +49,34 @@ def get_current_user():
 
 def create_jwt_token(user_id):
     """Create a JWT token for the user"""
+    # Retrieve the signing secret from app config
+    secret_key = current_app.config.get('SECRET_KEY')
+    if not secret_key:
+        error_msg = "JWT token creation failed: SECRET_KEY is not configured"
+        current_app.logger.error(error_msg)
+        raise ValueError(error_msg)
+    
+    # Ensure secret_key is str or bytes for jwt library
+    if not isinstance(secret_key, (str, bytes)):
+        error_msg = f"JWT token creation failed: SECRET_KEY must be str or bytes, got {type(secret_key)}"
+        current_app.logger.error(error_msg)
+        raise TypeError(error_msg)
+    
+    # Get JWT TTL from config or default to 7 days
+    jwt_ttl_days = current_app.config.get('JWT_TTL_DAYS', 7)
+    
+    # Use timezone-aware UTC datetime
+    now = datetime.datetime.now(datetime.timezone.utc)
+    exp_time = now + datetime.timedelta(days=jwt_ttl_days)
+    
     payload = {
         'user_id': user_id,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
+        'iat': now,  # issued at
+        'nbf': now,  # not before
+        'exp': exp_time  # expires
     }
-    return jwt.encode(payload, current_app.secret_key, algorithm='HS256')
+    
+    return jwt.encode(payload, secret_key, algorithm='HS256')
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
