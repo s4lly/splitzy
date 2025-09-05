@@ -18,16 +18,25 @@ def get_current_user():
         auth_header = request.headers.get('Authorization')
         if auth_header and auth_header.startswith('Bearer '):
             token = auth_header.split(' ')[1]
+            
+            # Check if secret_key is available before attempting JWT decode
+            if not current_app.secret_key:
+                current_app.logger.error("JWT authentication failed: secret_key is not configured")
+                return None
+            
             try:
                 payload = jwt.decode(token, current_app.secret_key, algorithms=['HS256'])
                 user_id = payload.get('user_id')
                 if user_id:
                     user = db.session.get(User, user_id)
                     return user
-            except jwt.ExpiredSignatureError:
-                pass
-            except jwt.InvalidTokenError:
-                pass
+                return None
+            except jwt.ExpiredSignatureError as e:
+                current_app.logger.warning("JWT authentication failed: token expired - %s", str(e))
+                return None
+            except jwt.InvalidTokenError as e:
+                current_app.logger.warning("JWT authentication failed: invalid token - %s", str(e))
+                return None
     
     # Fall back to session-based authentication
     user_id = session.get('user_id')
