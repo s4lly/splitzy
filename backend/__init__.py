@@ -17,13 +17,13 @@ def create_app():
     app = Flask(__name__)
     
     # Configure CORS for cross-origin requests
-    # Check VERCEL_ENV environment variable for development mode
+    # Check VERCEL_ENV environment variable for non-production mode
     vercel_env = os.environ.get('VERCEL_ENV', 'production')
 
     app.logger.info("VERCEL_ENV: %s", vercel_env)
 
-    if vercel_env == 'development':
-        # In development mode, allow all origins without credentials
+    if vercel_env != 'production':
+        # In non-production mode, allow all origins without credentials
         # Simple CORS configuration since we use JWT tokens instead of cookies
         CORS(app, 
              origins='*',  # Allow all origins
@@ -53,8 +53,8 @@ def create_app():
     app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
     
     # Configure session cookies based on environment
-    if vercel_env == 'development':
-        # In development, minimize session cookie usage since we use JWT tokens
+    if vercel_env != 'production':
+        # In non-production, minimize session cookie usage since we use JWT tokens
         app.config['SESSION_COOKIE_HTTPONLY'] = False  # Override default True
         app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Override default None
         app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=1)  # Override default 31 days

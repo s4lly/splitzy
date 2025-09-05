@@ -10,10 +10,10 @@ import datetime
 auth_bp = Blueprint('auth', __name__, url_prefix='/api')
 
 def get_current_user():
-    # Check if we're in development mode and should use JWT tokens
+    # Check if we're in non-production mode and should use JWT tokens
     vercel_env = os.environ.get('VERCEL_ENV', 'production')
     
-    if vercel_env == 'development':
+    if vercel_env != 'production':
         # Try to get user from JWT token first (for cross-origin requests)
         auth_header = request.headers.get('Authorization')
         if auth_header and auth_header.startswith('Bearer '):
@@ -106,9 +106,9 @@ def register():
             }
         }
         
-        # In development mode, use JWT tokens instead of session cookies
+        # In non-production mode, use JWT tokens instead of session cookies
         vercel_env = os.environ.get('VERCEL_ENV', 'production')
-        if vercel_env == 'development':
+        if vercel_env != 'production':
             jwt_token = create_jwt_token(new_user.id)
             response_data['token'] = jwt_token
         else:
@@ -149,9 +149,9 @@ def login():
         }
     }
     
-    # In development mode, use JWT tokens instead of session cookies
+    # In non-production mode, use JWT tokens instead of session cookies
     vercel_env = os.environ.get('VERCEL_ENV', 'production')
-    if vercel_env == 'development':
+    if vercel_env != 'production':
         jwt_token = create_jwt_token(user.id)
         response_data['token'] = jwt_token
     else:
@@ -164,7 +164,7 @@ def login():
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
-    # In development mode, JWT tokens are handled client-side
+    # In non-production mode, JWT tokens are handled client-side
     # In production mode, clear session cookies
     vercel_env = os.environ.get('VERCEL_ENV', 'production')
     if vercel_env == 'production':
