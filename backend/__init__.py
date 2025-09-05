@@ -23,33 +23,11 @@ def create_app():
     app.logger.info("VERCEL_ENV: %s", vercel_env)
 
     if vercel_env == 'development':
-        # In development mode, use dynamic origin handling for credentials support
-        # This allows any origin while maintaining security with credentials
-        from flask import request
-        
-        @app.after_request
-        def add_cors_headers(response):
-            origin = request.headers.get('Origin')
-            if origin:
-                # Allow any origin in development mode
-                response.headers['Access-Control-Allow-Origin'] = origin
-                response.headers['Access-Control-Allow-Credentials'] = 'true'
-                response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-                response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With, Accept, Origin'
-                response.headers['Access-Control-Expose-Headers'] = 'Content-Type, Authorization, X-Requested-With'
-                response.headers['Access-Control-Max-Age'] = '3600'
-                response.headers['Vary'] = 'Origin'
-                
-                # Debug logging for CORS and cookies
-                app.logger.info(f"CORS: Origin={origin}, Method={request.method}, Path={request.path}")
-                app.logger.info(f"Response headers: Access-Control-Allow-Origin={response.headers.get('Access-Control-Allow-Origin')}")
-                app.logger.info(f"Set-Cookie header: {response.headers.get('Set-Cookie', 'None')}")
-            return response
-        
-        # Still initialize CORS for basic functionality, but without credentials
+        # In development mode, allow all origins without credentials
+        # Simple CORS configuration since we use JWT tokens instead of cookies
         CORS(app, 
-             origins='*',  # Allow all origins for non-credential requests
-             supports_credentials=False,  # Handle credentials manually above
+             origins='*',  # Allow all origins
+             supports_credentials=False,  # No credentials needed with JWT tokens
              methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
              allow_headers=['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
              expose_headers=['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -57,6 +35,7 @@ def create_app():
     else:
         # In production, use configured allowed origins
         cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS')
+
         if not cors_origins:
             raise ValueError("CORS_ALLOWED_ORIGINS environment variable must be configured for production")
         
@@ -72,11 +51,18 @@ def create_app():
              max_age=3600)
     
     app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
-    app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Required for cross-origin
-    app.config['SESSION_COOKIE_SECURE'] = True      # Required for HTTPS
-    app.config['SESSION_COOKIE_DOMAIN'] = None      # Let Flask set the domain
-    app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=7)
+    
+    # Configure session cookies based on environment
+    if vercel_env == 'development':
+        # In development, minimize session cookie usage since we use JWT tokens
+        app.config['SESSION_COOKIE_HTTPONLY'] = False  # Override default True
+        app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Override default None
+        app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=1)  # Override default 31 days
+    else:
+        # In production, use secure session cookies for cross-origin
+        app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Override default None for cross-origin
+        app.config['SESSION_COOKIE_SECURE'] = True      # Override default False for HTTPS
+        app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=7)  # Override default 31 days
 
     # Configure paths
     BASE_DIR = Path(__file__).resolve().parent

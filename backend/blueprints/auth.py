@@ -64,9 +64,6 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        session['user_id'] = new_user.id
-        session.permanent = True  # Make session persistent
-
         response_data = {
             'success': True,
             'user': {
@@ -76,11 +73,15 @@ def register():
             }
         }
         
-        # In development mode, also return a JWT token for cross-origin requests
+        # In development mode, use JWT tokens instead of session cookies
         vercel_env = os.environ.get('VERCEL_ENV', 'production')
         if vercel_env == 'development':
             jwt_token = create_jwt_token(new_user.id)
             response_data['token'] = jwt_token
+        else:
+            # In production, use session cookies
+            session['user_id'] = new_user.id
+            session.permanent = True  # Make session persistent
         
         response = make_response(jsonify(response_data), 201)
         return response
@@ -106,9 +107,6 @@ def login():
     if not user or not check_password_hash(user.password, password):
         return jsonify({'success': False, 'error': 'Invalid credentials'}), 401
 
-    session['user_id'] = user.id
-    session.permanent = True  # Make session persistent
-
     response_data = {
         'success': True,
         'user': {
@@ -118,19 +116,27 @@ def login():
         }
     }
     
-    # In development mode, also return a JWT token for cross-origin requests
+    # In development mode, use JWT tokens instead of session cookies
     vercel_env = os.environ.get('VERCEL_ENV', 'production')
     if vercel_env == 'development':
         jwt_token = create_jwt_token(user.id)
         response_data['token'] = jwt_token
+    else:
+        # In production, use session cookies
+        session['user_id'] = user.id
+        session.permanent = True  # Make session persistent
     
     response = make_response(jsonify(response_data))
     return response
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
-    session.pop('user_id', None)
-    session.clear()
+    # In development mode, JWT tokens are handled client-side
+    # In production mode, clear session cookies
+    vercel_env = os.environ.get('VERCEL_ENV', 'production')
+    if vercel_env == 'production':
+        session.pop('user_id', None)
+        session.clear()
     
     response = make_response(jsonify({'success': True, 'message': 'Logged out successfully'}))
     

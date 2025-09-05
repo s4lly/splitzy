@@ -3,8 +3,15 @@ import axios from 'axios';
 const API_URL =
   import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Configure axios to include credentials (cookies)
-axios.defaults.withCredentials = true;
+// Configure axios to include credentials (cookies) only in production
+// In development/preview, we use JWT tokens instead of cookies
+const isDevelopment =
+  import.meta.env.VITE_VERCEL_ENV !== 'production' ||
+  import.meta.env.DEV ||
+  window.location.hostname === 'localhost';
+if (!isDevelopment) {
+  axios.defaults.withCredentials = true;
+}
 
 // JWT token management for development mode
 let authToken: string | null = localStorage.getItem('auth_token');
