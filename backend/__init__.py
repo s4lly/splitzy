@@ -25,7 +25,7 @@ def create_app():
     if vercel_env == 'development':
         # In development mode, allow all origins dynamically
         CORS(app, 
-             origins=r'.*',  # Match any origin with regex; header will echo request origin
+             origins='*',  # Allow all origins in development
              supports_credentials=True,  # Enable credentials for session cookies
              methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
              allow_headers=['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
