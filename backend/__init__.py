@@ -20,7 +20,7 @@ def create_app():
     # Check VERCEL_ENV environment variable for development mode
     vercel_env = os.environ.get('VERCEL_ENV', 'development')
 
-    print(f"VERCEL_ENV: {vercel_env}")
+    app.logger.info("VERCEL_ENV: %s", vercel_env)
 
     if vercel_env == 'development':
         # In development mode, use dynamic origin handling for credentials support
