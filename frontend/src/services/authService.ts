@@ -13,14 +13,15 @@ if (!isDevelopment) {
   axios.defaults.withCredentials = true;
 }
 
-// JWT token management for development mode
-let authToken: string | null = localStorage.getItem('auth_token');
+// JWT token management for development mode - accessor function for fresh reads
+const getAuthToken = (): string | null => localStorage.getItem('auth_token');
 
 // Set up axios interceptor to include JWT token in requests
 axios.interceptors.request.use(
   (config) => {
-    if (authToken) {
-      config.headers.Authorization = `Bearer ${authToken}`;
+    const token = getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -35,7 +36,6 @@ axios.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Token expired or invalid, clear it
-      authToken = null;
       localStorage.removeItem('auth_token');
     }
     return Promise.reject(error);
@@ -54,18 +54,21 @@ const authService = {
    * @param {string} userData.password - The password
    * @returns {Promise} - A promise that resolves to the user data
    */
-  register: async (userData) => {
+  register: async (userData: {
+    username: string;
+    email: string;
+    password: string;
+  }) => {
     try {
       const response = await axios.post(`${API_URL}/register`, userData);
 
       // Store JWT token if provided (for development mode)
       if (response.data.token) {
-        authToken = response.data.token;
-        localStorage.setItem('auth_token', authToken);
+        localStorage.setItem('auth_token', response.data.token);
       }
 
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error(
         'Registration error:',
         error.response?.data || error.message
@@ -81,18 +84,17 @@ const authService = {
    * @param {string} credentials.password - The password
    * @returns {Promise} - A promise that resolves to the user data
    */
-  login: async (credentials) => {
+  login: async (credentials: { username: string; password: string }) => {
     try {
       const response = await axios.post(`${API_URL}/login`, credentials);
 
       // Store JWT token if provided (for development mode)
       if (response.data.token) {
-        authToken = response.data.token;
-        localStorage.setItem('auth_token', authToken);
+        localStorage.setItem('auth_token', response.data.token);
       }
 
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error.response?.data || error.message);
       throw error;
     }
@@ -107,11 +109,10 @@ const authService = {
       const response = await axios.post(`${API_URL}/logout`);
 
       // Clear JWT token
-      authToken = null;
       localStorage.removeItem('auth_token');
 
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Logout error:', error);
       throw error;
     }
