@@ -52,6 +52,11 @@ def create_app():
     
     app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
     
+    # Validate required environment variables
+    vercel_function_url = os.environ.get('VERCEL_FUNCTION_URL')
+    if not vercel_function_url:
+        raise ValueError("VERCEL_FUNCTION_URL environment variable is required for blob storage functionality")
+    
     # Configure session cookies based on environment
     if vercel_env != 'production':
         # In non-production, minimize session cookie usage since we use JWT tokens

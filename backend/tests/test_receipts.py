@@ -87,7 +87,7 @@ def test_update_line_item_assignments(test_client, new_user, new_receipt, new_li
 
     # Data for the request
     data = {
-        "line_item_id": new_line_item.id,
+        "line_item_id": str(new_line_item.id),
         "assignments": ["testuser"]
     }
 
@@ -168,7 +168,7 @@ def test_get_line_items(test_client, new_user, new_receipt, new_line_item):
     data = json.loads(response.data)
     assert data['success'] is True
     assert len(data['line_items']) == 1
-    assert data['line_items'][0]['id'] == new_line_item.id
+    assert data['line_items'][0]['id'] == str(new_line_item.id)
 
 
 def test_add_line_item(test_client, new_user, new_receipt):

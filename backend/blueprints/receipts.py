@@ -1,4 +1,6 @@
 import os
+import requests
+import tempfile
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from models import db
 from models.user_receipt import UserReceipt
@@ -10,6 +12,39 @@ from blueprints.auth import get_current_user
 from pydantic import ValidationError
 
 receipts_bp = Blueprint('receipts', __name__)
+
+def upload_to_blob_storage(file):
+    """
+    Upload file to Vercel blob storage via the Vercel function
+    Returns the blob URL on success, None on failure
+    """
+    try:
+        # Get the Vercel function URL from environment - this is validated at app startup
+        vercel_function_url = os.environ.get('VERCEL_FUNCTION_URL')
+        if not vercel_function_url:
+            current_app.logger.error("VERCEL_FUNCTION_URL environment variable is not set")
+            return None
+        
+        # Prepare the file for upload
+        files = {'file': (file.filename, file.stream, file.content_type)}
+        
+        # Make the request to the Vercel function
+        response = requests.post(vercel_function_url, files=files, timeout=30)
+        
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('success'):
+                return result.get('url')
+            else:
+                current_app.logger.error(f"Blob upload failed: {result.get('error')}")
+                return None
+        else:
+            current_app.logger.error(f"Blob upload failed with status {response.status_code}: {response.text}")
+            return None
+            
+    except Exception as e:
+        current_app.logger.error(f"Error uploading to blob storage: {str(e)}")
+        return None
 
 def resolve_image_path(image_path):
     """
@@ -46,8 +81,17 @@ def analyze_receipt():
     if file.filename == '':
         return jsonify({'success': False, 'error': 'No file selected'}), 400
 
-    # Save the file temporarily
+    # Upload to blob storage first
+    blob_url = upload_to_blob_storage(file)
+    if not blob_url:
+        return jsonify({
+            'success': False,
+            'error': 'Failed to upload image to blob storage'
+        }), 500
+
+    # Save the file temporarily for analysis
     temp_path = os.path.join(current_app.config['UPLOAD_FOLDER'], secure_filename(file.filename))
+    file.seek(0)  # Reset file pointer
     file.save(temp_path)
 
     try:
@@ -92,7 +136,7 @@ def analyze_receipt():
             
             # Add the additional fields that aren't in the Pydantic model
             receipt_create_data.user_id = current_user.id if current_user else None
-            receipt_create_data.image_path = temp_path
+            receipt_create_data.image_path = blob_url
             
             # Create the SQLAlchemy model instance
             new_receipt = UserReceipt(**receipt_create_data.model_dump())
@@ -135,8 +179,12 @@ def analyze_receipt():
         current_app.logger.error(f"Error analyzing receipt: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
     finally:
-        # Don't delete the file since we're storing it in the database
-        pass
+        # Clean up temporary file since we're now storing the blob URL
+        try:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+        except Exception as cleanup_error:
+            current_app.logger.warning(f"Failed to clean up temporary file {temp_path}: {str(cleanup_error)}")
 
 @receipts_bp.route('/api/user/receipts', methods=['GET'])
 def get_user_receipts():
@@ -244,6 +292,15 @@ def get_receipt_image(receipt_id):
 
         image_path = receipt.image_path
 
+        # Check if it's a blob URL (starts with https://)
+        if image_path.startswith('https://'):
+            # For blob URLs, redirect to the blob storage URL
+            return jsonify({
+                'success': True,
+                'image_url': image_path
+            })
+
+        # Legacy handling for local files
         # Resolve image path with backwards compatibility
         resolved_path = resolve_image_path(image_path)
 
