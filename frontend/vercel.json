@@ -3,6 +3,10 @@
   "framework": "vite",
   "rewrites": [
     {
+      "source": "/api/upload-to-blob",
+      "destination": "/api/upload-to-blob"
+    },
+    {
       "source": "/api/:path*",
       "destination": "https://epaphus.pythonanywhere.com/api/:path*"
     },

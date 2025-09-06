@@ -293,14 +293,21 @@ const receiptService = {
         `${API_URL}/user/receipts/${receiptId}/image`,
         {
           withCredentials: !isDevelopment,
-          responseType: 'blob', // Get the response as a blob
         }
       );
 
-      // Create a URL for the blob
-      const imageBlob = response.data;
-      const imageUrl = URL.createObjectURL(imageBlob);
-      return imageUrl;
+      // Check if the response contains a blob URL
+      if (response.data.success && response.data.image_url) {
+        return response.data.image_url;
+      }
+
+      // Legacy handling for blob responses
+      if (response.data instanceof Blob) {
+        const imageUrl = URL.createObjectURL(response.data);
+        return imageUrl;
+      }
+
+      return null;
     } catch (error) {
       // Check if this is a 404 error
       if (error.response && error.response.status === 404) {
