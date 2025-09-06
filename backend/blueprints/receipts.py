@@ -34,16 +34,6 @@ def resolve_image_path(image_path):
     # If still not found, return the original path (will cause 404)
     return image_path
 
-@receipts_bp.route('/api/analyze/<filename>')
-def api_analyze(filename):
-    image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-    # Resolve image path with backwards compatibility
-    resolved_path = resolve_image_path(image_path)
-    analyzer = ImageAnalyzer()
-    analysis_result = analyzer.analyze_image(resolved_path)
-    print("analysis_result done: ", analysis_result)
-    return jsonify(analysis_result)
-
 @receipts_bp.route('/api/analyze-receipt', methods=['POST'])
 def analyze_receipt():
     # Check if user is authenticated
@@ -56,15 +46,12 @@ def analyze_receipt():
     if file.filename == '':
         return jsonify({'success': False, 'error': 'No file selected'}), 400
 
-    # Get the provider from the request, default to environment variable
-    provider = 'gemini'
-
     # Save the file temporarily
     temp_path = os.path.join(current_app.config['UPLOAD_FOLDER'], secure_filename(file.filename))
     file.save(temp_path)
 
     try:
-        analyzer = ImageAnalyzer(provider=provider)
+        analyzer = ImageAnalyzer()
         try:
             receipt_model = analyzer.analyze_image(temp_path)
         except Exception as analyzer_error:

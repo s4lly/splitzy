@@ -1,14 +1,9 @@
 import os
 from pathlib import Path
-import base64
 from dotenv import load_dotenv
-import openai
 import google.generativeai as genai
-import requests
 import json
 import re
-import uuid
-from enum import Enum
 from schemas.receipt import TransportationTicket, RegularReceipt, NotAReceipt
 
 # Load environment variables from backend .env file
@@ -16,94 +11,25 @@ backend_dir = Path(__file__).resolve().parent
 env_path = backend_dir / '.env'
 load_dotenv(env_path)
 
-class AIProvider(Enum):
-    AZURE = "azure"
-    GEMINI = "gemini"
-
 class ImageAnalyzer:
-    def __init__(self, provider=None):
-        self.provider = provider or os.getenv("DEFAULT_AI_PROVIDER", "azure")
-        self._configure_provider()
-
-    def _configure_provider(self):
-        if self.provider == AIProvider.AZURE.value:
-            # Configure Azure OpenAI
-            openai.api_key = os.getenv("AZURE_OPENAI_KEY")
-            openai.api_base = os.getenv("AZURE_OPENAI_ENDPOINT")
-            openai.api_type = "azure"
-            openai.api_version = "2023-05-15"
-        elif self.provider == AIProvider.GEMINI.value:
-            # Configure Google Gemini
-            genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-        else:
-            raise ValueError(f"Unsupported AI provider: {self.provider}")
-
-    def encode_image(self, image_path):
-        """Encode image to base64 string"""
-        with open(image_path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode('utf-8')
+    def __init__(self):
+        # Always use Gemini
+        genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
     def analyze_image(self, image_path):
         """
-        Analyze a receipt image using the selected AI provider
+        Analyze a receipt image using Google Gemini
         Returns a Pydantic model (RegularReceipt, TransportationTicket, or NotAReceipt)
         """
         if not os.path.exists(image_path):
             raise FileNotFoundError("Image not found")
         
         try:
-            if self.provider == AIProvider.AZURE.value:
-                return self._analyze_with_azure(image_path)
-            else:
-                return self._analyze_with_gemini(image_path)
+            return self._analyze_image_with_gemini(image_path)
         except Exception as e:
             raise Exception(f"Analysis failed: {str(e)}")
 
-    def _analyze_with_azure(self, image_path):
-        """Analyze image using Azure OpenAI"""
-        base64_image = self.encode_image(image_path)
-        
-        headers = {
-            "Content-Type": "application/json",
-            "api-key": os.getenv("AZURE_OPENAI_KEY")
-        }
-        
-        deployment_id = os.getenv("AZURE_OPENAI_DEPLOYMENT")
-        endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-        url = f"{endpoint}openai/deployments/{deployment_id}/chat/completions?api-version=2023-05-15"
-        
-        payload = {
-            "messages": [
-                {
-                    "role": "system",
-                    "content": self._get_system_prompt()
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text", 
-                            "text": "Analyze this image and extract all relevant payment information. This might be a receipt, invoice, or transportation ticket. Pay special attention to any monetary amounts shown."
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
-                            }
-                        }
-                    ]
-                }
-            ],
-            "max_tokens": 2000,
-            "temperature": 0.3
-        }
-        
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        
-        return self._process_response(response.json()["choices"][0]["message"]["content"])
-
-    def _analyze_with_gemini(self, image_path):
+    def _analyze_image_with_gemini(self, image_path):
         """Analyze image using Google Gemini"""
         # Read the image file
         with open(image_path, "rb") as image_file:
