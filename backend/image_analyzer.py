@@ -1,4 +1,5 @@
 import os
+import logging
 from pathlib import Path
 from dotenv import load_dotenv
 import google.generativeai as genai
@@ -6,16 +7,24 @@ import json
 import re
 from schemas.receipt import TransportationTicket, RegularReceipt, NotAReceipt
 
+# Set up module-level logger
+logger = logging.getLogger(__name__)
+
 # Load environment variables from backend .env file
 backend_dir = Path(__file__).resolve().parent
 env_path = backend_dir / '.env'
 load_dotenv(env_path)
 
-class ImageAnalyzer:
-    def __init__(self):
-        # Always use Gemini
-        genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+# Configure Google Generative AI with validated API key
+google_api_key = os.getenv("GOOGLE_API_KEY")
+if not google_api_key:
+    logger.error("GOOGLE_API_KEY environment variable is missing or empty")
+    raise SystemExit("GOOGLE_API_KEY environment variable is required but not found")
 
+logger.info("Configuring Google Generative AI with provided API key")
+genai.configure(api_key=google_api_key)
+
+class ImageAnalyzer:
     def analyze_image(self, image_data_or_path):
         """
         Analyze a receipt image using Google Gemini
