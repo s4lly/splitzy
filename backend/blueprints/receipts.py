@@ -6,7 +6,7 @@ from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from models import db
 from models.user_receipt import UserReceipt
 from models.receipt_line_item import ReceiptLineItem
-from image_analyzer import ImageAnalyzer, ImageAnalysisError
+from image_analyzer import ImageAnalyzer, ImageAnalysisError, ImageAnalyzerConfigError
 from schemas.receipt import LineItem, LineItemResponse, RegularReceiptResponse, UserReceiptCreate, ReceiptLineItemCreate
 from werkzeug.utils import secure_filename
 from blueprints.auth import get_current_user
@@ -136,6 +136,12 @@ def analyze_receipt():
         analyzer = ImageAnalyzer()
         try:
             receipt_model = analyzer.analyze_image(image_data)
+        except ImageAnalyzerConfigError as config_error:
+            current_app.logger.error(f"Image analyzer configuration error: {str(config_error)}")
+            return jsonify({
+                'success': False,
+                'error': f"Service configuration error: {str(config_error)}"
+            }), 500
         except ImageAnalysisError as analyzer_error:
             current_app.logger.error(f"Error from image analyzer: {str(analyzer_error)}")
             return jsonify({

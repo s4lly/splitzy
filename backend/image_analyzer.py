@@ -15,21 +15,53 @@ class ImageAnalysisError(Exception):
     """Domain-specific exception for image analysis failures"""
     pass
 
+
+class ImageAnalyzerConfigError(Exception):
+    """Exception raised when ImageAnalyzer configuration is invalid"""
+    pass
+
 # Load environment variables from backend .env file
 backend_dir = Path(__file__).resolve().parent
 env_path = backend_dir / '.env'
 load_dotenv(env_path)
 
-# Configure Google Generative AI with validated API key
-google_api_key = os.getenv("GOOGLE_API_KEY")
-if not google_api_key:
-    logger.error("GOOGLE_API_KEY environment variable is missing or empty")
-    raise SystemExit("GOOGLE_API_KEY environment variable is required but not found")
+# Module-level flag to track if configuration has been done
+_configured = False
 
-logger.info("Configuring Google Generative AI with provided API key")
-genai.configure(api_key=google_api_key)
+
+def configure_image_analyzer():
+    """
+    Configure the image analyzer with Google API key.
+    Must be called before using ImageAnalyzer.
+    
+    Raises:
+        ImageAnalyzerConfigError: If API key is missing or invalid
+    """
+    global _configured
+    
+    if _configured:
+        return  # Already configured
+    
+    google_api_key = os.getenv("GOOGLE_API_KEY")
+    if not google_api_key:
+        logger.error("GOOGLE_API_KEY environment variable is missing or empty")
+        raise ImageAnalyzerConfigError("GOOGLE_API_KEY environment variable is required but not found")
+    
+    try:
+        logger.info("Configuring Google Generative AI with provided API key")
+        genai.configure(api_key=google_api_key)
+        _configured = True
+    except Exception as e:
+        logger.error(f"Failed to configure Google Generative AI: {str(e)}")
+        raise ImageAnalyzerConfigError(f"Failed to configure Google Generative AI: {str(e)}") from e
+
 
 class ImageAnalyzer:
+    def __init__(self):
+        """Initialize ImageAnalyzer and ensure it's configured."""
+        if not _configured:
+            configure_image_analyzer()
+
     def analyze_image(self, image_data_or_path):
         """
         Analyze a receipt image using Google Gemini
