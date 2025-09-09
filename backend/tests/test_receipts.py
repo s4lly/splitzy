@@ -87,7 +87,7 @@ def test_update_line_item_assignments(test_client, new_user, new_receipt, new_li
 
     # Data for the request
     data = {
-        "line_item_id": new_line_item.id,
+        "line_item_id": str(new_line_item.id),
         "assignments": ["testuser"]
     }
 
@@ -168,7 +168,7 @@ def test_get_line_items(test_client, new_user, new_receipt, new_line_item):
     data = json.loads(response.data)
     assert data['success'] is True
     assert len(data['line_items']) == 1
-    assert data['line_items'][0]['id'] == new_line_item.id
+    assert data['line_items'][0]['id'] == str(new_line_item.id)
 
 
 def test_add_line_item(test_client, new_user, new_receipt):
@@ -254,8 +254,9 @@ def test_get_receipt_image(test_client, new_user, new_receipt):
     os.remove(image_path)
 
 
-@patch('backend.blueprints.receipts.ImageAnalyzer')
-def test_analyze_receipt(mock_image_analyzer, test_client, new_user, mock_receipt_data):
+@patch('blueprints.receipts.upload_to_blob_storage')
+@patch('blueprints.receipts.ImageAnalyzer')
+def test_analyze_receipt(mock_image_analyzer, mock_blob_upload, test_client, new_user, mock_receipt_data):
     """
     GIVEN a Flask application
     WHEN the '/api/analyze-receipt' page is sent a POST request with a file
@@ -264,6 +265,9 @@ def test_analyze_receipt(mock_image_analyzer, test_client, new_user, mock_receip
     # Log in the user
     with test_client.session_transaction() as session:
         session['user_id'] = new_user.id
+
+    # Mock the blob storage upload to return a fake URL
+    mock_blob_upload.return_value = "https://fake-blob-storage.com/fake-image-url.jpg"
 
     # Mock the ImageAnalyzer result
     mock_analyzer_instance = mock_image_analyzer.return_value
@@ -293,28 +297,3 @@ def test_analyze_receipt(mock_image_analyzer, test_client, new_user, mock_receip
     os.remove(file_path)
 
 
-@patch('backend.blueprints.receipts.ImageAnalyzer')
-def test_api_analyze(mock_image_analyzer, test_client, mock_receipt_data):
-    """
-    GIVEN a Flask application
-    WHEN the '/api/analyze/<filename>' page is requested
-    THEN check that a '200' status code is returned and the analysis result is in the response
-    """
-    # Mock the ImageAnalyzer result
-    mock_analyzer_instance = mock_image_analyzer.return_value
-    mock_analyzer_instance.analyze_image.return_value = RegularReceipt.model_validate(mock_receipt_data).model_dump()
-
-    # Create a dummy file
-    upload_folder = test_client.application.config['UPLOAD_FOLDER']
-    if not os.path.exists(upload_folder):
-        os.makedirs(upload_folder)
-    file_path = os.path.join(upload_folder, 'test.jpg')
-    with open(file_path, 'w') as f:
-        f.write('dummy image data')
-
-    response = test_client.get('/api/analyze/test.jpg')
-    assert response.status_code == 200
-    data = json.loads(response.data)
-    assert data['merchant'] == mock_receipt_data['merchant']
-
-    os.remove(file_path)

@@ -1,9 +1,12 @@
 import os
+import requests
+import tempfile
+import warnings
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from models import db
 from models.user_receipt import UserReceipt
 from models.receipt_line_item import ReceiptLineItem
-from image_analyzer import ImageAnalyzer
+from image_analyzer import ImageAnalyzer, ImageAnalysisError, ImageAnalyzerConfigError
 from schemas.receipt import LineItem, LineItemResponse, RegularReceiptResponse, UserReceiptCreate, ReceiptLineItemCreate
 from werkzeug.utils import secure_filename
 from blueprints.auth import get_current_user
@@ -11,11 +14,82 @@ from pydantic import ValidationError
 
 receipts_bp = Blueprint('receipts', __name__)
 
+def upload_to_blob_storage(image_data, filename, content_type):
+    """
+    Upload binary image data to Vercel blob storage via the Vercel function
+    Args:
+        image_data (bytes): Binary image data
+        filename (str): Original filename
+        content_type (str): MIME type (e.g., 'image/jpeg')
+    Returns the blob URL on success, None on failure
+    """
+    try:
+        # Get the Vercel function URL from environment - this is validated at app startup
+        vercel_function_url = os.environ.get('VERCEL_FUNCTION_URL')
+        if not vercel_function_url:
+            current_app.logger.error("VERCEL_FUNCTION_URL environment variable is not set")
+            return None
+        
+        # Sanitize inputs
+        # Ensure filename is safe - use secure_filename or fallback to generated name
+        safe_filename = secure_filename(filename) if filename else 'uploaded_file'
+        if not safe_filename:  # secure_filename might return empty string for invalid filenames
+            safe_filename = 'uploaded_file'
+        
+        # Ensure content_type has a sensible default
+        safe_content_type = content_type if content_type else 'application/octet-stream'
+        
+        # Prepare the file for upload using binary data
+        files = {'file': (safe_filename, image_data, safe_content_type)}
+        
+        # Make the request to the Vercel function
+        response = requests.post(vercel_function_url, files=files, timeout=30)
+        
+        # Raise HTTPError for bad HTTP status codes (4xx, 5xx)
+        response.raise_for_status()
+        
+        # Safe JSON parsing with error handling
+        try:
+            result = response.json()
+        except ValueError:
+            current_app.logger.exception("Failed to parse JSON response from blob storage: %s", response.text, exc_info=True)
+            return None
+        
+        # Safe access to result data
+        if not isinstance(result, dict):
+            current_app.logger.error(f"Unexpected response format from blob storage: {type(result)}")
+            return None
+            
+        if result.get('success'):
+            blob_url = result.get('url')
+            if blob_url:
+                return blob_url
+            else:
+                current_app.logger.error("Blob upload succeeded but no URL returned")
+                return None
+        else:
+            error_msg = result.get('error', 'Unknown error')
+            current_app.logger.error(f"Blob upload failed: {error_msg}")
+            return None
+            
+    except requests.RequestException:
+        current_app.logger.exception("Network/HTTP error uploading to blob storage for file %s", safe_filename, exc_info=True)
+        return None
+
 def resolve_image_path(image_path):
     """
     Resolve image path with backwards compatibility.
     Tries absolute path first, then falls back to relative path from backend/uploads/
+    
+    DEPRECATED: This function is deprecated as local file storage is being phased out
+    in favor of blob storage. This function will be removed in a future version.
     """
+    warnings.warn(
+        "resolve_image_path() is deprecated and will be removed in a future version. "
+        "Local file storage is being replaced with blob storage.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     # First try the path as-is (absolute path)
     if os.path.isfile(image_path):
         return image_path
@@ -34,16 +108,6 @@ def resolve_image_path(image_path):
     # If still not found, return the original path (will cause 404)
     return image_path
 
-@receipts_bp.route('/api/analyze/<filename>')
-def api_analyze(filename):
-    image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-    # Resolve image path with backwards compatibility
-    resolved_path = resolve_image_path(image_path)
-    analyzer = ImageAnalyzer()
-    analysis_result = analyzer.analyze_image(resolved_path)
-    print("analysis_result done: ", analysis_result)
-    return jsonify(analysis_result)
-
 @receipts_bp.route('/api/analyze-receipt', methods=['POST'])
 def analyze_receipt():
     # Check if user is authenticated
@@ -56,42 +120,37 @@ def analyze_receipt():
     if file.filename == '':
         return jsonify({'success': False, 'error': 'No file selected'}), 400
 
-    # Get the provider from the request, default to environment variable
-    provider = 'gemini'
-
-    # Save the file temporarily
-    temp_path = os.path.join(current_app.config['UPLOAD_FOLDER'], secure_filename(file.filename))
-    file.save(temp_path)
+    # Read the file data for analysis and upload
+    file.seek(0)  # Reset file pointer to beginning
+    image_data = file.read()
+    
+    # Upload to blob storage using binary data
+    blob_url = upload_to_blob_storage(image_data, file.filename, file.content_type)
+    if not blob_url:
+        return jsonify({
+            'success': False,
+            'error': 'Failed to upload image to blob storage'
+        }), 500
 
     try:
-        analyzer = ImageAnalyzer(provider=provider)
+        analyzer = ImageAnalyzer()
         try:
-            receipt_model = analyzer.analyze_image(temp_path)
-        except Exception as analyzer_error:
+            receipt_model = analyzer.analyze_image(image_data)
+        except ImageAnalyzerConfigError as config_error:
+            current_app.logger.error(f"Image analyzer configuration error: {str(config_error)}")
+            return jsonify({
+                'success': False,
+                'error': f"Service configuration error: {str(config_error)}"
+            }), 500
+        except ImageAnalysisError as analyzer_error:
             current_app.logger.error(f"Error from image analyzer: {str(analyzer_error)}")
             return jsonify({
                 'success': False,
                 'error': f"Image analysis failed: {str(analyzer_error)}"
             }), 500
 
-        # Check if receipt_model is an error dict from _process_response
-        if isinstance(receipt_model, dict):
-            if receipt_model.get("error") or (receipt_model.get("success") is False):
-                # Return error response directly
-                return jsonify({
-                    'success': False,
-                    'error': receipt_model.get("error", "Unknown error occurred")
-                }), 400
-            else:
-                # It's a dict but not an error - this shouldn't happen with proper Pydantic validation
-                # but handle it gracefully
-                return jsonify({
-                    'success': True,
-                    'is_receipt': False,
-                    'receipt_data': receipt_model
-                })
-
-        # receipt_model should be a Pydantic model at this point
+        # receipt_model should always be a Pydantic model (RegularReceipt, TransportationTicket, or NotAReceipt)
+        # If there was an error in processing, ImageAnalysisError would have been raised above
         if not hasattr(receipt_model, 'model_dump'):
             # This shouldn't happen, but handle it gracefully
             current_app.logger.error(f"Unexpected receipt_model type: {type(receipt_model)}")
@@ -105,7 +164,7 @@ def analyze_receipt():
             
             # Add the additional fields that aren't in the Pydantic model
             receipt_create_data.user_id = current_user.id if current_user else None
-            receipt_create_data.image_path = temp_path
+            receipt_create_data.image_path = blob_url
             
             # Create the SQLAlchemy model instance
             new_receipt = UserReceipt(**receipt_create_data.model_dump())
@@ -147,9 +206,6 @@ def analyze_receipt():
         db.session.rollback()
         current_app.logger.error(f"Error analyzing receipt: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
-    finally:
-        # Don't delete the file since we're storing it in the database
-        pass
 
 @receipts_bp.route('/api/user/receipts', methods=['GET'])
 def get_user_receipts():
@@ -257,6 +313,27 @@ def get_receipt_image(receipt_id):
 
         image_path = receipt.image_path
 
+        # Check if it's a blob URL (starts with https://)
+        if image_path.startswith('https://'):
+            # For blob URLs, redirect to the blob storage URL
+            return jsonify({
+                'success': True,
+                'image_url': image_path
+            })
+
+        # Legacy handling for local files
+        # DEPRECATED: Local file storage is deprecated in favor of blob storage
+        warnings.warn(
+            "Local file storage for receipt images is deprecated and will be removed in a future version. "
+            "Please migrate to blob storage.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        current_app.logger.warning(
+            f"DEPRECATED: Using legacy local file storage for receipt {receipt_id}. "
+            f"Local file path: {image_path}. Please migrate to blob storage."
+        )
+        
         # Resolve image path with backwards compatibility
         resolved_path = resolve_image_path(image_path)
 

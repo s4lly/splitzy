@@ -8,15 +8,15 @@ def test_register(test_client):
     """
     response = test_client.post('/api/register',
                                 data=json.dumps(dict(
-                                    username='testuser',
-                                    email='test@example.com',
+                                    username='newuser',
+                                    email='newuser@example.com',
                                     password='password'
                                 )),
                                 content_type='application/json')
     assert response.status_code == 201
     data = json.loads(response.data)
     assert data['success'] is True
-    assert data['user']['username'] == 'testuser'
+    assert data['user']['username'] == 'newuser'
 
 def test_login(test_client, new_user):
     """
