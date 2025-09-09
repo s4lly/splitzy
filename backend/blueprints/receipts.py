@@ -35,19 +35,35 @@ def upload_to_blob_storage(image_data, filename, content_type):
         # Make the request to the Vercel function
         response = requests.post(vercel_function_url, files=files, timeout=30)
         
-        if response.status_code == 200:
+        # Raise HTTPError for bad HTTP status codes (4xx, 5xx)
+        response.raise_for_status()
+        
+        # Safe JSON parsing with error handling
+        try:
             result = response.json()
-            if result.get('success'):
-                return result.get('url')
-            else:
-                current_app.logger.error(f"Blob upload failed: {result.get('error')}")
-                return None
-        else:
-            current_app.logger.error(f"Blob upload failed with status {response.status_code}: {response.text}")
+        except ValueError as e:
+            current_app.logger.exception(f"Failed to parse JSON response from blob storage: {response.text}")
+            return None
+        
+        # Safe access to result data
+        if not isinstance(result, dict):
+            current_app.logger.error(f"Unexpected response format from blob storage: {type(result)}")
             return None
             
-    except Exception as e:
-        current_app.logger.error(f"Error uploading to blob storage: {str(e)}")
+        if result.get('success'):
+            blob_url = result.get('url')
+            if blob_url:
+                return blob_url
+            else:
+                current_app.logger.error("Blob upload succeeded but no URL returned")
+                return None
+        else:
+            error_msg = result.get('error', 'Unknown error')
+            current_app.logger.error(f"Blob upload failed: {error_msg}")
+            return None
+            
+    except requests.RequestException as e:
+        current_app.logger.exception(f"Network/HTTP error uploading to blob storage")
         return None
 
 def resolve_image_path(image_path):
