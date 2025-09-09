@@ -15,9 +15,11 @@ export default async function handler(req, res) {
 
   // Validate BLOB_READ_WRITE_TOKEN before attempting upload
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    console.error(
-      'BLOB_READ_WRITE_TOKEN environment variable is not configured'
-    );
+    console.error('Blob storage configuration error', {
+      error: 'BLOB_READ_WRITE_TOKEN environment variable is not configured',
+      timestamp: new Date().toISOString(),
+      operation: 'token_validation',
+    });
     return res.status(500).json({
       error: 'Server configuration error: Blob storage token is not configured',
     });
@@ -64,7 +66,14 @@ export default async function handler(req, res) {
       filename: filename,
     });
   } catch (error) {
-    console.error('Error uploading to blob storage:', error);
+    console.error('Blob upload failed', {
+      error: error.message,
+      stack: error.stack,
+      filename: filename || 'unknown',
+      originalFilename: file?.originalFilename,
+      mimetype: file?.mimetype,
+      timestamp: new Date().toISOString(),
+    });
     return res.status(500).json({
       error: 'Failed to upload file to blob storage',
       details:
@@ -77,7 +86,12 @@ export default async function handler(req, res) {
         await fs.unlink(tempFilePath);
       } catch (cleanupError) {
         // Log cleanup error but don't mask the original error
-        console.warn('Failed to clean up temporary file:', cleanupError);
+        console.warn('Temporary file cleanup failed', {
+          error: cleanupError.message,
+          tempFilePath: tempFilePath,
+          timestamp: new Date().toISOString(),
+          operation: 'file_cleanup',
+        });
       }
     }
   }
