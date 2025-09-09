@@ -10,6 +10,11 @@ from schemas.receipt import TransportationTicket, RegularReceipt, NotAReceipt
 # Set up module-level logger
 logger = logging.getLogger(__name__)
 
+
+class ImageAnalysisError(Exception):
+    """Domain-specific exception for image analysis failures"""
+    pass
+
 # Load environment variables from backend .env file
 backend_dir = Path(__file__).resolve().parent
 env_path = backend_dir / '.env'
@@ -31,11 +36,19 @@ class ImageAnalyzer:
         Args:
             image_data_or_path: Either binary image data (bytes) or file path (str)
         Returns a Pydantic model (RegularReceipt, TransportationTicket, or NotAReceipt)
+        Raises:
+            ImageAnalysisError: When image analysis fails
         """
         try:
             return self._analyze_image_with_gemini(image_data_or_path)
+        except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
+            # Handle expected exceptions with specific error messages
+            logger.error(f"Image analysis failed: {str(e)}")
+            raise ImageAnalysisError(f"Analysis failed: {str(e)}") from e
         except Exception as e:
-            raise Exception(f"Analysis failed: {str(e)}")
+            # Handle unexpected exceptions
+            logger.error(f"Unexpected error during image analysis: {str(e)}")
+            raise ImageAnalysisError(f"Analysis failed due to unexpected error: {str(e)}") from e
 
     def _analyze_image_with_gemini(self, image_data_or_path):
         """Analyze image using Google Gemini"""
@@ -122,9 +135,9 @@ class ImageAnalyzer:
                 except (json.JSONDecodeError, Exception):
                     pass
             
-            raise Exception(f"Could not parse structured output: {str(e)}")
+            raise ImageAnalysisError(f"Could not parse structured output: {str(e)}") from e
         except Exception as e:
-            raise Exception(f"Schema validation failed: {str(e)}")
+            raise ImageAnalysisError(f"Schema validation failed: {str(e)}") from e
 
     def _get_system_prompt(self):
         """Get the system prompt for receipt analysis"""
@@ -249,10 +262,7 @@ class ImageAnalyzer:
             return self._with_structured_output(analysis_text)
                 
         except Exception as e:
-            return {
-                "success": False,
-                "error": f"Error processing response: {str(e)}",
-                "raw_text": analysis_text
-            }
+            logger.error(f"Error processing response: {str(e)}")
+            raise ImageAnalysisError(f"Error processing response: {str(e)}") from e
 
  

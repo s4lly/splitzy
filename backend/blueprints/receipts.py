@@ -5,7 +5,7 @@ from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from models import db
 from models.user_receipt import UserReceipt
 from models.receipt_line_item import ReceiptLineItem
-from image_analyzer import ImageAnalyzer
+from image_analyzer import ImageAnalyzer, ImageAnalysisError
 from schemas.receipt import LineItem, LineItemResponse, RegularReceiptResponse, UserReceiptCreate, ReceiptLineItemCreate
 from werkzeug.utils import secure_filename
 from blueprints.auth import get_current_user
@@ -117,31 +117,15 @@ def analyze_receipt():
         analyzer = ImageAnalyzer()
         try:
             receipt_model = analyzer.analyze_image(image_data)
-        except Exception as analyzer_error:
+        except ImageAnalysisError as analyzer_error:
             current_app.logger.error(f"Error from image analyzer: {str(analyzer_error)}")
             return jsonify({
                 'success': False,
                 'error': f"Image analysis failed: {str(analyzer_error)}"
             }), 500
 
-        # Check if receipt_model is an error dict from _process_response
-        if isinstance(receipt_model, dict):
-            if receipt_model.get("error") or (receipt_model.get("success") is False):
-                # Return error response directly
-                return jsonify({
-                    'success': False,
-                    'error': receipt_model.get("error", "Unknown error occurred")
-                }), 400
-            else:
-                # It's a dict but not an error - this shouldn't happen with proper Pydantic validation
-                # but handle it gracefully
-                return jsonify({
-                    'success': True,
-                    'is_receipt': False,
-                    'receipt_data': receipt_model
-                })
-
-        # receipt_model should be a Pydantic model at this point
+        # receipt_model should always be a Pydantic model (RegularReceipt, TransportationTicket, or NotAReceipt)
+        # If there was an error in processing, ImageAnalysisError would have been raised above
         if not hasattr(receipt_model, 'model_dump'):
             # This shouldn't happen, but handle it gracefully
             current_app.logger.error(f"Unexpected receipt_model type: {type(receipt_model)}")
