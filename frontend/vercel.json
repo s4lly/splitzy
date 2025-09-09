@@ -8,7 +8,7 @@
     },
     {
       "source": "/api/:path*",
-      "destination": "https://epaphus.pythonanywhere.com/api/:path*"
+      "destination": "https://splitzy-prod.onrender.com/api/:path*"
     },
     {
       "source": "/(.*)",
