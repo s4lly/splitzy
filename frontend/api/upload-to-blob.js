@@ -26,6 +26,8 @@ export default async function handler(req, res) {
   }
 
   let tempFilePath = null;
+  let filename = undefined;
+  let file = undefined;
 
   try {
     // Parse the form data
@@ -34,7 +36,7 @@ export default async function handler(req, res) {
     });
 
     const [fields, files] = await form.parse(req);
-    const file = files.file?.[0];
+    file = files.file?.[0];
 
     if (!file) {
       return res.status(400).json({ error: 'No file provided' });
@@ -46,7 +48,7 @@ export default async function handler(req, res) {
     // Generate a unique filename with timestamp
     const timestamp = Date.now();
     const fileExtension = file.originalFilename?.split('.').pop() || 'jpg';
-    const filename = `receipt-${timestamp}.${fileExtension}`;
+    filename = `receipt-${timestamp}.${fileExtension}`;
 
     // Read the binary data from the temporary file using async API
     // Note: formidable saves the uploaded binary data to a temporary file
@@ -70,8 +72,8 @@ export default async function handler(req, res) {
       error: error.message,
       stack: error.stack,
       filename: filename || 'unknown',
-      originalFilename: file?.originalFilename,
-      mimetype: file?.mimetype,
+      originalFilename: file?.originalFilename || 'unknown',
+      mimetype: file?.mimetype || 'unknown',
       timestamp: new Date().toISOString(),
     });
     return res.status(500).json({
