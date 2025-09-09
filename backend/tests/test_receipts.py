@@ -254,8 +254,9 @@ def test_get_receipt_image(test_client, new_user, new_receipt):
     os.remove(image_path)
 
 
+@patch('blueprints.receipts.upload_to_blob_storage')
 @patch('blueprints.receipts.ImageAnalyzer')
-def test_analyze_receipt(mock_image_analyzer, test_client, new_user, mock_receipt_data):
+def test_analyze_receipt(mock_image_analyzer, mock_blob_upload, test_client, new_user, mock_receipt_data):
     """
     GIVEN a Flask application
     WHEN the '/api/analyze-receipt' page is sent a POST request with a file
@@ -264,6 +265,9 @@ def test_analyze_receipt(mock_image_analyzer, test_client, new_user, mock_receip
     # Log in the user
     with test_client.session_transaction() as session:
         session['user_id'] = new_user.id
+
+    # Mock the blob storage upload to return a fake URL
+    mock_blob_upload.return_value = "https://fake-blob-storage.com/fake-image-url.jpg"
 
     # Mock the ImageAnalyzer result
     mock_analyzer_instance = mock_image_analyzer.return_value
