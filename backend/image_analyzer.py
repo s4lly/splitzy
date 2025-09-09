@@ -16,24 +16,29 @@ class ImageAnalyzer:
         # Always use Gemini
         genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-    def analyze_image(self, image_path):
+    def analyze_image(self, image_data_or_path):
         """
         Analyze a receipt image using Google Gemini
+        Args:
+            image_data_or_path: Either binary image data (bytes) or file path (str)
         Returns a Pydantic model (RegularReceipt, TransportationTicket, or NotAReceipt)
         """
-        if not os.path.exists(image_path):
-            raise FileNotFoundError("Image not found")
-        
         try:
-            return self._analyze_image_with_gemini(image_path)
+            return self._analyze_image_with_gemini(image_data_or_path)
         except Exception as e:
             raise Exception(f"Analysis failed: {str(e)}")
 
-    def _analyze_image_with_gemini(self, image_path):
+    def _analyze_image_with_gemini(self, image_data_or_path):
         """Analyze image using Google Gemini"""
-        # Read the image file
-        with open(image_path, "rb") as image_file:
-            image_data = image_file.read()
+        # Handle both binary data and file path
+        if isinstance(image_data_or_path, bytes):
+            image_data = image_data_or_path
+        else:
+            # It's a file path
+            if not os.path.exists(image_data_or_path):
+                raise FileNotFoundError("Image not found")
+            with open(image_data_or_path, "rb") as image_file:
+                image_data = image_file.read()
         
         # Create the model
         model = genai.GenerativeModel('models/gemini-2.0-flash-lite')

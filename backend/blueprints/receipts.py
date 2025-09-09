@@ -13,9 +13,13 @@ from pydantic import ValidationError
 
 receipts_bp = Blueprint('receipts', __name__)
 
-def upload_to_blob_storage(file):
+def upload_to_blob_storage(image_data, filename, content_type):
     """
-    Upload file to Vercel blob storage via the Vercel function
+    Upload binary image data to Vercel blob storage via the Vercel function
+    Args:
+        image_data (bytes): Binary image data
+        filename (str): Original filename
+        content_type (str): MIME type (e.g., 'image/jpeg')
     Returns the blob URL on success, None on failure
     """
     try:
@@ -25,8 +29,8 @@ def upload_to_blob_storage(file):
             current_app.logger.error("VERCEL_FUNCTION_URL environment variable is not set")
             return None
         
-        # Prepare the file for upload
-        files = {'file': (file.filename, file.stream, file.content_type)}
+        # Prepare the file for upload using binary data
+        files = {'file': (filename, image_data, content_type)}
         
         # Make the request to the Vercel function
         response = requests.post(vercel_function_url, files=files, timeout=30)
@@ -81,23 +85,22 @@ def analyze_receipt():
     if file.filename == '':
         return jsonify({'success': False, 'error': 'No file selected'}), 400
 
-    # Upload to blob storage first
-    blob_url = upload_to_blob_storage(file)
+    # Read the file data for analysis and upload
+    file.seek(0)  # Reset file pointer to beginning
+    image_data = file.read()
+    
+    # Upload to blob storage using binary data
+    blob_url = upload_to_blob_storage(image_data, file.filename, file.content_type)
     if not blob_url:
         return jsonify({
             'success': False,
             'error': 'Failed to upload image to blob storage'
         }), 500
 
-    # Save the file temporarily for analysis
-    temp_path = os.path.join(current_app.config['UPLOAD_FOLDER'], secure_filename(file.filename))
-    file.seek(0)  # Reset file pointer
-    file.save(temp_path)
-
     try:
         analyzer = ImageAnalyzer()
         try:
-            receipt_model = analyzer.analyze_image(temp_path)
+            receipt_model = analyzer.analyze_image(image_data)
         except Exception as analyzer_error:
             current_app.logger.error(f"Error from image analyzer: {str(analyzer_error)}")
             return jsonify({
@@ -178,13 +181,6 @@ def analyze_receipt():
         db.session.rollback()
         current_app.logger.error(f"Error analyzing receipt: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
-    finally:
-        # Clean up temporary file since we're now storing the blob URL
-        try:
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-        except Exception as cleanup_error:
-            current_app.logger.warning(f"Failed to clean up temporary file {temp_path}: {str(cleanup_error)}")
 
 @receipts_bp.route('/api/user/receipts', methods=['GET'])
 def get_user_receipts():
