@@ -1,6 +1,7 @@
 import os
 import requests
 import tempfile
+import warnings
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from models import db
 from models.user_receipt import UserReceipt
@@ -70,7 +71,16 @@ def resolve_image_path(image_path):
     """
     Resolve image path with backwards compatibility.
     Tries absolute path first, then falls back to relative path from backend/uploads/
+    
+    DEPRECATED: This function is deprecated as local file storage is being phased out
+    in favor of blob storage. This function will be removed in a future version.
     """
+    warnings.warn(
+        "resolve_image_path() is deprecated and will be removed in a future version. "
+        "Local file storage is being replaced with blob storage.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     # First try the path as-is (absolute path)
     if os.path.isfile(image_path):
         return image_path
@@ -297,6 +307,18 @@ def get_receipt_image(receipt_id):
             })
 
         # Legacy handling for local files
+        # DEPRECATED: Local file storage is deprecated in favor of blob storage
+        warnings.warn(
+            "Local file storage for receipt images is deprecated and will be removed in a future version. "
+            "Please migrate to blob storage.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        current_app.logger.warning(
+            f"DEPRECATED: Using legacy local file storage for receipt {receipt_id}. "
+            f"Local file path: {image_path}. Please migrate to blob storage."
+        )
+        
         # Resolve image path with backwards compatibility
         resolved_path = resolve_image_path(image_path)
 
