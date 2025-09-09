@@ -30,8 +30,17 @@ def upload_to_blob_storage(image_data, filename, content_type):
             current_app.logger.error("VERCEL_FUNCTION_URL environment variable is not set")
             return None
         
+        # Sanitize inputs
+        # Ensure filename is safe - use secure_filename or fallback to generated name
+        safe_filename = secure_filename(filename) if filename else 'uploaded_file'
+        if not safe_filename:  # secure_filename might return empty string for invalid filenames
+            safe_filename = 'uploaded_file'
+        
+        # Ensure content_type has a sensible default
+        safe_content_type = content_type if content_type else 'application/octet-stream'
+        
         # Prepare the file for upload using binary data
-        files = {'file': (filename, image_data, content_type)}
+        files = {'file': (safe_filename, image_data, safe_content_type)}
         
         # Make the request to the Vercel function
         response = requests.post(vercel_function_url, files=files, timeout=30)
@@ -42,8 +51,8 @@ def upload_to_blob_storage(image_data, filename, content_type):
         # Safe JSON parsing with error handling
         try:
             result = response.json()
-        except ValueError as e:
-            current_app.logger.exception(f"Failed to parse JSON response from blob storage: {response.text}")
+        except ValueError:
+            current_app.logger.exception("Failed to parse JSON response from blob storage: %s", response.text, exc_info=True)
             return None
         
         # Safe access to result data
@@ -63,8 +72,8 @@ def upload_to_blob_storage(image_data, filename, content_type):
             current_app.logger.error(f"Blob upload failed: {error_msg}")
             return None
             
-    except requests.RequestException as e:
-        current_app.logger.exception(f"Network/HTTP error uploading to blob storage")
+    except requests.RequestException:
+        current_app.logger.exception("Network/HTTP error uploading to blob storage for file %s", safe_filename, exc_info=True)
         return None
 
 def resolve_image_path(image_path):
