@@ -121,52 +121,47 @@ const GratuityEditor = ({
   return (
     <div className="-ml-2 -mr-2 rounded-sm border">
       {isEditing ? (
-        <form
-          className="flex flex-col gap-3 bg-background py-1"
-          onSubmit={(e) => e.preventDefault()} // No submit action
-        >
-          <div className="flex flex-col gap-4 px-2 py-1">
-            {error && (
-              <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
-                <div className="text-sm text-destructive">{error}</div>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="gratuity" className="text-sm font-medium">
-                Gratuity:
-              </Label>
+        <div className="flex flex-col gap-4 bg-background px-2 py-2">
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
+              <div className="text-sm text-destructive">{error}</div>
             </div>
+          )}
 
-            <div className="flex items-center gap-2">
-              <span className="select-none pr-1 text-lg text-muted-foreground">
-                $
-              </span>
-              <Input
-                type="number"
-                value={gratuityInput}
-                onChange={handleGratuityChange}
-                placeholder="Gratuity"
-                min="0"
-                step="0.01"
-                inputMode="decimal"
-                pattern="^\d*(\.\d{0,2})?$"
-                required
-                className="text-center"
-                id="gratuity"
-                disabled={isPending}
-              />
-            </div>
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="gratuity" className="text-sm font-medium">
+              Gratuity:
+            </Label>
+          </div>
 
-            <ActionButtons
-              shouldShowDeleteButton={shouldShowDeleteButton}
-              onDelete={handleDeleteGratuity}
-              onCancel={handleCancelGratuity}
-              onSave={handleSaveGratuity}
-              isPending={isPending}
+          <div className="flex items-center gap-2">
+            <span className="select-none pr-1 text-lg text-muted-foreground">
+              $
+            </span>
+            <Input
+              type="number"
+              value={gratuityInput}
+              onChange={handleGratuityChange}
+              placeholder="Gratuity"
+              min="0"
+              step="0.01"
+              inputMode="decimal"
+              pattern="^\d*(\.\d{0,2})?$"
+              required
+              className="text-center"
+              id="gratuity"
+              disabled={isPending}
             />
           </div>
-        </form>
+
+          <ActionButtons
+            shouldShowDeleteButton={shouldShowDeleteButton}
+            onDelete={handleDeleteGratuity}
+            onCancel={handleCancelGratuity}
+            onSave={handleSaveGratuity}
+            isPending={isPending}
+          />
+        </div>
       ) : (
         <ClickableRow
           label="Gratuity"

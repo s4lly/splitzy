@@ -99,15 +99,38 @@ export default function LineItemForm({
   };
 
   return (
-    <div>
-      <form
-        className="flex flex-col gap-3 bg-background p-3"
-        onSubmit={(e) => e.preventDefault()} // No submit action
-      >
-        <div className="flex items-center justify-between gap-2">
-          <motion.div
-            className="flex-1"
+    <div className="flex flex-col gap-3 bg-background p-3">
+      <div className="flex items-center justify-between gap-2">
+        <motion.div
+          className="flex-1"
+          layout
+          transition={{
+            type: 'spring',
+            stiffness: 300,
+            damping: 30,
+            layout: {
+              type: 'spring',
+              stiffness: 300,
+              damping: 30,
+            },
+          }}
+        >
+          <Input
+            value={formName}
+            onChange={handleNameChange}
+            onFocus={() => setIsNameFocused(true)}
+            onBlur={() => setIsNameFocused(false)}
+            placeholder="Item name"
+            required
+          />
+        </motion.div>
+
+        {!isNameFocused && (
+          <motion.span
+            key="formTotal"
             layout
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{
               type: 'spring',
               stiffness: 300,
@@ -118,126 +141,98 @@ export default function LineItemForm({
                 damping: 30,
               },
             }}
+            className="whitespace-nowrap text-right font-semibold"
           >
-            <Input
-              value={formName}
-              onChange={handleNameChange}
-              onFocus={() => setIsNameFocused(true)}
-              onBlur={() => setIsNameFocused(false)}
-              placeholder="Item name"
-              required
-            />
-          </motion.div>
+            {formatCurrency(formTotal)}
+          </motion.span>
+        )}
 
-          {!isNameFocused && (
-            <motion.span
-              key="formTotal"
-              layout
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{
-                type: 'spring',
-                stiffness: 300,
-                damping: 30,
-                layout: {
-                  type: 'spring',
-                  stiffness: 300,
-                  damping: 30,
-                },
-              }}
-              className="whitespace-nowrap text-right font-semibold"
-            >
-              {formatCurrency(formTotal)}
-            </motion.span>
-          )}
+        <Toggle pressed onClick={onEditCancel}>
+          <ChevronDown />
+        </Toggle>
+      </div>
 
-          <Toggle pressed onClick={onEditCancel}>
-            <ChevronDown />
-          </Toggle>
-        </div>
+      <Separator />
 
-        <Separator />
-
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">Quantity</label>
-          <div className="flex items-center justify-between gap-2">
-            <Button
-              type="button"
-              size="icon"
-              variant="outline"
-              onClick={() => {
-                setFormQuantity((q: number) => {
-                  const newQ = Math.max(1, q - 1);
-                  mutate({
-                    receiptId: String(result?.id),
-                    itemId: item.id,
-                    quantity: newQ,
-                  });
-                  return newQ;
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium">Quantity</label>
+        <div className="flex items-center justify-between gap-2">
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            onClick={() => {
+              setFormQuantity((q: number) => {
+                const newQ = Math.max(1, q - 1);
+                mutate({
+                  receiptId: String(result?.id),
+                  itemId: item.id,
+                  quantity: newQ,
                 });
-              }}
-              className="shrink-0 rounded-full"
-            >
-              <Minus className="h-4 w-4" />
-            </Button>
-            <Input
-              type="number"
-              value={formQuantity}
-              onChange={handleQuantityChange}
-              placeholder="Quantity"
-              min={1}
-              required
-              className="text-center"
-            />
-            <Button
-              type="button"
-              size="icon"
-              variant="outline"
-              onClick={() => {
-                setFormQuantity((q: number) => {
-                  const newQ = q + 1;
-                  mutate({
-                    receiptId: String(result?.id),
-                    itemId: item.id,
-                    quantity: newQ,
-                  });
-                  return newQ;
+                return newQ;
+              });
+            }}
+            className="shrink-0 rounded-full"
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+          <Input
+            type="number"
+            value={formQuantity}
+            onChange={handleQuantityChange}
+            placeholder="Quantity"
+            min={1}
+            required
+            className="text-center"
+          />
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            onClick={() => {
+              setFormQuantity((q: number) => {
+                const newQ = q + 1;
+                mutate({
+                  receiptId: String(result?.id),
+                  itemId: item.id,
+                  quantity: newQ,
                 });
-              }}
-              className="shrink-0 rounded-full"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
+                return newQ;
+              });
+            }}
+            className="shrink-0 rounded-full"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
         </div>
+      </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">Unit Price</label>
-          <div className="flex items-center gap-2">
-            <span className="select-none pl-2 pr-1 text-lg text-muted-foreground">
-              $
-            </span>
-            <Input
-              type="number"
-              value={formPricePerItem}
-              onChange={handlePriceChange}
-              onBlur={handlePriceBlur}
-              onKeyDown={handlePriceKeyDown}
-              placeholder="Unit price"
-              min={0}
-              step="0.01"
-              required
-              className="text-center"
-            />
-          </div>
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium">Unit Price</label>
+        <div className="flex items-center gap-2">
+          <span className="select-none pl-2 pr-1 text-lg text-muted-foreground">
+            $
+          </span>
+          <Input
+            type="number"
+            value={formPricePerItem}
+            onChange={handlePriceChange}
+            onBlur={handlePriceBlur}
+            onKeyDown={handlePriceKeyDown}
+            placeholder="Unit price"
+            min={0}
+            step="0.01"
+            required
+            className="text-center"
+          />
         </div>
+      </div>
 
-        <ActionButtons
-          onDelete={handleDeleteItem}
-          onSave={onEditCancel}
-          isPending={false}
-        />
-      </form>
+      <ActionButtons
+        onDelete={handleDeleteItem}
+        onSave={onEditCancel}
+        isPending={false}
+      />
     </div>
   );
 }

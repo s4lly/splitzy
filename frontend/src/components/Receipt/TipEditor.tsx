@@ -126,83 +126,78 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
   return (
     <div className="-ml-2 -mr-2 rounded-sm border">
       {isEditing ? (
-        <form
-          className="flex flex-col gap-3 bg-background py-1"
-          onSubmit={(e) => e.preventDefault()} // No submit action
-        >
-          <div className="flex flex-col gap-4 px-2 py-1">
-            {error && (
-              <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
-                <div className="text-sm text-destructive">{error}</div>
+        <div className="flex flex-col gap-4 bg-background px-2 py-2">
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
+              <div className="text-sm text-destructive">{error}</div>
+            </div>
+          )}
+
+          <Tabs defaultValue="exact" className="">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="tip" className="text-sm font-medium">
+                Tip:
+              </Label>
+
+              <TabsList>
+                <TabsTrigger value="exact">Exact</TabsTrigger>
+                <TabsTrigger value="percentage">Percentage</TabsTrigger>
+              </TabsList>
+            </div>
+            <TabsContent value="exact" className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="select-none pr-1 text-lg text-muted-foreground">
+                  $
+                </span>
+                <Input
+                  type="number"
+                  value={tip}
+                  onChange={handleTipChange}
+                  placeholder="Tip"
+                  min={0}
+                  step="0.01"
+                  required
+                  className="text-center"
+                  id="tip"
+                  disabled={isPending}
+                />
               </div>
-            )}
-
-            <Tabs defaultValue="exact" className="">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="tip" className="text-sm font-medium">
-                  Tip:
-                </Label>
-
-                <TabsList>
-                  <TabsTrigger value="exact">Exact</TabsTrigger>
-                  <TabsTrigger value="percentage">Percentage</TabsTrigger>
-                </TabsList>
+              <div className="flex justify-center text-sm text-muted-foreground">
+                percentage of total{' '}
+                {itemsTotal > 0
+                  ? `${roundToTwoDecimals((tip / itemsTotal) * 100)}%`
+                  : '—'}
               </div>
-              <TabsContent value="exact" className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="select-none pr-1 text-lg text-muted-foreground">
-                    $
-                  </span>
-                  <Input
-                    type="number"
-                    value={tip}
-                    onChange={handleTipChange}
-                    placeholder="Tip"
-                    min={0}
-                    step="0.01"
-                    required
-                    className="text-center"
-                    id="tip"
-                    disabled={isPending}
-                  />
-                </div>
-                <div className="flex justify-center text-sm text-muted-foreground">
-                  percentage of total{' '}
-                  {itemsTotal > 0
-                    ? `${roundToTwoDecimals((tip / itemsTotal) * 100)}%`
-                    : '—'}
-                </div>
-              </TabsContent>
-              <TabsContent value="percentage">
-                <div className="grid grid-flow-col gap-2">
-                  <PercentageTipButton
-                    percentage={10}
-                    itemsTotal={itemsTotal}
-                    onTipSelect={handlePercentageTipSelect}
-                  />
-                  <PercentageTipButton
-                    percentage={15}
-                    itemsTotal={itemsTotal}
-                    onTipSelect={handlePercentageTipSelect}
-                  />
-                  <PercentageTipButton
-                    percentage={20}
-                    itemsTotal={itemsTotal}
-                    onTipSelect={handlePercentageTipSelect}
-                  />
-                </div>
-              </TabsContent>
-            </Tabs>
+            </TabsContent>
+            <TabsContent value="percentage">
+              <div className="grid grid-flow-col gap-2">
+                <PercentageTipButton
+                  percentage={10}
+                  itemsTotal={itemsTotal}
+                  onTipSelect={handlePercentageTipSelect}
+                />
+                <PercentageTipButton
+                  percentage={15}
+                  itemsTotal={itemsTotal}
+                  onTipSelect={handlePercentageTipSelect}
+                />
+                <PercentageTipButton
+                  percentage={20}
+                  itemsTotal={itemsTotal}
+                  onTipSelect={handlePercentageTipSelect}
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
 
-            <ActionButtons
-              shouldShowDeleteButton={hasValueToDelete}
-              onDelete={handleDeleteTip}
-              onCancel={handleCancelTip}
-              onSave={handleSaveTip}
-              isPending={isPending}
-            />
-          </div>
-        </form>
+          <ActionButtons
+            shouldShowDeleteButton={hasValueToDelete}
+            onDelete={handleDeleteTip}
+            onCancel={handleCancelTip}
+            onSave={handleSaveTip}
+            isPending={isPending}
+          />
+        </div>
       ) : (
         <ClickableRow
           label="Tip"
