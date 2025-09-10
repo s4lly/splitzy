@@ -4,18 +4,22 @@ import { cn } from '@/lib/utils';
 
 interface ActionButtonsProps {
   shouldShowDeleteButton?: boolean;
-  onDelete: () => void;
+  onDestructive?: () => void;
   onCancel?: () => void;
-  onSave: () => void;
+  onConstructive: () => void;
   isPending?: boolean;
+  destructiveLabel?: string;
+  constructiveLabel?: string;
 }
 
 const ActionButtons = ({
   shouldShowDeleteButton = false,
-  onDelete,
+  onDestructive,
   onCancel,
-  onSave,
+  onConstructive,
   isPending = false,
+  destructiveLabel = 'Delete',
+  constructiveLabel = 'Done',
 }: ActionButtonsProps) => {
   return (
     <div
@@ -24,12 +28,12 @@ const ActionButtons = ({
         !shouldShowDeleteButton && 'justify-end'
       )}
     >
-      {shouldShowDeleteButton && (
+      {shouldShowDeleteButton && onDestructive && (
         <Button
           variant="outline"
           size="icon"
           className="border-red-500 text-red-500"
-          onClick={onDelete}
+          onClick={onDestructive}
           disabled={isPending}
         >
           <Trash className="size-4" />
@@ -41,8 +45,8 @@ const ActionButtons = ({
             Cancel
           </Button>
         )}
-        <Button onClick={onSave} variant="outline" disabled={isPending}>
-          Done
+        <Button onClick={onConstructive} variant="outline" disabled={isPending}>
+          {constructiveLabel}
         </Button>
       </div>
     </div>

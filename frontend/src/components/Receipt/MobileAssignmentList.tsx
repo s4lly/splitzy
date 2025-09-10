@@ -196,13 +196,13 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
       </ul>
 
       <ActionButtons
-        onDelete={() =>
+        onDestructive={() =>
           deleteItem({
             receiptId: String(receiptId),
             itemId: item.id,
           })
         }
-        onSave={onAssignmentCancel}
+        onConstructive={onAssignmentCancel}
       />
     </div>
   );

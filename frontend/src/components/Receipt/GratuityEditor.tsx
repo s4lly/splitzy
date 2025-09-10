@@ -156,9 +156,9 @@ const GratuityEditor = ({
 
           <ActionButtons
             shouldShowDeleteButton={shouldShowDeleteButton}
-            onDelete={handleDeleteGratuity}
+            onDestructive={handleDeleteGratuity}
             onCancel={handleCancelGratuity}
-            onSave={handleSaveGratuity}
+            onConstructive={handleSaveGratuity}
             isPending={isPending}
           />
         </div>

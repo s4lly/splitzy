@@ -192,9 +192,9 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
 
           <ActionButtons
             shouldShowDeleteButton={hasValueToDelete}
-            onDelete={handleDeleteTip}
+            onDestructive={handleDeleteTip}
             onCancel={handleCancelTip}
-            onSave={handleSaveTip}
+            onConstructive={handleSaveTip}
             isPending={isPending}
           />
         </div>

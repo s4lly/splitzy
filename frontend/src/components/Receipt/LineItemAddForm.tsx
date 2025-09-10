@@ -1,9 +1,8 @@
-import { Trash, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import LineItemForm from '@/components/Receipt/LineItemForm';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { z } from 'zod';
 import { useState } from 'react';
+import ActionButtons from '@/components/Receipt/ActionButtons';
 import { useLineItemAddMutation } from '@/components/Receipt/hooks/useLineItemAddMutation';
 
 export default function LineItemAddForm({
@@ -77,22 +76,6 @@ export default function LineItemAddForm({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between p-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleAddItem}
-          disabled={addLineItemMutation.isPending}
-          className="border-blue-500 text-blue-500"
-        >
-          <Trash className="mr-2 h-4 w-4" />
-          {addLineItemMutation.isPending ? 'Adding...' : 'Add'}
-        </Button>
-
-        <Button variant="outline" size="icon" onClick={onAddCancel}>
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
       <LineItemForm
         item={{
           id: 'temp', // Temporary ID for the form
@@ -106,6 +89,13 @@ export default function LineItemAddForm({
         onNameChange={handleNameChange}
         onQuantityChange={handleQuantityChange}
         mutate={mutate}
+      />
+
+      <ActionButtons
+        onConstructive={handleAddItem}
+        onCancel={onAddCancel}
+        constructiveLabel="Add"
+        isPending={addLineItemMutation.isPending}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Minus, Plus, Pencil, Trash, X, ChevronDown } from 'lucide-react';
+import { Minus, Plus, ChevronDown } from 'lucide-react';
 import {
   formatCurrency,
   truncateToTwoDecimals,
@@ -10,7 +10,6 @@ import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { z } from 'zod';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ActionButtons from './ActionButtons';
 import { Toggle } from '../ui/toggle';
 
 export default function LineItemForm({
@@ -18,7 +17,6 @@ export default function LineItemForm({
   result,
   onNameChange,
   onQuantityChange,
-  handleDeleteItem,
   mutate,
   onEditCancel,
 }: {
@@ -26,14 +24,13 @@ export default function LineItemForm({
   result: z.infer<typeof ReceiptSchema>;
   onNameChange: (name: string) => void;
   onQuantityChange: (quantity: number) => void;
-  handleDeleteItem: () => void;
   mutate: (
     data: Partial<z.infer<typeof LineItemSchema>> & {
       receiptId: string;
       itemId: string;
     }
   ) => void;
-  onEditCancel: () => void;
+  onEditCancel?: () => void;
 }) {
   const [formName, setFormName] = useState(item.name);
   const [formQuantity, setFormQuantity] = useState<number>(item.quantity);
@@ -92,8 +89,6 @@ export default function LineItemForm({
   // Persist price per item when Enter is pressed
   const handlePriceKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      // Prevent form submission
-      e.preventDefault();
       handlePriceBlur();
     }
   };
@@ -147,9 +142,11 @@ export default function LineItemForm({
           </motion.span>
         )}
 
-        <Toggle pressed onClick={onEditCancel}>
-          <ChevronDown />
-        </Toggle>
+        {onEditCancel && (
+          <Toggle pressed onClick={onEditCancel}>
+            <ChevronDown />
+          </Toggle>
+        )}
       </div>
 
       <Separator />
@@ -227,12 +224,6 @@ export default function LineItemForm({
           />
         </div>
       </div>
-
-      <ActionButtons
-        onDelete={handleDeleteItem}
-        onSave={onEditCancel}
-        isPending={false}
-      />
     </div>
   );
 }
