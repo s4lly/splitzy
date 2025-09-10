@@ -74,9 +74,9 @@ export default function LineItemsTableMobile({
             ) : (
               // view
               <>
-                <div className="flex items-center justify-between gap-2 border-b border-border/40 bg-muted/10 p-2">
+                <div className="flex items-center justify-between border-b border-border/40 bg-muted/10 p-2">
                   <span className="text-base font-medium">{item.name}</span>
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-2">
                     <div className="text-right font-semibold">
                       {formatCurrency(
                         editLineItemsEnabled
@@ -133,7 +133,7 @@ export default function LineItemsTableMobile({
                 className={cn(
                   'flex p-2',
                   showReducedAssignments
-                    ? 'justify-between gap-1 border-t border-border/40'
+                    ? 'justify-between gap-2 border-t border-border/40'
                     : 'flex-col'
                 )}
               >
