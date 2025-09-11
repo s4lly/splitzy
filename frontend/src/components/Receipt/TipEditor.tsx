@@ -205,6 +205,7 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
                 className="border-red-500 text-red-500"
                 onClick={handleDeleteTip}
                 disabled={isPending}
+                aria-label="Delete tip"
               >
                 <Trash className="size-4" />
               </Button>
