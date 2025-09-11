@@ -3,9 +3,11 @@ import { Label } from '../ui/label';
 import { formatCurrency } from './utils/format-currency';
 import { useState, useEffect } from 'react';
 import { useReceiptDataUpdateMutation } from './hooks/useReceiptDataUpdateMutation';
-import ActionButtons from './ActionButtons';
 import ClickableRow from './components/ClickableRow';
 import AddableRow from './components/AddableRow';
+import { Button } from '../ui/button';
+import { Trash } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface GratuityEditorProps {
   receiptId: string;
@@ -23,7 +25,7 @@ const GratuityEditor = ({
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isValueEmpty = receiptGratuity === 0;
+  const hasValueToDelete = receiptGratuity > 0;
 
   useEffect(() => {
     setGratuity(receiptGratuity ?? 0);
@@ -114,59 +116,83 @@ const GratuityEditor = ({
     );
   };
 
-  if (isValueEmpty && !isEditing) {
+  if (!hasValueToDelete && !isEditing) {
     return <AddableRow label="Gratuity" onClick={handleEditGratuity} />;
   }
 
   return (
     <div className="-ml-2 -mr-2 rounded-sm border">
       {isEditing ? (
-        <form
-          className="flex flex-col gap-3 bg-background py-1"
-          onSubmit={(e) => e.preventDefault()} // No submit action
-        >
-          <div className="flex flex-col gap-4 px-2 py-1">
-            {error && (
-              <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
-                <div className="text-sm text-destructive">{error}</div>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="gratuity" className="text-sm font-medium">
-                Gratuity:
-              </Label>
+        <div className="flex flex-col gap-4 bg-background px-2 py-2">
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
+              <div className="text-sm text-destructive">{error}</div>
             </div>
+          )}
 
-            <div className="flex items-center gap-2">
-              <span className="select-none pr-1 text-lg text-muted-foreground">
-                $
-              </span>
-              <Input
-                type="number"
-                value={gratuityInput}
-                onChange={handleGratuityChange}
-                placeholder="Gratuity"
-                min="0"
-                step="0.01"
-                inputMode="decimal"
-                pattern="^\d*(\.\d{0,2})?$"
-                required
-                className="text-center"
-                id="gratuity"
-                disabled={isPending}
-              />
-            </div>
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="gratuity" className="text-sm font-medium">
+              Gratuity:
+            </Label>
+          </div>
 
-            <ActionButtons
-              isValueEmpty={isValueEmpty}
-              onDelete={handleDeleteGratuity}
-              onCancel={handleCancelGratuity}
-              onSave={handleSaveGratuity}
-              isPending={isPending}
+          <div className="flex items-center gap-2">
+            <span className="select-none pr-1 text-lg text-muted-foreground">
+              $
+            </span>
+            <Input
+              type="number"
+              value={gratuityInput}
+              onChange={handleGratuityChange}
+              placeholder="Gratuity"
+              min="0"
+              step="0.01"
+              inputMode="decimal"
+              pattern="^\d*(\.\d{0,2})?$"
+              required
+              className="text-center"
+              id="gratuity"
+              disabled={isPending}
             />
           </div>
-        </form>
+
+          <div
+            className={cn(
+              'flex justify-end',
+              hasValueToDelete && 'justify-between'
+            )}
+          >
+            {hasValueToDelete && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-red-500 text-red-500"
+                onClick={handleDeleteGratuity}
+                disabled={isPending}
+                aria-label="Delete gratuity"
+                title="Delete gratuity"
+              >
+                <Trash className="size-4" />
+              </Button>
+            )}
+            <div className="flex gap-2">
+              <Button
+                onClick={handleCancelGratuity}
+                variant="outline"
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveGratuity}
+                variant="outline"
+                disabled={isPending}
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        </div>
       ) : (
         <ClickableRow
           label="Gratuity"
