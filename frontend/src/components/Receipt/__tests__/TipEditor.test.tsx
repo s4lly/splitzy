@@ -335,6 +335,8 @@ describe('TipEditor', () => {
 
       // The component should exit edit mode after successful save
       await waitFor(() => {
+        // The component should exit edit mode and show the original value
+        // (until parent re-renders with updated props)
         expect(
           screen.getByRole('button', { name: /edit tip: \$5\.00/i })
         ).toBeInTheDocument();
@@ -355,6 +357,8 @@ describe('TipEditor', () => {
 
       // Should exit edit mode without making API call
       await waitFor(() => {
+        // The component should exit edit mode and show the original value
+        // (until parent re-renders with updated props)
         expect(
           screen.getByRole('button', { name: /edit tip: \$5\.00/i })
         ).toBeInTheDocument();
@@ -410,6 +414,8 @@ describe('TipEditor', () => {
       await user.click(cancelButton);
 
       await waitFor(() => {
+        // The component should exit edit mode and show the original value
+        // (cancel reverts to the prop value, not the edited value)
         expect(
           screen.getByRole('button', { name: /edit tip: \$5\.00/i })
         ).toBeInTheDocument();
@@ -434,6 +440,8 @@ describe('TipEditor', () => {
 
       // The component should exit edit mode after successful delete
       await waitFor(() => {
+        // The component should exit edit mode and show the original value
+        // (until parent re-renders with updated props after delete)
         expect(
           screen.getByRole('button', { name: /edit tip: \$5\.00/i })
         ).toBeInTheDocument();
