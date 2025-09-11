@@ -5,14 +5,14 @@ import MobileAssignmentList from './MobileAssignmentList';
 import { formatCurrency } from './utils/format-currency';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { z } from 'zod';
-import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
-import { Separator } from '../ui/separator';
 import LineItemCard from './components/LineItemCard';
 import { Button } from '../ui/button';
-import { ChevronDown, ChevronUp, Pencil, Plus } from 'lucide-react';
+import { ChevronUp, Pencil, Plus } from 'lucide-react';
 import { Toggle } from '../ui/toggle';
 import { cn } from '@/lib/utils';
+import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
+import { Separator } from '../ui/separator';
 
 export default function LineItemsTableMobile({
   line_items,
@@ -30,6 +30,8 @@ export default function LineItemsTableMobile({
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [assignmentItemId, setAssignmentItemId] = useState<string | null>(null);
 
+  const { mutate: deleteItem } = useLineItemDeleteMutation();
+
   // Edit mode handlers
   const handleEditOpen = (e: React.MouseEvent, itemId: string) => {
     setEditItemId(itemId);
@@ -37,7 +39,6 @@ export default function LineItemsTableMobile({
 
     e.stopPropagation();
   };
-  const handleEditClose = () => setEditItemId(null);
 
   // Assignment list handlers
   const handleAssignmentOpen = (e: React.MouseEvent, itemId: string) => {
@@ -48,8 +49,24 @@ export default function LineItemsTableMobile({
       prevItemId === itemId ? null : itemId
     );
   };
-  const handleAssignmentClose = () => {
+
+  const handleEditClose = () => {
+    setEditItemId(null);
     setAssignmentItemId(null);
+  };
+
+  const handleDeleteItem = (itemId: string) => {
+    deleteItem(
+      {
+        receiptId: String(result?.id),
+        itemId: itemId,
+      },
+      {
+        onSuccess: () => {
+          handleEditClose();
+        },
+      }
+    );
   };
 
   return (
@@ -61,10 +78,10 @@ export default function LineItemsTableMobile({
         return (
           <LineItemCard
             key={item.id}
-            selected={editItemId === item.id || assignmentItemId === item.id}
+            selected={showReducedAssignments || showReducedDetails}
           >
             {/* line item details */}
-            {editItemId === item.id ? (
+            {showReducedAssignments ? (
               // edit
               <LineItemEditForm
                 item={item}
@@ -111,7 +128,7 @@ export default function LineItemsTableMobile({
             )}
 
             {/* assignments */}
-            {assignmentItemId === item.id ? (
+            {showReducedDetails ? (
               // edit
               <MobileAssignmentList
                 possiblePeople={people}
@@ -124,8 +141,7 @@ export default function LineItemsTableMobile({
                 item={item}
                 formPricePerItem={item.price_per_item}
                 formQuantity={item.quantity}
-                onAssignmentCancel={handleAssignmentClose}
-                receiptId={String(result?.id)}
+                onAssignmentCancel={handleEditClose}
               />
             ) : (
               // view
@@ -162,6 +178,23 @@ export default function LineItemsTableMobile({
                     <ChevronUp />
                   </Toggle>
                 )}
+              </div>
+            )}
+
+            <Separator />
+
+            {(showReducedAssignments || showReducedDetails) && (
+              <div className="flex justify-between p-2 pt-3">
+                <Button
+                  onClick={() => handleDeleteItem(item.id)}
+                  variant="outline"
+                  className="border-red-500 text-red-500"
+                >
+                  Delete
+                </Button>
+                <Button onClick={handleEditClose} variant="outline">
+                  Done
+                </Button>
               </div>
             )}
           </LineItemCard>

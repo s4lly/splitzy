@@ -3,9 +3,11 @@ import { Label } from '../ui/label';
 import { formatCurrency } from './utils/format-currency';
 import { useState, useEffect } from 'react';
 import { useReceiptDataUpdateMutation } from './hooks/useReceiptDataUpdateMutation';
-import ActionButtons from './ActionButtons';
 import ClickableRow from './components/ClickableRow';
 import AddableRow from './components/AddableRow';
+import { Button } from '../ui/button';
+import { Trash } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface GratuityEditorProps {
   receiptId: string;
@@ -23,7 +25,7 @@ const GratuityEditor = ({
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const shouldShowDeleteButton = receiptGratuity !== 0;
+  const hasValueToDelete = receiptGratuity > 0;
 
   useEffect(() => {
     setGratuity(receiptGratuity ?? 0);
@@ -114,7 +116,7 @@ const GratuityEditor = ({
     );
   };
 
-  if (shouldShowDeleteButton && !isEditing) {
+  if (!hasValueToDelete && !isEditing) {
     return <AddableRow label="Gratuity" onClick={handleEditGratuity} />;
   }
 
@@ -154,13 +156,40 @@ const GratuityEditor = ({
             />
           </div>
 
-          <ActionButtons
-            shouldShowDeleteButton={shouldShowDeleteButton}
-            onDestructive={handleDeleteGratuity}
-            onCancel={handleCancelGratuity}
-            onConstructive={handleSaveGratuity}
-            isPending={isPending}
-          />
+          <div
+            className={cn(
+              'flex justify-end',
+              hasValueToDelete && 'justify-between'
+            )}
+          >
+            {hasValueToDelete && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-red-500 text-red-500"
+                onClick={handleDeleteGratuity}
+                disabled={isPending}
+              >
+                <Trash className="size-4" />
+              </Button>
+            )}
+            <div className="flex gap-2">
+              <Button
+                onClick={handleCancelGratuity}
+                variant="outline"
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveGratuity}
+                variant="outline"
+                disabled={isPending}
+              >
+                Done
+              </Button>
+            </div>
+          </div>
         </div>
       ) : (
         <ClickableRow

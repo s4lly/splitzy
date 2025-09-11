@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { Minus, Plus, ChevronDown } from 'lucide-react';
 import {
   formatCurrency,
@@ -9,7 +8,7 @@ import {
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { z } from 'zod';
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Toggle } from '../ui/toggle';
 
 export default function LineItemForm({
@@ -94,8 +93,8 @@ export default function LineItemForm({
   };
 
   return (
-    <div className="flex flex-col gap-3 bg-background p-3">
-      <div className="flex items-center justify-between gap-2">
+    <div className="flex flex-col gap-3 bg-background p-2">
+      <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-2">
         <motion.div
           className="flex-1"
           layout
@@ -148,8 +147,6 @@ export default function LineItemForm({
           </Toggle>
         )}
       </div>
-
-      <Separator />
 
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">Quantity</label>

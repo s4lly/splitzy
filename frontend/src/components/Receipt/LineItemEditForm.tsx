@@ -1,14 +1,9 @@
 import { useEffect, useMemo } from 'react';
-import { Button } from '../ui/button';
-import { X, Trash, Loader2 } from 'lucide-react';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { z } from 'zod';
 import debounce from 'lodash.debounce';
 import { useLineItemUpdateMutation } from './hooks/useLineItemUpdateMutation';
-import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
 import LineItemForm from './LineItemForm';
-import { cn } from '@/lib/utils';
-import { useMobile } from '@/hooks/use-mobile';
 
 export default function LineItemEditForm({
   item,
@@ -20,7 +15,6 @@ export default function LineItemEditForm({
   onEditCancel: () => void;
 }) {
   const { mutate: updateItem } = useLineItemUpdateMutation();
-  const { mutate: deleteItem } = useLineItemDeleteMutation();
 
   const debouncedPersistName = useMemo(
     () =>
@@ -63,21 +57,6 @@ export default function LineItemEditForm({
     debouncedPersistQuantity(quantity);
   };
 
-  // Handle delete item
-  const handleDeleteItem = () => {
-    deleteItem(
-      {
-        receiptId: String(result?.id),
-        itemId: item.id,
-      },
-      {
-        onSuccess: () => {
-          onEditCancel(); // Close the edit form after deletion
-        },
-      }
-    );
-  };
-
   return (
     <div className="w-full">
       <LineItemForm
@@ -87,7 +66,6 @@ export default function LineItemEditForm({
         onQuantityChange={handleQuantityChange}
         mutate={updateItem}
         onEditCancel={onEditCancel}
-        handleDeleteItem={handleDeleteItem}
       />
     </div>
   );

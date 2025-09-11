@@ -5,9 +5,11 @@ import { formatCurrency } from './utils/format-currency';
 import { useState, useEffect } from 'react';
 import { useReceiptDataUpdateMutation } from './hooks/useReceiptDataUpdateMutation';
 import PercentageTipButton from './components/PercentageTipButton';
-import ActionButtons from './ActionButtons';
 import ClickableRow from './components/ClickableRow';
 import AddableRow from './components/AddableRow';
+import { Button } from '../ui/button';
+import { Trash } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface TipEditorProps {
   receiptId: string;
@@ -190,13 +192,40 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
             </TabsContent>
           </Tabs>
 
-          <ActionButtons
-            shouldShowDeleteButton={hasValueToDelete}
-            onDestructive={handleDeleteTip}
-            onCancel={handleCancelTip}
-            onConstructive={handleSaveTip}
-            isPending={isPending}
-          />
+          <div
+            className={cn(
+              'flex justify-between',
+              !hasValueToDelete && 'justify-end'
+            )}
+          >
+            {hasValueToDelete && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-red-500 text-red-500"
+                onClick={handleDeleteTip}
+                disabled={isPending}
+              >
+                <Trash className="size-4" />
+              </Button>
+            )}
+            <div className="flex gap-2">
+              <Button
+                onClick={handleCancelTip}
+                variant="outline"
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveTip}
+                variant="outline"
+                disabled={isPending}
+              >
+                Done
+              </Button>
+            </div>
+          </div>
         </div>
       ) : (
         <ClickableRow

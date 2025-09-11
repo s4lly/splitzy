@@ -11,9 +11,6 @@ import { LineItemSchema } from '@/lib/receiptSchemas';
 import { z } from 'zod';
 import { Toggle } from '../ui/toggle';
 import { Label } from '../ui/label';
-import ActionButtons from './ActionButtons';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
 
 interface MobileAssignmentListProps {
@@ -24,7 +21,6 @@ interface MobileAssignmentListProps {
   formPricePerItem: number;
   formQuantity: number;
   onAssignmentCancel: () => void;
-  receiptId: string;
 }
 
 const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
@@ -35,9 +31,7 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
   formPricePerItem,
   formQuantity,
   onAssignmentCancel,
-  receiptId,
 }) => {
-  const { mutate: deleteItem } = useLineItemDeleteMutation();
   const [newPerson, setNewPerson] = useState('');
   const newPersonSanitized = newPerson.trim();
   const assignmentsAddAllEnabled = useFeatureFlag('assignments-add-all');
@@ -60,7 +54,7 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-md bg-background p-2 shadow-sm">
+    <div className="flex flex-col gap-4 rounded-md p-2">
       <div className="flex flex-col gap-2">
         {/* header */}
         <div className="flex items-center justify-between border-b border-border/40 pb-2">
@@ -194,16 +188,6 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
           ))
         )}
       </ul>
-
-      <ActionButtons
-        onDestructive={() =>
-          deleteItem({
-            receiptId: String(receiptId),
-            itemId: item.id,
-          })
-        }
-        onConstructive={onAssignmentCancel}
-      />
     </div>
   );
 };

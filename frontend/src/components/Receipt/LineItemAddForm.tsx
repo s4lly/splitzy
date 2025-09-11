@@ -2,8 +2,12 @@ import LineItemForm from '@/components/Receipt/LineItemForm';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { z } from 'zod';
 import { useState } from 'react';
-import ActionButtons from '@/components/Receipt/ActionButtons';
 import { useLineItemAddMutation } from '@/components/Receipt/hooks/useLineItemAddMutation';
+import { Button } from '../ui/button';
+
+function isStringEmpty(str: string) {
+  return str == null || str.trim() === '';
+}
 
 export default function LineItemAddForm({
   result,
@@ -91,12 +95,24 @@ export default function LineItemAddForm({
         mutate={mutate}
       />
 
-      <ActionButtons
-        onConstructive={handleAddItem}
-        onCancel={onAddCancel}
-        constructiveLabel="Add"
-        isPending={addLineItemMutation.isPending}
-      />
+      <div className="flex justify-end gap-2 p-2">
+        <Button
+          onClick={onAddCancel}
+          variant="outline"
+          disabled={addLineItemMutation.isPending}
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleAddItem}
+          variant="outline"
+          disabled={
+            addLineItemMutation.isPending || isStringEmpty(formData.name)
+          }
+        >
+          Add
+        </Button>
+      </div>
     </div>
   );
 }
