@@ -169,6 +169,8 @@ const GratuityEditor = ({
                 className="border-red-500 text-red-500"
                 onClick={handleDeleteGratuity}
                 disabled={isPending}
+                aria-label="Delete gratuity"
+                title="Delete gratuity"
               >
                 <Trash className="size-4" />
               </Button>
