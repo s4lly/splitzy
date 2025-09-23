@@ -21,7 +21,7 @@ const ReceiptHistory = React.lazy(
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [apiStatus, setApiStatus] = useState('checking');
 
   // Check API health
@@ -93,7 +93,7 @@ const HomePage = () => {
           </AuthenticatedOnly>
         </Suspense>
 
-        {!isAuthenticated && (
+        {!authLoading && !isAuthenticated && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
