@@ -1,5 +1,32 @@
 {
     "venvPath": ".",
     "venv": "venv",
-    "pythonVersion": "3.13"
+    "pythonVersion": "3.13",
+    "typeCheckingMode": "basic",
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false,
+    "pythonPlatform": "All",
+    "executionEnvironments": [
+        {
+            "root": ".",
+            "pythonVersion": "3.13",
+            "pythonPlatform": "All",
+            "extraPaths": [
+                "."
+            ]
+        }
+    ],
+    "include": [
+        "."
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache__",
+        "**/.*",
+        "tests",
+        "venv"
+    ],
+    "stubPath": "./venv/lib/python3.13/site-packages",
+    "autoSearchPaths": true,
+    "useLibraryCodeForTypes": true
 }
