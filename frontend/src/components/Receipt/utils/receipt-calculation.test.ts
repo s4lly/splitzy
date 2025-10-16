@@ -1,14 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  getTotalForAllItems,
+  filterPeople,
   getIndividualItemTotalPrice,
+  getPersonFinalFairLineItemTotals,
+  getPersonFinalTotals,
+  getPersonPreTaxItemTotals,
+  getPersonPreTaxTotalForItem,
   getTaxAmount,
   getTotal,
-  getPersonPreTaxItemTotals,
-  getPersonFinalTotals,
+  getTotalForAllItems,
 } from './receipt-calculation';
-import { getPersonPreTaxTotalForItem } from './receipt-calculation';
-import { filterPeople } from './receipt-calculation';
 
 const makeLineItem = (overrides = {}) => ({
   assignments: [],
@@ -105,7 +106,7 @@ describe('receipt-calculation utils', () => {
 });
 
 describe('getPersonPreTaxItemTotals', () => {
-  it('returns correct pre-tax totals for single person (editLineItemsEnabled: false)', () => {
+  it('returns correct pre-tax totals for single person', () => {
     const receipt = makeReceiptData({
       line_items: [
         makeLineItem({
@@ -118,28 +119,10 @@ describe('getPersonPreTaxItemTotals', () => {
     });
     const people = ['Alice'];
     const result = getPersonPreTaxItemTotals(receipt, people);
-    expect(result.get('Alice')).toBe(20);
-  });
-
-  it('returns correct pre-tax totals for single person (editLineItemsEnabled: true)', () => {
-    const receipt = makeReceiptData({
-      line_items: [
-        makeLineItem({
-          assignments: ['Alice'],
-          price_per_item: 5,
-          quantity: 2,
-          total_price: 20,
-        }),
-      ],
-    });
-    const people = ['Alice'];
-    const result = getPersonPreTaxItemTotals(receipt, people, {
-      editLineItemsEnabled: true,
-    });
     expect(result.get('Alice')).toBe(10);
   });
 
-  it('returns correct pre-tax totals for multiple people with shared items (editLineItemsEnabled: false)', () => {
+  it('returns correct pre-tax totals for multiple people with shared items', () => {
     const receipt = makeReceiptData({
       line_items: [
         makeLineItem({
@@ -162,32 +145,7 @@ describe('getPersonPreTaxItemTotals', () => {
     expect(result.get('Bob')).toBe(16);
   });
 
-  it('returns correct pre-tax totals for multiple people with shared items (editLineItemsEnabled: true)', () => {
-    const receipt = makeReceiptData({
-      line_items: [
-        makeLineItem({
-          assignments: ['Alice', 'Bob'],
-          price_per_item: 10,
-          quantity: 2,
-          total_price: 20,
-        }),
-        makeLineItem({
-          assignments: ['Bob'],
-          price_per_item: 6,
-          quantity: 1,
-          total_price: 6,
-        }),
-      ],
-    });
-    const people = ['Alice', 'Bob'];
-    const result = getPersonPreTaxItemTotals(receipt, people, {
-      editLineItemsEnabled: true,
-    });
-    expect(result.get('Alice')).toBe(10);
-    expect(result.get('Bob')).toBe(16);
-  });
-
-  it('returns 0 for people not assigned to any items (editLineItemsEnabled: false)', () => {
+  it('returns 0 for people not assigned to any items', () => {
     const receipt = makeReceiptData({
       line_items: [
         makeLineItem({
@@ -201,26 +159,6 @@ describe('getPersonPreTaxItemTotals', () => {
     });
     const people = ['Alice', 'Bob'];
     const result = getPersonPreTaxItemTotals(receipt, people);
-    expect(result.get('Alice')).toBe(20);
-    expect(result.get('Bob')).toBe(0);
-  });
-
-  it('returns 0 for people not assigned to any items (editLineItemsEnabled: true)', () => {
-    const receipt = makeReceiptData({
-      line_items: [
-        makeLineItem({
-          assignments: ['Alice'],
-          price_per_item: 10,
-          quantity: 1,
-          total_price: 20,
-        }),
-      ],
-      total: 10,
-    });
-    const people = ['Alice', 'Bob'];
-    const result = getPersonPreTaxItemTotals(receipt, people, {
-      editLineItemsEnabled: true,
-    });
     expect(result.get('Alice')).toBe(10);
     expect(result.get('Bob')).toBe(0);
   });
@@ -247,7 +185,7 @@ describe('getPersonFinalTotals', () => {
     expect(result.get('Bob')).toBeCloseTo(13);
   });
 
-  it('returns correct final totals with only one person and no tax/tip (editLineItemsEnabled: false)', () => {
+  it('returns correct final totals with only one person and no tax/tip', () => {
     const receipt = makeReceiptData({
       line_items: [
         makeLineItem({
@@ -263,27 +201,6 @@ describe('getPersonFinalTotals', () => {
     });
     const people = ['Alice'];
     const result = getPersonFinalTotals(receipt, people);
-    expect(result.get('Alice')).toBe(20);
-  });
-
-  it('returns correct final totals with only one person and no tax/tip (editLineItemsEnabled: true)', () => {
-    const receipt = makeReceiptData({
-      line_items: [
-        makeLineItem({
-          assignments: ['Alice'],
-          price_per_item: 5,
-          quantity: 2,
-          total_price: 20,
-        }),
-      ],
-      tax: 0,
-      tip: 0,
-      gratuity: 0,
-    });
-    const people = ['Alice'];
-    const result = getPersonFinalTotals(receipt, people, {
-      editLineItemsEnabled: true,
-    });
     expect(result.get('Alice')).toBe(10);
   });
 
@@ -327,42 +244,27 @@ describe('receipt-calculation candidate logic', () => {
     expect(result).toBe(15 * 3);
   });
 
-  it('getPersonPreTaxTotalForItem uses candidate when editLineItemsEnabled is true', () => {
+  it('getPersonPreTaxTotalForItem uses candidate when provided', () => {
     const item = { ...baseItem };
     const result = getPersonPreTaxTotalForItem(item, 'Alice', {
-      editLineItemsEnabled: true,
       candidate,
     });
     // candidate total: 45, split by 2 = 22.5
     expect(result).toBe(22.5);
   });
 
-  it('getPersonPreTaxTotalForItem ignores candidate when editLineItemsEnabled is false', () => {
-    const item = { ...baseItem };
-    const result = getPersonPreTaxTotalForItem(item, 'Alice', {
-      editLineItemsEnabled: false,
-      candidate,
-    });
-    // should use item.total_price: 20 / 2 = 10
-    expect(result).toBe(10);
-  });
-
-  it('getPersonPreTaxItemTotals uses candidate logic via editLineItemsEnabled', () => {
+  it('getPersonPreTaxItemTotals uses price_per_item * quantity', () => {
     const receipt_data = {
       line_items: [{ ...baseItem }],
     };
     const people = ['Alice', 'Bob'];
-    // getPersonPreTaxItemTotals does not accept candidate, only editLineItemsEnabled
-    // So this just checks the split logic, not candidate
-    const result = getPersonPreTaxItemTotals(receipt_data as any, people, {
-      editLineItemsEnabled: true,
-    });
+    const result = getPersonPreTaxItemTotals(receipt_data as any, people);
     // Should use price_per_item * quantity = 10*2=20, split by 2 = 10
     expect(result.get('Alice')).toBe(10);
     expect(result.get('Bob')).toBe(10);
   });
 
-  it('getPersonFinalTotals uses editLineItemsEnabled logic', () => {
+  it('getPersonFinalTotals calculates totals using price_per_item * quantity', () => {
     const receipt_data = {
       line_items: [{ ...baseItem }],
       tax: 0,
@@ -371,16 +273,13 @@ describe('receipt-calculation candidate logic', () => {
       tax_included_in_items: true,
     };
     const people = ['Alice', 'Bob'];
-    // getPersonFinalTotals does not accept candidate, only editLineItemsEnabled
-    const result = getPersonFinalTotals(receipt_data as any, people, {
-      editLineItemsEnabled: true,
-    });
+    const result = getPersonFinalTotals(receipt_data as any, people);
     // Only item, so should match pre-tax split: 10 each
     expect(result.get('Alice')).toBe(10);
     expect(result.get('Bob')).toBe(10);
   });
 
-  it('getPersonFinalTotals splits tip and gratuity evenly when editLineItemsEnabled is true', () => {
+  it('getPersonFinalTotals splits tip and gratuity evenly', () => {
     const receipt_data = {
       line_items: [{ ...baseItem }],
       tax: 0,
@@ -389,9 +288,7 @@ describe('receipt-calculation candidate logic', () => {
       tax_included_in_items: true,
     };
     const people = ['Alice', 'Bob'];
-    const result = getPersonFinalTotals(receipt_data as any, people, {
-      editLineItemsEnabled: true,
-    });
+    const result = getPersonFinalTotals(receipt_data as any, people);
     // 10 each + (4+6)/2 = 5, so 15 each
     expect(result.get('Alice')).toBe(15);
     expect(result.get('Bob')).toBe(15);
@@ -440,5 +337,169 @@ describe('filterPeople', () => {
 
   it('returns empty array if no people match searchValue', () => {
     expect(filterPeople(allPeople, [], 'zzz')).toEqual([]);
+  });
+});
+
+describe('getPersonFinalFairLineItemTotals', () => {
+  it('distributes positive rounding pennies correctly', () => {
+    // $31.00 split 3 ways = $10.333... each
+    // Should round to two values at $10.33 and one at $10.34 to sum to $31.00
+    const receiptTotal = 31.0;
+    const personFinalTotals = new Map([
+      ['Alice', 10.333333333333334],
+      ['Bob', 10.333333333333334],
+      ['Charlie', 10.333333333333334],
+    ]);
+
+    const result = getPersonFinalFairLineItemTotals(
+      receiptTotal,
+      personFinalTotals
+    );
+
+    // Verify the distribution of amounts without assuming which person gets which
+    const values = Array.from(result.values()).sort();
+    expect(values).toEqual([10.33, 10.33, 10.34]);
+
+    // Sum should equal receipt total
+    const sum = Array.from(result.values()).reduce((a, b) => a + b, 0);
+    expect(sum).toBeCloseTo(receiptTotal, 2);
+  });
+
+  it('handles case where rounded sum exceeds receipt total (negative difference)', () => {
+    // Simulate case where truncation causes sum to be slightly higher
+    // receiptTotal = 30.00, but truncated shares sum to 30.01
+    const receiptTotal = 30.0;
+    const personFinalTotals = new Map([
+      ['Alice', 10.006], // truncates to 10.00
+      ['Bob', 10.006], // truncates to 10.00
+      ['Charlie', 10.006], // truncates to 10.00
+    ]);
+    // Sum after truncation = 30.00, which equals receiptTotal
+    // But let's test a case where it would be higher:
+
+    const personFinalTotals2 = new Map([
+      ['Alice', 10.009], // truncates to 10.00
+      ['Bob', 10.009], // truncates to 10.00
+      ['Charlie', 10.009], // truncates to 10.00
+    ]);
+
+    const result = getPersonFinalFairLineItemTotals(
+      receiptTotal,
+      personFinalTotals2
+    );
+
+    // Sum should still equal receipt total
+    const sum = Array.from(result.values()).reduce((a, b) => a + b, 0);
+    expect(sum).toBeCloseTo(receiptTotal, 2);
+  });
+
+  it('handles negative differences when rounded sum exceeds receipt total', () => {
+    // This test validates the algorithm when rounded values sum to more than the receipt total
+    // The diffCents calculation converts to integer cents to avoid floating point errors
+
+    // Create a scenario where rounded sum is slightly higher than receipt total
+    const receiptTotal = 29.99;
+    const personFinalTotals = new Map([
+      ['Alice', 10.005], // truncates to 10.00
+      ['Bob', 10.005], // truncates to 10.00
+      ['Charlie', 10.005], // truncates to 10.00
+    ]);
+    // After truncation: 30.00 total, which is 0.01 more than receiptTotal
+    // receiptTotalCents = Math.trunc(29.99 * 100) = 2999
+    // roundedSumCents = Math.trunc(30.00... * 100) = 3000
+    // diffCents = 2999 - 3000 = -1
+
+    const result = getPersonFinalFairLineItemTotals(
+      receiptTotal,
+      personFinalTotals
+    );
+
+    // One person should have 1 cent deducted
+    const values = Array.from(result.values()).sort();
+    expect(values).toContain(9.99); // One person gets 10.00 - 0.01
+    expect(values.filter((v) => v === 10.0).length).toBe(2); // Two people keep 10.00
+
+    // Sum should equal receipt total
+    const sum = Array.from(result.values()).reduce((a, b) => a + b, 0);
+    expect(sum).toBeCloseTo(receiptTotal, 2);
+  });
+
+  it('handles exact match with no adjustment needed', () => {
+    const receiptTotal = 30.0;
+    const personFinalTotals = new Map([
+      ['Alice', 10.0],
+      ['Bob', 10.0],
+      ['Charlie', 10.0],
+    ]);
+
+    const result = getPersonFinalFairLineItemTotals(
+      receiptTotal,
+      personFinalTotals
+    );
+
+    expect(result.get('Alice')).toBe(10.0);
+    expect(result.get('Bob')).toBe(10.0);
+    expect(result.get('Charlie')).toBe(10.0);
+  });
+
+  it('handles single person case', () => {
+    const receiptTotal = 25.67;
+    const personFinalTotals = new Map([['Alice', 25.671234]]);
+
+    const result = getPersonFinalFairLineItemTotals(
+      receiptTotal,
+      personFinalTotals
+    );
+
+    expect(result.get('Alice')).toBe(25.67);
+  });
+
+  it('distributes multiple pennies to people with largest fractional parts', () => {
+    // $10.00 split 3 ways = $3.333... each
+    // Should round to two values at $3.33 and one at $3.34 to sum to $10.00
+    const receiptTotal = 10.0;
+    const personFinalTotals = new Map([
+      ['Alice', 3.333333333333334],
+      ['Bob', 3.333333333333334],
+      ['Charlie', 3.333333333333334],
+    ]);
+
+    const result = getPersonFinalFairLineItemTotals(
+      receiptTotal,
+      personFinalTotals
+    );
+
+    // Verify the distribution of amounts without assuming which person gets which
+    const values = Array.from(result.values()).sort();
+    expect(values).toEqual([3.33, 3.33, 3.34]);
+
+    // Sum should equal receipt total (using toFixed to avoid floating point precision issues)
+    const sum = Array.from(result.values()).reduce((a, b) => a + b, 0);
+    expect(+sum.toFixed(2)).toBe(receiptTotal);
+  });
+
+  it('handles real-world scenario with complex decimal values', () => {
+    // Real data from user's receipt showing floating point precision issues
+    // This test ensures the integer cents approach correctly handles the difference
+    const receiptTotal = 371.32;
+    const personFinalTotals = new Map([
+      ['jill', 224.08811711635272],
+      ['bob', 69.26421672605917],
+      ['Ben', 39.357957180836024],
+      ['jane', 38.617474121839464],
+    ]);
+
+    const result = getPersonFinalFairLineItemTotals(
+      receiptTotal,
+      personFinalTotals
+    );
+
+    // Sum should equal receipt total exactly when truncated
+    const sum = Array.from(result.values()).reduce((a, b) => a + b, 0);
+    expect(Math.trunc(sum * 100)).toBe(Math.trunc(receiptTotal * 100));
+
+    // When formatted with formatCurrency (which truncates), should match
+    const sumTruncated = Math.trunc(sum * 100) / 100;
+    expect(sumTruncated).toBe(371.32);
   });
 });

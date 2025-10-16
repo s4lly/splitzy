@@ -1,61 +1,60 @@
-import { useState, useEffect } from 'react';
+import { ReceiptSchema } from '@/lib/receiptSchemas';
 import { motion } from 'framer-motion';
 import {
+  AlertCircle,
   Calendar,
+  Check,
+  FileText,
+  Plus,
+  QrCode,
+  Receipt,
   ShoppingBag,
   Tag,
-  Receipt,
   UserPlus,
-  FileText,
-  AlertCircle,
   Users,
-  Check,
-  Plus,
   X,
-  QrCode,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { useEffect, useState } from 'react';
+import { z } from 'zod';
+import { useFeatureFlag } from '../../context/FeatureFlagProvider';
+import { useMobile } from '../../hooks/use-mobile';
 import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
-  DialogDescription,
 } from '../ui/dialog';
-import { useItemAssignmentsUpdateMutation } from './hooks/useItemAssignmentsUpdateMutation';
-import { useFeatureFlag } from '../../context/FeatureFlagProvider';
-import PersonBadge from './PersonBadge';
-import LineItemsTableMobile from './LineItemsTableMobile';
+import { Input } from '../ui/input';
+import { QRCode } from '../ui/kibo-ui/qr-code';
+import LineItemAddForm from './LineItemAddForm';
 import LineItemsTableDesktop from './LineItemsTableDesktop';
 import LineItemsTableDesktopV2 from './LineItemsTableDesktopV2';
-import { getColorForName } from './utils/get-color-for-name';
-import { Input } from '../ui/input';
-import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
-import { z } from 'zod';
-import { formatCurrency } from './utils/format-currency';
-import {
-  getTotal,
-  getPersonPreTaxItemTotals,
-  getPersonFinalTotals,
-} from './utils/receipt-calculation';
-import { useMobile } from '../../hooks/use-mobile';
-import LineItemCard from './components/LineItemCard';
-import LineItemAddForm from './LineItemAddForm';
+import LineItemsTableMobile from './LineItemsTableMobile';
+import PersonBadge from './PersonBadge';
 import SummaryCard from './SummaryCard';
-import { QRCode } from '../ui/kibo-ui/qr-code';
-
-const getPeopleFromLineItems = (
-  lineItems: z.infer<typeof LineItemSchema>[]
-) => {
-  if (!lineItems) return [];
-
-  const allAssignments = lineItems.flatMap((item) => item.assignments || []);
-
-  return Array.from(new Set(allAssignments));
-};
+import LineItemCard from './components/LineItemCard';
+import { useItemAssignmentsUpdateMutation } from './hooks/useItemAssignmentsUpdateMutation';
+import {
+  formatCurrency,
+  truncateFloatByNDecimals,
+} from './utils/format-currency';
+import { getColorForName } from './utils/get-color-for-name';
+import {
+  getPeopleFromLineItems,
+  getPersonItems,
+} from './utils/line-item-utils';
+import {
+  getPersonFinalFairLineItemTotals,
+  getPersonFinalTotals,
+  getPersonPreTaxItemTotals,
+  getTaxRate,
+  getTotal,
+} from './utils/receipt-calculation';
 
 const ReceiptAnalysisDisplay = ({
   result,
@@ -90,16 +89,6 @@ const ReceiptAnalysisDisplay = ({
   if (!result) return null;
   const { receipt_data } = result;
 
-  // Calculate the amount each person owes
-  const personFinalTotals = getPersonFinalTotals(receipt_data, people, {
-    editLineItemsEnabled,
-  });
-  const personPreTaxItemTotals = getPersonPreTaxItemTotals(
-    receipt_data,
-    people,
-    { editLineItemsEnabled }
-  );
-
   // Check if we need to use equal split mode (no line items or no assignments made)
   const hasLineItems =
     receipt_data.line_items && receipt_data.line_items.length > 0;
@@ -111,15 +100,30 @@ const ReceiptAnalysisDisplay = ({
   const useEqualSplit = !hasLineItems || noAssignmentsMade;
 
   // Calculate the total assigned and unassigned amounts
-  const totalAssigned = Array.from(personFinalTotals.values()).reduce(
-    (sum, amount) => sum + amount,
-    0
+  const receiptTotal = getTotal(receipt_data);
+
+  // Calculate the amount each person owes
+  const personFinalLineItemTotals = getPersonFinalTotals(receipt_data, people);
+  const personFinalFairLineItemTotals = getPersonFinalFairLineItemTotals(
+    receiptTotal,
+    personFinalLineItemTotals
   );
-  const receiptTotal = editLineItemsEnabled
-    ? getTotal(receipt_data)
-    : (receipt_data.total ?? 0);
-  const unassignedAmount = Math.max(0, receiptTotal - totalAssigned);
-  const isFullyAssigned = Math.abs(totalAssigned - receiptTotal) < 0.01; // Account for floating point rounding
+
+  const personFinalFairLineItemTotalsSum = Array.from(
+    personFinalFairLineItemTotals.values()
+  ).reduce((sum, amount) => sum + amount, 0);
+
+  const personPreTaxItemTotals = getPersonPreTaxItemTotals(
+    receipt_data,
+    people
+  );
+
+  const unassignedAmount = Math.max(
+    0,
+    receiptTotal - personFinalFairLineItemTotalsSum
+  );
+  const isFullyAssigned =
+    Math.abs(personFinalFairLineItemTotalsSum - receiptTotal) < 0.01; // Account for floating point rounding
 
   const handleAddPerson = () => {
     if (newPersonName.trim() && !people.includes(newPersonName.trim())) {
@@ -212,38 +216,6 @@ const ReceiptAnalysisDisplay = ({
       ...searchInputs,
       [itemId]: '',
     });
-  };
-
-  // Find all items assigned to a person and their costs
-  const getPersonItems = (person: string) => {
-    if (!receipt_data.line_items) return [];
-
-    const personItems: {
-      name: string;
-      quantity: number;
-      originalPrice: number;
-      price: number;
-      shared: boolean;
-      sharedWith: string[];
-    }[] = [];
-    receipt_data.line_items.forEach((item) => {
-      const assignedPeople = item.assignments || [];
-      const totalPrice = item.price_per_item * item.quantity;
-
-      if (assignedPeople.includes(person)) {
-        const pricePerPerson = totalPrice / assignedPeople.length;
-        personItems.push({
-          name: item.name,
-          quantity: item.quantity || 1,
-          originalPrice: totalPrice,
-          price: pricePerPerson,
-          shared: assignedPeople.length > 1,
-          sharedWith: assignedPeople.filter((p) => p !== person),
-        });
-      }
-    });
-
-    return personItems;
   };
 
   return (
@@ -448,7 +420,7 @@ const ReceiptAnalysisDisplay = ({
                       : 'text-amber-700 dark:text-amber-400'
                   }`}
                 >
-                  {formatCurrency(totalAssigned as number)} /{' '}
+                  {formatCurrency(personFinalFairLineItemTotalsSum)} /{' '}
                   {formatCurrency(receiptTotal)}
                 </span>
               </div>
@@ -474,7 +446,7 @@ const ReceiptAnalysisDisplay = ({
                   style={{
                     width: `${Math.min(
                       100,
-                      ((totalAssigned as number) / receiptTotal) * 100
+                      (personFinalFairLineItemTotalsSum / receiptTotal) * 100
                     )}%`,
                   }}
                 ></div>
@@ -530,12 +502,7 @@ const ReceiptAnalysisDisplay = ({
                       key={idx}
                       className={`flex items-center rounded-full px-3 py-1 ${colorPair[0]} ${colorPair[1]} dark:${colorPair[2]} dark:${colorPair[3]}`}
                     >
-                      <PersonBadge
-                        name={person}
-                        personIndex={idx}
-                        totalPeople={people.length}
-                        size="sm"
-                      />
+                      <PersonBadge name={person} size="sm" />
                       <span className="ml-1 text-sm">{person}</span>
                       <Button
                         variant="ghost"
@@ -569,13 +536,35 @@ const ReceiptAnalysisDisplay = ({
                       idx,
                       people.length
                     );
-                    const personAmount = personFinalTotals.get(person) || 0;
+
+                    // ----
+
+                    const personFinalFairLineItemTotal =
+                      personFinalFairLineItemTotals.get(person) || 0;
+
+                    // ----
+
+                    // TODO consider line item type with all calculated amounts and use here
+
+                    const personPreTaxItemTotal =
+                      personPreTaxItemTotals.get(person) || 0;
+
+                    const taxRate = getTaxRate(receipt_data);
+                    const taxAmount = personPreTaxItemTotal * taxRate;
+
+                    // ----
+
                     const percentage =
                       receiptTotal > 0
-                        ? ((personAmount / receiptTotal) * 100).toFixed(1)
+                        ? truncateFloatByNDecimals(
+                            (personFinalFairLineItemTotal / receiptTotal) * 100,
+                            1
+                          )
                         : '0';
-                    const personItems = getPersonItems(person);
 
+                    // ----
+
+                    const personItems = getPersonItems(person, result);
                     return (
                       <Dialog key={idx}>
                         <DialogTrigger asChild>
@@ -583,12 +572,7 @@ const ReceiptAnalysisDisplay = ({
                             className={`rounded-lg border p-4 ${colorPair[0]}/5 ${colorPair[1]}/80 dark:${colorPair[2]}/20 dark:${colorPair[3]}/90 cursor-pointer transition-shadow hover:shadow-md`}
                           >
                             <div className="mb-2 flex items-center gap-2">
-                              <PersonBadge
-                                name={person}
-                                personIndex={idx}
-                                totalPeople={people.length}
-                                size="md"
-                              />
+                              <PersonBadge name={person} size="md" />
                               <span className="truncate font-medium">
                                 {person}
                               </span>
@@ -599,7 +583,9 @@ const ReceiptAnalysisDisplay = ({
                                 <div className="flex items-end justify-between">
                                   <div className="text-lg font-semibold">
                                     {formatCurrency(
-                                      personFinalTotals.get(person) || 0
+                                      personFinalFairLineItemTotals.get(
+                                        person
+                                      ) || 0
                                     )}
                                   </div>
                                   <div className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-800/30 dark:text-blue-300">
@@ -630,17 +616,7 @@ const ReceiptAnalysisDisplay = ({
                                     <span>Tax:</span>
                                   </div>
                                   <div className="text-sm font-medium">
-                                    {(() => {
-                                      const itemTotal =
-                                        personPreTaxItemTotals.get(person) || 0;
-                                      const taxRate =
-                                        (receipt_data.tax ?? 0) /
-                                          (receipt_data.pretax_total ??
-                                            receipt_data.items_total ??
-                                            1) || 0;
-                                      const taxAmount = itemTotal * taxRate;
-                                      return formatCurrency(taxAmount);
-                                    })()}
+                                    {formatCurrency(taxAmount)}
                                   </div>
                                 </div>
                                 <div className="mt-1 flex items-end justify-between border-t pt-1">
@@ -648,14 +624,16 @@ const ReceiptAnalysisDisplay = ({
                                     Total:
                                   </div>
                                   <div className="text-lg font-semibold">
-                                    {formatCurrency(personAmount)}
+                                    {formatCurrency(
+                                      personFinalFairLineItemTotal
+                                    )}
                                   </div>
                                 </div>
                               </>
                             ) : (
                               <div className="flex items-end justify-between">
                                 <div className="text-lg font-semibold">
-                                  {formatCurrency(personAmount)}
+                                  {formatCurrency(personFinalFairLineItemTotal)}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
                                   {percentage}% of total
@@ -681,12 +659,7 @@ const ReceiptAnalysisDisplay = ({
                         <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-md">
                           <DialogHeader>
                             <DialogTitle className="flex items-center gap-2">
-                              <PersonBadge
-                                name={person}
-                                personIndex={idx}
-                                totalPeople={people.length}
-                                size="md"
-                              />
+                              <PersonBadge name={person} size="md" />
                               <span>{person}'s Items</span>
                             </DialogTitle>
                             <DialogDescription>
@@ -774,20 +747,7 @@ const ReceiptAnalysisDisplay = ({
                                             Tax
                                           </td>
                                           <td className="px-3 py-2 text-right text-sm">
-                                            {(() => {
-                                              const itemTotal =
-                                                personPreTaxItemTotals.get(
-                                                  person
-                                                ) || 0;
-                                              const taxRate =
-                                                (receipt_data.tax ?? 0) /
-                                                  (receipt_data.pretax_total ??
-                                                    receipt_data.items_total ??
-                                                    1) || 0;
-                                              const taxAmount =
-                                                itemTotal * taxRate;
-                                              return formatCurrency(taxAmount);
-                                            })()}
+                                            {formatCurrency(taxAmount)}
                                           </td>
                                         </tr>
                                       )}
@@ -820,7 +780,9 @@ const ReceiptAnalysisDisplay = ({
                                         Total
                                       </td>
                                       <td className="px-3 py-2 text-right text-base font-semibold">
-                                        {formatCurrency(personAmount)}
+                                        {formatCurrency(
+                                          personFinalFairLineItemTotal
+                                        )}
                                       </td>
                                     </tr>
                                   </tfoot>
