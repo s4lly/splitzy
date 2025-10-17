@@ -235,7 +235,6 @@ export function getPersonFinalFairLineItemTotals(
       index++;
     }
   }
-  }
 
   // Step 5: Return final result
   const result: Map<string, FinalFairLineItemTotal> = new Map(
