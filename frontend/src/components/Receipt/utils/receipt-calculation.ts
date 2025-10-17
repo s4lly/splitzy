@@ -226,16 +226,15 @@ export function getPersonFinalFairLineItemTotals(
   rounded.sort((a, b) => (b.original % 1) - (a.original % 1));
 
   // Step 4: Distribute the extra pennies
-  if (diffCents > 0) {
-    // Add pennies if rounding up
-    for (let i = 0; i < rounded.length && diffCents > 0; i++, diffCents--) {
-      rounded[i].rounded += 0.01;
+  if (rounded.length > 0) {
+    let index = 0;
+    while (diffCents !== 0) {
+      const entry = rounded[index % rounded.length];
+      entry.rounded += diffCents > 0 ? 0.01 : -0.01;
+      diffCents += diffCents > 0 ? -1 : 1;
+      index++;
     }
-  } else if (diffCents < 0) {
-    // Subtract pennies if rounding down
-    for (let i = 0; i < rounded.length && diffCents < 0; i++, diffCents++) {
-      rounded[i].rounded -= 0.01;
-    }
+  }
   }
 
   // Step 5: Return final result
