@@ -1,15 +1,15 @@
-import { DollarSign, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { ReceiptDataSchema } from '@/lib/receiptSchemas';
+import { AlertCircle, DollarSign } from 'lucide-react';
 import { z } from 'zod';
-import { formatCurrency } from './utils/format-currency';
-import {
-  getTotalForAllItems,
-  getTaxAmount,
-  getTotal,
-} from './utils/receipt-calculation';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import GratuityEditor from './GratuityEditor';
 import TipEditor from './TipEditor';
+import { formatCurrency } from './utils/format-currency';
+import {
+  getTaxAmount,
+  getTotal,
+  getTotalForAllItems,
+} from './utils/receipt-calculation';
 
 interface SummaryCardProps {
   receiptId: string;
@@ -167,11 +167,7 @@ const SummaryCard = ({
           <div className="mt-2 flex items-center justify-between border-t-2 border-border pt-3">
             <span className="text-base font-semibold">Final Total:</span>
             <span className="text-xl font-bold">
-              {editLineItemsEnabled
-                ? formatCurrency(getTotal(receipt_data))
-                : formatCurrency(
-                    receipt_data.final_total || receipt_data.total || 0
-                  )}
+              {formatCurrency(getTotal(receipt_data))}
             </span>
           </div>
         </div>
