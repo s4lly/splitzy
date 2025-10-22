@@ -4,10 +4,12 @@ import { cn } from '@/lib/utils';
 export const AssignmentsContainer = ({
   children,
   className,
+  isSelected,
   clickCallback,
 }: {
   children: React.ReactNode;
   className?: string;
+  isSelected?: boolean;
   clickCallback?: (e: React.MouseEvent) => void;
 }) => {
   const isMobile = useMobile();
@@ -23,6 +25,7 @@ export const AssignmentsContainer = ({
       className={cn(
         'flex w-full items-center gap-2 rounded-full',
         !isMobile && 'bg-gray-100 p-2',
+        isSelected && 'bg-gray-200',
         className
       )}
       onClick={handleClick}

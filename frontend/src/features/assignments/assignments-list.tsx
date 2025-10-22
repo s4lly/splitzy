@@ -51,9 +51,9 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-md p-2">
-      <div className="flex flex-col gap-2">
-        {/* assigned list */}
+    <div className="flex flex-col gap-4 rounded-md p-2 md:flex-row">
+      {/* assigned list */}
+      <div className="flex flex-1 flex-col gap-2">
         {item.assignments.length === 0 ? (
           <div className="text-sm text-muted-foreground">
             No one assigned yet.
@@ -97,81 +97,85 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
       </div>
 
       {/* assign new */}
-      <div className="flex flex-col gap-1">
-        <Label htmlFor="new-item-assignment" className="font-semibold">
-          New:
-        </Label>
-        <div className="flex items-center gap-2">
-          <Input
-            id="new-item-assignment"
-            type="text"
-            value={newPerson}
-            onChange={(e) => setNewPerson(e.target.value)}
-            onKeyDown={handleInputKeyDown}
-            placeholder="Enter name..."
-            className="flex-1"
-          />
-          <Button
-            type="button"
-            size="sm"
-            onClick={() => newPersonSanitized && handleAdd(newPersonSanitized)}
-            disabled={!newPersonSanitized}
-          >
-            Create
-          </Button>
-        </div>
-      </div>
-      <ul className="flex max-h-40 flex-col gap-2 overflow-y-auto">
-        {assignmentsAddAllEnabled &&
-          filteredPeople.length > 0 &&
-          newPersonSanitized === '' && (
-            <div className="mb-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() =>
-                  filteredPeople.forEach((person) => handleAdd(person))
-                }
-                disabled={filteredPeople.length === 0}
-                className="w-full"
-              >
-                Assign All
-              </Button>
-            </div>
-          )}
-        {filteredPeople.length === 0 ? (
-          <div className="text-center">
-            {newPersonSanitized ? (
-              <li className="text-sm text-muted-foreground">
-                No matching people. Press Enter to add.
-              </li>
-            ) : (
-              <li className="text-sm text-muted-foreground">
-                All people assigned.
-              </li>
-            )}
-          </div>
-        ) : (
-          filteredPeople.map((person) => (
-            <li
-              key={person}
-              className="flex items-center justify-between gap-2 rounded border-b bg-muted/10 pb-2 last-of-type:border-b-0"
+      <div className="flex-1 space-y-2">
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="new-item-assignment" className="font-semibold">
+            New:
+          </Label>
+          <div className="flex items-center gap-2">
+            <Input
+              id="new-item-assignment"
+              type="text"
+              value={newPerson}
+              onChange={(e) => setNewPerson(e.target.value)}
+              onKeyDown={handleInputKeyDown}
+              placeholder="Enter name..."
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              size="sm"
+              onClick={() =>
+                newPersonSanitized && handleAdd(newPersonSanitized)
+              }
+              disabled={!newPersonSanitized}
             >
-              <span>{person}</span>
-              <Button
-                variant="outline"
-                onClick={() => handleAdd(person)}
-                className="size-8 rounded-full"
-                aria-label={`Assign ${person}`}
-                title={`Assign ${person}`}
+              Create
+            </Button>
+          </div>
+        </div>
+        <ul className="flex max-h-40 flex-col gap-2 overflow-y-auto">
+          {assignmentsAddAllEnabled &&
+            filteredPeople.length > 0 &&
+            newPersonSanitized === '' && (
+              <div className="mb-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    filteredPeople.forEach((person) => handleAdd(person))
+                  }
+                  disabled={filteredPeople.length === 0}
+                  className="w-full"
+                >
+                  Assign All
+                </Button>
+              </div>
+            )}
+          {filteredPeople.length === 0 ? (
+            <div className="text-center">
+              {newPersonSanitized ? (
+                <li className="text-sm text-muted-foreground">
+                  No matching people. Press Enter to add.
+                </li>
+              ) : (
+                <li className="text-sm text-muted-foreground">
+                  All people assigned.
+                </li>
+              )}
+            </div>
+          ) : (
+            filteredPeople.map((person) => (
+              <li
+                key={person}
+                className="flex items-center justify-between gap-2 rounded border-b bg-muted/10 pb-2 last-of-type:border-b-0"
               >
-                <Plus />
-              </Button>
-            </li>
-          ))
-        )}
-      </ul>
+                <span>{person}</span>
+                <Button
+                  variant="outline"
+                  onClick={() => handleAdd(person)}
+                  className="size-8 rounded-full"
+                  aria-label={`Assign ${person}`}
+                  title={`Assign ${person}`}
+                >
+                  <Plus />
+                </Button>
+              </li>
+            ))
+          )}
+        </ul>
+      </div>
     </div>
   );
 };

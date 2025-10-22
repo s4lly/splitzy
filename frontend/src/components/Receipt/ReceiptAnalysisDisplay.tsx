@@ -330,6 +330,7 @@ const ReceiptAnalysisDisplay = ({
                       line_items={receipt_data.line_items}
                       people={people}
                       result={result}
+                      togglePersonAssignment={togglePersonAssignment}
                     />
                   ) : (
                     <LineItemsTableDesktop
