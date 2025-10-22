@@ -154,7 +154,6 @@ export default function LineItemsTableDesktopV2({
                             item={item}
                             formPricePerItem={item.price_per_item}
                             formQuantity={item.quantity}
-                            onAssignmentCancel={() => setAssignmentItemId(null)}
                           />
                         </div>
                       </TableCell>

@@ -6,10 +6,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Toggle } from '@/components/ui/toggle';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
 import { LineItemSchema } from '@/lib/receiptSchemas';
-import { ChevronDown, Plus, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { z } from 'zod';
 
@@ -20,7 +19,6 @@ interface AssignmentsListProps {
   item: z.infer<typeof LineItemSchema>;
   formPricePerItem: number;
   formQuantity: number;
-  onAssignmentCancel: () => void;
 }
 
 const AssignmentsList: React.FC<AssignmentsListProps> = ({
@@ -30,7 +28,6 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
   item,
   formPricePerItem,
   formQuantity,
-  onAssignmentCancel,
 }) => {
   const [newPerson, setNewPerson] = useState('');
   const newPersonSanitized = newPerson.trim();
@@ -56,18 +53,6 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
   return (
     <div className="flex flex-col gap-4 rounded-md p-2">
       <div className="flex flex-col gap-2">
-        {/* header */}
-        <div className="flex items-center justify-between border-b border-border/40 pb-2">
-          <div className="font-medium">Assigned to:</div>
-          <Toggle
-            pressed
-            onClick={onAssignmentCancel}
-            aria-label="Close assignments"
-          >
-            <ChevronDown />
-          </Toggle>
-        </div>
-
         {/* assigned list */}
         {item.assignments.length === 0 ? (
           <div className="text-sm text-muted-foreground">

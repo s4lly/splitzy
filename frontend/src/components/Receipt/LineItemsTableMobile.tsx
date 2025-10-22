@@ -1,4 +1,5 @@
 import { AssignmentsContainer } from '@/features/assignments/assignments-container';
+import { AssignmentsHeader } from '@/features/assignments/assignments-header';
 import AssignmentsList from '@/features/assignments/assignments-list';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { cn } from '@/lib/utils';
@@ -131,19 +132,21 @@ export default function LineItemsTableMobile({
             {/* assignments */}
             {showReducedDetails ? (
               // edit
-              <AssignmentsList
-                possiblePeople={people}
-                onAddAssignment={(person) =>
-                  togglePersonAssignment(item.id, person)
-                }
-                onRemoveAssignment={(person) =>
-                  togglePersonAssignment(item.id, person)
-                }
-                item={item}
-                formPricePerItem={item.price_per_item}
-                formQuantity={item.quantity}
-                onAssignmentCancel={handleEditClose}
-              />
+              <>
+                <AssignmentsHeader onAssignmentCancel={handleEditClose} />
+                <AssignmentsList
+                  possiblePeople={people}
+                  onAddAssignment={(person) =>
+                    togglePersonAssignment(item.id, person)
+                  }
+                  onRemoveAssignment={(person) =>
+                    togglePersonAssignment(item.id, person)
+                  }
+                  item={item}
+                  formPricePerItem={item.price_per_item}
+                  formQuantity={item.quantity}
+                />
+              </>
             ) : (
               // view
               <div
