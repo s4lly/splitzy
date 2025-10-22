@@ -16,6 +16,7 @@ import {
 import { AssignmentsContainer } from '@/features/assignments/assignments-container';
 import AssignmentsList from '@/features/assignments/assignments-list';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
+import { cn } from '@/lib/utils';
 import { EllipsisVertical } from 'lucide-react';
 import { useState } from 'react';
 import { z } from 'zod';
@@ -65,6 +66,7 @@ export default function LineItemsTableDesktopV2({
         <TableBody>
           {line_items.map((item) => (
             <>
+              {/* edit item */}
               {editItemId === item.id ? (
                 <TableRow className="hover:bg-transparent">
                   <TableCell colSpan={6} className="hover:bg-transparent">
@@ -77,70 +79,88 @@ export default function LineItemsTableDesktopV2({
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : assignmentItemId === item.id ? (
-                <AssignmentsList
-                  possiblePeople={people}
-                  onAddAssignment={(person) => {}}
-                  onRemoveAssignment={(person) => {}}
-                  item={item}
-                  formPricePerItem={item.price_per_item}
-                  formQuantity={item.quantity}
-                  onAssignmentCancel={() => setAssignmentItemId(null)}
-                />
               ) : (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <span className="text-base font-medium">{item.name}</span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-base font-medium">
-                      {item.quantity}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-base font-medium">
-                      {formatCurrency(item.price_per_item)}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {formatCurrency(getIndividualItemTotalPrice(item))}
-                  </TableCell>
-                  <TableCell>
-                    <AssignmentsContainer
-                      clickCallback={(e) => handleAssignmentOpen(e, item.id)}
+                // view item
+                <>
+                  <TableRow
+                    key={item.id}
+                    className={cn(
+                      assignmentItemId === item.id && 'bg-muted/50'
+                    )}
+                  >
+                    <TableCell>
+                      <span className="text-base font-medium">{item.name}</span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-base font-medium">
+                        {item.quantity}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-base font-medium">
+                        {formatCurrency(item.price_per_item)}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      {formatCurrency(getIndividualItemTotalPrice(item))}
+                    </TableCell>
+                    <TableCell>
+                      <AssignmentsContainer
+                        clickCallback={(e) => handleAssignmentOpen(e, item.id)}
+                      >
+                        <PersonAssignmentSection item={item} people={people} />
+                      </AssignmentsContainer>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <Button variant="ghost" size="icon">
+                            <EllipsisVertical className="h-4 w-4" />
+                            <span className="sr-only">Edit</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem
+                            onClick={(e) => handleEditOpen(e, item.id)}
+                          >
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-red-500 focus:text-red-500"
+                            onClick={() =>
+                              deleteItem({
+                                receiptId: String(result.id),
+                                itemId: item.id,
+                              })
+                            }
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                  {assignmentItemId === item.id && (
+                    <TableRow
+                      key={item.id + '-assignments'}
+                      className="hover:bg-transparent"
                     >
-                      <PersonAssignmentSection item={item} people={people} />
-                    </AssignmentsContainer>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <Button variant="ghost" size="icon">
-                          <EllipsisVertical className="h-4 w-4" />
-                          <span className="sr-only">Edit</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem
-                          onClick={(e) => handleEditOpen(e, item.id)}
-                        >
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-red-500 focus:text-red-500"
-                          onClick={() =>
-                            deleteItem({
-                              receiptId: String(result.id),
-                              itemId: item.id,
-                            })
-                          }
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                      <TableCell colSpan={6}>
+                        <div className="rounded-lg border">
+                          <AssignmentsList
+                            possiblePeople={people}
+                            onAddAssignment={(person) => {}}
+                            onRemoveAssignment={(person) => {}}
+                            item={item}
+                            formPricePerItem={item.price_per_item}
+                            formQuantity={item.quantity}
+                            onAssignmentCancel={() => setAssignmentItemId(null)}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
               )}
             </>
           ))}
