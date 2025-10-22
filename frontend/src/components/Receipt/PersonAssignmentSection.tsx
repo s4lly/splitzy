@@ -1,11 +1,10 @@
-import React from 'react';
-import PersonBadge from './PersonBadge';
-import { LineItemSchema } from '@/lib/receiptSchemas';
-import { z } from 'zod';
 import { useMobile } from '@/hooks/use-mobile';
-import clsx from 'clsx';
-import { getColorForName } from './utils/get-color-for-name';
+import { LineItemSchema } from '@/lib/receiptSchemas';
 import { cn } from '@/lib/utils';
+import React from 'react';
+import { z } from 'zod';
+import PersonBadge from './PersonBadge';
+import { getColorForName } from './utils/get-color-for-name';
 
 interface PersonAssignmentSectionProps {
   item: z.infer<typeof LineItemSchema>;
@@ -16,22 +15,18 @@ interface PersonAssignmentSectionProps {
 const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
   item,
   people,
-  className = '',
 }) => {
   const isMobile = useMobile();
-  const MAX = isMobile ? Infinity : 3;
-  const visibleAssignedPeople = item.assignments.slice(0, MAX);
+  const MAX_VISIBLE_ASSIGNED_PEOPLE = isMobile ? Infinity : 3;
+  const visibleAssignedPeople = item.assignments.slice(
+    0,
+    MAX_VISIBLE_ASSIGNED_PEOPLE
+  );
 
   if (visibleAssignedPeople.length === 0) return null;
 
   return (
-    <div
-      className={cn(
-        'flex w-full items-center gap-2 rounded-full',
-        !isMobile && 'bg-gray-100 p-2',
-        className
-      )}
-    >
+    <>
       {visibleAssignedPeople.map((person, personIdx) => {
         const [bgColor, textColor, hoverBgColor, hoverTextColor] =
           getColorForName(person, personIdx, people.length);
@@ -59,12 +54,13 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
           </div>
         );
       })}
-      {item.assignments.length > MAX && (
+
+      {item.assignments.length > MAX_VISIBLE_ASSIGNED_PEOPLE && (
         <div className="text-xs text-muted-foreground">
-          +{item.assignments.length - MAX}
+          +{item.assignments.length - MAX_VISIBLE_ASSIGNED_PEOPLE}
         </div>
       )}
-    </div>
+    </>
   );
 };
 

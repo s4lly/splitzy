@@ -87,7 +87,6 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
                   <span>
                     {formatCurrency(
                       getPersonPreTaxTotalForItem(item, person, {
-                        editLineItemsEnabled: true,
                         candidate: {
                           price_per_item: formPricePerItem,
                           quantity: formQuantity,

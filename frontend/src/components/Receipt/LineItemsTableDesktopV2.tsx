@@ -1,9 +1,10 @@
-import { formatCurrency } from './utils/format-currency';
-import PersonAssignmentSection from './PersonAssignmentSection';
-import { getIndividualItemTotalPrice } from './utils/receipt-calculation';
-import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -12,16 +13,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import LineItemEditForm from './LineItemEditForm';
-import { useState } from 'react';
+import { AssignmentsContainer } from '@/features/assignments/assignments-container';
+import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { EllipsisVertical } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { useState } from 'react';
+import { z } from 'zod';
+import LineItemEditForm from './LineItemEditForm';
+import PersonAssignmentSection from './PersonAssignmentSection';
 import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
+import { formatCurrency } from './utils/format-currency';
+import { getIndividualItemTotalPrice } from './utils/receipt-calculation';
+import MobileAssignmentList from './MobileAssignmentList';
 
 export default function LineItemsTableDesktopV2({
   line_items,
@@ -33,11 +35,18 @@ export default function LineItemsTableDesktopV2({
   result: z.infer<typeof ReceiptSchema>;
 }) {
   const [editItemId, setEditItemId] = useState<string | null>(null);
+  const [assignmentItemId, setAssignmentItemId] = useState<string | null>(null);
   const { mutate: deleteItem, isPending: isDeleting } =
     useLineItemDeleteMutation();
 
   const handleEditOpen = (e: React.MouseEvent, itemId: string) => {
     setEditItemId(itemId);
+    setAssignmentItemId(null);
+  };
+
+  const handleAssignmentOpen = (e: React.MouseEvent, itemId: string) => {
+    setAssignmentItemId(itemId);
+    setEditItemId(null);
   };
 
   return (
@@ -68,6 +77,16 @@ export default function LineItemsTableDesktopV2({
                     </div>
                   </TableCell>
                 </TableRow>
+              ) : assignmentItemId === item.id ? (
+                <MobileAssignmentList
+                  possiblePeople={people}
+                  onAddAssignment={(person) => {}}
+                  onRemoveAssignment={(person) => {}}
+                  item={item}
+                  formPricePerItem={item.price_per_item}
+                  formQuantity={item.quantity}
+                  onAssignmentCancel={() => setAssignmentItemId(null)}
+                />
               ) : (
                 <TableRow key={item.id}>
                   <TableCell>
@@ -87,11 +106,11 @@ export default function LineItemsTableDesktopV2({
                     {formatCurrency(getIndividualItemTotalPrice(item))}
                   </TableCell>
                   <TableCell>
-                    <PersonAssignmentSection
-                      item={item}
-                      people={people}
-                      className="justify-center"
-                    />
+                    <AssignmentsContainer
+                      clickCallback={(e) => handleAssignmentOpen(e, item.id)}
+                    >
+                      <PersonAssignmentSection item={item} people={people} />
+                    </AssignmentsContainer>
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
