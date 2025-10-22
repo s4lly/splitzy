@@ -14,6 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { AssignmentsContainer } from '@/features/assignments/assignments-container';
+import AssignmentsList from '@/features/assignments/assignments-list';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { EllipsisVertical } from 'lucide-react';
 import { useState } from 'react';
@@ -23,7 +24,6 @@ import PersonAssignmentSection from './PersonAssignmentSection';
 import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
 import { formatCurrency } from './utils/format-currency';
 import { getIndividualItemTotalPrice } from './utils/receipt-calculation';
-import MobileAssignmentList from './MobileAssignmentList';
 
 export default function LineItemsTableDesktopV2({
   line_items,
@@ -78,7 +78,7 @@ export default function LineItemsTableDesktopV2({
                   </TableCell>
                 </TableRow>
               ) : assignmentItemId === item.id ? (
-                <MobileAssignmentList
+                <AssignmentsList
                   possiblePeople={people}
                   onAddAssignment={(person) => {}}
                   onRemoveAssignment={(person) => {}}

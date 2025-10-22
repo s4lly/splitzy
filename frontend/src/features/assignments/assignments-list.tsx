@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { ChevronDown, Plus, X } from 'lucide-react';
+import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import {
   filterPeople,
   getPersonPreTaxTotalForItem,
-} from './utils/receipt-calculation';
-import { formatCurrency } from './utils/format-currency';
-import { LineItemSchema } from '@/lib/receiptSchemas';
-import { z } from 'zod';
-import { Toggle } from '../ui/toggle';
-import { Label } from '../ui/label';
+} from '@/components/Receipt/utils/receipt-calculation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Toggle } from '@/components/ui/toggle';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
+import { LineItemSchema } from '@/lib/receiptSchemas';
+import { ChevronDown, Plus, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { z } from 'zod';
 
-interface MobileAssignmentListProps {
+interface AssignmentsListProps {
   possiblePeople: string[];
   onAddAssignment: (person: string) => void;
   onRemoveAssignment: (person: string) => void;
@@ -23,7 +23,7 @@ interface MobileAssignmentListProps {
   onAssignmentCancel: () => void;
 }
 
-const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
+const AssignmentsList: React.FC<AssignmentsListProps> = ({
   possiblePeople,
   onAddAssignment,
   onRemoveAssignment,
@@ -191,4 +191,4 @@ const MobileAssignmentList: React.FC<MobileAssignmentListProps> = ({
   );
 };
 
-export default MobileAssignmentList;
+export default AssignmentsList;

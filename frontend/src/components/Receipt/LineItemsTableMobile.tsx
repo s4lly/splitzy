@@ -1,18 +1,19 @@
-import { getIndividualItemTotalPrice } from './utils/receipt-calculation';
-import PersonAssignmentSection from './PersonAssignmentSection';
-import LineItemEditForm from './LineItemEditForm';
-import MobileAssignmentList from './MobileAssignmentList';
-import { formatCurrency } from './utils/format-currency';
+import { AssignmentsContainer } from '@/features/assignments/assignments-container';
+import AssignmentsList from '@/features/assignments/assignments-list';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
-import { z } from 'zod';
-import { useState } from 'react';
-import LineItemCard from './components/LineItemCard';
-import { Button } from '../ui/button';
-import { ChevronUp, Pencil, Plus } from 'lucide-react';
-import { Toggle } from '../ui/toggle';
 import { cn } from '@/lib/utils';
-import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
+import { ChevronUp, Pencil, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { z } from 'zod';
+import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
+import { Toggle } from '../ui/toggle';
+import LineItemEditForm from './LineItemEditForm';
+import PersonAssignmentSection from './PersonAssignmentSection';
+import LineItemCard from './components/LineItemCard';
+import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
+import { formatCurrency } from './utils/format-currency';
+import { getIndividualItemTotalPrice } from './utils/receipt-calculation';
 
 export default function LineItemsTableMobile({
   line_items,
@@ -130,7 +131,7 @@ export default function LineItemsTableMobile({
             {/* assignments */}
             {showReducedDetails ? (
               // edit
-              <MobileAssignmentList
+              <AssignmentsList
                 possiblePeople={people}
                 onAddAssignment={(person) =>
                   togglePersonAssignment(item.id, person)
@@ -166,11 +167,13 @@ export default function LineItemsTableMobile({
                 </div>
 
                 {item.assignments.length > 0 && (
-                  <PersonAssignmentSection
-                    className={cn(showReducedAssignments && 'justify-end')}
-                    item={item}
-                    people={people}
-                  />
+                  <AssignmentsContainer>
+                    <PersonAssignmentSection
+                      className={cn(showReducedAssignments && 'justify-end')}
+                      item={item}
+                      people={people}
+                    />
+                  </AssignmentsContainer>
                 )}
 
                 {showReducedAssignments && (
