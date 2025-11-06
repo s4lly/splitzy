@@ -109,9 +109,13 @@ const ReceiptAnalysisDisplay = ({
     personFinalLineItemTotals
   );
 
-  const personFinalFairLineItemTotalsSum = Array.from(
+  // Calculate sum in cents to avoid floating-point errors
+  // Use Math.round to handle cases like 40.3 * 100 = 4029.999...
+  const personFinalFairLineItemTotalsSumInCents = Array.from(
     personFinalFairLineItemTotals.values()
-  ).reduce((sum, amount) => sum + amount, 0);
+  ).reduce((sum, amount) => sum + Math.round(amount * 100), 0);
+  const personFinalFairLineItemTotalsSum =
+    personFinalFairLineItemTotalsSumInCents / 100;
 
   const personPreTaxItemTotals = getPersonPreTaxItemTotals(
     receipt_data,

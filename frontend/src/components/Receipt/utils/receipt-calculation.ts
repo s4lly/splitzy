@@ -1,6 +1,5 @@
 import { LineItemSchema, ReceiptDataSchema } from '@/lib/receiptSchemas';
 import { z } from 'zod';
-import { truncateFloatByNDecimals } from './format-currency';
 
 export function getTotalForAllItems(
   receipt_data: z.infer<typeof ReceiptDataSchema>
@@ -204,41 +203,41 @@ export function getPersonFinalFairLineItemTotals(
   receiptTotal: number,
   personFinalLineItemTotals: Map<string, FinalLineItemTotal>
 ): Map<string, FinalFairLineItemTotal> {
-  // Step 1: Round each share to 2 decimals
-  const rounded = Array.from(personFinalLineItemTotals.entries()).map(
+  // Step 1: Convert to cents (truncate directly to avoid double-conversion errors)
+  const inCents = Array.from(personFinalLineItemTotals.entries()).map(
     ([name, value]) => ({
       name,
       original: value,
-      rounded: truncateFloatByNDecimals(value, 2), // truncate to 2 decimals first
+      cents: Math.trunc(value * 100), // Convert directly to integer cents
     })
   );
 
-  // Step 2: Calculate rounding gap
-  const roundedSum = rounded.reduce((sum, { rounded }) => sum + rounded, 0);
-
-  // Work with cents (integers) to avoid floating point arithmetic errors
-  // Truncate both values to cents, then calculate difference as integers
+  // Step 2: Calculate rounding gap in cents
+  const roundedSumCents = inCents.reduce((sum, { cents }) => sum + cents, 0);
   const receiptTotalCents = Math.trunc(receiptTotal * 100);
-  const roundedSumCents = Math.trunc(roundedSum * 100);
   let diffCents = receiptTotalCents - roundedSumCents;
 
-  // Step 3: Sort by largest fractional part
-  rounded.sort((a, b) => (b.original % 1) - (a.original % 1));
+  // Step 3: Sort by largest fractional part (for fair distribution of pennies)
+  inCents.sort((a, b) => (b.original % 1) - (a.original % 1));
 
-  // Step 4: Distribute the extra pennies
-  if (rounded.length > 0) {
+  // Step 4: Distribute the extra pennies by working with integer cents
+  if (inCents.length > 0) {
     let index = 0;
     while (diffCents !== 0) {
-      const entry = rounded[index % rounded.length];
-      entry.rounded += diffCents > 0 ? 0.01 : -0.01;
+      const entry = inCents[index % inCents.length];
+      entry.cents += diffCents > 0 ? 1 : -1; // Add or subtract 1 cent (integer arithmetic)
       diffCents += diffCents > 0 ? -1 : 1;
       index++;
     }
   }
 
-  // Step 5: Return final result
+  // Step 5: Convert back to dollars and return
+  // Use parseFloat and toFixed to avoid floating-point precision issues
   const result: Map<string, FinalFairLineItemTotal> = new Map(
-    rounded.map(({ name, rounded }) => [name, +rounded.toFixed(2)])
+    inCents.map(({ name, cents }) => [
+      name,
+      parseFloat((cents / 100).toFixed(2)),
+    ])
   );
 
   return result;
