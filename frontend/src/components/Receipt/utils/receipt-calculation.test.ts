@@ -502,4 +502,131 @@ describe('getPersonFinalFairLineItemTotals', () => {
     const sumTruncated = Math.trunc(sum * 100) / 100;
     expect(sumTruncated).toBe(371.32);
   });
+
+  it('handles user scenario with 80.61 receipt total and three people', () => {
+    // This test covers the specific bug that was reported where
+    // personFinalFairLineItemTotalsSum was 80.62 or 80.60 instead of 80.61
+    // The bug was caused by floating-point errors in the penny distribution
+    const receiptTotal = 80.61;
+    const personFinalTotals = new Map([
+      ['sisilia', 40.31],
+      ['jaime', 40.18],
+      ['bob', 0.13],
+    ]);
+    // Note: 40.31 + 40.18 + 0.13 in floating point = 80.62 (8062 cents when truncated)
+    // But receiptTotal is 80.61 (8061 cents), so algorithm must subtract 1 cent
+
+    const result = getPersonFinalFairLineItemTotals(
+      receiptTotal,
+      personFinalTotals
+    );
+
+    // Each individual value should be correct when converted to cents
+    const sisilia = result.get('sisilia')!;
+    const jaime = result.get('jaime')!;
+    const bob = result.get('bob')!;
+
+    // Check individual cents values using Math.round to handle floating-point precision
+    // (e.g., 40.3 * 100 = 4029.9999... which rounds to 4030)
+    expect(Math.round(sisilia * 100)).toBe(4030); // adjusted down by 1 cent
+    expect(Math.round(jaime * 100)).toBe(4018);
+    expect(Math.round(bob * 100)).toBe(13);
+
+    // Sum of CENTS should equal receipt total in cents
+    const sumInCents =
+      Math.round(sisilia * 100) +
+      Math.round(jaime * 100) +
+      Math.round(bob * 100);
+    expect(sumInCents).toBe(8061);
+
+    // Note: Adding the dollar values will have floating-point error
+    // (40.3 + 40.18 + 0.13 = 80.60999999999999)
+    // This is handled in the UI by summing the rounded cent values
+  });
+
+  it('prevents floating-point accumulation errors during penny distribution', () => {
+    // This test ensures that repeatedly adding/subtracting pennies
+    // doesn't cause floating-point drift (using integer arithmetic)
+    const receiptTotal = 100.0;
+    const personFinalTotals = new Map([
+      ['person1', 14.287], // truncates to 14.28 (1428 cents)
+      ['person2', 14.286], // truncates to 14.28 (1428 cents)
+      ['person3', 14.285], // truncates to 14.28 (1428 cents)
+      ['person4', 14.284], // truncates to 14.28 (1428 cents)
+      ['person5', 14.283], // truncates to 14.28 (1428 cents)
+      ['person6', 14.282], // truncates to 14.28 (1428 cents)
+      ['person7', 14.293], // truncates to 14.29 (1429 cents)
+    ]);
+    // Sum after truncation = 1428*6 + 1429 = 8568 + 1429 = 9997 cents = 99.97
+    // Need to distribute 3 cents to reach 100.00
+
+    const result = getPersonFinalFairLineItemTotals(
+      receiptTotal,
+      personFinalTotals
+    );
+
+    // Sum in cents should equal receipt total exactly
+    const sumCents = Array.from(result.values()).reduce(
+      (sum, val) => sum + Math.trunc(val * 100),
+      0
+    );
+    expect(sumCents).toBe(10000);
+
+    // Verify sum matches when converted
+    const sum = Array.from(result.values()).reduce((a, b) => a + b, 0);
+    expect(Math.trunc(sum * 100)).toBe(10000);
+  });
+
+  it('handles values that would fail with double-conversion approach', () => {
+    // This test specifically targets the bug where we were doing:
+    // Math.trunc(truncateFloatByNDecimals(value, 2) * 100)
+    // which could cause 40.31 -> 40.31 * 100 -> 4030.9999... -> 4030 cents (wrong!)
+    const receiptTotal = 50.62;
+    const personFinalTotals = new Map([
+      ['alice', 25.31], // 2531 cents
+      ['bob', 25.31], // 2531 cents
+    ]);
+    // Sum = 5062 cents = 50.62 - should match exactly
+
+    const result = getPersonFinalFairLineItemTotals(
+      receiptTotal,
+      personFinalTotals
+    );
+
+    // Should not need any adjustment since it matches exactly
+    expect(result.get('alice')).toBe(25.31);
+    expect(result.get('bob')).toBe(25.31);
+
+    // Verify sum is exact
+    const sum = Array.from(result.values()).reduce((a, b) => a + b, 0);
+    expect(Math.trunc(sum * 100)).toBe(5062);
+  });
+
+  it('ensures no penny is lost or gained across all adjustments', () => {
+    // Comprehensive test that verifies the algorithm never loses or creates money
+    const testCases = [
+      { total: 10.01, splits: [5.005, 5.005] },
+      { total: 33.33, splits: [11.11, 11.11, 11.11] },
+      { total: 99.99, splits: [33.333, 33.333, 33.333] },
+      { total: 0.03, splits: [0.01, 0.01, 0.01] },
+      { total: 1.0, splits: [0.333, 0.333, 0.334] },
+    ];
+
+    testCases.forEach(({ total, splits }) => {
+      const personFinalTotals = new Map(
+        splits.map((val, idx) => [`person${idx}`, val])
+      );
+
+      const result = getPersonFinalFairLineItemTotals(total, personFinalTotals);
+
+      // Sum in cents must exactly equal receipt total in cents
+      const sumCents = Array.from(result.values()).reduce(
+        (sum, val) => sum + Math.trunc(val * 100),
+        0
+      );
+      const totalCents = Math.trunc(total * 100);
+
+      expect(sumCents).toBe(totalCents);
+    });
+  });
 });
