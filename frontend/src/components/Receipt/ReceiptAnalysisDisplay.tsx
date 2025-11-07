@@ -1,4 +1,5 @@
 import { ReceiptSchema } from '@/lib/receiptSchemas';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -507,7 +508,17 @@ const ReceiptAnalysisDisplay = ({
                       key={idx}
                       className={`flex items-center rounded-full px-3 py-1 ${colorPair[0]} ${colorPair[1]} dark:${colorPair[2]} dark:${colorPair[3]}`}
                     >
-                      <PersonBadge name={person} size="sm" />
+                      <PersonBadge
+                        name={person}
+                        size="sm"
+                        className={cn(
+                          colorPair[0],
+                          colorPair[1],
+                          !isMobile && 'border-2 border-white',
+                          `dark:${colorPair[2]}`,
+                          `dark:${colorPair[3]}`
+                        )}
+                      />
                       <span className="ml-1 text-sm">{person}</span>
                       <Button
                         variant="ghost"
@@ -577,7 +588,17 @@ const ReceiptAnalysisDisplay = ({
                             className={`rounded-lg border p-4 ${colorPair[0]}/5 ${colorPair[1]}/80 dark:${colorPair[2]}/20 dark:${colorPair[3]}/90 cursor-pointer transition-shadow hover:shadow-md`}
                           >
                             <div className="mb-2 flex items-center gap-2">
-                              <PersonBadge name={person} size="md" />
+                              <PersonBadge
+                                name={person}
+                                size={isMobile ? 'sm' : 'md'}
+                                className={cn(
+                                  colorPair[0],
+                                  colorPair[1],
+                                  !isMobile && 'border-2 border-white',
+                                  `dark:${colorPair[2]}`,
+                                  `dark:${colorPair[3]}`
+                                )}
+                              />
                               <span className="truncate font-medium">
                                 {person}
                               </span>
@@ -664,7 +685,17 @@ const ReceiptAnalysisDisplay = ({
                         <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-md">
                           <DialogHeader>
                             <DialogTitle className="flex items-center gap-2">
-                              <PersonBadge name={person} size="md" />
+                              <PersonBadge
+                                name={person}
+                                size="md"
+                                className={cn(
+                                  colorPair[0],
+                                  colorPair[1],
+                                  !isMobile && 'border-2 border-white',
+                                  `dark:${colorPair[2]}`,
+                                  `dark:${colorPair[3]}`
+                                )}
+                              />
                               <span>{person}'s Items</span>
                             </DialogTitle>
                             <DialogDescription>
