@@ -12,5 +12,7 @@ class User(db.Model):
     created_at = db.Column(db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
     settings = db.Column(JSONB, nullable=True, default=dict)  # Using JSONB for user settings/preferences
 
+    assignments = db.relationship('Assignment', back_populates='user', cascade='save-update')
+
     def __repr__(self):
         return f'<User {self.username}>'
