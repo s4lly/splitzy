@@ -29,7 +29,8 @@ const COLOR_PAIRS = [
 ];
 
 // Mapping from Tailwind classes to actual color values
-const COLOR_VALUES: Record<string, { light: string; dark: string }> = {
+const COLOR_VALUES: Record<string, { light?: string; dark?: string }> = {
+  // Light mode colors (bg-*-100 and text-*-800)
   'bg-purple-100': { light: 'rgb(243 232 255)', dark: 'rgb(126 34 206 / 0.5)' },
   'text-purple-800': { light: 'rgb(107 33 168)', dark: 'rgb(243 232 255)' },
   'bg-teal-100': { light: 'rgb(204 251 241)', dark: 'rgb(15 118 110 / 0.5)' },
@@ -63,6 +64,40 @@ const COLOR_VALUES: Record<string, { light: string; dark: string }> = {
   'text-yellow-800': { light: 'rgb(133 77 14)', dark: 'rgb(254 249 195)' },
   'bg-emerald-100': { light: 'rgb(209 250 229)', dark: 'rgb(5 150 105 / 0.5)' },
   'text-emerald-800': { light: 'rgb(6 95 70)', dark: 'rgb(209 250 229)' },
+
+  // Dark mode background colors (bg-*-700/50)
+  'bg-purple-700/50': { dark: 'rgb(126 34 206 / 0.5)' },
+  'bg-teal-700/50': { dark: 'rgb(15 118 110 / 0.5)' },
+  'bg-amber-700/50': { dark: 'rgb(180 83 9 / 0.5)' },
+  'bg-pink-700/50': { dark: 'rgb(190 24 93 / 0.5)' },
+  'bg-green-700/50': { dark: 'rgb(21 128 61 / 0.5)' },
+  'bg-rose-700/50': { dark: 'rgb(190 18 60 / 0.5)' },
+  'bg-indigo-700/50': { dark: 'rgb(67 56 202 / 0.5)' },
+  'bg-cyan-700/50': { dark: 'rgb(14 116 144 / 0.5)' },
+  'bg-orange-700/50': { dark: 'rgb(194 65 12 / 0.5)' },
+  'bg-blue-700/50': { dark: 'rgb(29 78 216 / 0.5)' },
+  'bg-lime-700/50': { dark: 'rgb(77 124 15 / 0.5)' },
+  'bg-fuchsia-700/50': { dark: 'rgb(162 28 175 / 0.5)' },
+  'bg-violet-700/50': { dark: 'rgb(109 40 217 / 0.5)' },
+  'bg-yellow-700/50': { dark: 'rgb(161 98 7 / 0.5)' },
+  'bg-emerald-700/50': { dark: 'rgb(5 150 105 / 0.5)' },
+
+  // Dark mode text colors (text-*-100)
+  'text-purple-100': { dark: 'rgb(243 232 255)' },
+  'text-teal-100': { dark: 'rgb(204 251 241)' },
+  'text-amber-100': { dark: 'rgb(254 243 199)' },
+  'text-pink-100': { dark: 'rgb(252 231 243)' },
+  'text-green-100': { dark: 'rgb(220 252 231)' },
+  'text-rose-100': { dark: 'rgb(255 228 230)' },
+  'text-indigo-100': { dark: 'rgb(224 231 255)' },
+  'text-cyan-100': { dark: 'rgb(207 250 254)' },
+  'text-orange-100': { dark: 'rgb(255 237 213)' },
+  'text-blue-100': { dark: 'rgb(219 234 254)' },
+  'text-lime-100': { dark: 'rgb(236 252 203)' },
+  'text-fuchsia-100': { dark: 'rgb(250 232 255)' },
+  'text-violet-100': { dark: 'rgb(237 233 254)' },
+  'text-yellow-100': { dark: 'rgb(254 249 195)' },
+  'text-emerald-100': { dark: 'rgb(209 250 229)' },
 };
 
 // Get a deterministic color based on a name and position
