@@ -12,7 +12,7 @@ import AssignmentsList from '@/features/assignments/assignments-list';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { cn } from '@/lib/utils';
 import { Pencil } from 'lucide-react';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { z } from 'zod';
 import { Separator } from '../ui/separator';
 import { Toggle } from '../ui/toggle';
@@ -80,132 +80,127 @@ export default function LineItemsTableDesktopV2({
         </TableHeader>
         <TableBody>
           {line_items.map((item) => (
-            <>
-              {/* edit item */}
-              <>
-                <TableRow
-                  key={item.id}
-                  className={cn(
-                    (assignmentItemId === item.id || editItemId === item.id) &&
-                      'bg-muted/50'
-                  )}
-                >
-                  <TableCell>
-                    <span className="text-base font-medium">{item.name}</span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-base font-medium">
-                      {item.quantity}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-base font-medium">
-                      {formatCurrency(item.price_per_item)}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {formatCurrency(getIndividualItemTotalPrice(item))}
-                  </TableCell>
-                  <TableCell>
-                    <AssignmentsContainer
-                      clickCallback={() => handleAssignmentToggle(item.id)}
-                      isSelected={assignmentItemId === item.id}
-                    >
-                      <PersonAssignmentSection item={item} people={people} />
-                    </AssignmentsContainer>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Toggle
-                      onClick={() => handleEditOpen(item.id)}
-                      pressed={editItemId === item.id}
-                      className={cn(
-                        editItemId === item.id && 'data-[state=on]:bg-gray-200'
-                      )}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Toggle>
+            <Fragment key={item.id}>
+              <TableRow
+                key={item.id}
+                className={cn(
+                  (assignmentItemId === item.id || editItemId === item.id) &&
+                    'bg-muted/50'
+                )}
+              >
+                <TableCell>
+                  <span className="text-base font-medium">{item.name}</span>
+                </TableCell>
+                <TableCell>
+                  <span className="text-base font-medium">{item.quantity}</span>
+                </TableCell>
+                <TableCell>
+                  <span className="text-base font-medium">
+                    {formatCurrency(item.price_per_item)}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  {formatCurrency(getIndividualItemTotalPrice(item))}
+                </TableCell>
+                <TableCell>
+                  <AssignmentsContainer
+                    clickCallback={() => handleAssignmentToggle(item.id)}
+                    isSelected={assignmentItemId === item.id}
+                  >
+                    <PersonAssignmentSection item={item} people={people} />
+                  </AssignmentsContainer>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Toggle
+                    onClick={() => handleEditOpen(item.id)}
+                    pressed={editItemId === item.id}
+                    className={cn(
+                      editItemId === item.id && 'data-[state=on]:bg-gray-200'
+                    )}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Toggle>
+                </TableCell>
+              </TableRow>
+              {editItemId === item.id && (
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={6} className="hover:bg-transparent">
+                    <div className="rounded-lg border">
+                      <LineItemEditForm
+                        item={item}
+                        result={result}
+                        onEditCancel={() => setEditItemId(null)}
+                      />
+                      <Separator />
+                      <div className="flex justify-between p-2">
+                        <Button
+                          onClick={() => handleDeleteItem(item.id)}
+                          variant="outline"
+                          className="border-red-500 text-red-500"
+                        >
+                          Delete
+                        </Button>
+                        <Button
+                          onClick={() => setEditItemId(null)}
+                          variant="outline"
+                        >
+                          Done
+                        </Button>
+                      </div>
+                    </div>
                   </TableCell>
                 </TableRow>
-                {editItemId === item.id && (
-                  <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={6} className="hover:bg-transparent">
-                      <div className="rounded-lg border">
-                        <LineItemEditForm
-                          item={item}
-                          result={result}
-                          onEditCancel={() => setEditItemId(null)}
-                        />
-                        <Separator />
-                        <div className="flex justify-between p-2">
-                          <Button
-                            onClick={() => handleDeleteItem(item.id)}
-                            variant="outline"
-                            className="border-red-500 text-red-500"
-                          >
-                            Delete
-                          </Button>
-                          <Button
-                            onClick={() => setEditItemId(null)}
-                            variant="outline"
-                          >
-                            Done
-                          </Button>
+              )}
+              {assignmentItemId === item.id && (
+                <TableRow
+                  key={item.id + '-assignments'}
+                  className="hover:bg-transparent"
+                >
+                  <TableCell colSpan={6}>
+                    <div className="rounded-lg border">
+                      <div className="flex gap-4 p-2">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-medium">
+                            Assigned Users
+                          </h3>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-medium">Add Users</h3>
                         </div>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-                {assignmentItemId === item.id && (
-                  <TableRow
-                    key={item.id + '-assignments'}
-                    className="hover:bg-transparent"
-                  >
-                    <TableCell colSpan={6}>
-                      <div className="rounded-lg border">
-                        <div className="flex gap-4 p-2">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-medium">
-                              Assigned Users
-                            </h3>
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg font-medium">Add Users</h3>
-                          </div>
-                        </div>
-                        <AssignmentsList
-                          possiblePeople={people}
-                          onAddAssignment={(person) => {
-                            togglePersonAssignment(item.id, person);
-                          }}
-                          onRemoveAssignment={(person) => {
-                            togglePersonAssignment(item.id, person);
-                          }}
-                          item={item}
-                          formPricePerItem={item.price_per_item}
-                          formQuantity={item.quantity}
-                        />
-                        <Separator />
-                        <div className="flex justify-between gap-2 p-2">
-                          <Button
-                            onClick={() => handleDeleteItem(item.id)}
-                            variant="outline"
-                            className="border-red-500 text-red-500"
-                          >
-                            Delete
-                          </Button>
-                          <Button
-                            onClick={() => setAssignmentItemId(null)}
-                            variant="outline"
-                          >
-                            Done
-                          </Button>
-                        </div>
+                      <AssignmentsList
+                        possiblePeople={people}
+                        onAddAssignment={(person) => {
+                          togglePersonAssignment(item.id, person);
+                        }}
+                        onRemoveAssignment={(person) => {
+                          togglePersonAssignment(item.id, person);
+                        }}
+                        item={item}
+                        formPricePerItem={item.price_per_item}
+                        formQuantity={item.quantity}
+                      />
+                      <Separator />
+                      <div className="flex justify-between gap-2 p-2">
+                        <Button
+                          onClick={() => handleDeleteItem(item.id)}
+                          variant="outline"
+                          className="border-red-500 text-red-500"
+                        >
+                          Delete
+                        </Button>
+                        <Button
+                          onClick={() => setAssignmentItemId(null)}
+                          variant="outline"
+                        >
+                          Done
+                        </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </>
-            </>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </Fragment>
           ))}
         </TableBody>
       </Table>
