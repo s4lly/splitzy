@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 import { z } from 'zod';
 import PersonBadge from './PersonBadge';
-import { getColorForName } from './utils/get-color-for-name';
+import { getColorForName, getColorStyle } from './utils/get-color-for-name';
 
 interface PersonAssignmentSectionProps {
   item: z.infer<typeof LineItemSchema>;
@@ -28,8 +28,8 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
   return (
     <>
       {visibleAssignedPeople.map((person, personIdx) => {
-        const [bgColor, textColor, hoverBgColor, hoverTextColor] =
-          getColorForName(person, personIdx, people.length);
+        const colorPair = getColorForName(person, personIdx, people.length);
+        const colorStyle = getColorStyle(colorPair);
 
         return (
           <div
@@ -43,13 +43,8 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
             <PersonBadge
               name={person}
               size={isMobile ? 'sm' : 'md'}
-              className={cn(
-                bgColor,
-                textColor,
-                !isMobile && 'border-2 border-white',
-                `dark:${hoverBgColor}`,
-                `dark:${hoverTextColor}`
-              )}
+              colorStyle={colorStyle}
+              className={cn(!isMobile && 'border-2 border-white')}
             />
           </div>
         );
