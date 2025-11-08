@@ -52,7 +52,8 @@ class UserReceipt(db.Model):
         'ReceiptLineItem',
         backref='receipt',
         lazy=True,
-        cascade='all, delete-orphan'
+        cascade='all, delete-orphan',
+        order_by='ReceiptLineItem.id'
     )
 
     def __repr__(self):

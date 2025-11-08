@@ -491,8 +491,8 @@ def get_line_items(receipt_id):
         if not receipt:
             return jsonify({'success': False, 'error': 'Receipt not found'}), 404
 
-        # Get line items from the database
-        line_items = ReceiptLineItem.query.filter_by(receipt_id=receipt_id).all()
+        # Get line items from the database, ordered by id for consistent ordering
+        line_items = ReceiptLineItem.query.filter_by(receipt_id=receipt_id).order_by(ReceiptLineItem.id).all()
 
         # Format line items for response using Pydantic serialization
         items = []
