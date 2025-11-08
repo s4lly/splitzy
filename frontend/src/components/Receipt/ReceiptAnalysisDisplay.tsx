@@ -1,4 +1,5 @@
 import { ReceiptSchema } from '@/lib/receiptSchemas';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -43,7 +44,7 @@ import {
   formatCurrency,
   truncateFloatByNDecimals,
 } from './utils/format-currency';
-import { getColorForName } from './utils/get-color-for-name';
+import { getColorForName, getColorStyle } from './utils/get-color-for-name';
 import {
   getPeopleFromLineItems,
   getPersonItems,
@@ -502,13 +503,22 @@ const ReceiptAnalysisDisplay = ({
               <div className="flex flex-wrap gap-2">
                 {people.map((person, idx) => {
                   const colorPair = getColorForName(person, idx, people.length);
+                  const colorStyle = getColorStyle(colorPair);
                   return (
                     <div
                       key={idx}
-                      className={`flex items-center rounded-full px-3 py-1 ${colorPair[0]} ${colorPair[1]} dark:${colorPair[2]} dark:${colorPair[3]}`}
+                      className="flex items-center rounded-full px-3 py-1"
+                      style={colorStyle}
                     >
-                      <PersonBadge name={person} size="sm" />
-                      <span className="ml-1 text-sm">{person}</span>
+                      <PersonBadge
+                        name={person}
+                        size="sm"
+                        colorStyle={colorStyle}
+                        className={cn(!isMobile && 'border-2 border-white')}
+                      />
+                      <span className="ml-1 text-sm [color:var(--text-light)] dark:[color:var(--text-dark)]">
+                        {person}
+                      </span>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -541,6 +551,7 @@ const ReceiptAnalysisDisplay = ({
                       idx,
                       people.length
                     );
+                    const colorStyle = getColorStyle(colorPair);
 
                     // ----
 
@@ -574,10 +585,18 @@ const ReceiptAnalysisDisplay = ({
                       <Dialog key={idx}>
                         <DialogTrigger asChild>
                           <div
-                            className={`rounded-lg border p-4 ${colorPair[0]}/5 ${colorPair[1]}/80 dark:${colorPair[2]}/20 dark:${colorPair[3]}/90 cursor-pointer transition-shadow hover:shadow-md`}
+                            className="cursor-pointer rounded-lg border p-4 transition-shadow [background-color:color-mix(in_srgb,var(--bg-light)_5%,transparent)] hover:shadow-md dark:[background-color:color-mix(in_srgb,var(--bg-dark)_20%,transparent)]"
+                            style={colorStyle}
                           >
                             <div className="mb-2 flex items-center gap-2">
-                              <PersonBadge name={person} size="md" />
+                              <PersonBadge
+                                name={person}
+                                size={isMobile ? 'sm' : 'md'}
+                                colorStyle={colorStyle}
+                                className={cn(
+                                  !isMobile && 'border-2 border-white'
+                                )}
+                              />
                               <span className="truncate font-medium">
                                 {person}
                               </span>
@@ -664,7 +683,14 @@ const ReceiptAnalysisDisplay = ({
                         <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-md">
                           <DialogHeader>
                             <DialogTitle className="flex items-center gap-2">
-                              <PersonBadge name={person} size="md" />
+                              <PersonBadge
+                                name={person}
+                                size="md"
+                                colorStyle={colorStyle}
+                                className={cn(
+                                  !isMobile && 'border-2 border-white'
+                                )}
+                              />
                               <span>{person}'s Items</span>
                             </DialogTitle>
                             <DialogDescription>

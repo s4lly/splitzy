@@ -28,6 +28,78 @@ const COLOR_PAIRS = [
   ],
 ];
 
+// Mapping from Tailwind classes to actual color values
+const COLOR_VALUES: Record<string, { light?: string; dark?: string }> = {
+  // Light mode colors (bg-*-100 and text-*-800)
+  'bg-purple-100': { light: 'rgb(243 232 255)', dark: 'rgb(126 34 206 / 0.5)' },
+  'text-purple-800': { light: 'rgb(107 33 168)', dark: 'rgb(243 232 255)' },
+  'bg-teal-100': { light: 'rgb(204 251 241)', dark: 'rgb(15 118 110 / 0.5)' },
+  'text-teal-800': { light: 'rgb(17 94 89)', dark: 'rgb(204 251 241)' },
+  'bg-amber-100': { light: 'rgb(254 243 199)', dark: 'rgb(180 83 9 / 0.5)' },
+  'text-amber-800': { light: 'rgb(146 64 14)', dark: 'rgb(254 243 199)' },
+  'bg-pink-100': { light: 'rgb(252 231 243)', dark: 'rgb(190 24 93 / 0.5)' },
+  'text-pink-800': { light: 'rgb(157 23 77)', dark: 'rgb(252 231 243)' },
+  'bg-green-100': { light: 'rgb(220 252 231)', dark: 'rgb(21 128 61 / 0.5)' },
+  'text-green-800': { light: 'rgb(22 101 52)', dark: 'rgb(220 252 231)' },
+  'bg-rose-100': { light: 'rgb(255 228 230)', dark: 'rgb(190 18 60 / 0.5)' },
+  'text-rose-800': { light: 'rgb(159 18 57)', dark: 'rgb(255 228 230)' },
+  'bg-indigo-100': { light: 'rgb(224 231 255)', dark: 'rgb(67 56 202 / 0.5)' },
+  'text-indigo-800': { light: 'rgb(55 48 163)', dark: 'rgb(224 231 255)' },
+  'bg-cyan-100': { light: 'rgb(207 250 254)', dark: 'rgb(14 116 144 / 0.5)' },
+  'text-cyan-800': { light: 'rgb(21 94 117)', dark: 'rgb(207 250 254)' },
+  'bg-orange-100': { light: 'rgb(255 237 213)', dark: 'rgb(194 65 12 / 0.5)' },
+  'text-orange-800': { light: 'rgb(154 52 18)', dark: 'rgb(255 237 213)' },
+  'bg-blue-100': { light: 'rgb(219 234 254)', dark: 'rgb(29 78 216 / 0.5)' },
+  'text-blue-800': { light: 'rgb(30 64 175)', dark: 'rgb(219 234 254)' },
+  'bg-lime-100': { light: 'rgb(236 252 203)', dark: 'rgb(77 124 15 / 0.5)' },
+  'text-lime-800': { light: 'rgb(63 98 18)', dark: 'rgb(236 252 203)' },
+  'bg-fuchsia-100': {
+    light: 'rgb(250 232 255)',
+    dark: 'rgb(162 28 175 / 0.5)',
+  },
+  'text-fuchsia-800': { light: 'rgb(134 25 143)', dark: 'rgb(250 232 255)' },
+  'bg-violet-100': { light: 'rgb(237 233 254)', dark: 'rgb(109 40 217 / 0.5)' },
+  'text-violet-800': { light: 'rgb(91 33 182)', dark: 'rgb(237 233 254)' },
+  'bg-yellow-100': { light: 'rgb(254 249 195)', dark: 'rgb(161 98 7 / 0.5)' },
+  'text-yellow-800': { light: 'rgb(133 77 14)', dark: 'rgb(254 249 195)' },
+  'bg-emerald-100': { light: 'rgb(209 250 229)', dark: 'rgb(5 150 105 / 0.5)' },
+  'text-emerald-800': { light: 'rgb(6 95 70)', dark: 'rgb(209 250 229)' },
+
+  // Dark mode background colors (bg-*-700/50)
+  'bg-purple-700/50': { dark: 'rgb(126 34 206 / 0.5)' },
+  'bg-teal-700/50': { dark: 'rgb(15 118 110 / 0.5)' },
+  'bg-amber-700/50': { dark: 'rgb(180 83 9 / 0.5)' },
+  'bg-pink-700/50': { dark: 'rgb(190 24 93 / 0.5)' },
+  'bg-green-700/50': { dark: 'rgb(21 128 61 / 0.5)' },
+  'bg-rose-700/50': { dark: 'rgb(190 18 60 / 0.5)' },
+  'bg-indigo-700/50': { dark: 'rgb(67 56 202 / 0.5)' },
+  'bg-cyan-700/50': { dark: 'rgb(14 116 144 / 0.5)' },
+  'bg-orange-700/50': { dark: 'rgb(194 65 12 / 0.5)' },
+  'bg-blue-700/50': { dark: 'rgb(29 78 216 / 0.5)' },
+  'bg-lime-700/50': { dark: 'rgb(77 124 15 / 0.5)' },
+  'bg-fuchsia-700/50': { dark: 'rgb(162 28 175 / 0.5)' },
+  'bg-violet-700/50': { dark: 'rgb(109 40 217 / 0.5)' },
+  'bg-yellow-700/50': { dark: 'rgb(161 98 7 / 0.5)' },
+  'bg-emerald-700/50': { dark: 'rgb(5 150 105 / 0.5)' },
+
+  // Dark mode text colors (text-*-100)
+  'text-purple-100': { dark: 'rgb(243 232 255)' },
+  'text-teal-100': { dark: 'rgb(204 251 241)' },
+  'text-amber-100': { dark: 'rgb(254 243 199)' },
+  'text-pink-100': { dark: 'rgb(252 231 243)' },
+  'text-green-100': { dark: 'rgb(220 252 231)' },
+  'text-rose-100': { dark: 'rgb(255 228 230)' },
+  'text-indigo-100': { dark: 'rgb(224 231 255)' },
+  'text-cyan-100': { dark: 'rgb(207 250 254)' },
+  'text-orange-100': { dark: 'rgb(255 237 213)' },
+  'text-blue-100': { dark: 'rgb(219 234 254)' },
+  'text-lime-100': { dark: 'rgb(236 252 203)' },
+  'text-fuchsia-100': { dark: 'rgb(250 232 255)' },
+  'text-violet-100': { dark: 'rgb(237 233 254)' },
+  'text-yellow-100': { dark: 'rgb(254 249 195)' },
+  'text-emerald-100': { dark: 'rgb(209 250 229)' },
+};
+
 // Get a deterministic color based on a name and position
 export const getColorForName = (name: string, index = 0, totalPeople = 1) => {
   // Always use index-based selection to ensure consistent color assignments
@@ -54,4 +126,19 @@ export const getColorForName = (name: string, index = 0, totalPeople = 1) => {
     (((nameHash + index * 7) % COLOR_PAIRS.length) + COLOR_PAIRS.length) %
     COLOR_PAIRS.length;
   return COLOR_PAIRS[combinedHash];
+};
+
+// Convert color pair to inline style with CSS variables
+export const getColorStyle = (colorPair: string[]) => {
+  const bgLight = COLOR_VALUES[colorPair[0]]?.light || 'rgb(243 232 255)';
+  const textLight = COLOR_VALUES[colorPair[1]]?.light || 'rgb(107 33 168)';
+  const bgDark = COLOR_VALUES[colorPair[2]]?.dark || 'rgb(126 34 206 / 0.5)';
+  const textDark = COLOR_VALUES[colorPair[3]]?.dark || 'rgb(243 232 255)';
+
+  return {
+    '--bg-light': bgLight,
+    '--text-light': textLight,
+    '--bg-dark': bgDark,
+    '--text-dark': textDark,
+  } as React.CSSProperties;
 };
