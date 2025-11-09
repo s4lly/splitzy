@@ -122,9 +122,9 @@ const ReceiptAnalysisDisplay = ({
   );
 
   // Calculate the total amount actually assigned (excluding equal split)
-  const totalPreTaxAssignedAmount = Array.from(
+  const totalPreTaxAssignedAmount = sumMoneyAmounts(
     personPreTaxItemTotals.values()
-  ).reduce((sum, value) => sum + value, 0);
+  );
 
   // Add proportional tax, tip, and gratuity for assigned items
   let totalAssignedAmount = totalPreTaxAssignedAmount;
