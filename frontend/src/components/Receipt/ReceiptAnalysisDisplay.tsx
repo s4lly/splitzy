@@ -465,7 +465,7 @@ const ReceiptAnalysisDisplay = ({
                   style={{
                     width: `${Math.min(
                       100,
-                      (personFinalFairLineItemTotalsSum / receiptTotal) * 100
+                      (totalAssignedAmount / receiptTotal) * 100
                     )}%`,
                   }}
                 ></div>
