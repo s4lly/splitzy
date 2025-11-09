@@ -55,7 +55,14 @@ import {
   getPersonPreTaxItemTotals,
   getTaxRate,
   getTotal,
+  sumMoneyAmounts,
 } from './utils/receipt-calculation';
+import {
+  areAllItemsAssigned,
+  hasReceiptLineItems,
+  shouldApplyTaxToAssignedItems,
+  shouldUseEqualSplit,
+} from './utils/receipt-conditions';
 
 const ReceiptAnalysisDisplay = ({
   result,
@@ -91,14 +98,8 @@ const ReceiptAnalysisDisplay = ({
   const { receipt_data } = result;
 
   // Check if we need to use equal split mode (no line items or no assignments made)
-  const hasLineItems =
-    receipt_data.line_items && receipt_data.line_items.length > 0;
-  const noAssignmentsMade =
-    hasLineItems &&
-    receipt_data.line_items.every(
-      (item) => !item.assignments || item.assignments.length === 0
-    );
-  const useEqualSplit = !hasLineItems || noAssignmentsMade;
+  const hasLineItems = hasReceiptLineItems(receipt_data);
+  const useEqualSplit = shouldUseEqualSplit(receipt_data);
 
   // Calculate the total assigned and unassigned amounts
   const receiptTotal = getTotal(receipt_data);
@@ -110,25 +111,37 @@ const ReceiptAnalysisDisplay = ({
     personFinalLineItemTotals
   );
 
-  // Calculate sum in cents to avoid floating-point errors
-  // Use Math.round to handle cases like 40.3 * 100 = 4029.999...
-  const personFinalFairLineItemTotalsSumInCents = Array.from(
+  // Calculate sum while avoiding floating-point errors
+  const personFinalFairLineItemTotalsSum = sumMoneyAmounts(
     personFinalFairLineItemTotals.values()
-  ).reduce((sum, amount) => sum + Math.round(amount * 100), 0);
-  const personFinalFairLineItemTotalsSum =
-    personFinalFairLineItemTotalsSumInCents / 100;
+  );
 
   const personPreTaxItemTotals = getPersonPreTaxItemTotals(
     receipt_data,
     people
   );
 
-  const unassignedAmount = Math.max(
-    0,
-    receiptTotal - personFinalFairLineItemTotalsSum
+  // Calculate the total amount actually assigned (excluding equal split)
+  const totalPreTaxAssignedAmount = sumMoneyAmounts(
+    personPreTaxItemTotals.values()
   );
-  const isFullyAssigned =
-    Math.abs(personFinalFairLineItemTotalsSum - receiptTotal) < 0.01; // Account for floating point rounding
+
+  // Add proportional tax, tip, and gratuity for assigned items
+  let totalAssignedAmount = totalPreTaxAssignedAmount;
+
+  // Add tax if applicable
+  if (shouldApplyTaxToAssignedItems(receipt_data, totalPreTaxAssignedAmount)) {
+    totalAssignedAmount += totalPreTaxAssignedAmount * getTaxRate(receipt_data);
+  }
+
+  // Add tip and gratuity (split among people if any assignments made)
+  if (people.length > 0 && totalPreTaxAssignedAmount > 0) {
+    totalAssignedAmount +=
+      (receipt_data.tip ?? 0) + (receipt_data.gratuity ?? 0);
+  }
+
+  const unassignedAmount = Math.max(0, receiptTotal - totalAssignedAmount);
+  const isFullyAssigned = areAllItemsAssigned(receipt_data);
 
   const handleAddPerson = () => {
     if (newPersonName.trim() && !people.includes(newPersonName.trim())) {
@@ -426,7 +439,7 @@ const ReceiptAnalysisDisplay = ({
                       : 'text-amber-700 dark:text-amber-400'
                   }`}
                 >
-                  {formatCurrency(personFinalFairLineItemTotalsSum)} /{' '}
+                  {formatCurrency(totalAssignedAmount)} /{' '}
                   {formatCurrency(receiptTotal)}
                 </span>
               </div>
@@ -452,7 +465,7 @@ const ReceiptAnalysisDisplay = ({
                   style={{
                     width: `${Math.min(
                       100,
-                      (personFinalFairLineItemTotalsSum / receiptTotal) * 100
+                      (totalAssignedAmount / receiptTotal) * 100
                     )}%`,
                   }}
                 ></div>
@@ -565,8 +578,8 @@ const ReceiptAnalysisDisplay = ({
                     const personPreTaxItemTotal =
                       personPreTaxItemTotals.get(person) || 0;
 
-                    const taxRate = getTaxRate(receipt_data);
-                    const taxAmount = personPreTaxItemTotal * taxRate;
+                    const taxAmount =
+                      personPreTaxItemTotal * getTaxRate(receipt_data);
 
                     // ----
 

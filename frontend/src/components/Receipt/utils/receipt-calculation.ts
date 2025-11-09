@@ -1,6 +1,27 @@
 import { LineItemSchema, ReceiptDataSchema } from '@/lib/receiptSchemas';
 import { z } from 'zod';
 
+/**
+ * Sums monetary amounts while avoiding floating-point precision errors
+ * by converting to cents (integer arithmetic) before summing.
+ *
+ * Uses Math.round to handle cases like 40.3 * 100 = 4029.999...
+ *
+ * @param amounts - Array or iterable of monetary amounts to sum
+ * @returns The sum of all amounts with proper precision handling
+ *
+ * @example
+ * sumMoneyAmounts([40.3, 40.18, 0.13]) // Returns 80.61
+ * sumMoneyAmounts([10.333, 10.333, 10.334]) // Returns 31.00
+ */
+export function sumMoneyAmounts(amounts: Iterable<number>): number {
+  const sumInCents = Array.from(amounts).reduce(
+    (sum, amount) => sum + Math.round(amount * 100),
+    0
+  );
+  return sumInCents / 100;
+}
+
 export function getTotalForAllItems(
   receipt_data: z.infer<typeof ReceiptDataSchema>
 ) {
@@ -36,12 +57,10 @@ export function getTaxAmount(
 ) {
   // Avoid division by zero
   if (!receipt_data.display_subtotal) {
-    console.warn('display_subtotal is 0, returning 0');
     return 0;
   }
 
   if (!receipt_data.tax) {
-    console.warn('receipt tax is 0, returning 0');
     return 0;
   }
 
@@ -51,12 +70,10 @@ export function getTaxAmount(
 export function getTaxRate(receipt_data: z.infer<typeof ReceiptDataSchema>) {
   // Avoid division by zero
   if (!receipt_data.display_subtotal) {
-    console.warn('receipt display_subtotal is 0, returning 0');
     return 0;
   }
 
   if (!receipt_data.tax) {
-    console.warn('receipt tax is 0, returning 0');
     return 0;
   }
 

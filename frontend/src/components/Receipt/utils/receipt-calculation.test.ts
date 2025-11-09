@@ -9,6 +9,7 @@ import {
   getTaxAmount,
   getTotal,
   getTotalForAllItems,
+  sumMoneyAmounts,
 } from './receipt-calculation';
 
 const makeLineItem = (overrides = {}) => ({
@@ -39,6 +40,149 @@ const makeReceiptData = (overrides = {}) => ({
   tip: 1,
   total: 22,
   ...overrides,
+});
+
+describe('sumMoneyAmounts', () => {
+  it('sums simple whole numbers correctly', () => {
+    expect(sumMoneyAmounts([10, 20, 30])).toBe(60);
+  });
+
+  it('sums decimal numbers correctly', () => {
+    expect(sumMoneyAmounts([10.5, 20.25, 30.75])).toBe(61.5);
+  });
+
+  it('handles floating-point precision issues (40.3 case)', () => {
+    // 40.3 * 100 in JavaScript = 4029.999999999999
+    // Math.round handles this correctly
+    expect(sumMoneyAmounts([40.3, 40.18, 0.13])).toBe(80.61);
+  });
+
+  it('handles the classic 0.1 + 0.2 problem', () => {
+    // In JavaScript: 0.1 + 0.2 = 0.30000000000000004
+    expect(sumMoneyAmounts([0.1, 0.2])).toBe(0.3);
+  });
+
+  it('handles repeating decimals that need rounding', () => {
+    // 3.333 rounds to 333 cents, 3.334 rounds to 333 cents
+    // So the sum is 3.33 + 3.33 + 3.33 = 9.99
+    expect(sumMoneyAmounts([3.333, 3.333, 3.334])).toBe(9.99);
+  });
+
+  it('handles three-way split with rounding', () => {
+    // $31.00 split 3 ways = $10.333... each
+    // 10.333333... * 100 = 1033.333..., rounds to 1033 cents = $10.33
+    // So 10.33 * 3 = 30.99
+    expect(
+      sumMoneyAmounts([
+        10.333333333333334, 10.333333333333334, 10.333333333333334,
+      ])
+    ).toBe(30.99);
+  });
+
+  it('returns 0 for empty array', () => {
+    expect(sumMoneyAmounts([])).toBe(0);
+  });
+
+  it('returns same value for single amount', () => {
+    expect(sumMoneyAmounts([42.99])).toBe(42.99);
+  });
+
+  it('handles negative amounts correctly', () => {
+    expect(sumMoneyAmounts([100, -25.5, -10.25])).toBe(64.25);
+  });
+
+  it('handles zero amounts', () => {
+    expect(sumMoneyAmounts([0, 10.5, 0, 5.25])).toBe(15.75);
+  });
+
+  it('works with Map.values() iterable', () => {
+    const map = new Map([
+      ['alice', 25.31],
+      ['bob', 25.31],
+    ]);
+    expect(sumMoneyAmounts(map.values())).toBe(50.62);
+  });
+
+  it('works with Set iterable', () => {
+    const set = new Set([10.5, 20.25, 30.75]);
+    expect(sumMoneyAmounts(set)).toBe(61.5);
+  });
+
+  it('handles very small amounts (cents)', () => {
+    expect(sumMoneyAmounts([0.01, 0.02, 0.03, 0.04])).toBe(0.1);
+  });
+
+  it('handles many small floating-point errors accumulating', () => {
+    // Each 0.1 has floating-point error, but summing in cents avoids accumulation
+    const amounts = Array(100).fill(0.1);
+    expect(sumMoneyAmounts(amounts)).toBe(10.0);
+  });
+
+  it('handles large amounts', () => {
+    expect(sumMoneyAmounts([999.99, 1000.01, 2500.5])).toBe(4500.5);
+  });
+
+  it('handles real-world receipt scenario', () => {
+    // Simulating actual receipt totals with tax, tip, etc.
+    expect(sumMoneyAmounts([224.09, 69.26, 39.36, 38.62])).toBe(371.33);
+  });
+
+  it('handles amounts that would cause rounding issues when multiplied by 100', () => {
+    // Test cases where amount * 100 produces numbers like 4029.999999999999
+    expect(sumMoneyAmounts([40.3, 10.3, 5.3])).toBe(55.9);
+  });
+
+  it('handles mixed precision decimals', () => {
+    // 10.1 = 1010 cents, 20.22 = 2022 cents, 30.333 = 3033 cents, 40.4444 = 4044 cents
+    // Total = 10104 cents = 101.04, but let me recalculate:
+    // 10.1 * 100 = 1010, 20.22 * 100 = 2022, 30.333 * 100 = 3033.3 -> 3033, 40.4444 * 100 = 4044.44 -> 4044
+    // Sum = 1010 + 2022 + 3033 + 4044 = 10109 cents = 101.09
+    expect(sumMoneyAmounts([10.1, 20.22, 30.333, 40.4444])).toBe(101.09);
+  });
+
+  it('handles the specific user scenario from bug report', () => {
+    // This was causing issues where sum was 80.62 or 80.60 instead of 80.61
+    const amounts = [40.3, 40.18, 0.13];
+    const sum = sumMoneyAmounts(amounts);
+    expect(sum).toBe(80.61);
+    // Also verify in cents
+    expect(Math.round(sum * 100)).toBe(8061);
+  });
+
+  it('ensures no penny is lost or gained in various scenarios', () => {
+    const testCases = [
+      // 5.005 * 100 = 500.5, rounds to 501 cents = 5.01, so 5.01 * 2 = 10.02 = 1002 cents
+      { amounts: [5.005, 5.005], expectedCents: 1002 },
+      { amounts: [11.11, 11.11, 11.11], expectedCents: 3333 },
+      // 33.333 * 100 = 3333.3, rounds to 3333 cents = 33.33, so 33.33 * 3 = 99.99 = 9999 cents
+      { amounts: [33.333, 33.333, 33.333], expectedCents: 9999 },
+      { amounts: [0.01, 0.01, 0.01], expectedCents: 3 },
+      // 0.333 * 100 = 33.3, rounds to 33 cents = 0.33
+      // 0.334 * 100 = 33.4, rounds to 33 cents = 0.33
+      // So 0.33 + 0.33 + 0.33 = 0.99 = 99 cents
+      { amounts: [0.333, 0.333, 0.334], expectedCents: 99 },
+    ];
+
+    testCases.forEach(({ amounts, expectedCents }) => {
+      const sum = sumMoneyAmounts(amounts);
+      expect(Math.round(sum * 100)).toBe(expectedCents);
+    });
+  });
+
+  it('handles maximum JavaScript safe integer converted from cents', () => {
+    // Maximum safe integer is 9007199254740991
+    // In cents, that's about 90 trillion dollars
+    // Let's test a more reasonable large sum
+    expect(sumMoneyAmounts([999999.99, 1000000.01])).toBe(2000000.0);
+  });
+
+  it('rounds half-cent values consistently', () => {
+    // Test that Math.round is used (rounds to nearest, ties go to even)
+    // 10.555 * 100 = 1055.5, Math.round = 1056
+    // 10.545 * 100 = 1054.5, Math.round = 1054 (banker's rounding in some systems, but JS uses round-half-up)
+    expect(sumMoneyAmounts([10.555])).toBe(10.56);
+    expect(sumMoneyAmounts([10.545])).toBe(10.55);
+  });
 });
 
 describe('receipt-calculation utils', () => {
