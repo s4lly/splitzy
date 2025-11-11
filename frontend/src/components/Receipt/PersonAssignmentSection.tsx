@@ -34,21 +34,18 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
           const colorStyle = getColorStyle(colorPair);
 
           return (
-            <div
+            <PersonBadge
               key={personIdx}
+              name={person}
+              size={isMobile ? 'sm' : 'md'}
+              colorStyle={colorStyle}
               className={cn(
                 isMobile &&
-                  'group flex items-center gap-1 rounded bg-muted/20 py-1',
-                !isMobile && '[&:nth-child(n+2)]:-ml-4'
+                  'group flex items-center gap-1 rounded-full bg-muted/20 py-1',
+                !isMobile && 'border-2 border-white',
+                !isMobile && personIdx > 0 && '-ml-4'
               )}
-            >
-              <PersonBadge
-                name={person}
-                size={isMobile ? 'sm' : 'md'}
-                colorStyle={colorStyle}
-                className={cn(!isMobile && 'border-2 border-white')}
-              />
-            </div>
+            />
           );
         })}
 
