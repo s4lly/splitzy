@@ -5,7 +5,10 @@ import React from 'react';
 import { z } from 'zod';
 import PersonBadge from './PersonBadge';
 import { MAX_VISIBLE_ASSIGNED_PEOPLE_DESKTOP } from './constants';
-import { getColorForName, getColorStyle } from './utils/get-color-for-name';
+import {
+  getColorForName,
+  getSolidColorStyle,
+} from './utils/get-color-for-name';
 
 interface PersonAssignmentSectionProps {
   item: z.infer<typeof LineItemSchema>;
@@ -37,7 +40,7 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
             personIndexInPeople,
             people.length
           );
-          const colorStyle = getColorStyle(colorPair);
+          const colorStyle = getSolidColorStyle(colorPair);
 
           return (
             <PersonBadge
