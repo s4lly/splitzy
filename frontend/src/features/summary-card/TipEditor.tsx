@@ -1,15 +1,14 @@
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { formatCurrency } from './utils/format-currency';
-import { useState, useEffect } from 'react';
-import { useReceiptDataUpdateMutation } from './hooks/useReceiptDataUpdateMutation';
-import PercentageTipButton from './components/PercentageTipButton';
-import ClickableRow from './components/ClickableRow';
-import AddableRow from './components/AddableRow';
-import { Button } from '../ui/button';
-import { Trash } from 'lucide-react';
+import PercentageTipButton from '@/components/Receipt/components/PercentageTipButton';
+import { useReceiptDataUpdateMutation } from '@/components/Receipt/hooks/useReceiptDataUpdateMutation';
+import { formatCurrency } from '@/components/Receipt/utils/format-currency';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
+import { Trash } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface TipEditorProps {
   receiptId: string;
@@ -122,7 +121,15 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
   };
 
   if (!hasValueToDelete && !isEditing) {
-    return <AddableRow label="Tip" onClick={handleEditTip} />;
+    return (
+      <div className="-ml-2 -mr-2 rounded-sm border">
+        <EditableDetail
+          label="Tip"
+          value={formatCurrency(0)}
+          onClick={handleEditTip}
+        />
+      </div>
+    );
   }
 
   return (
@@ -229,7 +236,7 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
           </div>
         </div>
       ) : (
-        <ClickableRow
+        <EditableDetail
           label="Tip"
           value={formatCurrency(receiptTip ?? 0)}
           onClick={handleEditTip}

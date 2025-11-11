@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render } from '../../../test-utils';
-import GratuityEditor from '../GratuityEditor';
-import { server } from '../../../mocks/server';
+import { render } from '../../test-utils';
+import GratuityEditor from '@/features/summary-card/GratuityEditor';
+import { server } from '../../mocks/server';
 import { http, HttpResponse } from 'msw';
 
 // Mock the format-currency utility
-vi.mock('../utils/format-currency', () => ({
+vi.mock('@/components/Receipt/utils/format-currency', () => ({
   formatCurrency: (amount: number) => `$${amount.toFixed(2)}`,
 }));
 
@@ -22,44 +22,46 @@ describe('GratuityEditor', () => {
   });
 
   describe('Initial Render', () => {
-    it('renders as ClickableRow when gratuity has value', () => {
+    it('renders as EditableDetail when gratuity has value', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       expect(
-        screen.getByRole('button', { name: /edit gratuity: \$5\.00/i })
+        screen.getByRole('button', { name: /update gratuity/i })
       ).toBeInTheDocument();
       expect(screen.getByText('Gratuity:')).toBeInTheDocument();
       expect(screen.getByText('$5.00')).toBeInTheDocument();
     });
 
-    it('renders as AddableRow when gratuity is 0', () => {
+    it('renders as EditableDetail when gratuity is 0', () => {
       render(<GratuityEditor {...defaultProps} receiptGratuity={0} />);
 
       expect(
-        screen.getByRole('button', { name: /add gratuity/i })
+        screen.getByRole('button', { name: /update gratuity/i })
       ).toBeInTheDocument();
       expect(screen.getByText('Gratuity:')).toBeInTheDocument();
+      expect(screen.getByText('$0.00')).toBeInTheDocument();
     });
 
-    it('renders as AddableRow when gratuity is undefined', () => {
+    it('renders as EditableDetail when gratuity is undefined', () => {
       render(
         <GratuityEditor {...defaultProps} receiptGratuity={undefined as any} />
       );
 
       expect(
-        screen.getByRole('button', { name: /add gratuity/i })
+        screen.getByRole('button', { name: /update gratuity/i })
       ).toBeInTheDocument();
       expect(screen.getByText('Gratuity:')).toBeInTheDocument();
+      expect(screen.getByText('$0.00')).toBeInTheDocument();
     });
   });
 
   describe('Edit Mode', () => {
-    it('enters edit mode when ClickableRow is clicked', async () => {
+    it('enters edit mode when EditableDetail is clicked', async () => {
       const user = userEvent.setup();
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -73,11 +75,11 @@ describe('GratuityEditor', () => {
       expect(screen.getByRole('button', { name: /done/i })).toBeInTheDocument();
     });
 
-    it('enters edit mode when AddableRow is clicked', async () => {
+    it('enters edit mode when EditableDetail is clicked (gratuity is 0)', async () => {
       const user = userEvent.setup();
       render(<GratuityEditor {...defaultProps} receiptGratuity={0} />);
 
-      const addButton = screen.getByRole('button', { name: /add gratuity/i });
+      const addButton = screen.getByRole('button', { name: /update gratuity/i });
       await user.click(addButton);
 
       expect(screen.getByLabelText(/gratuity/i)).toBeInTheDocument();
@@ -93,7 +95,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -106,7 +108,7 @@ describe('GratuityEditor', () => {
       const user = userEvent.setup();
       render(<GratuityEditor {...defaultProps} receiptGratuity={0} />);
 
-      const addButton = screen.getByRole('button', { name: /add gratuity/i });
+      const addButton = screen.getByRole('button', { name: /update gratuity/i });
       await user.click(addButton);
 
       expect(
@@ -121,7 +123,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -137,7 +139,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -154,7 +156,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -169,7 +171,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -188,7 +190,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -204,7 +206,7 @@ describe('GratuityEditor', () => {
         // The component should exit edit mode and show the original value
         // (until parent re-renders with updated props)
         expect(
-          screen.getByRole('button', { name: /edit gratuity: \$5\.00/i })
+          screen.getByRole('button', { name: /update gratuity/i })
         ).toBeInTheDocument();
       });
     });
@@ -214,7 +216,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -226,7 +228,7 @@ describe('GratuityEditor', () => {
         // The component should exit edit mode and show the original value
         // (until parent re-renders with updated props)
         expect(
-          screen.getByRole('button', { name: /edit gratuity: \$5\.00/i })
+          screen.getByRole('button', { name: /update gratuity/i })
         ).toBeInTheDocument();
       });
     });
@@ -243,7 +245,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -268,7 +270,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -283,7 +285,7 @@ describe('GratuityEditor', () => {
         // The component should exit edit mode and show the original value
         // (cancel reverts to the prop value, not the edited value)
         expect(
-          screen.getByRole('button', { name: /edit gratuity: \$5\.00/i })
+          screen.getByRole('button', { name: /update gratuity/i })
         ).toBeInTheDocument();
       });
     });
@@ -295,7 +297,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -309,7 +311,7 @@ describe('GratuityEditor', () => {
         // The component should exit edit mode and show the original value
         // (until parent re-renders with updated props after delete)
         expect(
-          screen.getByRole('button', { name: /edit gratuity: \$5\.00/i })
+          screen.getByRole('button', { name: /update gratuity/i })
         ).toBeInTheDocument();
       });
     });
@@ -326,7 +328,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -357,7 +359,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -387,7 +389,7 @@ describe('GratuityEditor', () => {
       render(<GratuityEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit gratuity: \$5\.00/i,
+        name: /update gratuity/i,
       });
       await user.click(editButton);
 
@@ -419,10 +421,12 @@ describe('GratuityEditor', () => {
         <GratuityEditor {...defaultProps} receiptGratuity={undefined as any} />
       );
 
-      // When gratuity is undefined, it should show as AddableRow, not display $0.00
+      // When gratuity is undefined, it should show as EditableDetail with $0.00
       expect(
-        screen.getByRole('button', { name: /add gratuity/i })
+        screen.getByRole('button', { name: /update gratuity/i })
       ).toBeInTheDocument();
+      expect(screen.getByText('$0.00')).toBeInTheDocument();
     });
   });
 });
+

@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render } from '../../../test-utils';
-import TipEditor from '../TipEditor';
-import { server } from '../../../mocks/server';
+import { render } from '../../test-utils';
+import TipEditor from '@/features/summary-card/TipEditor';
+import { server } from '../../mocks/server';
 import { http, HttpResponse } from 'msw';
 
 // Mock the format-currency utility
-vi.mock('../utils/format-currency', () => ({
+vi.mock('@/components/Receipt/utils/format-currency', () => ({
   formatCurrency: (amount: number) => `$${amount.toFixed(2)}`,
   truncateFloatByNDecimals: (val: number, n: number) => {
     return Math.trunc(val * 10 ** n) / 10 ** n;
@@ -35,42 +35,43 @@ describe('TipEditor', () => {
   });
 
   describe('Initial Render', () => {
-    it('renders as ClickableRow when tip has value', () => {
+    it('renders as EditableDetail when tip has value', () => {
       render(<TipEditor {...defaultProps} />);
 
       expect(
-        screen.getByRole('button', { name: /edit tip: \$5\.00/i })
+        screen.getByRole('button', { name: /update tip/i })
       ).toBeInTheDocument();
       expect(screen.getByText('Tip:')).toBeInTheDocument();
       expect(screen.getByText('$5.00')).toBeInTheDocument();
     });
 
-    it('renders as AddableRow when tip is 0', () => {
+    it('renders as EditableDetail when tip is 0', () => {
       render(<TipEditor {...defaultProps} receiptTip={0} />);
 
       expect(
-        screen.getByRole('button', { name: /add tip/i })
+        screen.getByRole('button', { name: /update tip/i })
       ).toBeInTheDocument();
       expect(screen.getByText('Tip:')).toBeInTheDocument();
+      expect(screen.getByText('$0.00')).toBeInTheDocument();
     });
 
-    it('renders as ClickableRow when tip is undefined (converted to 0)', () => {
+    it('renders as EditableDetail when tip is undefined (converted to 0)', () => {
       render(<TipEditor {...defaultProps} receiptTip={undefined as any} />);
 
       expect(
-        screen.getByRole('button', { name: /edit tip: \$0\.00/i })
+        screen.getByRole('button', { name: /update tip/i })
       ).toBeInTheDocument();
       expect(screen.getByText('Tip:')).toBeInTheDocument();
     });
   });
 
   describe('Edit Mode', () => {
-    it('enters edit mode when ClickableRow is clicked', async () => {
+    it('enters edit mode when EditableDetail is clicked', async () => {
       const user = userEvent.setup();
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -84,11 +85,11 @@ describe('TipEditor', () => {
       expect(screen.getByRole('button', { name: /done/i })).toBeInTheDocument();
     });
 
-    it('enters edit mode when AddableRow is clicked', async () => {
+    it('enters edit mode when EditableDetail is clicked (tip is 0)', async () => {
       const user = userEvent.setup();
       render(<TipEditor {...defaultProps} receiptTip={0} />);
 
-      const addButton = screen.getByRole('button', { name: /add tip/i });
+      const addButton = screen.getByRole('button', { name: /update tip/i });
       await user.click(addButton);
 
       expect(screen.getByLabelText(/tip/i)).toBeInTheDocument();
@@ -104,7 +105,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -117,7 +118,7 @@ describe('TipEditor', () => {
       const user = userEvent.setup();
       render(<TipEditor {...defaultProps} receiptTip={0} />);
 
-      const addButton = screen.getByRole('button', { name: /add tip/i });
+      const addButton = screen.getByRole('button', { name: /update tip/i });
       await user.click(addButton);
 
       expect(
@@ -130,7 +131,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -145,7 +146,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -158,7 +159,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -183,7 +184,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -199,7 +200,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -214,7 +215,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -230,7 +231,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -253,7 +254,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -272,7 +273,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -296,7 +297,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} itemsTotal={200} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -322,7 +323,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -338,7 +339,7 @@ describe('TipEditor', () => {
         // The component should exit edit mode and show the original value
         // (until parent re-renders with updated props)
         expect(
-          screen.getByRole('button', { name: /edit tip: \$5\.00/i })
+          screen.getByRole('button', { name: /update tip/i })
         ).toBeInTheDocument();
       });
     });
@@ -348,7 +349,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -360,7 +361,7 @@ describe('TipEditor', () => {
         // The component should exit edit mode and show the original value
         // (until parent re-renders with updated props)
         expect(
-          screen.getByRole('button', { name: /edit tip: \$5\.00/i })
+          screen.getByRole('button', { name: /update tip/i })
         ).toBeInTheDocument();
       });
     });
@@ -377,7 +378,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -402,7 +403,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -417,7 +418,7 @@ describe('TipEditor', () => {
         // The component should exit edit mode and show the original value
         // (cancel reverts to the prop value, not the edited value)
         expect(
-          screen.getByRole('button', { name: /edit tip: \$5\.00/i })
+          screen.getByRole('button', { name: /update tip/i })
         ).toBeInTheDocument();
       });
     });
@@ -429,7 +430,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -443,7 +444,7 @@ describe('TipEditor', () => {
         // The component should exit edit mode and show the original value
         // (until parent re-renders with updated props after delete)
         expect(
-          screen.getByRole('button', { name: /edit tip: \$5\.00/i })
+          screen.getByRole('button', { name: /update tip/i })
         ).toBeInTheDocument();
       });
     });
@@ -460,7 +461,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -491,7 +492,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -521,7 +522,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -551,9 +552,9 @@ describe('TipEditor', () => {
     it('handles undefined receiptTip prop', () => {
       render(<TipEditor {...defaultProps} receiptTip={undefined as any} />);
 
-      // When tip is undefined, it gets converted to 0, so it shows as ClickableRow with $0.00
+      // When tip is undefined, it gets converted to 0, so it shows as EditableDetail with $0.00
       expect(
-        screen.getByRole('button', { name: /edit tip: \$0\.00/i })
+        screen.getByRole('button', { name: /update tip/i })
       ).toBeInTheDocument();
     });
 
@@ -563,7 +564,7 @@ describe('TipEditor', () => {
 
       // Enter edit mode to see the percentage calculation
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -585,7 +586,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -624,7 +625,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} itemsTotal={0} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$5\.00/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -637,7 +638,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} receiptTip={0.01} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$0\.01/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -649,7 +650,7 @@ describe('TipEditor', () => {
       render(<TipEditor {...defaultProps} receiptTip={999.99} />);
 
       const editButton = screen.getByRole('button', {
-        name: /edit tip: \$999\.99/i,
+        name: /update tip/i,
       });
       await user.click(editButton);
 
@@ -657,3 +658,4 @@ describe('TipEditor', () => {
     });
   });
 });
+

@@ -2,8 +2,8 @@ import { ReceiptDataSchema } from '@/lib/receiptSchemas';
 import { AlertCircle, DollarSign } from 'lucide-react';
 import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import GratuityEditor from './GratuityEditor';
-import TipEditor from './TipEditor';
+import GratuityEditor from '@/features/summary-card/GratuityEditor';
+import TipEditor from '@/features/summary-card/TipEditor';
 import { formatCurrency } from './utils/format-currency';
 import {
   getTaxAmount,
