@@ -1,22 +1,22 @@
-import React, { useState, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { AlertCircle, Database, LogIn } from 'lucide-react';
-import ModernReceiptUploader from '../components/Receipt/ModernReceiptUploader';
-import receiptService from '../services/receiptService';
 import AuthenticatedOnly from '@/components/Auth/AuthenticatedOnly';
-import { useAuth } from '../context/AuthContext';
-import { Button } from '../components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../components/ui/card';
+} from '@/components/ui/card';
+import { useAuth } from '@/context/AuthContext';
+import { ReceiptUploader } from '@/features/receipt-upload';
+import receiptService from '@/services/receiptService';
+import { motion } from 'framer-motion';
+import { AlertCircle, LogIn } from 'lucide-react';
+import React, { Suspense, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ReceiptHistory = React.lazy(
-  () => import('../components/Receipt/ReceiptHistory')
+  () => import('@/components/Receipt/ReceiptHistory')
 );
 
 const HomePage = () => {
@@ -58,15 +58,6 @@ const HomePage = () => {
 
   return (
     <div className="px-1 py-8 sm:container">
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-8 text-center text-3xl font-bold"
-      >
-        Document Analysis Tool
-      </motion.h1>
-
       {/* Keep lg:grid-cols-2 for both states to maintain balanced layout with sign-in prompt */}
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <motion.div
@@ -75,7 +66,7 @@ const HomePage = () => {
           transition={{ duration: 0.3 }}
           className="space-y-8"
         >
-          <ModernReceiptUploader onAnalysisComplete={handleAnalysisComplete} />
+          <ReceiptUploader onAnalysisComplete={handleAnalysisComplete} />
 
           {apiStatus === 'unhealthy' && (
             <div className="flex items-center gap-3 rounded-lg border-2 border-destructive/50 bg-destructive/10 p-6 text-base">
