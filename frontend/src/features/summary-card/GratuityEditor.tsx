@@ -1,13 +1,12 @@
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { formatCurrency } from './utils/format-currency';
-import { useState, useEffect } from 'react';
-import { useReceiptDataUpdateMutation } from './hooks/useReceiptDataUpdateMutation';
-import ClickableRow from './components/ClickableRow';
-import AddableRow from './components/AddableRow';
-import { Button } from '../ui/button';
-import { Trash } from 'lucide-react';
+import { useReceiptDataUpdateMutation } from '@/components/Receipt/hooks/useReceiptDataUpdateMutation';
+import { formatCurrency } from '@/components/Receipt/utils/format-currency';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
+import { Trash } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface GratuityEditorProps {
   receiptId: string;
@@ -117,7 +116,15 @@ const GratuityEditor = ({
   };
 
   if (!hasValueToDelete && !isEditing) {
-    return <AddableRow label="Gratuity" onClick={handleEditGratuity} />;
+    return (
+      <div className="-ml-2 -mr-2 rounded-sm border">
+        <EditableDetail
+          label="Gratuity"
+          value={formatCurrency(0)}
+          onClick={handleEditGratuity}
+        />
+      </div>
+    );
   }
 
   return (
@@ -194,7 +201,7 @@ const GratuityEditor = ({
           </div>
         </div>
       ) : (
-        <ClickableRow
+        <EditableDetail
           label="Gratuity"
           value={formatCurrency(receiptGratuity ?? 0)}
           onClick={handleEditGratuity}

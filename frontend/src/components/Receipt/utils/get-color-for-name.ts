@@ -100,12 +100,26 @@ const COLOR_VALUES: Record<string, { light?: string; dark?: string }> = {
   'text-emerald-100': { dark: 'rgb(209 250 229)' },
 };
 
-// Get a deterministic color based on a name and position
+/**
+ * Returns a deterministic color tuple based on a person's name and position.
+ *
+ * @param name - Person's display name.
+ * @param index - Zero-based index within the current people collection.
+ * @param totalPeople - Total number of people participating in the split.
+ * @returns Tailwind class tokens representing light/dark background and text colors.
+ *
+ * @example
+ * getColorForName('Alex', 0, 1);
+ * // ['bg-purple-100', 'text-purple-800', 'bg-purple-700/50', 'text-purple-100']
+ *
+ * @example
+ * getColorForName('Jordan', 3, 6);
+ * // ['bg-pink-100', 'text-pink-800', 'bg-pink-700/50', 'text-pink-100']
+ */
 export const getColorForName = (name: string, index = 0, totalPeople = 1) => {
   // Always use index-based selection to ensure consistent color assignments
   // For single person or first person, use a safe default color
   if (totalPeople === 1 || index === 0) {
-    // Use the first color in our reordered array, which is purple and looks good in dark mode
     return COLOR_PAIRS[0];
   }
 
@@ -128,7 +142,16 @@ export const getColorForName = (name: string, index = 0, totalPeople = 1) => {
   return COLOR_PAIRS[combinedHash];
 };
 
-// Convert color pair to inline style with CSS variables
+/**
+ * Converts a Tailwind color tuple into inline CSS variables with transparency for dark mode.
+ *
+ * @param colorPair - Value returned by {@link getColorForName}.
+ * @returns React style map with `--bg-light`, `--text-light`, `--bg-dark`, and `--text-dark`.
+ *
+ * @example
+ * getColorStyle(['bg-purple-100', 'text-purple-800', 'bg-purple-700/50', 'text-purple-100']);
+ * // { '--bg-light': 'rgb(243 232 255)', '--text-light': 'rgb(107 33 168)', '--bg-dark': 'rgb(126 34 206 / 0.5)', '--text-dark': 'rgb(243 232 255)' }
+ */
 export const getColorStyle = (colorPair: string[]) => {
   const bgLight = COLOR_VALUES[colorPair[0]]?.light || 'rgb(243 232 255)';
   const textLight = COLOR_VALUES[colorPair[1]]?.light || 'rgb(107 33 168)';
@@ -140,5 +163,27 @@ export const getColorStyle = (colorPair: string[]) => {
     '--text-light': textLight,
     '--bg-dark': bgDark,
     '--text-dark': textDark,
+  } as React.CSSProperties;
+};
+
+/**
+ * Creates a variant of {@link getColorStyle} with an opaque dark mode background.
+ *
+ * @param colorPair - Value returned by {@link getColorForName}.
+ * @returns React style map where `--bg-dark` has no alpha component.
+ *
+ * @example
+ * getSolidColorStyle(['bg-teal-100', 'text-teal-800', 'bg-teal-700/50', 'text-teal-100']);
+ * // { '--bg-light': 'rgb(204 251 241)', '--text-light': 'rgb(17 94 89)', '--bg-dark': 'rgb(15 118 110)', '--text-dark': 'rgb(204 251 241)' }
+ */
+export const getSolidColorStyle = (colorPair: string[]) => {
+  const colorStyle = getColorStyle(colorPair);
+
+  return {
+    ...colorStyle,
+    '--bg-dark': ((colorStyle as any)['--bg-dark'] as string).replace(
+      ' / 0.5',
+      ''
+    ),
   } as React.CSSProperties;
 };

@@ -24,8 +24,8 @@ export const AssignmentsContainer = ({
     <Container
       className={cn(
         'flex w-full items-center gap-2 rounded-full',
-        !isMobile && 'bg-gray-100 p-2',
-        isSelected && 'bg-gray-200',
+        !isMobile && 'bg-gray-100 p-2 dark:bg-muted',
+        isSelected && 'bg-gray-200 dark:bg-accent',
         className
       )}
       onClick={handleClick}
