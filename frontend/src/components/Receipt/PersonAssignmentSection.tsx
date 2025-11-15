@@ -34,10 +34,15 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
       <>
         {visibleAssignedPeople.map((person, personIdx) => {
           // Use the person's index in the overall people array for consistent colors
-          const personIndexInPeople = people.indexOf(person);
+          const personIndex = people.indexOf(person);
+          const normalizedIndex =
+            people.length > 0
+              ? (personIndex >= 0 ? personIndex : personIdx) % people.length
+              : 0;
+
           const colorPair = getColorForName(
             person,
-            personIndexInPeople,
+            normalizedIndex,
             people.length
           );
           const colorStyle = getSolidColorStyle(colorPair);
