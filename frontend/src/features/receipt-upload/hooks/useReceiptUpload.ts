@@ -1,5 +1,5 @@
 import receiptService from '@/services/receiptService';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReceiptAnalysisResult } from '../types';
 
 interface UseReceiptUploadReturn {
@@ -19,11 +19,19 @@ export const useReceiptUpload = (
   const [preview, setPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const clearTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isMountedRef = useRef(true);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       const selectedFile = acceptedFiles[0];
       if (selectedFile) {
+        // Clear any pending timeout
+        if (clearTimeoutRef.current) {
+          clearTimeout(clearTimeoutRef.current);
+          clearTimeoutRef.current = null;
+        }
+
         // Revoke previous preview URL if it exists
         if (preview) {
           URL.revokeObjectURL(preview);
@@ -55,10 +63,28 @@ export const useReceiptUpload = (
       const result = await receiptService.analyzeReceipt(file, preview);
 
       if (result.success && result.is_receipt) {
-        // Clear previous inputs
-        setTimeout(() => {
-          setFile(null);
-          setPreview(null);
+        // Clear previous inputs after delay
+        // Clear any existing timeout first
+        if (clearTimeoutRef.current) {
+          clearTimeout(clearTimeoutRef.current);
+        }
+
+        // Capture the current preview URL to revoke in the timeout
+        const currentPreview = preview;
+
+        clearTimeoutRef.current = setTimeout(() => {
+          // Revoke blob URL before clearing preview
+          if (currentPreview) {
+            URL.revokeObjectURL(currentPreview);
+          }
+
+          // Only update state if component is still mounted
+          if (isMountedRef.current) {
+            setFile(null);
+            setPreview(null);
+          }
+
+          clearTimeoutRef.current = null;
         }, 2000);
 
         // Call the onAnalysisComplete callback with the result
@@ -83,6 +109,12 @@ export const useReceiptUpload = (
   };
 
   const clearFile = useCallback(() => {
+    // Clear any pending timeout
+    if (clearTimeoutRef.current) {
+      clearTimeout(clearTimeoutRef.current);
+      clearTimeoutRef.current = null;
+    }
+
     if (preview) {
       URL.revokeObjectURL(preview);
     }
@@ -102,6 +134,20 @@ export const useReceiptUpload = (
       }
     };
   }, [preview]);
+
+  // Cleanup effect to clear timeout and mark component as unmounted
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    return () => {
+      isMountedRef.current = false;
+      // Clear any pending timeout to prevent state updates after unmount
+      if (clearTimeoutRef.current) {
+        clearTimeout(clearTimeoutRef.current);
+        clearTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   return {
     file,
