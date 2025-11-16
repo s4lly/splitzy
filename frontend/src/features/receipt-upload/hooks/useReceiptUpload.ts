@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
 import receiptService from '@/services/receiptService';
+import { useCallback, useEffect, useState } from 'react';
 import type { ReceiptAnalysisResult } from '../types';
 
 interface UseReceiptUploadReturn {
@@ -83,6 +83,18 @@ export const useReceiptUpload = (
     setError(null);
   }, [preview]);
 
+  // Cleanup effect to revoke blob URL when preview changes or component unmounts
+  useEffect(() => {
+    // Store the current preview URL to revoke on cleanup
+    const currentPreview = preview;
+
+    return () => {
+      if (currentPreview) {
+        URL.revokeObjectURL(currentPreview);
+      }
+    };
+  }, [preview]);
+
   return {
     file,
     preview,
@@ -93,4 +105,3 @@ export const useReceiptUpload = (
     clearFile,
   };
 };
-
