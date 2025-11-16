@@ -4,7 +4,7 @@
 
 ### ESLint
 
-- **No relative imports** - use `~/` alias instead of `../`
+- **No relative imports** - use `@/` alias instead of `../`
 
 ### Prettier
 
