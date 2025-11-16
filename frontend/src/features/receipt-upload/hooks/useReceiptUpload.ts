@@ -20,17 +20,25 @@ export const useReceiptUpload = (
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const selectedFile = acceptedFiles[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setError(null);
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const selectedFile = acceptedFiles[0];
+      if (selectedFile) {
+        // Revoke previous preview URL if it exists
+        if (preview) {
+          URL.revokeObjectURL(preview);
+        }
 
-      // Create a preview URL
-      const previewUrl = URL.createObjectURL(selectedFile);
-      setPreview(previewUrl);
-    }
-  }, []);
+        setFile(selectedFile);
+        setError(null);
+
+        // Create a preview URL
+        const previewUrl = URL.createObjectURL(selectedFile);
+        setPreview(previewUrl);
+      }
+    },
+    [preview]
+  );
 
   const handleSubmit = async (e?: React.MouseEvent) => {
     if (e) {
