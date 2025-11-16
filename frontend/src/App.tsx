@@ -1,20 +1,20 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, Link } from 'react-router-dom';
-import { ThemeProvider } from './components/ThemeProvider';
-import { ThemeToggle } from './components/ThemeToggle';
-import receiptService from './services/receiptService';
-import { Server, Loader2, Receipt } from 'lucide-react';
-import { useAuth } from './context/AuthContext';
-import AuthPage from './components/Auth/AuthPage';
-import UserProfileDropdown from './components/Auth/UserProfileDropdown';
-import LoginButton from './components/Auth/LoginButton';
-import HomePage from './pages/HomePage';
-import SettingsPage from './pages/SettingsPage';
-import ReceiptAnalysisPage from './pages/ReceiptAnalysisPage';
-import ProtectedRoute from './components/Auth/ProtectedRoute';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Loader2, Receipt, Server } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, Navigate, Route, Routes } from 'react-router-dom';
+import AuthPage from './components/Auth/AuthPage';
+import LoginButton from './components/Auth/LoginButton';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
+import UserProfileDropdown from './components/Auth/UserProfileDropdown';
+import { ThemeProvider } from './components/ThemeProvider';
+import { ThemeToggle } from './components/ThemeToggle';
+import { useAuth } from './context/AuthContext';
+import HomePage from './pages/HomePage';
+import ReceiptAnalysisPage from './pages/ReceiptAnalysisPage';
+import SettingsPage from './pages/SettingsPage';
+import receiptService from './services/receiptService';
 
 const queryClient = new QueryClient();
 
@@ -114,9 +114,6 @@ function App() {
                   © {new Date().getFullYear()} Splitzy
                 </p>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Powered by Receipt AI
-              </p>
             </div>
           </footer>
         </div>
