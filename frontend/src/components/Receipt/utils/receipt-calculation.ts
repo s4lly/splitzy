@@ -531,7 +531,6 @@ export namespace calculations {
       receiptTotal: number,
       personTotals: Map<string, FinalLineItemTotal>
     ): Map<string, FinalFairLineItemTotal> {
-      debugger;
       // Step 1: Convert to cents (truncate directly to avoid double-conversion errors)
       const inCents = Array.from(personTotals.entries()).map(
         ([name, value]) => ({

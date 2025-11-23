@@ -826,3 +826,451 @@ describe('getPersonFairTotals', () => {
     });
   });
 });
+
+describe('pretax.getPersonTotalForItem', () => {
+  it('returns 0 when person is not assigned to item', () => {
+    const item = makeLineItem({
+      assignments: ['Alice'],
+      price_per_item: 10,
+      quantity: 2,
+    });
+    expect(calculations.pretax.getPersonTotalForItem(item, 'Bob')).toBe(0);
+  });
+
+  it('returns 0 when item has no assignments', () => {
+    const item = makeLineItem({
+      assignments: [],
+      price_per_item: 10,
+      quantity: 2,
+    });
+    expect(calculations.pretax.getPersonTotalForItem(item, 'Alice')).toBe(0);
+  });
+
+  it('calculates correct split for single person', () => {
+    const item = makeLineItem({
+      assignments: ['Alice'],
+      price_per_item: 10,
+      quantity: 2,
+    });
+    expect(calculations.pretax.getPersonTotalForItem(item, 'Alice')).toBe(20);
+  });
+
+  it('calculates correct split for two people', () => {
+    const item = makeLineItem({
+      assignments: ['Alice', 'Bob'],
+      price_per_item: 10,
+      quantity: 2,
+    });
+    expect(calculations.pretax.getPersonTotalForItem(item, 'Alice')).toBe(10);
+    expect(calculations.pretax.getPersonTotalForItem(item, 'Bob')).toBe(10);
+  });
+
+  it('calculates correct split for three people', () => {
+    const item = makeLineItem({
+      assignments: ['Alice', 'Bob', 'Charlie'],
+      price_per_item: 30,
+      quantity: 1,
+    });
+    expect(calculations.pretax.getPersonTotalForItem(item, 'Alice')).toBe(10);
+    expect(calculations.pretax.getPersonTotalForItem(item, 'Bob')).toBe(10);
+    expect(calculations.pretax.getPersonTotalForItem(item, 'Charlie')).toBe(10);
+  });
+
+  it('handles rounding when split is not even', () => {
+    const item = makeLineItem({
+      assignments: ['Alice', 'Bob'],
+      price_per_item: 10,
+      quantity: 1,
+    });
+    // 10 / 2 = 5.0
+    expect(calculations.pretax.getPersonTotalForItem(item, 'Alice')).toBe(5);
+    expect(calculations.pretax.getPersonTotalForItem(item, 'Bob')).toBe(5);
+  });
+
+  it('handles non-even splits correctly', () => {
+    const item = makeLineItem({
+      assignments: ['Alice', 'Bob', 'Charlie'],
+      price_per_item: 10,
+      quantity: 1,
+    });
+    // 10 / 3 = 3.333...
+    const result = calculations.pretax.getPersonTotalForItem(item, 'Alice');
+    expect(result).toBeCloseTo(3.333333333333333, 10);
+  });
+});
+
+describe('pretax.getPersonSplitTotal', () => {
+  it('returns 0 when person has no splits', () => {
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments([]);
+    expect(calculations.pretax.getPersonSplitTotal('Alice', itemSplits)).toBe(0);
+  });
+
+  it('returns correct total for single item assigned to one person', () => {
+    const receipt = makeReceiptData({
+      line_items: [
+        makeLineItem({
+          assignments: ['Alice'],
+          price_per_item: 10,
+          quantity: 2,
+        }),
+      ],
+    });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    expect(calculations.pretax.getPersonSplitTotal('Alice', itemSplits)).toBe(20);
+  });
+
+  it('returns correct total for item split between two people', () => {
+    const receipt = makeReceiptData({
+      line_items: [
+        makeLineItem({
+          assignments: ['Alice', 'Bob'],
+          price_per_item: 10,
+          quantity: 2,
+        }),
+      ],
+    });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    expect(calculations.pretax.getPersonSplitTotal('Alice', itemSplits)).toBe(10);
+    expect(calculations.pretax.getPersonSplitTotal('Bob', itemSplits)).toBe(10);
+  });
+
+  it('returns correct total for multiple items', () => {
+    const receipt = makeReceiptData({
+      line_items: [
+        makeLineItem({
+          id: '11111111-1111-1111-1111-111111111111',
+          assignments: ['Alice', 'Bob'],
+          price_per_item: 10,
+          quantity: 2,
+        }),
+        makeLineItem({
+          id: '22222222-2222-2222-2222-222222222222',
+          assignments: ['Alice'],
+          price_per_item: 5,
+          quantity: 1,
+        }),
+      ],
+    });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    // Alice: (10*2)/2 + 5*1 = 10 + 5 = 15
+    expect(calculations.pretax.getPersonSplitTotal('Alice', itemSplits)).toBe(15);
+    // Bob: (10*2)/2 = 10
+    expect(calculations.pretax.getPersonSplitTotal('Bob', itemSplits)).toBe(10);
+  });
+
+  it('handles three-way split correctly', () => {
+    const receipt = makeReceiptData({
+      line_items: [
+        makeLineItem({
+          assignments: ['Alice', 'Bob', 'Charlie'],
+          price_per_item: 30,
+          quantity: 1,
+        }),
+      ],
+    });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    expect(calculations.pretax.getPersonSplitTotal('Alice', itemSplits)).toBe(10);
+    expect(calculations.pretax.getPersonSplitTotal('Bob', itemSplits)).toBe(10);
+    expect(calculations.pretax.getPersonSplitTotal('Charlie', itemSplits)).toBe(10);
+  });
+});
+
+describe('tax.getRate', () => {
+  it('calculates correct tax rate', () => {
+    const receipt = makeReceiptData({
+      tax: 2,
+      display_subtotal: 20,
+    });
+    expect(calculations.tax.getRate(receipt)).toBe(0.1); // 2/20 = 0.1
+  });
+
+  it('returns 0 when display_subtotal is 0', () => {
+    const receipt = makeReceiptData({
+      tax: 2,
+      display_subtotal: 0,
+    });
+    expect(calculations.tax.getRate(receipt)).toBe(0);
+  });
+
+  it('returns 0 when tax is 0', () => {
+    const receipt = makeReceiptData({
+      tax: 0,
+      display_subtotal: 20,
+    });
+    expect(calculations.tax.getRate(receipt)).toBe(0);
+  });
+
+  it('returns 0 when tax is undefined', () => {
+    const receipt = makeReceiptData({
+      tax: undefined,
+      display_subtotal: 20,
+    });
+    expect(calculations.tax.getRate(receipt)).toBe(0);
+  });
+
+  it('handles fractional tax rates', () => {
+    const receipt = makeReceiptData({
+      tax: 1.5,
+      display_subtotal: 10,
+    });
+    expect(calculations.tax.getRate(receipt)).toBe(0.15); // 1.5/10 = 0.15
+  });
+
+  it('handles high tax rates', () => {
+    const receipt = makeReceiptData({
+      tax: 5,
+      display_subtotal: 10,
+    });
+    expect(calculations.tax.getRate(receipt)).toBe(0.5); // 5/10 = 0.5
+  });
+});
+
+describe('utils.sumMapValues', () => {
+  it('sums simple whole numbers correctly', () => {
+    const map = new Map([
+      ['alice', 10],
+      ['bob', 20],
+      ['charlie', 30],
+    ]);
+    expect(calculations.utils.sumMapValues(map)).toBe(60);
+  });
+
+  it('sums decimal numbers correctly', () => {
+    const map = new Map([
+      ['alice', 10.5],
+      ['bob', 20.25],
+      ['charlie', 30.75],
+    ]);
+    expect(calculations.utils.sumMapValues(map)).toBe(61.5);
+  });
+
+  it('handles floating-point precision issues', () => {
+    const map = new Map([
+      ['alice', 40.3],
+      ['bob', 40.18],
+      ['charlie', 0.13],
+    ]);
+    expect(calculations.utils.sumMapValues(map)).toBe(80.61);
+  });
+
+  it('returns 0 for empty map', () => {
+    const map = new Map();
+    expect(calculations.utils.sumMapValues(map)).toBe(0);
+  });
+
+  it('handles single entry', () => {
+    const map = new Map([['alice', 42.99]]);
+    expect(calculations.utils.sumMapValues(map)).toBe(42.99);
+  });
+
+  it('handles repeating decimals correctly', () => {
+    const map = new Map([
+      ['alice', 10.333],
+      ['bob', 10.333],
+      ['charlie', 10.334],
+    ]);
+    expect(calculations.utils.sumMapValues(map)).toBe(30.99);
+  });
+});
+
+describe('getPersonTotals - tax split types', () => {
+  it('splits tax evenly when taxSplitType is "even"', () => {
+    const receipt = makeReceiptData({
+      line_items: [
+        makeLineItem({
+          id: '11111111-1111-1111-1111-111111111111',
+          assignments: ['Alice'],
+          price_per_item: 10,
+          quantity: 1,
+        }),
+        makeLineItem({
+          id: '22222222-2222-2222-2222-222222222222',
+          assignments: ['Bob'],
+          price_per_item: 20,
+          quantity: 1,
+        }),
+      ],
+      tax: 3,
+      display_subtotal: 30,
+      tip: 0,
+      gratuity: 0,
+    });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    const result = calculations.final.getPersonTotals(receipt, {
+      itemSplits,
+      taxSplitType: 'even',
+    });
+    // Alice: 10 + (3/2) = 11.5
+    // Bob: 20 + (3/2) = 21.5
+    expect(result.get('Alice')).toBe(11.5);
+    expect(result.get('Bob')).toBe(21.5);
+  });
+
+  it('splits tax proportionally when taxSplitType is "proportional"', () => {
+    const receipt = makeReceiptData({
+      line_items: [
+        makeLineItem({
+          id: '11111111-1111-1111-1111-111111111111',
+          assignments: ['Alice'],
+          price_per_item: 10,
+          quantity: 1,
+        }),
+        makeLineItem({
+          id: '22222222-2222-2222-2222-222222222222',
+          assignments: ['Bob'],
+          price_per_item: 20,
+          quantity: 1,
+        }),
+      ],
+      tax: 3,
+      display_subtotal: 30,
+      tip: 0,
+      gratuity: 0,
+    });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    const result = calculations.final.getPersonTotals(receipt, {
+      itemSplits,
+      taxSplitType: 'proportional',
+    });
+    // Total assigned: 30, tax: 3
+    // Alice: 10/30 = 1/3, tax: 3 * 1/3 = 1, total: 10 + 1 = 11
+    // Bob: 20/30 = 2/3, tax: 3 * 2/3 = 2, total: 20 + 2 = 22
+    expect(result.get('Alice')).toBe(11);
+    expect(result.get('Bob')).toBe(22);
+  });
+
+  it('skips tax when tax_included_in_items is true', () => {
+    const receipt = makeReceiptData({
+      line_items: [
+        makeLineItem({
+          assignments: ['Alice'],
+          price_per_item: 10,
+          quantity: 1,
+        }),
+      ],
+      tax: 2,
+      display_subtotal: 10,
+      tax_included_in_items: true,
+      tip: 0,
+      gratuity: 0,
+    });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    const result = calculations.final.getPersonTotals(receipt, {
+      itemSplits,
+      taxSplitType: 'proportional',
+    });
+    // Tax should not be added since tax_included_in_items is true
+    expect(result.get('Alice')).toBe(10);
+  });
+
+  it('handles tax_included_in_items with no tax', () => {
+    const receipt = makeReceiptData({
+      line_items: [
+        makeLineItem({
+          assignments: ['Alice'],
+          price_per_item: 10,
+          quantity: 1,
+        }),
+      ],
+      tax: 0,
+      display_subtotal: 10,
+      tax_included_in_items: true,
+      tip: 0,
+      gratuity: 0,
+    });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    const result = calculations.final.getPersonTotals(receipt, {
+      itemSplits,
+    });
+    expect(result.get('Alice')).toBe(10);
+  });
+});
+
+describe('getPersonTotals - edge cases', () => {
+  it('handles empty itemSplits.individuals when no assignments', () => {
+    const receipt = makeReceiptData({
+      line_items: [
+        makeLineItem({
+          assignments: [],
+          price_per_item: 10,
+          quantity: 1,
+        }),
+      ],
+      tax: 0,
+      tip: 0,
+      gratuity: 0,
+    });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    // itemSplits.individuals is empty, so getPersonTotals should return empty map
+    const result = calculations.final.getPersonTotals(receipt, {
+      itemSplits,
+    });
+    expect(result.size).toBe(0);
+  });
+
+  it('handles getReceiptTotal returning 0 when no line items', () => {
+    const receipt = makeReceiptData({
+      line_items: [],
+      tax: 0,
+      tip: 0,
+      gratuity: 0,
+    });
+    const itemSplits = {
+      individuals: new Map([['Alice', []]]),
+      groups: new Map(),
+    };
+    const result = calculations.final.getPersonTotals(receipt, {
+      itemSplits,
+    });
+    // When receiptTotal is 0 and split evenly, each person gets 0
+    expect(result.get('Alice')).toBe(0);
+  });
+
+  it('handles multiple people with no assignments splitting evenly', () => {
+    const receipt = makeReceiptData({
+      line_items: [
+        makeLineItem({
+          assignments: [],
+          price_per_item: 30,
+          quantity: 1,
+        }),
+      ],
+      tax: 0,
+      tip: 0,
+      gratuity: 0,
+    });
+    const itemSplits = {
+      individuals: new Map([
+        ['Alice', []],
+        ['Bob', []],
+        ['Charlie', []],
+      ]),
+      groups: new Map(),
+    };
+    const result = calculations.final.getPersonTotals(receipt, {
+      itemSplits,
+    });
+    // Receipt total = 30, split 3 ways = 10 each
+    expect(result.get('Alice')).toBe(10);
+    expect(result.get('Bob')).toBe(10);
+    expect(result.get('Charlie')).toBe(10);
+  });
+});
