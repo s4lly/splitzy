@@ -175,21 +175,28 @@ export namespace calculations {
       let subtotal = 0;
 
       for (const individualSplit of individualSplits) {
-        if (individualSplit.type === 'even') {
-          const groupSize = itemSplits.groups.get(
-            individualSplit.item.id
-          )?.size;
+        switch (individualSplit.type) {
+          case 'even': {
+            const groupSize = itemSplits.groups.get(
+              individualSplit.item.id
+            )?.size;
 
-          if (!groupSize) {
-            throw new Error('Group size not found');
+            if (!groupSize) {
+              throw new Error('Group size not found');
+            }
+
+            subtotal +=
+              (individualSplit.item.price_per_item *
+                individualSplit.item.quantity) /
+              groupSize;
+            break;
           }
 
-          subtotal +=
-            (individualSplit.item.price_per_item *
-              individualSplit.item.quantity) /
-            groupSize;
-        } else {
-          console.warn('Split type not implemented', individualSplit.type);
+          case 'proportional':
+          case 'custom': {
+            console.warn('Split type not implemented', individualSplit.type);
+            break;
+          }
         }
       }
 
@@ -210,7 +217,7 @@ export namespace calculations {
       ] of itemSplits.individuals) {
         for (const individualSplit of individualSplits) {
           switch (individualSplit.type) {
-            case 'even':
+            case 'even': {
               const { item } = individualSplit;
               const groupSize = itemSplits.groups.get(item.id)?.size;
 
@@ -227,11 +234,13 @@ export namespace calculations {
                 (personItemTotals.get(personIdentifier) ?? 0) + splitValue
               );
               break;
+            }
 
             case 'proportional':
-            case 'custom':
+            case 'custom': {
               console.warn('Split type not implemented', individualSplit.type);
               break;
+            }
           }
         }
       }
@@ -363,7 +372,7 @@ export namespace calculations {
         const taxAmount = totalAssignedItemsValue * taxRate;
 
         switch (taxSplitType) {
-          case 'even':
+          case 'even': {
             const taxPerPerson = taxAmount / personItemTotals.size;
 
             for (const [personIdentifier, itemTotal] of personItemTotals) {
@@ -371,7 +380,9 @@ export namespace calculations {
             }
 
             break;
-          case 'proportional':
+          }
+
+          case 'proportional': {
             for (const [personIdentifier, itemTotal] of personItemTotals) {
               const personSplitTotal = pretax.getPersonSplitTotal(
                 personIdentifier,
@@ -386,9 +397,12 @@ export namespace calculations {
             }
 
             break;
-          case 'custom':
+          }
+
+          case 'custom': {
             console.warn('Split type not implemented', taxSplitType);
             break;
+          }
         }
       }
 
@@ -396,7 +410,7 @@ export namespace calculations {
 
       if (receipt_data.tip) {
         switch (tipSplitType) {
-          case 'even':
+          case 'even': {
             const tipPerPerson = receipt_data.tip / personItemTotals.size;
 
             for (const [personIdentifier, itemTotal] of personItemTotals) {
@@ -404,10 +418,13 @@ export namespace calculations {
             }
 
             break;
+          }
+
           case 'proportional':
-          case 'custom':
+          case 'custom': {
             console.warn('Split type not implemented', tipSplitType);
             break;
+          }
         }
       }
 
@@ -415,7 +432,7 @@ export namespace calculations {
 
       if (receipt_data.gratuity) {
         switch (gratuitySplitType) {
-          case 'even':
+          case 'even': {
             const gratuityPerPerson =
               receipt_data.gratuity / personItemTotals.size;
 
@@ -427,10 +444,13 @@ export namespace calculations {
             }
 
             break;
+          }
+
           case 'proportional':
-          case 'custom':
+          case 'custom': {
             console.warn('Split type not implemented', gratuitySplitType);
             break;
+          }
         }
       }
 
