@@ -1,6 +1,6 @@
 import { formatCurrency } from './utils/format-currency';
 import PersonAssignmentSection from './PersonAssignmentSection';
-import { getIndividualItemTotalPrice } from './utils/receipt-calculation';
+import { calculations } from './utils/receipt-calculation';
 import { motion } from 'framer-motion';
 import { LineItemSchema } from '@/lib/receiptSchemas';
 import { z } from 'zod';
@@ -42,7 +42,7 @@ export default function LineItemsTableDesktop({
             </span>
           </div>
           <div className="col-span-2 hidden text-right font-medium md:block">
-            {formatCurrency(getIndividualItemTotalPrice(item))}
+            {formatCurrency(calculations.pretax.getIndividualItemTotalPrice(item))}
           </div>
           <div className="col-span-2 hidden justify-center md:flex">
             <PersonAssignmentSection

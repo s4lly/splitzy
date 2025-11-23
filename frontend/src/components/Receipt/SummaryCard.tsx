@@ -5,11 +5,7 @@ import { AlertCircle, DollarSign } from 'lucide-react';
 import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { formatCurrency } from './utils/format-currency';
-import {
-  getTaxRate,
-  getTotal,
-  getTotalForAllItems,
-} from './utils/receipt-calculation';
+import { calculations } from './utils/receipt-calculation';
 
 interface SummaryCardProps {
   receiptId: string;
@@ -17,7 +13,7 @@ interface SummaryCardProps {
 }
 
 const SummaryCard = ({ receiptId, receipt_data }: SummaryCardProps) => {
-  const itemsTotal = getTotalForAllItems(receipt_data);
+  const itemsTotal = calculations.pretax.getTotalForAllItems(receipt_data);
 
   return (
     <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
@@ -113,7 +109,9 @@ const SummaryCard = ({ receiptId, receipt_data }: SummaryCardProps) => {
               )}
             </div>
             <span className="text-base font-medium">
-              {formatCurrency(itemsTotal * getTaxRate(receipt_data) || 0)}
+              {formatCurrency(
+                itemsTotal * calculations.tax.getRate(receipt_data) || 0
+              )}
             </span>
           </div>
 
@@ -124,7 +122,8 @@ const SummaryCard = ({ receiptId, receipt_data }: SummaryCardProps) => {
               <span className="text-base">Post-tax Total:</span>
               <span className="text-base font-medium">
                 {formatCurrency(
-                  itemsTotal + itemsTotal * getTaxRate(receipt_data) || 0
+                  itemsTotal +
+                    itemsTotal * calculations.tax.getRate(receipt_data) || 0
                 )}
               </span>
             </div>
@@ -147,7 +146,7 @@ const SummaryCard = ({ receiptId, receipt_data }: SummaryCardProps) => {
           <div className="mt-2 flex items-center justify-between border-t-2 border-border pt-3">
             <span className="text-base font-semibold">Final Total:</span>
             <span className="text-xl font-bold">
-              {formatCurrency(getTotal(receipt_data))}
+              {formatCurrency(calculations.final.getTotal(receipt_data))}
             </span>
           </div>
         </div>

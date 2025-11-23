@@ -14,7 +14,7 @@ import PersonAssignmentSection from './PersonAssignmentSection';
 import LineItemCard from './components/LineItemCard';
 import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
 import { formatCurrency } from './utils/format-currency';
-import { getIndividualItemTotalPrice } from './utils/receipt-calculation';
+import { calculations } from './utils/receipt-calculation';
 
 export default function LineItemsTableMobile({
   line_items,
@@ -99,7 +99,7 @@ export default function LineItemsTableMobile({
                     <div className="text-right font-semibold">
                       {formatCurrency(
                         editLineItemsEnabled
-                          ? getIndividualItemTotalPrice(item)
+                          ? calculations.pretax.getIndividualItemTotalPrice(item)
                           : item.total_price
                       )}
                     </div>

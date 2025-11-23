@@ -20,7 +20,7 @@ import LineItemEditForm from './LineItemEditForm';
 import PersonAssignmentSection from './PersonAssignmentSection';
 import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
 import { formatCurrency } from './utils/format-currency';
-import { getIndividualItemTotalPrice } from './utils/receipt-calculation';
+import { calculations } from './utils/receipt-calculation';
 
 export default function LineItemsTableDesktopV2({
   line_items,
@@ -100,7 +100,7 @@ export default function LineItemsTableDesktopV2({
                   </span>
                 </TableCell>
                 <TableCell>
-                  {formatCurrency(getIndividualItemTotalPrice(item))}
+                  {formatCurrency(calculations.pretax.getIndividualItemTotalPrice(item))}
                 </TableCell>
                 <TableCell>
                   <AssignmentsContainer

@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   areAllItemsAssigned,
   hasNoAssignmentsMade,
-  hasReceiptLineItems,
+  receiptHasLineItems,
   shouldApplyTaxToAssignedItems,
   shouldUseEqualSplit,
 } from './receipt-conditions';
+import { calculations } from './receipt-calculation';
 
 const makeLineItem = (overrides = {}) => ({
   assignments: [],
@@ -37,40 +38,57 @@ const makeReceiptData = (overrides = {}) => ({
   ...overrides,
 });
 
-describe('hasReceiptLineItems', () => {
-  it('returns true when receipt has line items', () => {
+describe('receiptHasLineItems', () => {
+  it('returns true when itemSplits has groups', () => {
     const receipt = makeReceiptData({
-      line_items: [makeLineItem()],
+      line_items: [makeLineItem({ assignments: ['Alice'] })],
     });
-    expect(hasReceiptLineItems(receipt)).toBe(true);
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    expect(receiptHasLineItems(itemSplits)).toBe(true);
   });
 
-  it('returns true when receipt has multiple line items', () => {
+  it('returns true when itemSplits has multiple groups', () => {
     const receipt = makeReceiptData({
-      line_items: [makeLineItem(), makeLineItem(), makeLineItem()],
+      line_items: [
+        makeLineItem({ assignments: ['Alice'] }),
+        makeLineItem({ assignments: ['Bob'] }),
+        makeLineItem({ assignments: ['Charlie'] }),
+      ],
     });
-    expect(hasReceiptLineItems(receipt)).toBe(true);
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    expect(receiptHasLineItems(itemSplits)).toBe(true);
   });
 
-  it('returns false when line_items is empty array', () => {
+  it('returns false when itemSplits has no groups', () => {
     const receipt = makeReceiptData({
-      line_items: [],
+      line_items: [makeLineItem({ assignments: [] })],
     });
-    expect(hasReceiptLineItems(receipt)).toBe(false);
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    expect(receiptHasLineItems(itemSplits)).toBe(false);
   });
 
-  it('returns false when line_items is null', () => {
-    const receipt = makeReceiptData({
-      line_items: null as any,
-    });
-    expect(hasReceiptLineItems(receipt)).toBe(false);
+  it('returns false when itemSplits has empty groups map', () => {
+    const itemSplits = {
+      individuals: new Map(),
+      groups: new Map(),
+    };
+    expect(receiptHasLineItems(itemSplits)).toBe(false);
   });
 
-  it('returns false when line_items is undefined', () => {
+  it('returns true when itemSplits has shared items', () => {
     const receipt = makeReceiptData({
-      line_items: undefined as any,
+      line_items: [makeLineItem({ assignments: ['Alice', 'Bob'] })],
     });
-    expect(hasReceiptLineItems(receipt)).toBe(false);
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
+    expect(receiptHasLineItems(itemSplits)).toBe(true);
   });
 });
 
@@ -384,8 +402,11 @@ describe('receipt-conditions edge cases', () => {
         makeLineItem({ assignments: [] }),
       ],
     });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
 
-    expect(hasReceiptLineItems(receipt)).toBe(true);
+    expect(receiptHasLineItems(itemSplits)).toBe(false);
     expect(hasNoAssignmentsMade(receipt)).toBe(true);
     expect(shouldUseEqualSplit(receipt)).toBe(true);
     expect(areAllItemsAssigned(receipt)).toBe(false);
@@ -399,8 +420,11 @@ describe('receipt-conditions edge cases', () => {
         makeLineItem({ assignments: ['Alice', 'Bob'] }),
       ],
     });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
 
-    expect(hasReceiptLineItems(receipt)).toBe(true);
+    expect(receiptHasLineItems(itemSplits)).toBe(true);
     expect(hasNoAssignmentsMade(receipt)).toBe(false);
     expect(shouldUseEqualSplit(receipt)).toBe(false);
     expect(areAllItemsAssigned(receipt)).toBe(true);
@@ -414,8 +438,11 @@ describe('receipt-conditions edge cases', () => {
         makeLineItem({ assignments: ['Bob'] }),
       ],
     });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
 
-    expect(hasReceiptLineItems(receipt)).toBe(true);
+    expect(receiptHasLineItems(itemSplits)).toBe(true);
     expect(hasNoAssignmentsMade(receipt)).toBe(false);
     expect(shouldUseEqualSplit(receipt)).toBe(false);
     expect(areAllItemsAssigned(receipt)).toBe(false);
@@ -425,8 +452,11 @@ describe('receipt-conditions edge cases', () => {
     const receipt = makeReceiptData({
       line_items: [],
     });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items
+    );
 
-    expect(hasReceiptLineItems(receipt)).toBe(false);
+    expect(receiptHasLineItems(itemSplits)).toBe(false);
     expect(hasNoAssignmentsMade(receipt)).toBe(false);
     expect(shouldUseEqualSplit(receipt)).toBe(true);
     expect(areAllItemsAssigned(receipt)).toBe(false);

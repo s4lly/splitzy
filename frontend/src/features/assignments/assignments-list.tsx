@@ -1,8 +1,5 @@
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
-import {
-  filterPeople,
-  getPersonPreTaxTotalForItem,
-} from '@/components/Receipt/utils/receipt-calculation';
+import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,7 +30,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
   const newPersonSanitized = newPerson.trim();
   const assignmentsAddAllEnabled = useFeatureFlag('assignments-add-all');
 
-  const filteredPeople = filterPeople(
+  const filteredPeople = calculations.utils.filterPeople(
     possiblePeople,
     item.assignments,
     newPersonSanitized
@@ -71,7 +68,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                 <div className="flex items-center gap-2">
                   <span>
                     {formatCurrency(
-                      getPersonPreTaxTotalForItem(item, person, {
+                      calculations.pretax.getPersonTotalForItem(item, person, {
                         candidate: {
                           price_per_item: formPricePerItem,
                           quantity: formQuantity,
