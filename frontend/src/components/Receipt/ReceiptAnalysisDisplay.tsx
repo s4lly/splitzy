@@ -52,6 +52,7 @@ import {
 import { calculations } from './utils/receipt-calculation';
 import {
   areAllItemsAssigned,
+  hasLineItems,
   shouldApplyTaxToAssignedItems,
   shouldUseEqualSplit,
 } from './utils/receipt-conditions';
@@ -90,9 +91,7 @@ const ReceiptAnalysisDisplay = ({
   const { receipt_data } = result;
 
   // Check if we need to use equal split mode (no line items or no assignments made)
-  const hasLineItems = !!(
-    receipt_data.line_items && receipt_data.line_items.length > 0
-  );
+  const receiptHasLineItems = hasLineItems(receipt_data);
   const useEqualSplit = shouldUseEqualSplit(receipt_data);
 
   const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
@@ -478,7 +477,7 @@ const ReceiptAnalysisDisplay = ({
                     Equal Split Mode
                   </h3>
                   <p className="text-sm text-blue-700 dark:text-blue-400">
-                    {!hasLineItems
+                    {!receiptHasLineItems
                       ? "This receipt doesn't contain detailed line items, so the total amount has been divided equally among all people."
                       : 'No items have been assigned yet. The total has been divided equally among all people by default.'}
                   </p>
