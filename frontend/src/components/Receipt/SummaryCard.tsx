@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { formatCurrency } from './utils/format-currency';
 import {
-  getTaxAmount,
+  getTaxRate,
   getTotal,
   getTotalForAllItems,
 } from './utils/receipt-calculation';
@@ -14,17 +14,10 @@ import {
 interface SummaryCardProps {
   receiptId: string;
   receipt_data: z.infer<typeof ReceiptDataSchema>;
-  editLineItemsEnabled: boolean;
 }
 
-const SummaryCard = ({
-  receiptId,
-  receipt_data,
-  editLineItemsEnabled,
-}: SummaryCardProps) => {
-  const itemsTotal = editLineItemsEnabled
-    ? getTotalForAllItems(receipt_data)
-    : receipt_data.items_total || 0;
+const SummaryCard = ({ receiptId, receipt_data }: SummaryCardProps) => {
+  const itemsTotal = getTotalForAllItems(receipt_data);
 
   return (
     <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
@@ -79,9 +72,7 @@ const SummaryCard = ({
           <div className="flex items-center justify-between py-2">
             <span className="text-base">Items Total:</span>
             <span className="text-base font-medium">
-              {editLineItemsEnabled
-                ? formatCurrency(getTotalForAllItems(receipt_data))
-                : formatCurrency(receipt_data.items_total || 0)}
+              {formatCurrency(itemsTotal)}
             </span>
           </div>
 
@@ -122,14 +113,7 @@ const SummaryCard = ({
               )}
             </div>
             <span className="text-base font-medium">
-              {editLineItemsEnabled
-                ? formatCurrency(
-                    getTaxAmount(
-                      getTotalForAllItems(receipt_data),
-                      receipt_data
-                    ) || 0
-                  )
-                : formatCurrency(receipt_data.tax || 0)}
+              {formatCurrency(itemsTotal * getTaxRate(receipt_data) || 0)}
             </span>
           </div>
 
@@ -140,11 +124,7 @@ const SummaryCard = ({
               <span className="text-base">Post-tax Total:</span>
               <span className="text-base font-medium">
                 {formatCurrency(
-                  getTotalForAllItems(receipt_data) +
-                    getTaxAmount(
-                      getTotalForAllItems(receipt_data),
-                      receipt_data
-                    ) || 0
+                  itemsTotal + itemsTotal * getTaxRate(receipt_data) || 0
                 )}
               </span>
             </div>

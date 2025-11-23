@@ -379,11 +379,7 @@ const ReceiptAnalysisDisplay = ({
       </Card>
 
       {/* Summary Card - Third position */}
-      <SummaryCard
-        receiptId={String(result.id)}
-        receipt_data={receipt_data}
-        editLineItemsEnabled={editLineItemsEnabled}
-      />
+      <SummaryCard receiptId={String(result.id)} receipt_data={receipt_data} />
 
       {/* People Manager Section - Now at the bottom */}
       <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">

@@ -190,6 +190,91 @@ export function getPersonPreTaxItemTotals(
   return personPreTaxItemTotals;
 }
 
+type PersonIdentifier = string;
+type ItemIdentifier = string;
+
+type ItemSplits = {
+  individuals: Map<PersonIdentifier, IndividualSplit[]>;
+  groups: Map<ItemIdentifier, Set<PersonIdentifier>>;
+};
+
+const DEFAULT_SPLIT_TYPE = 'even';
+
+type IndividualSplit = {
+  item: z.infer<typeof LineItemSchema>;
+  type: 'even' | 'proportional' | 'custom';
+  value: undefined | number;
+};
+
+export function mapItemAssignments(
+  lineItems: z.infer<typeof LineItemSchema>[]
+): ItemSplits {
+  const itemSplits: ItemSplits = {
+    individuals: new Map(),
+    groups: new Map(),
+  };
+
+  for (const lineItem of lineItems) {
+    for (const personIdentifier of lineItem.assignments) {
+      let individualSplits = itemSplits.individuals.get(personIdentifier);
+
+      if (!individualSplits) {
+        individualSplits = [];
+        itemSplits.individuals.set(personIdentifier, individualSplits);
+      }
+
+      individualSplits.push({
+        item: lineItem,
+        type: DEFAULT_SPLIT_TYPE,
+        value: undefined,
+      });
+
+      let itemGroup = itemSplits.groups.get(lineItem.id);
+
+      if (!itemGroup) {
+        itemGroup = new Set();
+        itemSplits.groups.set(lineItem.id, itemGroup);
+      }
+
+      itemGroup.add(personIdentifier);
+    }
+  }
+
+  return itemSplits;
+}
+
+export function getPersonPreTaxItemTotals2(itemSplits: ItemSplits) {
+  const personPreTaxItemTotals: Map<string, number> = new Map();
+
+  for (const [personIdentifier, individualSplits] of itemSplits.individuals) {
+    for (const individualSplit of individualSplits) {
+      switch (individualSplit.type) {
+        case 'even':
+          const { item } = individualSplit;
+          const groupSize = itemSplits.groups.get(item.id)?.size;
+
+          if (!groupSize) {
+            // should never happen, we add the person to the group when we add the split.
+            throw new Error('Group size not found');
+          }
+
+          const splitValue = (item.price_per_item * item.quantity) / groupSize;
+
+          personPreTaxItemTotals.set(
+            personIdentifier,
+            (personPreTaxItemTotals.get(personIdentifier) ?? 0) + splitValue
+          );
+          break;
+
+        case 'proportional':
+        case 'custom':
+          console.warn('Split type not implemented', individualSplit.type);
+          break;
+      }
+    }
+  }
+}
+
 /**
  * Represents a final total amount for a line item. The number is stored at full precision
  * without any rounding applied. This allows for accurate calculations and prevents
@@ -332,6 +417,7 @@ export function getPersonFinalTotals(
   // Add get total tip and gratuity
   const totalTip = (receipt_data.tip ?? 0) + (receipt_data.gratuity ?? 0);
 
+  // HERE
   // if tip and gratuity present, split evenly between people
   if (totalTip > 0 && people.length > 0) {
     const tipPerPerson = totalTip / people.length;
