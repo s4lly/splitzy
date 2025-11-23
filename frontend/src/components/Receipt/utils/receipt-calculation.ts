@@ -302,10 +302,31 @@ export namespace calculations {
    */
   export namespace final {
     /**
-     * Gets the total receipt amount including items, tax, tip, and gratuity.
-     * Used to display ultimate total on receipt summary card.
+     * Calculates the total receipt amount including all items, tax, tip, and gratuity.
+     *
+     * This function computes the grand total of the entire receipt:
+     * 1. Sums all line items (pre-tax subtotal)
+     * 2. Applies tax as a percentage of the subtotal
+     * 3. Adds gratuity (if present)
+     * 4. Adds tip (if present)
+     *
+     * This total represents the complete amount that would be paid for the entire receipt.
+     * It is used by `getPersonTotals` when no line items are assigned (to split evenly),
+     * and for displaying the ultimate total on the receipt summary card.
+     *
+     * @param receipt_data - The receipt data containing line items, tax, tip, and gratuity
+     * @returns The total receipt amount (number). Returns 0 if there are no line items.
+     *
+     * @example
+     * ```ts
+     * // Receipt with items totaling $100, 10% tax, $5 tip, $2 gratuity
+     * // Result: 100 + (100 * 0.10) + 5 + 2 = $117.00
+     * const receiptTotal = calculations.final.getReceiptTotal(receipt_data);
+     * ```
      */
-    export function getTotal(receipt_data: z.infer<typeof ReceiptDataSchema>) {
+    export function getReceiptTotal(
+      receipt_data: z.infer<typeof ReceiptDataSchema>
+    ): number {
       if (!(receipt_data.line_items && receipt_data.line_items.length > 0)) {
         return 0;
       }
@@ -323,6 +344,52 @@ export namespace calculations {
       return total;
     }
 
+    /**
+     * Calculates how much each person owes based on their assigned items and split preferences.
+     *
+     * This function distributes the receipt total among people according to:
+     * - Which line items are assigned to each person (via `itemSplits`)
+     * - How tax should be split (even or proportional to item totals)
+     * - How tip should be split (even among all people)
+     * - How gratuity should be split (even among all people)
+     *
+     * **Relationship to `getReceiptTotal`:**
+     * - Uses `getReceiptTotal()` when no line items are assigned to split the receipt evenly
+     * - Otherwise calculates each person's share independently based on their assigned items
+     * - The sum of all person totals should equal the result of `getReceiptTotal()` (within rounding)
+     *
+     * **Calculation Flow:**
+     * 1. If no line items are assigned: splits `getReceiptTotal()` evenly among all people
+     * 2. If line items are assigned:
+     *    a. Calculates each person's pre-tax item total
+     *    b. Adds tax (split evenly or proportionally based on `taxSplitType`)
+     *    c. Adds tip (split evenly based on `tipSplitType`)
+     *    d. Adds gratuity (split evenly based on `gratuitySplitType`)
+     *
+     * @param receipt_data - The receipt data containing line items, tax, tip, and gratuity
+     * @param options - Configuration for how amounts should be split
+     * @param options.itemSplits - Map of which items are assigned to which people
+     * @param options.taxSplitType - How to split tax: 'even' (equal) or 'proportional' (by item total). Default: 'proportional'
+     * @param options.tipSplitType - How to split tip: 'even' (equal). Default: 'even'
+     * @param options.gratuitySplitType - How to split gratuity: 'even' (equal). Default: 'even'
+     * @returns A Map where keys are person identifiers and values are the total amount each person owes (number)
+     *
+     * @example
+     * ```ts
+     * // Alice assigned to $50 item, Bob assigned to $30 item
+     * // Tax: 10%, Tip: $5, Gratuity: $2
+     * // Tax split: proportional, Tip/Gratuity: even
+     * const personTotals = calculations.final.getPersonTotals(receipt_data, {
+     *   itemSplits,
+     *   taxSplitType: 'proportional',
+     *   tipSplitType: 'even',
+     *   gratuitySplitType: 'even'
+     * });
+     * // Result:
+     * // Alice: 50 + (50 * 0.10) + 2.5 + 1 = $58.50
+     * // Bob: 30 + (30 * 0.10) + 2.5 + 1 = $36.50
+     * ```
+     */
     export function getPersonTotals(
       receipt_data: z.infer<typeof ReceiptDataSchema>,
       {
@@ -341,7 +408,7 @@ export namespace calculations {
 
       // if no assignments made to any line item, split total evenly
       if (!hasLineItems && itemSplits.individuals.size > 0) {
-        const receiptTotal = getTotal(receipt_data);
+        const receiptTotal = getReceiptTotal(receipt_data);
 
         // split total evenly
         const splitAmount = receiptTotal / itemSplits.individuals.size;
@@ -464,6 +531,7 @@ export namespace calculations {
       receiptTotal: number,
       personTotals: Map<string, FinalLineItemTotal>
     ): Map<string, FinalFairLineItemTotal> {
+      debugger;
       // Step 1: Convert to cents (truncate directly to avoid double-conversion errors)
       const inCents = Array.from(personTotals.entries()).map(
         ([name, value]) => ({

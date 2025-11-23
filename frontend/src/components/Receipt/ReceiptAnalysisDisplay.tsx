@@ -94,41 +94,52 @@ const ReceiptAnalysisDisplay = ({
   const receiptHasLineItems = hasLineItems(receipt_data);
   const useEqualSplit = shouldUseEqualSplit(receipt_data);
 
+  // --
+
   const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
     receipt_data.line_items
   );
-  const personItemTotals = calculations.pretax.getPersonItemTotals(itemSplits);
 
-  // Calculate the total assigned and unassigned amounts
-  const receiptTotal = calculations.final.getTotal(receipt_data);
+  // --
+
+  // Pre-tax item totals for each person (without tax, tip, gratuity, etc.)
+  const personPretaxTotals =
+    calculations.pretax.getPersonItemTotals(itemSplits);
+
+  // Calculate the total amount actually assigned (excluding equal split)
+  const personPretaxTotalsSum = calculations.utils.sumMoneyAmounts(
+    personPretaxTotals.values()
+  );
+
+  // Calculate total receipt amount including assigned items and unassigned items
+  const receiptTotal = calculations.final.getReceiptTotal(receipt_data);
 
   // Calculate the amount each person owes
   const personTotals = calculations.final.getPersonTotals(receipt_data, {
     itemSplits,
   });
+
+  // Sum of all person totals (used for fair rounding calculation)
+  const personTotalsSum = calculations.utils.sumMapValues(personTotals);
+
   const personFairTotals = calculations.final.getPersonFairTotals(
-    receiptTotal,
+    personTotalsSum,
     personTotals
   );
 
   // --
 
-  // Calculate the total amount actually assigned (excluding equal split)
-  const totalAssignedAmount = calculations.utils.sumMoneyAmounts(
-    personItemTotals.values()
-  );
-
   // Add proportional tax, tip, and gratuity for assigned items
-  let totalAssignedAmountWithTax = totalAssignedAmount;
+  let totalAssignedAmountWithTax = personPretaxTotalsSum;
 
   // Add tax if applicable
-  if (shouldApplyTaxToAssignedItems(receipt_data, totalAssignedAmount)) {
+  if (shouldApplyTaxToAssignedItems(receipt_data, personPretaxTotalsSum)) {
     totalAssignedAmountWithTax +=
-      totalAssignedAmount * calculations.tax.getRate(receipt_data);
+      personPretaxTotalsSum * calculations.tax.getRate(receipt_data);
   }
 
   // Add tip and gratuity (split among people if any assignments made)
-  if (people.length > 0 && totalAssignedAmount > 0) {
+  if (people.length > 0 && personPretaxTotalsSum > 0) {
     totalAssignedAmountWithTax +=
       (receipt_data.tip ?? 0) + (receipt_data.gratuity ?? 0);
   }
@@ -568,10 +579,12 @@ const ReceiptAnalysisDisplay = ({
 
                     // TODO consider line item type with all calculated amounts and use here
 
-                    const personItemTotal = personItemTotals.get(person) || 0;
+                    const personPretaxTotal =
+                      personPretaxTotals.get(person) || 0;
 
                     const taxAmount =
-                      personItemTotal * calculations.tax.getRate(receipt_data);
+                      personPretaxTotal *
+                      calculations.tax.getRate(receipt_data);
 
                     // ----
 
@@ -634,7 +647,7 @@ const ReceiptAnalysisDisplay = ({
                                   </div>
                                   <div className="text-sm font-medium">
                                     {formatCurrency(
-                                      personItemTotals.get(person) || 0
+                                      personPretaxTotals.get(person) || 0
                                     )}
                                   </div>
                                 </div>
@@ -764,7 +777,7 @@ const ReceiptAnalysisDisplay = ({
                                       </td>
                                       <td className="px-3 py-2 text-right text-sm">
                                         {formatCurrency(
-                                          personItemTotals.get(person) || 0
+                                          personPretaxTotals.get(person) || 0
                                         )}
                                       </td>
                                     </tr>

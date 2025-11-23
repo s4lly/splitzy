@@ -146,7 +146,7 @@ const SummaryCard = ({ receiptId, receipt_data }: SummaryCardProps) => {
           <div className="mt-2 flex items-center justify-between border-t-2 border-border pt-3">
             <span className="text-base font-semibold">Final Total:</span>
             <span className="text-xl font-bold">
-              {formatCurrency(calculations.final.getTotal(receipt_data))}
+              {formatCurrency(calculations.final.getReceiptTotal(receipt_data))}
             </span>
           </div>
         </div>

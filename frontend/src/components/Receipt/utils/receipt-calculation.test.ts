@@ -219,7 +219,7 @@ describe('receipt-calculation utils', () => {
     expect(calculations.tax.getAmount(10, receipt)).toBe(0);
   });
 
-  it('getTotal returns sum of items, tax, gratuity, and tip', () => {
+  it('getReceiptTotal returns sum of items, tax, gratuity, and tip', () => {
     const receipt = makeReceiptData({
       line_items: [makeLineItem({ price_per_item: 5, quantity: 2 })], // 10
       tax: 2,
@@ -228,10 +228,10 @@ describe('receipt-calculation utils', () => {
       tip: 2,
     });
     // getTotalForAllItems = 10, getAmount = 2, gratuity = 1, tip = 2
-    expect(calculations.final.getTotal(receipt)).toBe(15);
+    expect(calculations.final.getReceiptTotal(receipt)).toBe(15);
   });
 
-  it('getTotal handles missing gratuity and tip', () => {
+  it('getReceiptTotal handles missing gratuity and tip', () => {
     const receipt = makeReceiptData({
       line_items: [makeLineItem({ price_per_item: 5, quantity: 2 })], // 10
       tax: 2,
@@ -239,16 +239,16 @@ describe('receipt-calculation utils', () => {
       gratuity: undefined,
       tip: undefined,
     });
-    expect(calculations.final.getTotal(receipt)).toBe(12);
+    expect(calculations.final.getReceiptTotal(receipt)).toBe(12);
   });
 
-  it('getTotal handles empty line_items', () => {
+  it('getReceiptTotal handles empty line_items', () => {
     const receipt = makeReceiptData({
       line_items: [],
       tax: 0,
       display_subtotal: 1,
     });
-    expect(calculations.final.getTotal(receipt)).toBe(0);
+    expect(calculations.final.getReceiptTotal(receipt)).toBe(0);
   });
 });
 
