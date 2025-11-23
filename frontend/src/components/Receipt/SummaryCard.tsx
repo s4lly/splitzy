@@ -5,26 +5,15 @@ import { AlertCircle, DollarSign } from 'lucide-react';
 import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { formatCurrency } from './utils/format-currency';
-import {
-  getTaxAmount,
-  getTotal,
-  getTotalForAllItems,
-} from './utils/receipt-calculation';
+import { calculations } from './utils/receipt-calculation';
 
 interface SummaryCardProps {
   receiptId: string;
   receipt_data: z.infer<typeof ReceiptDataSchema>;
-  editLineItemsEnabled: boolean;
 }
 
-const SummaryCard = ({
-  receiptId,
-  receipt_data,
-  editLineItemsEnabled,
-}: SummaryCardProps) => {
-  const itemsTotal = editLineItemsEnabled
-    ? getTotalForAllItems(receipt_data)
-    : receipt_data.items_total || 0;
+const SummaryCard = ({ receiptId, receipt_data }: SummaryCardProps) => {
+  const itemsTotal = calculations.pretax.getTotalForAllItems(receipt_data);
 
   return (
     <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
@@ -79,9 +68,7 @@ const SummaryCard = ({
           <div className="flex items-center justify-between py-2">
             <span className="text-base">Items Total:</span>
             <span className="text-base font-medium">
-              {editLineItemsEnabled
-                ? formatCurrency(getTotalForAllItems(receipt_data))
-                : formatCurrency(receipt_data.items_total || 0)}
+              {formatCurrency(itemsTotal)}
             </span>
           </div>
 
@@ -122,14 +109,9 @@ const SummaryCard = ({
               )}
             </div>
             <span className="text-base font-medium">
-              {editLineItemsEnabled
-                ? formatCurrency(
-                    getTaxAmount(
-                      getTotalForAllItems(receipt_data),
-                      receipt_data
-                    ) || 0
-                  )
-                : formatCurrency(receipt_data.tax || 0)}
+              {formatCurrency(
+                itemsTotal * calculations.tax.getRate(receipt_data) || 0
+              )}
             </span>
           </div>
 
@@ -140,11 +122,8 @@ const SummaryCard = ({
               <span className="text-base">Post-tax Total:</span>
               <span className="text-base font-medium">
                 {formatCurrency(
-                  getTotalForAllItems(receipt_data) +
-                    getTaxAmount(
-                      getTotalForAllItems(receipt_data),
-                      receipt_data
-                    ) || 0
+                  itemsTotal +
+                    itemsTotal * calculations.tax.getRate(receipt_data) || 0
                 )}
               </span>
             </div>
@@ -167,7 +146,7 @@ const SummaryCard = ({
           <div className="mt-2 flex items-center justify-between border-t-2 border-border pt-3">
             <span className="text-base font-semibold">Final Total:</span>
             <span className="text-xl font-bold">
-              {formatCurrency(getTotal(receipt_data))}
+              {formatCurrency(calculations.final.getReceiptTotal(receipt_data))}
             </span>
           </div>
         </div>
