@@ -53,7 +53,6 @@ import { calculations } from './utils/receipt-calculation';
 import {
   areAllItemsAssigned,
   hasLineItems,
-  shouldApplyTaxToAssignedItems,
   shouldUseEqualSplit,
 } from './utils/receipt-conditions';
 
@@ -106,11 +105,6 @@ const ReceiptAnalysisDisplay = ({
   const personPretaxTotals =
     calculations.pretax.getPersonItemTotals(itemSplits);
 
-  // Calculate the total amount actually assigned (excluding equal split)
-  const personPretaxTotalsSum = calculations.utils.sumMoneyAmounts(
-    personPretaxTotals.values()
-  );
-
   // Calculate total receipt amount including assigned items and unassigned items
   const receiptTotal = calculations.final.getReceiptTotal(receipt_data);
 
@@ -129,25 +123,7 @@ const ReceiptAnalysisDisplay = ({
 
   // --
 
-  // Add proportional tax, tip, and gratuity for assigned items
-  let totalAssignedAmountWithTax = personPretaxTotalsSum;
-
-  // Add tax if applicable
-  if (shouldApplyTaxToAssignedItems(receipt_data, personPretaxTotalsSum)) {
-    totalAssignedAmountWithTax +=
-      personPretaxTotalsSum * calculations.tax.getRate(receipt_data);
-  }
-
-  // Add tip and gratuity (split among people if any assignments made)
-  if (people.length > 0 && personPretaxTotalsSum > 0) {
-    totalAssignedAmountWithTax +=
-      (receipt_data.tip ?? 0) + (receipt_data.gratuity ?? 0);
-  }
-
-  const unassignedAmount = Math.max(
-    0,
-    receiptTotal - totalAssignedAmountWithTax
-  );
+  const unassignedAmount = Math.max(0, receiptTotal - personTotalsSum);
   const isFullyAssigned = areAllItemsAssigned(receipt_data);
 
   // --
@@ -444,7 +420,7 @@ const ReceiptAnalysisDisplay = ({
                       : 'text-amber-700 dark:text-amber-400'
                   }`}
                 >
-                  {formatCurrency(totalAssignedAmountWithTax)} /{' '}
+                  {formatCurrency(personTotalsSum)} /{' '}
                   {formatCurrency(receiptTotal)}
                 </span>
               </div>
@@ -470,7 +446,7 @@ const ReceiptAnalysisDisplay = ({
                   style={{
                     width: `${Math.min(
                       100,
-                      (totalAssignedAmountWithTax / receiptTotal) * 100
+                      (personTotalsSum / receiptTotal) * 100
                     )}%`,
                   }}
                 ></div>
