@@ -103,7 +103,7 @@ const ReceiptAnalysisDisplay = ({
 
   // Pre-tax item totals for each person (without tax, tip, gratuity, etc.)
   const personPretaxTotals =
-    calculations.pretax.getPersonItemTotals(itemSplits);
+    calculations.pretax.getAllPersonItemTotals(itemSplits);
 
   // Calculate total receipt amount including assigned items and unassigned items
   const receiptTotal = calculations.final.getReceiptTotal(receipt_data);

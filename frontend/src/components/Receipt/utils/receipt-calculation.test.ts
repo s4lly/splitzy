@@ -252,7 +252,7 @@ describe('receipt-calculation utils', () => {
   });
 });
 
-describe('getPersonItemTotals', () => {
+describe('getAllPersonItemTotals', () => {
   it('returns correct totals for single person', () => {
     const receipt = makeReceiptData({
       line_items: [
@@ -267,7 +267,7 @@ describe('getPersonItemTotals', () => {
     const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
       receipt.line_items
     );
-    const result = calculations.pretax.getPersonItemTotals(itemSplits);
+    const result = calculations.pretax.getAllPersonItemTotals(itemSplits);
     expect(result.get('Alice')).toBe(10);
   });
 
@@ -293,7 +293,7 @@ describe('getPersonItemTotals', () => {
     const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
       receipt.line_items
     );
-    const result = calculations.pretax.getPersonItemTotals(itemSplits);
+    const result = calculations.pretax.getAllPersonItemTotals(itemSplits);
     expect(result.get('Alice')).toBe(10);
     expect(result.get('Bob')).toBe(16);
   });
@@ -313,7 +313,7 @@ describe('getPersonItemTotals', () => {
     const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
       receipt.line_items
     );
-    const result = calculations.pretax.getPersonItemTotals(itemSplits);
+    const result = calculations.pretax.getAllPersonItemTotals(itemSplits);
     expect(result.get('Alice')).toBe(10);
     expect(result.get('Bob')).toBeUndefined();
   });
@@ -426,14 +426,14 @@ describe('receipt-calculation candidate logic', () => {
     expect(result).toBe(22.5);
   });
 
-  it('getPersonItemTotals uses price_per_item * quantity', () => {
+  it('getAllPersonItemTotals uses price_per_item * quantity', () => {
     const receipt_data = {
       line_items: [{ ...baseItem }],
     };
     const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
       receipt_data.line_items
     );
-    const result = calculations.pretax.getPersonItemTotals(itemSplits);
+    const result = calculations.pretax.getAllPersonItemTotals(itemSplits);
     // Should use price_per_item * quantity = 10*2=20, split by 2 = 10
     expect(result.get('Alice')).toBe(10);
     expect(result.get('Bob')).toBe(10);

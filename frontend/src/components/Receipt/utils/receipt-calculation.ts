@@ -4,46 +4,58 @@ import { z } from 'zod';
 import { receiptHasLineItems } from './receipt-conditions';
 
 /**
- * Represents a final total amount for a line item. The number is stored at full precision
- * without any rounding applied. This allows for accurate calculations and prevents
- * accumulation of rounding errors when performing arithmetic operations.
+ * Person identifier type.
+ * In v1, the person identifier is their name (string).
  *
  * @example
  * ```ts
- * const total: FinalLineItemTotal = 10.123456789; // Stored at full precision
+ * const personId: PersonIdentifier = 'Alice';
  * ```
- */
-// export type FinalLineItemTotal = number;
-
-/**
- * Represents a final "fair" total amount for a line item. The value will be rounded to 2 decimal places
- * and may include a "rounding penny" adjustment to account for rounding errors during arithmetic operations.
- * This ensures that the sum of all fair totals equals the original total amount.
- *
- * @example
- * ```ts
- * // Original totals: [10.333, 10.333, 10.334] (sum = 31.00)
- * // Fair totals after rounding: [10.33, 10.33, 10.34] (still sums to 31.00)
- * const fairTotal: FinalFairLineItemTotal = 10.34; // Includes rounding penny
- * ```
- */
-// export type FinalFairLineItemTotal = number;
-
-/**
- * v1, person identifier is their name
  */
 export type PersonIdentifier = string;
 
 /**
- * v1, item identifier is uuid
+ * Item identifier type.
+ * In v1, the item identifier is a UUID (string).
+ *
+ * @example
+ * ```ts
+ * const itemId: ItemIdentifier = '550e8400-e29b-41d4-a716-446655440000';
+ * ```
  */
 export type ItemIdentifier = string;
 
+/**
+ * Structure organizing how line items are split among people.
+ *
+ * - `individuals`: Maps each person to an array of items they're assigned to, along with split type
+ * - `groups`: Maps each item to the set of people assigned to it (used to determine split size)
+ *
+ * @example
+ * ```ts
+ * const itemSplits: ItemSplits = {
+ *   individuals: new Map([
+ *     ['Alice', [{ item: item1, type: 'even' }, { item: item2, type: 'even' }]],
+ *     ['Bob', [{ item: item1, type: 'even' }]]
+ *   ]),
+ *   groups: new Map([
+ *     ['item1', new Set(['Alice', 'Bob'])],
+ *     ['item2', new Set(['Alice'])]
+ *   ])
+ * };
+ * ```
+ */
 export type ItemSplits = {
   individuals: Map<PersonIdentifier, IndividualSplit[]>;
   groups: Map<ItemIdentifier, Set<PersonIdentifier>>;
 };
 
+/**
+ * Type of split calculation method.
+ * - `'even'`: Split equally among assigned people (currently implemented)
+ * - `'proportional'`: Split proportionally based on some criteria (not yet implemented)
+ * - `'custom'`: Custom split logic (not yet implemented)
+ */
 export type SplitType = 'even' | 'proportional' | 'custom';
 
 type IndividualSplit = {
@@ -64,7 +76,26 @@ export namespace calculations {
    */
   export namespace pretax {
     /**
-     * Gets the total price for a single line item (price_per_item * quantity).
+     * Calculates the total price for a single line item by multiplying price per item by quantity.
+     * Uses Decimal.js for precise arithmetic to avoid floating-point rounding errors.
+     *
+     * @param item - The line item containing price_per_item and quantity
+     * @param candidate - Optional override values for price_per_item and quantity (as Decimal instances)
+     * @returns The total price as a Decimal instance (price_per_item * quantity)
+     *
+     * @example
+     * ```ts
+     * const item = { price_per_item: 9.99, quantity: 2, ... };
+     * const total = calculations.pretax.getIndividualItemTotalPrice(item);
+     * // Returns: new Decimal(19.98)
+     *
+     * // With candidate values
+     * const total = calculations.pretax.getIndividualItemTotalPrice(item, {
+     *   price_per_item: new Decimal(10.00),
+     *   quantity: new Decimal(3)
+     * });
+     * // Returns: new Decimal(30.00)
+     * ```
      */
     export function getIndividualItemTotalPrice(
       item: z.infer<typeof LineItemSchema>,
@@ -84,8 +115,19 @@ export namespace calculations {
     }
 
     /**
-     * Gets the total for all line items in the receipt (pre-tax).
-     * Includes all items regardless of whether they are assigned or not.
+     * Calculates the sum of all line items in the receipt (pre-tax subtotal).
+     * Includes all items regardless of whether they are assigned to people or not.
+     * Uses Decimal.js for precise arithmetic to ensure accurate totals.
+     *
+     * @param receipt_data - The receipt data containing line items
+     * @returns The sum of all line item totals as a Decimal instance. Returns Decimal(0) if no items exist.
+     *
+     * @example
+     * ```ts
+     * // Receipt with items: $10.50, $5.25, $3.75
+     * const subtotal = calculations.pretax.getTotalForAllItems(receipt_data);
+     * // Returns: new Decimal(19.50)
+     * ```
      */
     export function getTotalForAllItems(
       receipt_data: z.infer<typeof ReceiptDataSchema>
@@ -100,7 +142,27 @@ export namespace calculations {
     }
 
     /**
-     * Calculates the total for a specific person for a specific item.
+     * Calculates how much a specific person owes for a specific line item.
+     * If the person is not assigned to the item, returns Decimal(0).
+     * The amount is split evenly among all people assigned to the item.
+     * Uses Decimal.js for precise division to avoid rounding errors.
+     *
+     * @param item - The line item containing price_per_item, quantity, and assignments
+     * @param person - The person identifier to calculate the total for
+     * @param options - Optional configuration
+     * @param options.candidate - Optional override values for price_per_item and quantity (as Decimal instances)
+     * @returns The person's share of the item total as a Decimal instance. Returns Decimal(0) if person is not assigned.
+     *
+     * @example
+     * ```ts
+     * // Item costs $30.00, assigned to Alice and Bob
+     * const aliceTotal = calculations.pretax.getPersonTotalForItem(item, 'Alice');
+     * // Returns: new Decimal(15.00) - split evenly between 2 people
+     *
+     * // Item costs $20.00, assigned to Alice, Bob, and Charlie
+     * const aliceTotal = calculations.pretax.getPersonTotalForItem(item, 'Alice');
+     * // Returns: new Decimal(6.66666666666666666667) - split evenly between 3 people
+     * ```
      */
     export function getPersonTotalForItem(
       item: z.infer<typeof LineItemSchema>,
@@ -128,7 +190,36 @@ export namespace calculations {
     }
 
     /**
-     * Creates item splits structure from line item assignments.
+     * Builds an ItemSplits structure from line item assignments.
+     * This structure organizes which people are assigned to which items and how items are split.
+     * Used as input for other calculation functions that need to know item-to-person relationships.
+     *
+     * The resulting structure contains:
+     * - `individuals`: A map of person identifiers to their assigned items
+     * - `groups`: A map of item identifiers to the set of people assigned to each item
+     *
+     * @param lineItems - Array of line items with their assignments
+     * @returns An ItemSplits object containing organized assignment information
+     *
+     * @example
+     * ```ts
+     * const lineItems = [
+     *   { id: 'item1', assignments: ['Alice', 'Bob'], ... },
+     *   { id: 'item2', assignments: ['Bob'], ... }
+     * ];
+     * const splits = calculations.pretax.createItemSplitsFromAssignments(lineItems);
+     * // Result:
+     * // {
+     * //   individuals: Map([
+     * //     ['Alice', [{ item: item1, type: 'even' }]],
+     * //     ['Bob', [{ item: item1, type: 'even' }, { item: item2, type: 'even' }]]
+     * //   ]),
+     * //   groups: Map([
+     * //     ['item1', Set(['Alice', 'Bob'])],
+     * //     ['item2', Set(['Bob'])]
+     * //   ])
+     * // }
+     * ```
      */
     export function createItemSplitsFromAssignments(
       lineItems: z.infer<typeof LineItemSchema>[]
@@ -168,7 +259,23 @@ export namespace calculations {
     }
 
     /**
-     * Gets the split item total for a person from item splits.
+     * Calculates the total pre-tax amount a person owes across all their assigned items.
+     * Sums up each person's share of each assigned item based on the split type.
+     * Currently only supports 'even' splits (items divided equally among assigned people).
+     * Uses Decimal.js for precise arithmetic to avoid rounding errors.
+     *
+     * @param personIdentifier - The person identifier to calculate the total for
+     * @param itemSplits - The ItemSplits structure containing assignment information
+     * @returns The person's total pre-tax amount as a Decimal instance. Returns Decimal(0) if person has no assignments.
+     *
+     * @example
+     * ```ts
+     * // Alice assigned to:
+     * // - Item 1: $30.00 (split with Bob) -> Alice owes $15.00
+     * // - Item 2: $20.00 (split with Bob and Charlie) -> Alice owes $6.67
+     * const aliceTotal = calculations.pretax.getPersonSplitTotal('Alice', itemSplits);
+     * // Returns: new Decimal(21.66666666666666666667)
+     * ```
      */
     export function getPersonSplitTotal(
       personIdentifier: string,
@@ -216,9 +323,28 @@ export namespace calculations {
     }
 
     /**
-     * Gets item totals from item splits structure.
+     * Calculates pre-tax item totals for each person based on their assigned items.
+     * Returns a map where each person's identifier maps to their total pre-tax amount.
+     * Currently only supports 'even' splits (items divided equally among assigned people).
+     * Uses Decimal.js for precise arithmetic to ensure accurate totals.
+     *
+     * This function is similar to `getPersonSplitTotal` but returns totals for all people at once,
+     * making it more efficient when you need totals for multiple people.
+     *
+     * @param itemSplits - The ItemSplits structure containing assignment information
+     * @returns A Map of person identifiers to their pre-tax total as Decimal instances
+     *
+     * @example
+     * ```ts
+     * const personTotals = calculations.pretax.getAllPersonItemTotals(itemSplits);
+     * // Returns: Map([
+     * //   ['Alice', new Decimal(21.67)],
+     * //   ['Bob', new Decimal(25.00)],
+     * //   ['Charlie', new Decimal(6.67)]
+     * // ])
+     * ```
      */
-    export function getPersonItemTotals(
+    export function getAllPersonItemTotals(
       itemSplits: ItemSplits
     ): Map<PersonIdentifier, Decimal> {
       const personItemTotals: Map<PersonIdentifier, Decimal> = new Map();
@@ -272,7 +398,24 @@ export namespace calculations {
    */
   export namespace tax {
     /**
-     * Calculates the tax rate based on receipt tax and subtotal.
+     * Calculates the tax rate as a decimal (e.g., 0.10 for 10% tax).
+     * Computed by dividing the tax amount by the display subtotal.
+     * Uses Decimal.js for precise division to avoid floating-point errors.
+     * Returns Decimal(0) if subtotal is zero or tax is not provided.
+     *
+     * @param receipt_data - The receipt data containing tax and display_subtotal
+     * @returns The tax rate as a Decimal instance (tax / display_subtotal). Returns Decimal(0) if subtotal is zero or tax is missing.
+     *
+     * @example
+     * ```ts
+     * // Receipt with $10.00 tax on $100.00 subtotal
+     * const taxRate = calculations.tax.getRate(receipt_data);
+     * // Returns: new Decimal(0.10) // 10% tax rate
+     *
+     * // Receipt with $8.50 tax on $85.00 subtotal
+     * const taxRate = calculations.tax.getRate(receipt_data);
+     * // Returns: new Decimal(0.10) // Still 10% tax rate
+     * ```
      */
     export function getRate(
       receipt_data: z.infer<typeof ReceiptDataSchema>
@@ -310,14 +453,23 @@ export namespace calculations {
      * It is used by `getPersonTotals` when no line items are assigned (to split evenly),
      * and for displaying the ultimate total on the receipt summary card.
      *
+     * Uses Decimal.js for precise arithmetic to ensure accurate totals and avoid floating-point
+     * rounding errors when adding tax, tip, and gratuity.
+     *
      * @param receipt_data - The receipt data containing line items, tax, tip, and gratuity
-     * @returns The total receipt amount (number). Returns 0 if there are no line items.
+     * @returns The total receipt amount as a Decimal instance. Returns Decimal(0) if there are no line items.
      *
      * @example
      * ```ts
      * // Receipt with items totaling $100, 10% tax, $5 tip, $2 gratuity
-     * // Result: 100 + (100 * 0.10) + 5 + 2 = $117.00
+     * // Calculation: 100 + (100 * 0.10) + 5 + 2 = $117.00
      * const receiptTotal = calculations.final.getReceiptTotal(receipt_data);
+     * // Returns: new Decimal(117.00)
+     *
+     * // Receipt with items totaling $99.99, 8.5% tax, $10 tip
+     * // Calculation: 99.99 + (99.99 * 0.085) + 10 = $118.48915
+     * const receiptTotal = calculations.final.getReceiptTotal(receipt_data);
+     * // Returns: new Decimal(118.48915) // Precise, no rounding errors
      * ```
      */
     export function getReceiptTotal(
@@ -362,13 +514,16 @@ export namespace calculations {
      *    c. Adds tip (split evenly based on `tipSplitType`)
      *    d. Adds gratuity (split evenly based on `gratuitySplitType`)
      *
+     * Uses Decimal.js for precise arithmetic to ensure accurate calculations and avoid rounding errors
+     * when splitting tax, tip, and gratuity among multiple people.
+     *
      * @param receipt_data - The receipt data containing line items, tax, tip, and gratuity
      * @param options - Configuration for how amounts should be split
      * @param options.itemSplits - Map of which items are assigned to which people
      * @param options.taxSplitType - How to split tax: 'even' (equal) or 'proportional' (by item total). Default: 'proportional'
      * @param options.tipSplitType - How to split tip: 'even' (equal). Default: 'even'
      * @param options.gratuitySplitType - How to split gratuity: 'even' (equal). Default: 'even'
-     * @returns A Map where keys are person identifiers and values are the total amount each person owes (number)
+     * @returns A Map where keys are person identifiers and values are the total amount each person owes as Decimal instances
      *
      * @example
      * ```ts
@@ -381,9 +536,21 @@ export namespace calculations {
      *   tipSplitType: 'even',
      *   gratuitySplitType: 'even'
      * });
-     * // Result:
-     * // Alice: 50 + (50 * 0.10) + 2.5 + 1 = $58.50
-     * // Bob: 30 + (30 * 0.10) + 2.5 + 1 = $36.50
+     * // Returns: Map([
+     * //   ['Alice', new Decimal(58.50)], // 50 + (50 * 0.10) + 2.5 + 1
+     * //   ['Bob', new Decimal(36.50)]     // 30 + (30 * 0.10) + 2.5 + 1
+     * // ])
+     *
+     * // Even split example (no items assigned)
+     * // Receipt total: $100, 2 people
+     * const personTotals = calculations.final.getPersonTotals(receipt_data, {
+     *   itemSplits: { individuals: new Map([['Alice', []], ['Bob', []]]), groups: new Map() },
+     *   taxSplitType: 'even'
+     * });
+     * // Returns: Map([
+     * //   ['Alice', new Decimal(50.00)],
+     * //   ['Bob', new Decimal(50.00)]
+     * // ])
      * ```
      */
     export function getPersonTotals(
@@ -423,7 +590,7 @@ export namespace calculations {
       // --
 
       // get the total amount for all items assigned to each person
-      const personItemTotals = pretax.getPersonItemTotals(itemSplits);
+      const personItemTotals = pretax.getAllPersonItemTotals(itemSplits);
 
       // --
 
@@ -536,7 +703,52 @@ export namespace calculations {
     }
 
     /**
-     * Calculates fair totals with proper rounding and penny distribution.
+     * Calculates "fair" totals with proper rounding and penny distribution to ensure the sum equals the receipt total.
+     *
+     * This function addresses the rounding problem: when individual person totals are rounded to 2 decimal places,
+     * their sum may not equal the original receipt total. This function distributes rounding differences (pennies)
+     * fairly among people.
+     *
+     * **Algorithm:**
+     * 1. Converts all amounts to integer cents (truncates to avoid double-conversion errors)
+     * 2. Calculates the rounding gap between the rounded sum and the receipt total
+     * 3. Sorts people by largest fractional part (those with the most "leftover" cents get priority)
+     * 4. Distributes extra/missing pennies one at a time, cycling through people
+     * 5. Converts back to dollars (Decimal instances)
+     *
+     * Uses Decimal.js throughout to maintain precision during the rounding and distribution process.
+     *
+     * @param receiptTotal - The total receipt amount as a Decimal instance
+     * @param personTotals - Map of person identifiers to their calculated totals (as Decimal instances)
+     * @returns A Map where keys are person identifiers and values are "fair" totals as Decimal instances.
+     *          The sum of these fair totals equals the receipt total (within 1 cent).
+     *
+     * @example
+     * ```ts
+     * // Receipt total: $31.00
+     * // Person totals: [10.333, 10.333, 10.334] (sum = 31.00)
+     * // After rounding: [10.33, 10.33, 10.34] (sum = 31.00) ✓
+     *
+     * const receiptTotal = new Decimal(31.00);
+     * const personTotals = new Map([
+     *   ['Alice', new Decimal(10.333)],
+     *   ['Bob', new Decimal(10.333)],
+     *   ['Charlie', new Decimal(10.334)]
+     * ]);
+     * const fairTotals = calculations.final.getPersonFairTotals(receiptTotal, personTotals);
+     * // Returns: Map([
+     * //   ['Alice', new Decimal(10.33)],
+     * //   ['Bob', new Decimal(10.33)],
+     * //   ['Charlie', new Decimal(10.34)]
+     * // ])
+     * // Sum: 10.33 + 10.33 + 10.34 = 31.00 ✓
+     *
+     * // Example with rounding gap
+     * // Receipt total: $10.00
+     * // Person totals: [3.333, 3.333, 3.334] (sum = 10.00)
+     * // After rounding: [3.33, 3.33, 3.33] (sum = 9.99) - gap of 1 cent
+     * // Fair totals: [3.33, 3.33, 3.34] (sum = 10.00) - penny goes to person with largest fractional part
+     * ```
      */
     export function getPersonFairTotals(
       receiptTotal: Decimal,
