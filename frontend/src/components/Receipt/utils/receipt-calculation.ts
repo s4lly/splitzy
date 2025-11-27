@@ -1,4 +1,5 @@
 import { LineItemSchema, ReceiptDataSchema } from '@/lib/receiptSchemas';
+import Decimal from 'decimal.js';
 import { z } from 'zod';
 import { receiptHasLineItems } from './receipt-conditions';
 
@@ -12,7 +13,7 @@ import { receiptHasLineItems } from './receipt-conditions';
  * const total: FinalLineItemTotal = 10.123456789; // Stored at full precision
  * ```
  */
-export type FinalLineItemTotal = number;
+// export type FinalLineItemTotal = number;
 
 /**
  * Represents a final "fair" total amount for a line item. The value will be rounded to 2 decimal places
@@ -26,7 +27,7 @@ export type FinalLineItemTotal = number;
  * const fairTotal: FinalFairLineItemTotal = 10.34; // Includes rounding penny
  * ```
  */
-export type FinalFairLineItemTotal = number;
+// export type FinalFairLineItemTotal = number;
 
 /**
  * v1, person identifier is their name
@@ -67,12 +68,19 @@ export namespace calculations {
      */
     export function getIndividualItemTotalPrice(
       item: z.infer<typeof LineItemSchema>,
-      candidate?: { price_per_item: number; quantity: number }
-    ) {
-      return (
-        (candidate?.price_per_item ?? item.price_per_item) *
-        (candidate?.quantity ?? item.quantity)
-      );
+      candidate?: { price_per_item: Decimal; quantity: Decimal }
+    ): Decimal {
+      const price =
+        candidate?.price_per_item != null
+          ? candidate.price_per_item
+          : new Decimal(item.price_per_item);
+
+      const quantity =
+        candidate?.quantity != null
+          ? candidate.quantity
+          : new Decimal(item.quantity);
+
+      return price.mul(quantity);
     }
 
     /**
@@ -81,11 +89,11 @@ export namespace calculations {
      */
     export function getTotalForAllItems(
       receipt_data: z.infer<typeof ReceiptDataSchema>
-    ) {
-      let total = 0;
+    ): Decimal {
+      let total = new Decimal(0);
 
       for (let item of receipt_data.line_items) {
-        total += getIndividualItemTotalPrice(item);
+        total = total.plus(getIndividualItemTotalPrice(item));
       }
 
       return total;
@@ -98,13 +106,13 @@ export namespace calculations {
       item: z.infer<typeof LineItemSchema>,
       person: string,
       options?: {
-        candidate?: { price_per_item: number; quantity: number };
+        candidate?: { price_per_item: Decimal; quantity: Decimal };
       }
-    ): number {
+    ): Decimal {
       const assignedPeople = item.assignments || [];
 
       if (assignedPeople.length === 0 || !assignedPeople.includes(person)) {
-        return 0;
+        return new Decimal(0);
       }
 
       const itemTotalPrice = getIndividualItemTotalPrice(
@@ -112,8 +120,9 @@ export namespace calculations {
         options?.candidate
       );
 
-      // HERE problomatic, can get rounding errors
-      const pricePerPerson = itemTotalPrice / assignedPeople.length;
+      const pricePerPerson = itemTotalPrice.div(
+        new Decimal(assignedPeople.length)
+      );
 
       return pricePerPerson;
     }
@@ -164,15 +173,15 @@ export namespace calculations {
     export function getPersonSplitTotal(
       personIdentifier: string,
       itemSplits: ItemSplits
-    ): number {
+    ): Decimal {
       const individualSplits = itemSplits.individuals.get(personIdentifier);
 
       if (!individualSplits) {
-        return 0;
+        return new Decimal(0);
         // throw new Error('Individual splits not found');
       }
 
-      let subtotal = 0;
+      let subtotal = new Decimal(0);
 
       for (const individualSplit of individualSplits) {
         switch (individualSplit.type) {
@@ -185,10 +194,13 @@ export namespace calculations {
               throw new Error('Group size not found');
             }
 
-            subtotal +=
-              (individualSplit.item.price_per_item *
-                individualSplit.item.quantity) /
-              groupSize;
+            subtotal = Decimal.add(
+              subtotal,
+              Decimal.mul(
+                new Decimal(individualSplit.item.price_per_item),
+                new Decimal(individualSplit.item.quantity)
+              ).div(new Decimal(groupSize))
+            );
             break;
           }
 
@@ -208,8 +220,8 @@ export namespace calculations {
      */
     export function getPersonItemTotals(
       itemSplits: ItemSplits
-    ): Map<PersonIdentifier, number> {
-      const personItemTotals: Map<PersonIdentifier, number> = new Map();
+    ): Map<PersonIdentifier, Decimal> {
+      const personItemTotals: Map<PersonIdentifier, Decimal> = new Map();
 
       for (const [
         personIdentifier,
@@ -226,12 +238,17 @@ export namespace calculations {
                 throw new Error('Group size not found');
               }
 
-              const splitValue =
-                (item.price_per_item * item.quantity) / groupSize;
+              const splitValue = Decimal.mul(
+                new Decimal(item.price_per_item),
+                new Decimal(item.quantity)
+              ).div(new Decimal(groupSize));
 
               personItemTotals.set(
                 personIdentifier,
-                (personItemTotals.get(personIdentifier) ?? 0) + splitValue
+                Decimal.add(
+                  personItemTotals.get(personIdentifier) ?? new Decimal(0),
+                  splitValue
+                )
               );
               break;
             }
@@ -259,40 +276,19 @@ export namespace calculations {
      */
     export function getRate(
       receipt_data: z.infer<typeof ReceiptDataSchema>
-    ): number {
+    ): Decimal {
       // Avoid division by zero
       if (!receipt_data.display_subtotal) {
-        return 0;
+        return new Decimal(0);
       }
 
       if (!receipt_data.tax) {
-        return 0;
+        return new Decimal(0);
       }
 
-      return receipt_data.tax / receipt_data.display_subtotal;
-    }
-
-    /**
-     * Calculates the tax amount for a given total based on the receipt's tax and subtotal
-     * @deprecated Use getRate() instead and multiply by total
-     * @param total The total amount to calculate tax for
-     * @param receipt_data The receipt data containing tax and subtotal information
-     * @returns The calculated tax amount
-     */
-    export function getAmount(
-      total: number,
-      receipt_data: z.infer<typeof ReceiptDataSchema>
-    ) {
-      // Avoid division by zero
-      if (!receipt_data.display_subtotal) {
-        return 0;
-      }
-
-      if (!receipt_data.tax) {
-        return 0;
-      }
-
-      return total * (receipt_data.tax / receipt_data.display_subtotal);
+      return new Decimal(receipt_data.tax).div(
+        new Decimal(receipt_data.display_subtotal)
+      );
     }
   }
 
@@ -326,20 +322,20 @@ export namespace calculations {
      */
     export function getReceiptTotal(
       receipt_data: z.infer<typeof ReceiptDataSchema>
-    ): number {
+    ): Decimal {
+      let total = new Decimal(0);
+
       if (!(receipt_data.line_items && receipt_data.line_items.length > 0)) {
-        return 0;
+        return total;
       }
 
-      let total = 0;
-
       // derived
-      total += pretax.getTotalForAllItems(receipt_data);
-      total += total * tax.getRate(receipt_data);
+      total = total.plus(pretax.getTotalForAllItems(receipt_data));
+      total = total.plus(total.mul(tax.getRate(receipt_data)));
 
       // pulled from receipt
-      total += receipt_data.gratuity || 0;
-      total += receipt_data.tip || 0;
+      total = total.plus(new Decimal(receipt_data.gratuity ?? 0));
+      total = total.plus(new Decimal(receipt_data.tip ?? 0));
 
       return total;
     }
@@ -403,7 +399,7 @@ export namespace calculations {
         tipSplitType?: SplitType;
         gratuitySplitType?: SplitType;
       }
-    ): Map<PersonIdentifier, number> {
+    ): Map<PersonIdentifier, Decimal> {
       const hasLineItems = receiptHasLineItems(itemSplits);
 
       // if no assignments made to any line item, split total evenly
@@ -411,12 +407,12 @@ export namespace calculations {
         const receiptTotal = getReceiptTotal(receipt_data);
 
         // split total evenly
-        const splitAmount = receiptTotal / itemSplits.individuals.size;
+        const splitAmount = receiptTotal.div(itemSplits.individuals.size);
 
         // EARLY RETURN
         return new Map(
           Array.from(itemSplits.individuals.keys()).map(
-            (personIdentifier): [PersonIdentifier, number] => [
+            (personIdentifier): [PersonIdentifier, Decimal] => [
               personIdentifier,
               splitAmount,
             ]
@@ -433,17 +429,24 @@ export namespace calculations {
 
       if (hasLineItems && !receipt_data.tax_included_in_items) {
         // get the total value of all assigned items
-        const totalAssignedItemsValue = utils.sumMapValues(personItemTotals);
+        const totalAssignedItemsValue = Decimal.sum(
+          ...Array.from(personItemTotals.values())
+        );
 
         const taxRate = tax.getRate(receipt_data);
-        const taxAmount = totalAssignedItemsValue * taxRate;
+        const taxAmount = totalAssignedItemsValue.mul(taxRate);
 
         switch (taxSplitType) {
           case 'even': {
-            const taxPerPerson = taxAmount / personItemTotals.size;
+            const taxPerPerson = taxAmount.div(
+              new Decimal(personItemTotals.size)
+            );
 
             for (const [personIdentifier, itemTotal] of personItemTotals) {
-              personItemTotals.set(personIdentifier, itemTotal + taxPerPerson);
+              personItemTotals.set(
+                personIdentifier,
+                itemTotal.add(taxPerPerson)
+              );
             }
 
             break;
@@ -455,11 +458,13 @@ export namespace calculations {
                 personIdentifier,
                 itemSplits
               );
-              const burden = personSplitTotal / totalAssignedItemsValue;
-              const personTaxAmount = taxAmount * burden;
+
+              const burden = personSplitTotal.div(totalAssignedItemsValue);
+              const personTaxAmount = taxAmount.mul(burden);
+
               personItemTotals.set(
                 personIdentifier,
-                itemTotal + personTaxAmount
+                itemTotal.add(personTaxAmount)
               );
             }
 
@@ -478,10 +483,15 @@ export namespace calculations {
       if (receipt_data.tip) {
         switch (tipSplitType) {
           case 'even': {
-            const tipPerPerson = receipt_data.tip / personItemTotals.size;
+            const tipPerPerson = new Decimal(receipt_data.tip).div(
+              new Decimal(personItemTotals.size)
+            );
 
             for (const [personIdentifier, itemTotal] of personItemTotals) {
-              personItemTotals.set(personIdentifier, itemTotal + tipPerPerson);
+              personItemTotals.set(
+                personIdentifier,
+                itemTotal.add(tipPerPerson)
+              );
             }
 
             break;
@@ -500,13 +510,14 @@ export namespace calculations {
       if (receipt_data.gratuity) {
         switch (gratuitySplitType) {
           case 'even': {
-            const gratuityPerPerson =
-              receipt_data.gratuity / personItemTotals.size;
+            const gratuityPerPerson = new Decimal(receipt_data.gratuity).div(
+              new Decimal(personItemTotals.size)
+            );
 
             for (const [personIdentifier, itemTotal] of personItemTotals) {
               personItemTotals.set(
                 personIdentifier,
-                itemTotal + gratuityPerPerson
+                itemTotal.add(gratuityPerPerson)
               );
             }
 
@@ -528,47 +539,38 @@ export namespace calculations {
      * Calculates fair totals with proper rounding and penny distribution.
      */
     export function getPersonFairTotals(
-      receiptTotal: number,
-      personTotals: Map<string, FinalLineItemTotal>
-    ): Map<string, FinalFairLineItemTotal> {
+      receiptTotal: Decimal,
+      personTotals: Map<string, Decimal>
+    ): Map<string, Decimal> {
       // Step 1: Convert to cents (truncate directly to avoid double-conversion errors)
-      const inCents = Array.from(personTotals.entries()).map(
-        ([name, value]) => ({
-          name,
-          original: value,
-          cents: Math.trunc(value * 100), // Convert directly to integer cents
-        })
-      );
+      const inCents = Array.from(personTotals).map(([name, value]) => ({
+        name,
+        original: value,
+        cents: new Decimal(value).mul(100).trunc(), // Convert directly to integer cents
+      }));
 
       // Step 2: Calculate rounding gap in cents
-      const roundedSumCents = inCents.reduce(
-        (sum, { cents }) => sum + cents,
-        0
-      );
-      const receiptTotalCents = Math.trunc(receiptTotal * 100);
-      let diffCents = receiptTotalCents - roundedSumCents;
+      const roundedSumCents = Decimal.sum(...inCents.map(({ cents }) => cents));
+      const receiptTotalCents = receiptTotal.mul(100).trunc();
+      let diffCents = receiptTotalCents.minus(roundedSumCents);
 
       // Step 3: Sort by largest fractional part (for fair distribution of pennies)
-      inCents.sort((a, b) => (b.original % 1) - (a.original % 1));
+      inCents.sort((a, b) => b.original.mod(1).cmp(a.original.mod(1)));
 
       // Step 4: Distribute the extra pennies by working with integer cents
       if (inCents.length > 0) {
         let index = 0;
-        while (diffCents !== 0) {
+        while (!diffCents.isZero()) {
           const entry = inCents[index % inCents.length];
-          entry.cents += diffCents > 0 ? 1 : -1; // Add or subtract 1 cent (integer arithmetic)
-          diffCents += diffCents > 0 ? -1 : 1;
+          entry.cents = entry.cents.plus(diffCents.gt(0) ? 1 : -1); // Add or subtract 1 cent (integer arithmetic)
+          diffCents = diffCents.plus(diffCents.gt(0) ? -1 : 1);
           index++;
         }
       }
 
       // Step 5: Convert back to dollars and return
-      // Use parseFloat and toFixed to avoid floating-point precision issues
-      const result: Map<string, FinalFairLineItemTotal> = new Map(
-        inCents.map(({ name, cents }) => [
-          name,
-          parseFloat((cents / 100).toFixed(2)),
-        ])
+      const result: Map<string, Decimal> = new Map(
+        inCents.map(({ name, cents }) => [name, cents.div(100)])
       );
 
       return result;
@@ -579,62 +581,6 @@ export namespace calculations {
    * Utility functions for receipt calculations.
    */
   export namespace utils {
-    /**
-     * Sums monetary amounts while avoiding floating-point precision errors
-     * by converting to cents (integer arithmetic) before summing.
-     *
-     * Uses Math.round to handle cases like 40.3 * 100 = 4029.999...
-     *
-     * @param amounts - Array or iterable of monetary amounts to sum
-     * @returns The sum of all amounts with proper precision handling
-     *
-     * @example
-     * sumMoneyAmounts([40.3, 40.18, 0.13]) // Returns 80.61
-     * sumMoneyAmounts([10.333, 10.333, 10.334]) // Returns 31.00
-     */
-    export function sumMoneyAmounts(amounts: Iterable<number>): number {
-      const sumInCents = Array.from(amounts).reduce(
-        (sum, amount) => sum + Math.round(amount * 100),
-        0
-      );
-      return sumInCents / 100;
-    }
-
-    /**
-     * Sums the values from a Map while avoiding floating-point precision errors.
-     * Uses sumMoneyAmounts internally to ensure accurate monetary calculations.
-     *
-     * @param map - Map with numeric values to sum
-     * @returns The sum of all map values with proper precision handling
-     *
-     * @example
-     * ```ts
-     * const personTotals = new Map([
-     *   ['Alice', 10.33],
-     *   ['Bob', 10.33],
-     *   ['Charlie', 10.34]
-     * ]);
-     *
-     * const total = calculations.utils.sumMapValues(personTotals);
-     * // Returns 31.00 (handles rounding correctly)
-     * ```
-     *
-     * @example
-     * ```ts
-     * const itemTotals = new Map([
-     *   ['item1', 40.3],
-     *   ['item2', 40.18],
-     *   ['item3', 0.13]
-     * ]);
-     *
-     * const total = calculations.utils.sumMapValues(itemTotals);
-     * // Returns 80.61
-     * ```
-     */
-    export function sumMapValues<K>(map: Map<K, number>): number {
-      return sumMoneyAmounts(map.values());
-    }
-
     /**
      * Filters people based on assignment and search value.
      * @param people - All people
