@@ -11,6 +11,7 @@ import { AssignmentsContainer } from '@/features/assignments/assignments-contain
 import AssignmentsList from '@/features/assignments/assignments-list';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { cn } from '@/lib/utils';
+import Decimal from 'decimal.js';
 import { Pencil } from 'lucide-react';
 import { Fragment, useState } from 'react';
 import { z } from 'zod';
@@ -100,7 +101,9 @@ export default function LineItemsTableDesktopV2({
                   </span>
                 </TableCell>
                 <TableCell>
-                  {formatCurrency(calculations.pretax.getIndividualItemTotalPrice(item))}
+                  {formatCurrency(
+                    calculations.pretax.getIndividualItemTotalPrice(item)
+                  )}
                 </TableCell>
                 <TableCell>
                   <AssignmentsContainer
@@ -177,8 +180,8 @@ export default function LineItemsTableDesktopV2({
                           togglePersonAssignment(item.id, person);
                         }}
                         item={item}
-                        formPricePerItem={item.price_per_item}
-                        formQuantity={item.quantity}
+                        formPricePerItem={new Decimal(item.price_per_item)}
+                        formQuantity={new Decimal(item.quantity)}
                       />
                       <Separator />
                       <div className="flex justify-between gap-2 p-2">

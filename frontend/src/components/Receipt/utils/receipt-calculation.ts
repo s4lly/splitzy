@@ -71,6 +71,39 @@ const DEFAULT_SPLIT_TYPE = 'even';
  */
 export namespace calculations {
   /**
+   * Custom error class for receipt calculation errors.
+   * Extends the native Error class to allow instanceof checks in try/catch blocks.
+   *
+   * @example
+   * ```ts
+   * try {
+   *   // some calculation that might throw
+   *   throw new calculations.ReceiptCalculationError('Invalid calculation');
+   * } catch (error) {
+   *   if (error instanceof calculations.ReceiptCalculationError) {
+   *     // Handle receipt calculation error specifically
+   *     console.error('Calculation error:', error.message);
+   *   } else {
+   *     // Handle other errors
+   *     throw error;
+   *   }
+   * }
+   * ```
+   */
+  export class ReceiptCalculationError extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'ReceiptCalculationError';
+      // Maintains proper stack trace for where our error was thrown (only available on V8)
+      if (Error.captureStackTrace) {
+        Error.captureStackTrace(this, ReceiptCalculationError);
+      }
+      // Fix prototype chain for instanceof to work correctly
+      Object.setPrototypeOf(this, ReceiptCalculationError.prototype);
+    }
+  }
+
+  /**
    * Pre-tax calculation functions.
    * These functions work with amounts before tax is applied.
    */
@@ -596,9 +629,9 @@ export namespace calculations {
 
       if (hasLineItems && !receipt_data.tax_included_in_items) {
         // get the total value of all assigned items
-        const totalAssignedItemsValue = Decimal.sum(
-          ...Array.from(personItemTotals.values())
-        );
+        const totalAssignedItemsValue = personItemTotals.size
+          ? Decimal.sum(...Array.from(personItemTotals.values()))
+          : new Decimal(0);
 
         const taxRate = tax.getRate(receipt_data);
         const taxAmount = totalAssignedItemsValue.mul(taxRate);
@@ -762,7 +795,9 @@ export namespace calculations {
       }));
 
       // Step 2: Calculate rounding gap in cents
-      const roundedSumCents = Decimal.sum(...inCents.map(({ cents }) => cents));
+      const roundedSumCents = inCents.length
+        ? Decimal.sum(...inCents.map(({ cents }) => cents))
+        : new Decimal(0);
       const receiptTotalCents = receiptTotal.mul(100).trunc();
       let diffCents = receiptTotalCents.minus(roundedSumCents);
 
@@ -814,6 +849,57 @@ export namespace calculations {
       }
 
       return people.filter((person) => !assignedPeople.includes(person));
+    }
+
+    /**
+     * Formats the percentage that a partial value represents of a total value.
+     * Returns a locale-aware formatted percentage string (e.g., "25.50%").
+     *
+     * The calculation is: (partial / total) * 100, then formatted using Intl.NumberFormat
+     * with the 'percent' style for proper locale-aware display.
+     *
+     * Uses Decimal.js for precise division to avoid floating-point rounding errors.
+     * If the total is zero or negative, returns "0%" and logs a warning.
+     *
+     * @param partial - The partial value to calculate the percentage for (as a Decimal instance)
+     * @param total - The total value to use as the denominator (as a Decimal instance)
+     * @returns A formatted percentage string (e.g., "25.50%", "0%"). Returns "0%" if total is zero or negative.
+     *
+     * @example
+     * ```ts
+     * // Format what percentage $25.50 is of $100.00
+     * const percentage = calculations.utils.formatPercentage(
+     *   new Decimal(25.50),
+     *   new Decimal(100.00)
+     * );
+     * // Returns: "25.5%"
+     *
+     * // Format what percentage $33.33 is of $99.99
+     * const percentage = calculations.utils.formatPercentage(
+     *   new Decimal(33.33),
+     *   new Decimal(99.99)
+     * );
+     * // Returns: "33.33%"
+     *
+     * // Returns "0%" if total is zero (logs warning)
+     * const percentage = calculations.utils.formatPercentage(
+     *   new Decimal(10),
+     *   new Decimal(0)
+     * );
+     * // Returns: "0%"
+     * ```
+     */
+    export function formatPercentage(partial: Decimal, total: Decimal): string {
+      // TODO internationalize
+      const formatter = new Intl.NumberFormat('en-US', { style: 'percent' });
+
+      if (!total.gt(0)) {
+        // TODO use observability library to log this
+        console.warn('Total is zero');
+        return formatter.format(0);
+      }
+
+      return formatter.format(Decimal.div(partial, total).mul(100).toNumber());
     }
   }
 }

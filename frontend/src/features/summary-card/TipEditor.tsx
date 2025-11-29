@@ -1,50 +1,57 @@
 import PercentageTipButton from '@/components/Receipt/components/PercentageTipButton';
 import { useReceiptDataUpdateMutation } from '@/components/Receipt/hooks/useReceiptDataUpdateMutation';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
+import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
+import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface TipEditorProps {
   receiptId: string;
-  receiptTip: number;
-  itemsTotal: number;
+  receiptTip: Decimal;
+  itemsTotal: Decimal;
 }
 
-const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
-  const [tip, setTip] = useState(receiptTip ?? 0);
+const TipEditor = ({
+  receiptId,
+  receiptTip = new Decimal(0),
+  itemsTotal,
+}: TipEditorProps) => {
+  const [tip, setTip] = useState<Decimal>(receiptTip);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const hasValueToDelete = receiptTip !== 0;
+  const hasValueToDelete = !receiptTip.isZero();
 
   useEffect(() => {
-    setTip(receiptTip ?? 0);
+    setTip(receiptTip);
   }, [receiptTip]);
 
   const { mutate, isPending } = useReceiptDataUpdateMutation();
 
   const handleEditTip = () => {
-    setTip(receiptTip ?? 0);
+    setTip(receiptTip);
     setError(null);
     setIsEditing(true);
   };
 
   const handleSaveTip = () => {
-    const currentCents = Math.round((receiptTip ?? 0) * 100);
-    const nextCents = Math.round(Math.max(0, tip) * 100);
+    const currentCents = receiptTip.mul(100).trunc();
+    const nextCents = Decimal.max(0, tip).mul(100).trunc();
 
-    if (nextCents !== currentCents) {
+    if (!nextCents.eq(currentCents)) {
       setError(null);
       mutate(
         {
           receiptId,
-          tip: nextCents / 100,
+          // TODO update query to use Decimal
+          tip: nextCents.div(100).toNumber(),
         },
         {
           onSuccess: () => {
@@ -68,18 +75,18 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
 
     // Treat empty or "." as 0
     if (rawValue === '' || rawValue === '.') {
-      setTip(0);
+      setTip(new Decimal(0));
       return;
     }
 
     // Parse with parseFloat, fallback to 0 on NaN
-    const parsedValue = parseFloat(rawValue) || 0;
+    const parsedValue = new Decimal(rawValue);
 
     // Clamp to non-negative value
-    const clampedValue = Math.max(0, parsedValue);
+    const clampedValue = Decimal.max(0, parsedValue);
 
     // Round to two decimals
-    const roundedValue = roundToTwoDecimals(clampedValue);
+    const roundedValue = clampedValue.toDP(2);
 
     setTip(roundedValue);
   };
@@ -111,13 +118,8 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
     setIsEditing(false);
   };
 
-  const handlePercentageTipSelect = (amount: number) => {
-    const roundedAmount = roundToTwoDecimals(amount);
-    setTip(roundedAmount);
-  };
-
-  const roundToTwoDecimals = (num: number) => {
-    return Math.round(num * 100) / 100;
+  const handlePercentageTipSelect = (amount: Decimal) => {
+    setTip(amount.toDP(2));
   };
 
   if (!hasValueToDelete && !isEditing) {
@@ -160,7 +162,7 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
                 </span>
                 <Input
                   type="number"
-                  value={tip}
+                  value={tip.toNumber()}
                   onChange={handleTipChange}
                   placeholder="Tip"
                   min={0}
@@ -173,8 +175,8 @@ const TipEditor = ({ receiptId, receiptTip, itemsTotal }: TipEditorProps) => {
               </div>
               <div className="flex justify-center text-sm text-muted-foreground">
                 percentage of total{' '}
-                {itemsTotal > 0
-                  ? `${roundToTwoDecimals((tip / itemsTotal) * 100)}%`
+                {itemsTotal.gt(0)
+                  ? calculations.utils.formatPercentage(tip, itemsTotal)
                   : '—'}
               </div>
             </TabsContent>
