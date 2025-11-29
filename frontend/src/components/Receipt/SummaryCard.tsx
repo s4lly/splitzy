@@ -1,6 +1,7 @@
 import GratuityEditor from '@/features/summary-card/GratuityEditor';
 import TipEditor from '@/features/summary-card/TipEditor';
 import { ReceiptDataSchema } from '@/lib/receiptSchemas';
+import Decimal from 'decimal.js';
 import { AlertCircle, DollarSign } from 'lucide-react';
 import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -80,7 +81,9 @@ const SummaryCard = ({ receiptId, receipt_data }: SummaryCardProps) => {
             <div className="flex items-center justify-between py-1 sm:py-2">
               <span className="text-base">Subtotal (as shown):</span>
               <span className="text-base font-medium">
-                {formatCurrency(receipt_data.display_subtotal || 0)}
+                {formatCurrency(
+                  new Decimal(receipt_data.display_subtotal ?? 0)
+                )}
               </span>
             </div>
           )}
@@ -93,7 +96,7 @@ const SummaryCard = ({ receiptId, receipt_data }: SummaryCardProps) => {
             <div className="flex items-center justify-between py-1 sm:py-2">
               <span className="text-base">Pre-tax Total:</span>
               <span className="text-base font-medium">
-                {formatCurrency(receipt_data.pretax_total || 0)}
+                {formatCurrency(new Decimal(receipt_data.pretax_total ?? 0))}
               </span>
             </div>
           )}
@@ -110,7 +113,7 @@ const SummaryCard = ({ receiptId, receipt_data }: SummaryCardProps) => {
             </div>
             <span className="text-base font-medium">
               {formatCurrency(
-                itemsTotal * calculations.tax.getRate(receipt_data) || 0
+                itemsTotal.mul(calculations.tax.getRate(receipt_data))
               )}
             </span>
           </div>
@@ -122,8 +125,9 @@ const SummaryCard = ({ receiptId, receipt_data }: SummaryCardProps) => {
               <span className="text-base">Post-tax Total:</span>
               <span className="text-base font-medium">
                 {formatCurrency(
-                  itemsTotal +
-                    itemsTotal * calculations.tax.getRate(receipt_data) || 0
+                  itemsTotal.plus(
+                    itemsTotal.mul(calculations.tax.getRate(receipt_data))
+                  )
                 )}
               </span>
             </div>
@@ -132,7 +136,7 @@ const SummaryCard = ({ receiptId, receipt_data }: SummaryCardProps) => {
           {/* Tip */}
           <TipEditor
             receiptId={receiptId}
-            receiptTip={receipt_data.tip ?? 0}
+            receiptTip={new Decimal(receipt_data.tip ?? 0)}
             itemsTotal={itemsTotal}
           />
 

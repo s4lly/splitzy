@@ -1,5 +1,6 @@
 import { ReceiptSchema } from '@/lib/receiptSchemas';
 import { cn } from '@/lib/utils';
+import Decimal from 'decimal.js';
 import { motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -40,10 +41,7 @@ import PersonBadge from './PersonBadge';
 import SummaryCard from './SummaryCard';
 import LineItemCard from './components/LineItemCard';
 import { useItemAssignmentsUpdateMutation } from './hooks/useItemAssignmentsUpdateMutation';
-import {
-  formatCurrency,
-  truncateFloatByNDecimals,
-} from './utils/format-currency';
+import { formatCurrency } from './utils/format-currency';
 import { getColorForName, getColorStyle } from './utils/get-color-for-name';
 import {
   getPeopleFromLineItems,
@@ -76,8 +74,6 @@ const ReceiptAnalysisDisplay = ({
   const [searchInputs, setSearchInputs] = useState<Record<string, string>>({});
   const [isAddingItem, setIsAddingItem] = useState(false);
   const updateItemAssignmentsMutation = useItemAssignmentsUpdateMutation();
-  const editLineItemsEnabledRaw = useFeatureFlag('edit-line-items');
-  const editLineItemsEnabled = !!editLineItemsEnabledRaw;
   const receiptDesktopTableV2Enabled = useFeatureFlag('receipt-desktop-table');
   const isMobile = useMobile();
 
@@ -103,7 +99,7 @@ const ReceiptAnalysisDisplay = ({
 
   // Pre-tax item totals for each person (without tax, tip, gratuity, etc.)
   const personPretaxTotals =
-    calculations.pretax.getPersonItemTotals(itemSplits);
+    calculations.pretax.getAllPersonItemTotals(itemSplits);
 
   // Calculate total receipt amount including assigned items and unassigned items
   const receiptTotal = calculations.final.getReceiptTotal(receipt_data);
@@ -114,7 +110,9 @@ const ReceiptAnalysisDisplay = ({
   });
 
   // Sum of all person totals (used for fair rounding calculation)
-  const personTotalsSum = calculations.utils.sumMapValues(personTotals);
+  const personTotalsSum = personTotals.size
+    ? Decimal.sum(...Array.from(personTotals.values()))
+    : new Decimal(0);
 
   const personFairTotals = calculations.final.getPersonFairTotals(
     personTotalsSum,
@@ -123,7 +121,7 @@ const ReceiptAnalysisDisplay = ({
 
   // --
 
-  const unassignedAmount = Math.max(0, receiptTotal - personTotalsSum);
+  const unassignedAmount = Decimal.max(0, receiptTotal.minus(personTotalsSum));
   const isFullyAssigned = areAllItemsAssigned(receipt_data);
 
   // --
@@ -322,7 +320,6 @@ const ReceiptAnalysisDisplay = ({
                 <LineItemsTableMobile
                   line_items={receipt_data.line_items}
                   result={result}
-                  editLineItemsEnabled={editLineItemsEnabled}
                   people={people}
                   togglePersonAssignment={togglePersonAssignment}
                 />
@@ -446,7 +443,9 @@ const ReceiptAnalysisDisplay = ({
                   style={{
                     width: `${Math.min(
                       100,
-                      (personTotalsSum / receiptTotal) * 100
+                      Decimal.div(personTotalsSum, receiptTotal)
+                        .mul(100)
+                        .toNumber()
                     )}%`,
                   }}
                 ></div>
@@ -549,32 +548,24 @@ const ReceiptAnalysisDisplay = ({
 
                     // ----
 
-                    const personFairTotal = personFairTotals.get(person) || 0;
+                    const personFairTotal: Decimal =
+                      personFairTotals.get(person) ?? new Decimal(0);
 
                     // ----
 
                     // TODO consider line item type with all calculated amounts and use here
 
-                    const personPretaxTotal =
-                      personPretaxTotals.get(person) || 0;
+                    const personPretaxTotal: Decimal =
+                      personPretaxTotals.get(person) ?? new Decimal(0);
 
-                    const taxAmount =
-                      personPretaxTotal *
-                      calculations.tax.getRate(receipt_data);
-
-                    // ----
-
-                    const percentage =
-                      receiptTotal > 0
-                        ? truncateFloatByNDecimals(
-                            (personFairTotal / receiptTotal) * 100,
-                            1
-                          )
-                        : '0';
+                    const taxAmount: Decimal = personPretaxTotal.mul(
+                      calculations.tax.getRate(receipt_data)
+                    );
 
                     // ----
 
                     const personItems = getPersonItems(person, result);
+
                     return (
                       <Dialog key={idx}>
                         <DialogTrigger asChild>
@@ -601,7 +592,8 @@ const ReceiptAnalysisDisplay = ({
                                 <div className="flex items-end justify-between">
                                   <div className="text-lg font-semibold">
                                     {formatCurrency(
-                                      personFairTotals.get(person) || 0
+                                      personFairTotals.get(person) ??
+                                        new Decimal(0)
                                     )}
                                   </div>
                                   <div className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-800/30 dark:text-blue-300">
@@ -623,7 +615,8 @@ const ReceiptAnalysisDisplay = ({
                                   </div>
                                   <div className="text-sm font-medium">
                                     {formatCurrency(
-                                      personPretaxTotals.get(person) || 0
+                                      personPretaxTotals.get(person) ??
+                                        new Decimal(0)
                                     )}
                                   </div>
                                 </div>
@@ -650,7 +643,11 @@ const ReceiptAnalysisDisplay = ({
                                   {formatCurrency(personFairTotal)}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                  {percentage}% of total
+                                  {calculations.utils.formatPercentage(
+                                    personFairTotal,
+                                    receiptTotal
+                                  )}{' '}
+                                  of total
                                 </div>
                               </div>
                             )}
@@ -729,13 +726,15 @@ const ReceiptAnalysisDisplay = ({
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-2.5 text-right align-top text-sm">
                                           <div className="font-medium">
-                                            {formatCurrency(item.price)}
+                                            {formatCurrency(
+                                              new Decimal(item.price)
+                                            )}
                                           </div>
                                           {item.shared && (
                                             <div className="text-xs text-muted-foreground">
                                               of{' '}
                                               {formatCurrency(
-                                                item.originalPrice
+                                                new Decimal(item.originalPrice)
                                               )}
                                             </div>
                                           )}
@@ -753,7 +752,8 @@ const ReceiptAnalysisDisplay = ({
                                       </td>
                                       <td className="px-3 py-2 text-right text-sm">
                                         {formatCurrency(
-                                          personPretaxTotals.get(person) || 0
+                                          personPretaxTotals.get(person) ??
+                                            new Decimal(0)
                                         )}
                                       </td>
                                     </tr>
@@ -787,7 +787,9 @@ const ReceiptAnalysisDisplay = ({
                                               (receipt_data.gratuity ?? 0);
                                             const tipPerPerson =
                                               totalTip / people.length;
-                                            return formatCurrency(tipPerPerson);
+                                            return formatCurrency(
+                                              new Decimal(tipPerPerson)
+                                            );
                                           })()}
                                         </td>
                                       </tr>

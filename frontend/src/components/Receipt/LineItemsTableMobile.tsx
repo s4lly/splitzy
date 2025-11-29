@@ -3,6 +3,7 @@ import { AssignmentsHeader } from '@/features/assignments/assignments-header';
 import AssignmentsList from '@/features/assignments/assignments-list';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { cn } from '@/lib/utils';
+import Decimal from 'decimal.js';
 import { ChevronUp, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { z } from 'zod';
@@ -19,13 +20,11 @@ import { calculations } from './utils/receipt-calculation';
 export default function LineItemsTableMobile({
   line_items,
   result,
-  editLineItemsEnabled,
   people,
   togglePersonAssignment,
 }: {
   line_items: z.infer<typeof LineItemSchema>[];
   result: z.infer<typeof ReceiptSchema>;
-  editLineItemsEnabled: boolean | undefined;
   people: string[];
   togglePersonAssignment: (itemId: string, person: string) => void;
 }) {
@@ -98,9 +97,7 @@ export default function LineItemsTableMobile({
                   <div className="flex items-center gap-2">
                     <div className="text-right font-semibold">
                       {formatCurrency(
-                        editLineItemsEnabled
-                          ? calculations.pretax.getIndividualItemTotalPrice(item)
-                          : item.total_price
+                        calculations.pretax.getIndividualItemTotalPrice(item)
                       )}
                     </div>
 
@@ -143,8 +140,8 @@ export default function LineItemsTableMobile({
                     togglePersonAssignment(item.id, person)
                   }
                   item={item}
-                  formPricePerItem={item.price_per_item}
-                  formQuantity={item.quantity}
+                  formPricePerItem={new Decimal(item.price_per_item)}
+                  formQuantity={new Decimal(item.quantity)}
                 />
               </>
             ) : (

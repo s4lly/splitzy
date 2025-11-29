@@ -1,9 +1,10 @@
-import { truncateFloatByNDecimals } from '../utils/format-currency';
+import { formatCurrency } from '@/components/Receipt/utils/format-currency';
+import Decimal from 'decimal.js';
 
 interface PercentageTipButtonProps {
   percentage: number;
-  itemsTotal: number;
-  onTipSelect: (amount: number) => void;
+  itemsTotal: Decimal;
+  onTipSelect: (amount: Decimal) => void;
 }
 
 const PercentageTipButton = ({
@@ -11,10 +12,7 @@ const PercentageTipButton = ({
   itemsTotal,
   onTipSelect,
 }: PercentageTipButtonProps) => {
-  const tipAmount = truncateFloatByNDecimals(
-    itemsTotal * (percentage / 100),
-    2
-  );
+  const tipAmount = itemsTotal.mul(new Decimal(percentage).div(100));
 
   const handleClick = () => {
     onTipSelect(tipAmount);
@@ -38,10 +36,7 @@ const PercentageTipButton = ({
     >
       <div className="text-xl font-semibold">{percentage}%</div>
       <div className="text-sm text-muted-foreground">
-        {new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }).format(tipAmount)}
+        {formatCurrency(tipAmount)}
       </div>
     </div>
   );

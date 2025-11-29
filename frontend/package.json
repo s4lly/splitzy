@@ -26,6 +26,7 @@
     "clsx": "^2.1.1",
     "culori": "^4.0.2",
     "date-fns": "^4.1.0",
+    "decimal.js": "^10.6.0",
     "formidable": "^3.5.4",
     "framer-motion": "^12.4.10",
     "idb": "^7.1.1",
