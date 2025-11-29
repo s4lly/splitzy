@@ -3,16 +3,23 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
-import { beforeAll, afterEach, afterAll } from 'vitest';
+import { afterAll, afterEach, beforeAll, vi } from 'vitest';
+// localStorage is already set up in setupLocalStorage.ts which runs before this file
 import { server } from './mocks/server';
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
+  root = null;
+  rootMargin = '';
+  thresholds: ReadonlyArray<number> = [];
   constructor() {}
   disconnect() {}
   observe() {}
   unobserve() {}
-};
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
+} as any;
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {
@@ -21,6 +28,16 @@ global.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
 };
+
+// Mock ProgressEvent for MSW/XMLHttpRequest
+global.ProgressEvent = class ProgressEvent extends Event {
+  constructor(type: string, eventInitDict?: ProgressEventInit) {
+    super(type, eventInitDict);
+  }
+  lengthComputable = false;
+  loaded = 0;
+  total = 0;
+} as any;
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -36,24 +53,6 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
-
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-};
-global.localStorage = localStorageMock;
-
-// Mock sessionStorage
-const sessionStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-};
-global.sessionStorage = sessionStorageMock;
 
 // Establish API mocking before all tests
 beforeAll(() => server.listen());

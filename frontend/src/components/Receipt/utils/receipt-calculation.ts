@@ -899,7 +899,7 @@ export namespace calculations {
         return formatter.format(0);
       }
 
-      return formatter.format(Decimal.div(partial, total).mul(100).toNumber());
+      return formatter.format(Decimal.div(partial, total).toNumber());
     }
   }
 }
