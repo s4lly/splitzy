@@ -31,7 +31,6 @@ if (!POSTHOG_PROJECT_API_KEY) {
 
 const options = {
   api_host: POSTHOG_HOST,
-  defaults: '2025-05-24',
 };
 
 // ---- QueryClient ----
@@ -50,10 +49,7 @@ root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system">
-        <PostHogProvider
-          apiKey={POSTHOG_PROJECT_API_KEY}
-          options={{ api_host: POSTHOG_HOST }}
-        >
+        <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
           <FeatureFlagProvider>
             <BrowserRouter>
               <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
