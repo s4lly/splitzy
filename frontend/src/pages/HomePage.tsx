@@ -1,5 +1,3 @@
-import AuthenticatedOnly from '@/components/Auth/AuthenticatedOnly';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -7,9 +5,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { useAuth } from '@/context/AuthContext';
 import { ReceiptUploader } from '@/features/receipt-upload';
 import receiptService from '@/services/receiptService';
+import { SignInButton, SignedIn, SignedOut } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
 import { AlertCircle, LogIn } from 'lucide-react';
 import React, { Suspense, useState } from 'react';
@@ -21,7 +19,6 @@ const ReceiptHistory = React.lazy(
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, loading: authLoading } = useAuth();
   const [apiStatus, setApiStatus] = useState('checking');
 
   // Check API health
@@ -52,10 +49,6 @@ const HomePage = () => {
     }
   };
 
-  const handleSignInClick = () => {
-    navigate('/auth');
-  };
-
   return (
     <div className="px-1 py-8 sm:container">
       {/* Keep lg:grid-cols-2 for both states to maintain balanced layout with sign-in prompt */}
@@ -79,12 +72,12 @@ const HomePage = () => {
         </motion.div>
 
         <Suspense fallback={null}>
-          <AuthenticatedOnly>
+          <SignedIn>
             <ReceiptHistory />
-          </AuthenticatedOnly>
+          </SignedIn>
         </Suspense>
 
-        {!authLoading && !isAuthenticated && apiStatus !== 'unhealthy' && (
+        <SignedOut>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -105,14 +98,11 @@ const HomePage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <Button onClick={handleSignInClick} className="w-full">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Sign In
-                </Button>
+                <SignInButton />
               </CardContent>
             </Card>
           </motion.div>
-        )}
+        </SignedOut>
       </div>
     </div>
   );
