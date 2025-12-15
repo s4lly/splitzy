@@ -95,7 +95,7 @@ class ImageAnalyzer:
                 image_data = image_file.read()
         
         # Create the model
-        model = genai.GenerativeModel('models/gemini-2.0-flash-lite')
+        model = genai.GenerativeModel('models/gemini-2.5-flash-lite')
         
         # Create the content parts
         content_parts = [
