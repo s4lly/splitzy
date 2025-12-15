@@ -1,11 +1,11 @@
 // @ts-nocheck
+import AuthenticatedOnly from '@/components/Auth/AuthenticatedOnly';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import HomePage from '@/pages/HomePage';
+import ReceiptAnalysisPage from '@/pages/ReceiptAnalysisPage';
+import SettingsPage from '@/pages/SettingsPage';
 import { Link, Route, Routes } from 'react-router-dom';
-import AuthenticatedOnly from './components/Auth/AuthenticatedOnly';
-import Footer from './components/Footer';
-import Header from './components/Header';
-import HomePage from './pages/HomePage';
-import ReceiptAnalysisPage from './pages/ReceiptAnalysisPage';
-import SettingsPage from './pages/SettingsPage';
 
 function NotFound() {
   return (
