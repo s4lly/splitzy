@@ -1,6 +1,6 @@
-import React from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import { Loader2 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import React from 'react';
 
 interface AuthenticatedOnlyProps {
   children: React.ReactNode;
@@ -11,9 +11,9 @@ const AuthenticatedOnly: React.FC<AuthenticatedOnlyProps> = ({
   children,
   fallback = null,
 }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
 
-  if (loading) {
+  if (!isLoaded) {
     return (
       <div
         className="flex min-h-[60vh] items-center justify-center"
@@ -30,7 +30,7 @@ const AuthenticatedOnly: React.FC<AuthenticatedOnlyProps> = ({
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isSignedIn) {
     return <>{fallback}</>;
   }
 
