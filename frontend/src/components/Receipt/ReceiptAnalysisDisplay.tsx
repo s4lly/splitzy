@@ -1,20 +1,15 @@
+import { BillSplitSection } from '@/features/bill-split/BillSplitSection';
 import { ReceiptSchema } from '@/lib/receiptSchemas';
-import { cn } from '@/lib/utils';
 import Decimal from 'decimal.js';
 import { motion } from 'framer-motion';
 import {
   AlertCircle,
   Calendar,
-  Check,
-  FileText,
   Plus,
   QrCode,
   Receipt,
   ShoppingBag,
   Tag,
-  UserPlus,
-  Users,
-  X,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
@@ -22,31 +17,15 @@ import { useFeatureFlag } from '../../context/FeatureFlagProvider';
 import { useMobile } from '../../hooks/use-mobile';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '../ui/dialog';
-import { Input } from '../ui/input';
 import { QRCode } from '../ui/kibo-ui/qr-code';
 import LineItemAddForm from './LineItemAddForm';
 import LineItemsTableDesktop from './LineItemsTableDesktop';
 import LineItemsTableDesktopV2 from './LineItemsTableDesktopV2';
 import LineItemsTableMobile from './LineItemsTableMobile';
-import PersonBadge from './PersonBadge';
 import SummaryCard from './SummaryCard';
 import LineItemCard from './components/LineItemCard';
 import { useItemAssignmentsUpdateMutation } from './hooks/useItemAssignmentsUpdateMutation';
-import { formatCurrency } from './utils/format-currency';
-import { getColorForName, getColorStyle } from './utils/get-color-for-name';
-import {
-  getPeopleFromLineItems,
-  getPersonItems,
-} from './utils/line-item-utils';
+import { getPeopleFromLineItems } from './utils/line-item-utils';
 import { calculations } from './utils/receipt-calculation';
 import {
   areAllItemsAssigned,
@@ -68,8 +47,6 @@ const ReceiptAnalysisDisplay = ({
     return getPeopleFromLineItems(result.receipt_data.line_items);
   });
 
-  const [newPersonName, setNewPersonName] = useState('');
-  const [showPeopleManager, setShowPeopleManager] = useState(false);
   const [showQrCode, setShowQrCode] = useState(false);
   const [searchInputs, setSearchInputs] = useState<Record<string, string>>({});
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -126,12 +103,10 @@ const ReceiptAnalysisDisplay = ({
 
   // --
 
-  const handleAddPerson = () => {
-    if (newPersonName.trim() && !people.includes(newPersonName.trim())) {
+  const handleAddPerson = (name: string) => {
+    if (name.trim() && !people.includes(name.trim())) {
       // see TODO above
-      setPeople([...people, newPersonName.trim()]);
-
-      setNewPersonName('');
+      setPeople([...people, name.trim()]);
     }
   };
 
@@ -364,496 +339,22 @@ const ReceiptAnalysisDisplay = ({
       <SummaryCard receiptId={String(result.id)} receipt_data={receipt_data} />
 
       {/* People Manager Section - Now at the bottom */}
-      <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
-        <CardHeader className="px-3 pb-2 sm:px-6">
-          <CardTitle className="flex items-center justify-between text-xl font-bold">
-            <div className="flex items-center gap-3">
-              <Users className="h-6 w-6" />
-              Split with Friends
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowPeopleManager(!showPeopleManager)}
-            >
-              {showPeopleManager ? 'Hide' : 'Manage People'}
-            </Button>
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="px-3 sm:px-6">
-          {/* Assignment Progress */}
-          {people.length > 0 && (
-            <div
-              className={`mb-4 rounded-lg border p-2 sm:p-3 ${
-                isFullyAssigned
-                  ? 'border-green-300 bg-green-100 dark:border-green-700 dark:bg-green-900/30'
-                  : 'border-amber-200 bg-amber-50 dark:border-amber-800/30 dark:bg-amber-900/20'
-              }`}
-            >
-              <div className="mb-2 flex flex-col justify-between sm:flex-row sm:items-center">
-                <div className="mb-2 flex items-center gap-2 sm:mb-0">
-                  {isFullyAssigned ? (
-                    <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
-                  ) : (
-                    <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                  )}
-                  <h3
-                    className={`font-medium ${
-                      isFullyAssigned
-                        ? 'text-green-800 dark:text-green-300'
-                        : 'text-amber-800 dark:text-amber-300'
-                    }`}
-                  >
-                    {isFullyAssigned
-                      ? 'All items assigned'
-                      : 'Assignment in progress'}
-                  </h3>
-                </div>
-                <span
-                  className={`text-sm font-semibold ${
-                    isFullyAssigned
-                      ? 'text-green-700 dark:text-green-400'
-                      : 'text-amber-700 dark:text-amber-400'
-                  }`}
-                >
-                  {formatCurrency(personTotalsSum)} /{' '}
-                  {formatCurrency(receiptTotal)}
-                </span>
-              </div>
-
-              {!isFullyAssigned && (
-                <div className="mt-1 flex items-center justify-between text-sm">
-                  <span className="text-amber-700 dark:text-amber-400">
-                    Unassigned amount:
-                  </span>
-                  <span className="font-medium text-amber-700 dark:text-amber-400">
-                    {formatCurrency(unassignedAmount)}
-                  </span>
-                </div>
-              )}
-
-              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                <div
-                  className={`h-full rounded-full ${
-                    isFullyAssigned
-                      ? 'bg-green-500 dark:bg-green-600'
-                      : 'bg-amber-500 dark:bg-amber-600'
-                  }`}
-                  style={{
-                    width: `${Math.min(
-                      100,
-                      Decimal.div(personTotalsSum, receiptTotal)
-                        .mul(100)
-                        .toNumber()
-                    )}%`,
-                  }}
-                ></div>
-              </div>
-            </div>
-          )}
-
-          {/* Equal Split Banner */}
-          {useEqualSplit && people.length > 0 && (
-            <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800/30 dark:bg-blue-900/20">
-              <div className="flex items-start gap-2">
-                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400" />
-                <div>
-                  <h3 className="font-medium text-blue-800 dark:text-blue-300">
-                    Equal Split Mode
-                  </h3>
-                  <p className="text-sm text-blue-700 dark:text-blue-400">
-                    {!receiptHasLineItems
-                      ? "This receipt doesn't contain detailed line items, so the total amount has been divided equally among all people."
-                      : 'No items have been assigned yet. The total has been divided equally among all people by default.'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {showPeopleManager && (
-            <div className="mb-4 rounded-lg border bg-muted/20 p-3">
-              <h3 className="mb-2 font-medium">Add People to Split With</h3>
-              <div className="mb-3 flex flex-col gap-2 sm:flex-row">
-                <Input
-                  placeholder="Enter name"
-                  value={newPersonName}
-                  onChange={(e) => setNewPersonName(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleAddPerson()}
-                  className="w-full sm:max-w-xs"
-                />
-                <Button
-                  onClick={handleAddPerson}
-                  size="sm"
-                  className="w-full sm:w-auto"
-                >
-                  <Plus className="mr-1 h-4 w-4" />
-                  Add
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {people.map((person, idx) => {
-                  const colorPair = getColorForName(person, idx, people.length);
-                  const colorStyle = getColorStyle(colorPair);
-                  return (
-                    <div
-                      key={idx}
-                      className="flex items-center rounded-full px-3 py-1"
-                      style={colorStyle}
-                    >
-                      <PersonBadge
-                        name={person}
-                        size="sm"
-                        colorStyle={colorStyle}
-                        className={cn(!isMobile && 'border-2 border-white')}
-                      />
-                      <span className="ml-1 text-sm [color:var(--text-light)] dark:[color:var(--text-dark)]">
-                        {person}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="ml-1 h-5 w-5 rounded-full p-0 hover:bg-destructive/20"
-                        onClick={() => handleRemovePerson(person)}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  );
-                })}
-                {people.length === 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    No people added yet. Add people to split the bill.
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* People Summary */}
-          <div>
-            {people.length > 0 ? (
-              <div className="space-y-2">
-                <h3 className="mb-1 font-medium">Bill Breakdown</h3>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {people.map((person, idx) => {
-                    const colorPair = getColorForName(
-                      person,
-                      idx,
-                      people.length
-                    );
-                    const colorStyle = getColorStyle(colorPair);
-
-                    // ----
-
-                    const personFairTotal: Decimal =
-                      personFairTotals.get(person) ?? new Decimal(0);
-
-                    // ----
-
-                    // TODO consider line item type with all calculated amounts and use here
-
-                    const personPretaxTotal: Decimal =
-                      personPretaxTotals.get(person) ?? new Decimal(0);
-
-                    const taxAmount: Decimal = personPretaxTotal.mul(
-                      calculations.tax.getRate(receipt_data)
-                    );
-
-                    // ----
-
-                    const personItems = getPersonItems(person, result);
-
-                    return (
-                      <Dialog key={idx}>
-                        <DialogTrigger asChild>
-                          <div
-                            className="cursor-pointer rounded-lg border p-4 transition-shadow [background-color:color-mix(in_srgb,var(--bg-light)_5%,transparent)] hover:shadow-md dark:[background-color:color-mix(in_srgb,var(--bg-dark)_20%,transparent)]"
-                            style={colorStyle}
-                          >
-                            <div className="mb-2 flex items-center gap-2">
-                              <PersonBadge
-                                name={person}
-                                size={isMobile ? 'sm' : 'md'}
-                                colorStyle={colorStyle}
-                                className={cn(
-                                  !isMobile && 'border-2 border-white'
-                                )}
-                              />
-                              <span className="truncate font-medium">
-                                {person}
-                              </span>
-                            </div>
-
-                            {useEqualSplit ? (
-                              <>
-                                <div className="flex items-end justify-between">
-                                  <div className="text-lg font-semibold">
-                                    {formatCurrency(
-                                      personFairTotals.get(person) ??
-                                        new Decimal(0)
-                                    )}
-                                  </div>
-                                  <div className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-800/30 dark:text-blue-300">
-                                    Equal split
-                                  </div>
-                                </div>
-                                <div className="mt-1 text-xs text-muted-foreground">
-                                  {people.length > 0
-                                    ? `1/${people.length} of the total`
-                                    : ''}
-                                </div>
-                              </>
-                            ) : !receipt_data.tax_included_in_items &&
-                              (receipt_data.tax ?? 0) > 0 ? (
-                              <>
-                                <div className="flex items-end justify-between">
-                                  <div className="text-sm text-muted-foreground">
-                                    Items subtotal:
-                                  </div>
-                                  <div className="text-sm font-medium">
-                                    {formatCurrency(
-                                      personPretaxTotals.get(person) ??
-                                        new Decimal(0)
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="mt-1 flex items-end justify-between">
-                                  <div className="flex items-center text-sm text-muted-foreground">
-                                    <span>Tax:</span>
-                                  </div>
-                                  <div className="text-sm font-medium">
-                                    {formatCurrency(taxAmount)}
-                                  </div>
-                                </div>
-                                <div className="mt-1 flex items-end justify-between border-t pt-1">
-                                  <div className="text-base font-semibold">
-                                    Total:
-                                  </div>
-                                  <div className="text-lg font-semibold">
-                                    {formatCurrency(personFairTotal)}
-                                  </div>
-                                </div>
-                              </>
-                            ) : (
-                              <div className="flex items-end justify-between">
-                                <div className="text-lg font-semibold">
-                                  {formatCurrency(personFairTotal)}
-                                </div>
-                                <div className="text-xs text-muted-foreground">
-                                  {calculations.utils.formatPercentage(
-                                    personFairTotal,
-                                    receiptTotal
-                                  )}{' '}
-                                  of total
-                                </div>
-                              </div>
-                            )}
-
-                            <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-                              {!useEqualSplit ? (
-                                <>
-                                  <FileText className="h-3 w-3" />
-                                  {`${personItems.length} item${
-                                    personItems.length !== 1 ? 's' : ''
-                                  } assigned`}
-                                </>
-                              ) : (
-                                'Equal amount split'
-                              )}
-                            </div>
-                          </div>
-                        </DialogTrigger>
-
-                        <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-md">
-                          <DialogHeader>
-                            <DialogTitle className="flex items-center gap-2">
-                              <PersonBadge
-                                name={person}
-                                size="md"
-                                colorStyle={colorStyle}
-                                className={cn(
-                                  !isMobile && 'border-2 border-white'
-                                )}
-                              />
-                              <span>{person}'s Items</span>
-                            </DialogTitle>
-                            <DialogDescription>
-                              Detailed breakdown of items assigned to {person}.
-                            </DialogDescription>
-                          </DialogHeader>
-
-                          <div className="flex-grow overflow-y-auto">
-                            {personItems.length > 0 ? (
-                              <div className="overflow-hidden rounded-md border">
-                                <table className="w-full">
-                                  <thead>
-                                    <tr className="bg-muted/50">
-                                      <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
-                                        Item
-                                      </th>
-                                      <th className="px-3 py-2 text-right text-xs font-medium text-muted-foreground">
-                                        Qty
-                                      </th>
-                                      <th className="px-3 py-2 text-right text-xs font-medium text-muted-foreground">
-                                        Price
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {personItems.map((item, itemIdx) => (
-                                      <tr
-                                        key={itemIdx}
-                                        className={`border-t ${
-                                          itemIdx % 2 ? 'bg-muted/20' : ''
-                                        }`}
-                                      >
-                                        <td className="px-3 py-2.5 align-top">
-                                          <div className="max-w-[200px] overflow-x-auto text-sm">
-                                            {item.name}
-                                          </div>
-                                          {item.shared && (
-                                            <div className="mt-0.5 text-xs text-muted-foreground">
-                                              Shared with{' '}
-                                              {item.sharedWith.join(', ')}
-                                            </div>
-                                          )}
-                                        </td>
-                                        <td className="px-3 py-2.5 text-right align-top text-sm">
-                                          {item.quantity}
-                                        </td>
-                                        <td className="whitespace-nowrap px-3 py-2.5 text-right align-top text-sm">
-                                          <div className="font-medium">
-                                            {formatCurrency(
-                                              new Decimal(item.price)
-                                            )}
-                                          </div>
-                                          {item.shared && (
-                                            <div className="text-xs text-muted-foreground">
-                                              of{' '}
-                                              {formatCurrency(
-                                                new Decimal(item.originalPrice)
-                                              )}
-                                            </div>
-                                          )}
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                  <tfoot className="bg-muted/50 font-medium">
-                                    <tr className="border-t">
-                                      <td
-                                        colSpan={2}
-                                        className="px-3 py-2 text-sm"
-                                      >
-                                        Subtotal
-                                      </td>
-                                      <td className="px-3 py-2 text-right text-sm">
-                                        {formatCurrency(
-                                          personPretaxTotals.get(person) ??
-                                            new Decimal(0)
-                                        )}
-                                      </td>
-                                    </tr>
-                                    {!receipt_data.tax_included_in_items &&
-                                      (receipt_data.tax ?? 0) > 0 && (
-                                        <tr className="border-t">
-                                          <td
-                                            colSpan={2}
-                                            className="px-3 py-2 text-sm"
-                                          >
-                                            Tax
-                                          </td>
-                                          <td className="px-3 py-2 text-right text-sm">
-                                            {formatCurrency(taxAmount)}
-                                          </td>
-                                        </tr>
-                                      )}
-                                    {((receipt_data.tip ?? 0) > 0 ||
-                                      (receipt_data.gratuity ?? 0) > 0) && (
-                                      <tr className="border-t">
-                                        <td
-                                          colSpan={2}
-                                          className="px-3 py-2 text-sm"
-                                        >
-                                          Tip
-                                        </td>
-                                        <td className="px-3 py-2 text-right text-sm">
-                                          {(() => {
-                                            const totalTip =
-                                              (receipt_data.tip ?? 0) +
-                                              (receipt_data.gratuity ?? 0);
-                                            const tipPerPerson =
-                                              totalTip / people.length;
-                                            return formatCurrency(
-                                              new Decimal(tipPerPerson)
-                                            );
-                                          })()}
-                                        </td>
-                                      </tr>
-                                    )}
-                                    <tr className="border-t">
-                                      <td
-                                        colSpan={2}
-                                        className="px-3 py-2 text-base font-semibold"
-                                      >
-                                        Total
-                                      </td>
-                                      <td className="px-3 py-2 text-right text-base font-semibold">
-                                        {formatCurrency(personFairTotal)}
-                                      </td>
-                                    </tr>
-                                  </tfoot>
-                                </table>
-                              </div>
-                            ) : (
-                              <div className="py-12 text-center">
-                                <p className="text-muted-foreground">
-                                  {useEqualSplit
-                                    ? 'Equal split - no specific items assigned'
-                                    : 'No items assigned yet'}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="mt-4 flex justify-end">
-                            <DialogClose asChild>
-                              <Button variant="outline">Close</Button>
-                            </DialogClose>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center rounded-lg bg-muted/30 p-6 text-center">
-                <UserPlus className="mb-2 h-10 w-10 text-muted-foreground" />
-                <h3 className="mb-1 text-lg font-medium">
-                  Add People to Split the Bill
-                </h3>
-                <p className="max-w-md text-sm text-muted-foreground">
-                  Click "Manage People" to add friends and assign items to them.
-                  Then tag each item with who should pay for it.
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => setShowPeopleManager(true)}
-                >
-                  <UserPlus className="mr-1 h-4 w-4" />
-                  Manage People
-                </Button>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <BillSplitSection
+        people={people}
+        receiptId={String(result.id)}
+        receiptData={receipt_data}
+        receiptResult={result}
+        personFairTotals={personFairTotals}
+        personPretaxTotals={personPretaxTotals}
+        personTotalsSum={personTotalsSum}
+        receiptTotal={receiptTotal}
+        unassignedAmount={unassignedAmount}
+        isFullyAssigned={isFullyAssigned}
+        useEqualSplit={useEqualSplit}
+        receiptHasLineItems={receiptHasLineItems}
+        onAddPerson={handleAddPerson}
+        onRemovePerson={handleRemovePerson}
+      />
     </motion.div>
   );
 };
