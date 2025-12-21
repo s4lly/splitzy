@@ -1,6 +1,6 @@
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
-import { AlertCircle, Check } from 'lucide-react';
 import Decimal from 'decimal.js';
+import { AlertCircle, Check } from 'lucide-react';
 
 interface AssignmentProgressProps {
   personTotalsSum: Decimal;
@@ -37,9 +37,7 @@ export const AssignmentProgress = ({
                 : 'text-amber-800 dark:text-amber-300'
             }`}
           >
-            {isFullyAssigned
-              ? 'All items assigned'
-              : 'Assignment in progress'}
+            {isFullyAssigned ? 'All items assigned' : 'Assignment in progress'}
           </h3>
         </div>
         <span
@@ -72,14 +70,19 @@ export const AssignmentProgress = ({
               : 'bg-amber-500 dark:bg-amber-600'
           }`}
           style={{
-            width: `${Math.min(
-              100,
-              Decimal.div(personTotalsSum, receiptTotal).mul(100).toNumber()
-            )}%`,
+            width: `${
+              receiptTotal.isZero() || !receiptTotal.isFinite()
+                ? 0
+                : Math.min(
+                    100,
+                    Decimal.div(personTotalsSum, receiptTotal)
+                      .mul(100)
+                      .toNumber()
+                  )
+            }%`,
           }}
         ></div>
       </div>
     </div>
   );
 };
-
