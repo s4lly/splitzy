@@ -1,15 +1,15 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Minus, Plus, ChevronDown } from 'lucide-react';
+import NumericInput from '@/components/NumericInput';
 import {
   formatCurrency,
   truncateToTwoDecimals,
 } from '@/components/Receipt/utils/format-currency';
+import { Input } from '@/components/ui/input';
+import { Toggle } from '@/components/ui/toggle';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
-import { z } from 'zod';
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Toggle } from '../ui/toggle';
+import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import { z } from 'zod';
 
 export default function LineItemForm({
   item,
@@ -46,12 +46,10 @@ export default function LineItemForm({
     onNameChange(e.target.value);
   };
 
-  // Persist quantity change with debounce
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = Number(e.target.value);
-    const value = Number.isFinite(raw) ? Math.max(1, raw) : 1;
-    setFormQuantity(value);
-    onQuantityChange(value);
+  // Handle quantity change from NumericInput (both input and buttons)
+  const handleNumericQuantityChange = (newQuantity: number) => {
+    setFormQuantity(newQuantity);
+    onQuantityChange(newQuantity);
   };
 
   // For price, only persist after truncation (onBlur)
@@ -150,55 +148,12 @@ export default function LineItemForm({
 
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">Quantity</label>
-        <div className="flex items-center justify-between gap-2">
-          <Button
-            type="button"
-            size="icon"
-            variant="outline"
-            onClick={() => {
-              setFormQuantity((q: number) => {
-                const newQ = Math.max(1, q - 1);
-                mutate({
-                  receiptId: String(result?.id),
-                  itemId: item.id,
-                  quantity: newQ,
-                });
-                return newQ;
-              });
-            }}
-            className="shrink-0 rounded-full"
-          >
-            <Minus className="h-4 w-4" />
-          </Button>
-          <Input
-            type="number"
-            value={formQuantity}
-            onChange={handleQuantityChange}
-            placeholder="Quantity"
-            min={1}
-            required
-            className="text-center"
-          />
-          <Button
-            type="button"
-            size="icon"
-            variant="outline"
-            onClick={() => {
-              setFormQuantity((q: number) => {
-                const newQ = q + 1;
-                mutate({
-                  receiptId: String(result?.id),
-                  itemId: item.id,
-                  quantity: newQ,
-                });
-                return newQ;
-              });
-            }}
-            className="shrink-0 rounded-full"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
+        <NumericInput
+          value={formQuantity}
+          onChange={handleNumericQuantityChange}
+          min={1}
+          placeholder="Quantity"
+        />
       </div>
 
       <div className="flex flex-col gap-2">
