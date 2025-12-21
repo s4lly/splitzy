@@ -4,12 +4,12 @@ import {
   truncateToTwoDecimals,
 } from '@/components/Receipt/utils/format-currency';
 import { Input } from '@/components/ui/input';
+import { Toggle } from '@/components/ui/toggle';
 import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { z } from 'zod';
-import { Toggle } from '../ui/toggle';
 
 export default function LineItemForm({
   item,
