@@ -1,4 +1,9 @@
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { QRCode } from '@/components/ui/kibo-ui/qr-code';
+import { useFeatureFlag } from '@/context/FeatureFlagProvider';
 import { BillSplitSection } from '@/features/bill-split/BillSplitSection';
+import { useMobile } from '@/hooks/use-mobile';
 import { ReceiptSchema } from '@/lib/receiptSchemas';
 import Decimal from 'decimal.js';
 import { motion } from 'framer-motion';
@@ -13,11 +18,6 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
-import { useFeatureFlag } from '../../context/FeatureFlagProvider';
-import { useMobile } from '../../hooks/use-mobile';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { QRCode } from '../ui/kibo-ui/qr-code';
 import LineItemAddForm from './LineItemAddForm';
 import LineItemsTableDesktop from './LineItemsTableDesktop';
 import LineItemsTableDesktopV2 from './LineItemsTableDesktopV2';
