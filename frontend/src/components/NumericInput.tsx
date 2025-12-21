@@ -49,7 +49,11 @@ export default function NumericInput({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = Number(e.target.value);
-    const newValue = Number.isFinite(raw) ? Math.max(min, raw) : min;
+    const newValue = Number.isFinite(raw)
+      ? max !== undefined
+        ? Math.min(max, Math.max(min, raw))
+        : Math.max(min, raw)
+      : min;
     setInputValue(newValue);
     onChange(newValue);
   };
