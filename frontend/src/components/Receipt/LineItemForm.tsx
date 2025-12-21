@@ -50,11 +50,6 @@ export default function LineItemForm({
   const handleNumericQuantityChange = (newQuantity: number) => {
     setFormQuantity(newQuantity);
     onQuantityChange(newQuantity);
-    mutate({
-      receiptId: String(result?.id),
-      itemId: item.id,
-      quantity: newQuantity,
-    });
   };
 
   // For price, only persist after truncation (onBlur)
