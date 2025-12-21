@@ -21,7 +21,7 @@ export const BillSplitSection = ({
 }: BillSplitSectionProps) => {
   return (
     <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
-      <Tabs className="p-3" defaultValue="evenly">
+      <Tabs className="p-3" defaultValue="manual">
         <TabsList>
           <TabsTrigger value="manual">Manual</TabsTrigger>
           <TabsTrigger value="evenly">Evenly</TabsTrigger>
