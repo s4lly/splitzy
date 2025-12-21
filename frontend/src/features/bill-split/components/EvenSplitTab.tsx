@@ -10,10 +10,13 @@ import { z } from 'zod';
 
 interface EvenSplitTabProps {
   receiptData: z.infer<typeof ReceiptSchema>['receipt_data'];
+  people: string[];
 }
 
-export const EvenSplitTab = ({ receiptData }: EvenSplitTabProps) => {
-  const [numberOfPeople, setNumberOfPeople] = useState(1);
+export const EvenSplitTab = ({ receiptData, people }: EvenSplitTabProps) => {
+  const [numberOfPeople, setNumberOfPeople] = useState(
+    people.length > 0 ? people.length : 1
+  );
 
   const calculatedTotal = calculations.final.getReceiptTotal(receiptData);
   const evenlySplitTotalRounded = calculatedTotal

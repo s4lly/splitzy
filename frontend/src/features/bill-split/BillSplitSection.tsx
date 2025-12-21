@@ -44,7 +44,7 @@ export const BillSplitSection = ({
           />
         </TabsContent>
         <TabsContent value="evenly">
-          <EvenSplitTab receiptData={receiptData} />
+          <EvenSplitTab receiptData={receiptData} people={people} />
         </TabsContent>
       </Tabs>
     </Card>
