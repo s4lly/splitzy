@@ -19,12 +19,21 @@ import { schema } from './zero/schema';
 
 // ---- Zero ----
 
+const getUserID = () => {
+  let userID = localStorage.getItem('zero-user-id');
+  if (!userID) {
+    userID = uuidv4();
+    localStorage.setItem('zero-user-id', userID);
+  }
+  return userID;
+};
+
 const zeroOptions: ZeroOptions = {
   cacheURL: import.meta.env.VITE_ZERO_CACHE_URL,
   queryURL: import.meta.env.VITE_ZERO_QUERY_URL,
   mutateURL: import.meta.env.VITE_ZERO_MUTATE_URL,
   schema,
-  userID: uuidv4(),
+  userID: getUserID(),
 };
 
 // ---- Clerk ----
