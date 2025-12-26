@@ -4,7 +4,10 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import HomePage from '@/pages/HomePage';
 import ReceiptAnalysisPage from '@/pages/ReceiptAnalysisPage';
+import ReceiptCollabPage from '@/pages/ReceiptCollabPage';
+import ReceiptEditorPage from '@/pages/ReceiptEditorPage';
 import SettingsPage from '@/pages/SettingsPage';
+import { useFeatureFlagEnabled } from 'posthog-js/react';
 import { Link, Route, Routes } from 'react-router-dom';
 
 function NotFound() {
@@ -19,6 +22,11 @@ function NotFound() {
       </Link>
     </div>
   );
+}
+
+function ReceiptRoute() {
+  const isCollabEnabled = useFeatureFlagEnabled('receipt-collab-edit');
+  return isCollabEnabled ? <ReceiptCollabPage /> : <ReceiptAnalysisPage />;
 }
 
 function App() {
@@ -39,7 +47,11 @@ function App() {
           <Route path="/" element={<HomePage />} />
 
           {/* Receipt */}
-          <Route path="/receipt/:receiptId" element={<ReceiptAnalysisPage />} />
+          <Route path="/receipt/:receiptId" element={<ReceiptRoute />} />
+          <Route
+            path="/receipt/:receiptId/__dev"
+            element={<ReceiptEditorPage />}
+          />
 
           {/* Settings (protected) */}
           <Route

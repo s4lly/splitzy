@@ -12,6 +12,21 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
+import type { ZeroOptions } from '@rocicorp/zero';
+import { ZeroProvider } from '@rocicorp/zero/react';
+import { v4 as uuidv4 } from 'uuid';
+import { schema } from './zero/schema';
+
+// ---- Zero ----
+
+const zeroOptions: ZeroOptions = {
+  cacheURL: import.meta.env.VITE_ZERO_CACHE_URL,
+  queryURL: import.meta.env.VITE_ZERO_QUERY_URL,
+  mutateURL: import.meta.env.VITE_ZERO_MUTATE_URL,
+  schema,
+  userID: uuidv4(),
+};
+
 // ---- Clerk ----
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -47,21 +62,23 @@ if (!container) {
 const root = ReactDOM.createRoot(container);
 root.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="system">
-        <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
-          <FeatureFlagProvider>
-            <BrowserRouter>
-              <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-                <AuthProvider>
-                  <App />
-                </AuthProvider>
-              </ClerkProvider>
-            </BrowserRouter>
-          </FeatureFlagProvider>
-        </PostHogProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ZeroProvider {...zeroOptions}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider attribute="class" defaultTheme="system">
+          <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
+            <FeatureFlagProvider>
+              <BrowserRouter>
+                <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+                  <AuthProvider>
+                    <App />
+                  </AuthProvider>
+                </ClerkProvider>
+              </BrowserRouter>
+            </FeatureFlagProvider>
+          </PostHogProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ZeroProvider>
   </React.StrictMode>
 );

@@ -94,10 +94,6 @@ app.use("*", async (c, next) => {
   });
 });
 
-app.get("/", (c) => {
-  return c.text("Hello Hono!");
-});
-
 app.get("/health", (c) => {
   return c.json({ status: "ok", timestamp: new Date().toISOString() });
 });
