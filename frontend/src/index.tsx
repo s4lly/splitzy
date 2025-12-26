@@ -12,10 +12,10 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
+import { schema } from '@/zero/schema';
 import type { ZeroOptions } from '@rocicorp/zero';
 import { ZeroProvider } from '@rocicorp/zero/react';
 import { v4 as uuidv4 } from 'uuid';
-import { schema } from './zero/schema';
 
 // ---- Zero ----
 
