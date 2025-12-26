@@ -3,8 +3,8 @@ import { Hono } from "hono";
 
 import { mustGetQuery } from "@rocicorp/zero";
 import { handleQueryRequest } from "@rocicorp/zero/server";
-import { queries } from "./queries.ts";
-import { schema } from "./schema.ts";
+import { queries } from "./queries.js";
+import { schema } from "./schema.js";
 
 // Structured logging utility
 interface LogContext {
