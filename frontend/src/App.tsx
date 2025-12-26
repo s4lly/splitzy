@@ -5,7 +5,6 @@ import Header from '@/components/Header';
 import HomePage from '@/pages/HomePage';
 import ReceiptAnalysisPage from '@/pages/ReceiptAnalysisPage';
 import ReceiptCollabPage from '@/pages/ReceiptCollabPage';
-import ReceiptEditorPage from '@/pages/ReceiptEditorPage';
 import SettingsPage from '@/pages/SettingsPage';
 import { useFeatureFlagEnabled } from 'posthog-js/react';
 import { Link, Route, Routes } from 'react-router-dom';
@@ -48,10 +47,6 @@ function App() {
 
           {/* Receipt */}
           <Route path="/receipt/:receiptId" element={<ReceiptRoute />} />
-          <Route
-            path="/receipt/:receiptId/__dev"
-            element={<ReceiptEditorPage />}
-          />
 
           {/* Settings (protected) */}
           <Route
