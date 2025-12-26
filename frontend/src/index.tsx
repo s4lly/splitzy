@@ -3,6 +3,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { FeatureFlagProvider } from '@/context/FeatureFlagProvider';
 import '@/index.css';
 import { POSTHOG_HOST } from '@/utils/constants';
+import { isLocalDevelopment } from '@/utils/env';
 import { ClerkProvider } from '@clerk/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -15,6 +16,7 @@ import App from './App';
 import { schema } from '@/zero/schema';
 import type { ZeroOptions } from '@rocicorp/zero';
 import { ZeroProvider } from '@rocicorp/zero/react';
+import { PostHog, PostHogConfig } from 'posthog-js';
 import { v4 as uuidv4 } from 'uuid';
 
 // ---- Zero ----
@@ -61,8 +63,13 @@ if (!POSTHOG_PROJECT_API_KEY) {
   throw new Error('Add your PostHog Project API Key to the .env file');
 }
 
-const options = {
+const options: Partial<PostHogConfig> = {
   api_host: POSTHOG_HOST,
+  loaded: (posthog: PostHog) => {
+    if (isLocalDevelopment()) {
+      posthog.setPersonProperties({ environment: 'development' });
+    }
+  },
 };
 
 // ---- QueryClient ----
