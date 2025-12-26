@@ -98,6 +98,10 @@ app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
 
+app.get("/health", (c) => {
+  return c.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.post("/api/query", async (c) => {
   const requestId = c.get("requestId");
   const startTime = c.get("startTime");
