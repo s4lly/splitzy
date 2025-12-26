@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
+    "outDir": "./dist",
+    "baseUrl": "..",
+    "paths": {
+      "@zero/*": ["frontend/src/zero/*"]
+    }
+  },
+  "include": ["src/**/*", "../frontend/src/zero/**/*"],
+  "exclude": ["node_modules"]
+}
