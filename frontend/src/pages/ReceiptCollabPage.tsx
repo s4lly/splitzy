@@ -9,23 +9,19 @@ import { useQuery, useZero } from '@rocicorp/zero/react';
 
 const ReceiptCollabPage = () => {
   const { receiptId } = useParams();
+  const zero = useZero();
+  const [data, details] = useQuery(
+    queries.receipts.byId({ id: parseInt(receiptId) })
+  );
+  const navigate = useNavigate();
+
   if (!receiptId) {
     return <div>Receipt ID is required</div>;
   }
 
-  const zero = useZero();
-  console.log('clientID', zero.clientID);
-
-  const [data, details] = useQuery(
-    queries.receipts.byId({ id: parseInt(receiptId) })
-  );
-  console.log('data', data, 'details', details);
-
-  const navigate = useNavigate();
   const handleBackClick = () => {
     navigate('/');
   };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
