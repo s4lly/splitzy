@@ -3,6 +3,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { FeatureFlagProvider } from '@/context/FeatureFlagProvider';
 import '@/index.css';
 import { POSTHOG_HOST } from '@/utils/constants';
+import { isLocalDevelopment } from '@/utils/env';
 import { ClerkProvider } from '@clerk/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -11,6 +12,39 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
+
+import { schema } from '@/zero/schema';
+import type { ZeroOptions } from '@rocicorp/zero';
+import { ZeroProvider } from '@rocicorp/zero/react';
+import { PostHog, PostHogConfig } from 'posthog-js';
+import { v4 as uuidv4 } from 'uuid';
+
+// ---- Zero ----
+
+const ZERO_CACHE_URL = import.meta.env.VITE_ZERO_CACHE_URL;
+const ZERO_QUERY_URL = import.meta.env.VITE_ZERO_QUERY_URL;
+const ZERO_MUTATE_URL = import.meta.env.VITE_ZERO_MUTATE_URL;
+
+if (!ZERO_CACHE_URL || !ZERO_QUERY_URL || !ZERO_MUTATE_URL) {
+  throw new Error('Add your Zero URLs to the .env file');
+}
+
+const getUserID = () => {
+  let userID = localStorage.getItem('zero-user-id');
+  if (!userID) {
+    userID = uuidv4();
+    localStorage.setItem('zero-user-id', userID);
+  }
+  return userID;
+};
+
+const zeroOptions: ZeroOptions = {
+  cacheURL: ZERO_CACHE_URL,
+  queryURL: ZERO_QUERY_URL,
+  mutateURL: ZERO_MUTATE_URL,
+  schema,
+  userID: getUserID(),
+};
 
 // ---- Clerk ----
 
@@ -29,8 +63,13 @@ if (!POSTHOG_PROJECT_API_KEY) {
   throw new Error('Add your PostHog Project API Key to the .env file');
 }
 
-const options = {
+const options: Partial<PostHogConfig> = {
   api_host: POSTHOG_HOST,
+  loaded: (posthog: PostHog) => {
+    if (isLocalDevelopment()) {
+      posthog.setPersonProperties({ environment: 'development' });
+    }
+  },
 };
 
 // ---- QueryClient ----
@@ -47,21 +86,23 @@ if (!container) {
 const root = ReactDOM.createRoot(container);
 root.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="system">
-        <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
-          <FeatureFlagProvider>
-            <BrowserRouter>
-              <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-                <AuthProvider>
-                  <App />
-                </AuthProvider>
-              </ClerkProvider>
-            </BrowserRouter>
-          </FeatureFlagProvider>
-        </PostHogProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ZeroProvider {...zeroOptions}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider attribute="class" defaultTheme="system">
+          <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
+            <FeatureFlagProvider>
+              <BrowserRouter>
+                <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+                  <AuthProvider>
+                    <App />
+                  </AuthProvider>
+                </ClerkProvider>
+              </BrowserRouter>
+            </FeatureFlagProvider>
+          </PostHogProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ZeroProvider>
   </React.StrictMode>
 );

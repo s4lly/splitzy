@@ -4,7 +4,10 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import HomePage from '@/pages/HomePage';
 import ReceiptAnalysisPage from '@/pages/ReceiptAnalysisPage';
+import ReceiptCollabPage from '@/pages/ReceiptCollabPage';
 import SettingsPage from '@/pages/SettingsPage';
+import { Loader2 } from 'lucide-react';
+import { useFeatureFlagEnabled } from 'posthog-js/react';
 import { Link, Route, Routes } from 'react-router-dom';
 
 function NotFound() {
@@ -19,6 +22,30 @@ function NotFound() {
       </Link>
     </div>
   );
+}
+
+function ReceiptRoute() {
+  const isCollabEnabled = useFeatureFlagEnabled('receipt-collab-edit');
+
+  // Wait for PostHog to initialize - don't render either page until flag resolves
+  if (isCollabEnabled === undefined) {
+    return (
+      <div
+        className="flex min-h-[60vh] items-center justify-center"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <Loader2
+          className="h-10 w-10 animate-spin text-primary"
+          aria-hidden="true"
+        />
+        <span className="sr-only">Loading…</span>
+      </div>
+    );
+  }
+
+  return isCollabEnabled ? <ReceiptCollabPage /> : <ReceiptAnalysisPage />;
 }
 
 function App() {
@@ -39,7 +66,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
 
           {/* Receipt */}
-          <Route path="/receipt/:receiptId" element={<ReceiptAnalysisPage />} />
+          <Route path="/receipt/:receiptId" element={<ReceiptRoute />} />
 
           {/* Settings (protected) */}
           <Route
