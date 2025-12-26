@@ -144,7 +144,8 @@ app.post("/api/query", async (c) => {
       stack: errorStack,
     });
 
-    return c.json({ error: errorMessage }, 500);
+    // Log detailed error server-side, return generic message to client
+    return c.json({ error: "Internal server error", requestId }, 500);
   }
 });
 
