@@ -2,26 +2,35 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Wrench } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { queries } from '@/zero/queries';
 import { useQuery, useZero } from '@rocicorp/zero/react';
 
 const ReceiptCollabPage = () => {
-  const { receiptId } = useParams();
   const zero = useZero();
-  const [data, details] = useQuery(
-    queries.receipts.byId({ id: parseInt(receiptId) })
-  );
   const navigate = useNavigate();
+  const { receiptId } = useParams();
 
-  if (!receiptId) {
-    return <div>Receipt ID is required</div>;
+  const parsedId = receiptId ? parseInt(receiptId, 10) : NaN;
+  const isValidId = !Number.isNaN(parsedId);
+
+  const [data, details] = useQuery(
+    queries.receipts.byId({ id: isValidId ? parsedId : 0 }),
+    { enabled: isValidId }
+  );
+
+  console.log('useQuery data:', data, 'details:', details);
+
+  // Redirect to 404 if receiptId is missing or not a valid number
+  if (!receiptId || !isValidId) {
+    return <Navigate to="/404" replace />;
   }
 
   const handleBackClick = () => {
     navigate('/');
   };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
