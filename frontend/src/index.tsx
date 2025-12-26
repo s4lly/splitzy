@@ -19,6 +19,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 // ---- Zero ----
 
+const ZERO_CACHE_URL = import.meta.env.VITE_ZERO_CACHE_URL;
+const ZERO_QUERY_URL = import.meta.env.VITE_ZERO_QUERY_URL;
+const ZERO_MUTATE_URL = import.meta.env.VITE_ZERO_MUTATE_URL;
+
+if (!ZERO_CACHE_URL || !ZERO_QUERY_URL || !ZERO_MUTATE_URL) {
+  throw new Error('Add your Zero URLs to the .env file');
+}
+
 const getUserID = () => {
   let userID = localStorage.getItem('zero-user-id');
   if (!userID) {
@@ -29,9 +37,9 @@ const getUserID = () => {
 };
 
 const zeroOptions: ZeroOptions = {
-  cacheURL: import.meta.env.VITE_ZERO_CACHE_URL,
-  queryURL: import.meta.env.VITE_ZERO_QUERY_URL,
-  mutateURL: import.meta.env.VITE_ZERO_MUTATE_URL,
+  cacheURL: ZERO_CACHE_URL,
+  queryURL: ZERO_QUERY_URL,
+  mutateURL: ZERO_MUTATE_URL,
   schema,
   userID: getUserID(),
 };
