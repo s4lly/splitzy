@@ -31,6 +31,14 @@ export const receiptAtom = atom((get) => {
   return rawReceipt ? fromZeroReceipt(rawReceipt) : null;
 });
 
+/**
+ * Receipt ID as a string (for compatibility with existing components)
+ */
+export const receiptIdAtom = atom((get) => {
+  const receipt = get(receiptAtom);
+  return receipt ? String(receipt.id) : null;
+});
+
 // =============================================================================
 // Read-Only Derived Atoms
 // =============================================================================

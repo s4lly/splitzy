@@ -13,6 +13,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { Separator } from '@/components/ui/separator';
+import { BillSplitSectionCollab } from '@/features/bill-split/BillSplitSectionCollab';
 import { queries } from '@/zero/queries';
 import { useQuery } from '@rocicorp/zero/react';
 
@@ -54,6 +55,8 @@ const ReceiptCollabContent = () => {
           <ReceiptDetailsCard />
           <Separator />
           <ReceiptSummaryCard />
+          <Separator />
+          <BillSplitSectionCollab />
           <Separator />
           <ReceiptViewer />
         </div>
