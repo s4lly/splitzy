@@ -9,7 +9,7 @@ import {
 } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useAtomValue } from 'jotai';
 import { Divide } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const EvenSplitTabCollab = () => {
   const people = useAtomValue(peopleAtom);
@@ -17,6 +17,11 @@ export const EvenSplitTabCollab = () => {
   const [numberOfPeople, setNumberOfPeople] = useState(
     people.length > 0 ? people.length : 1
   );
+
+  // Sync numberOfPeople when people array changes
+  useEffect(() => {
+    setNumberOfPeople(people.length > 0 ? people.length : 1);
+  }, [people.length]);
 
   if (!receipt) {
     return null;
@@ -81,4 +86,3 @@ export const EvenSplitTabCollab = () => {
     </>
   );
 };
-
