@@ -7,6 +7,10 @@ import { LineItemAddFormAdapter } from '@/features/line-items/adapters/zero/Line
 import { LineItemsTableDesktopAdapter } from '@/features/line-items/adapters/zero/LineItemsTableDesktopAdapter';
 import { LineItemsTableMobileAdapter } from '@/features/line-items/adapters/zero/LineItemsTableMobileAdapter';
 import { NoLineItemsMessage } from '@/features/line-items/components/NoLineItemsMessage';
+import {
+  peopleAtom,
+  receiptAtom,
+} from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useReceiptSync } from '@/features/receipt-collab/hooks/useReceiptSync';
 import { ReceiptImageViewer } from '@/features/receipt-image/ReceiptImageViewer';
 import { generateImageFileName } from '@/features/receipt-image/utils/generateImageFileName';
@@ -18,7 +22,6 @@ import { motion } from 'framer-motion';
 import { useAtomValue } from 'jotai';
 import { Plus, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
-import { peopleAtom, receiptAtom } from '../atoms/receiptAtoms';
 
 /**
  * Inner component that has access to both ReceiptContext and Jotai.
