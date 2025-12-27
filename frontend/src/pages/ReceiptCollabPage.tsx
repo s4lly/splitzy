@@ -5,6 +5,7 @@ import {
 } from '@/context/ReceiptContext';
 import { useReceiptSync } from '@/features/receipt-collab/hooks/useReceiptSync';
 import { ReceiptDetailsCard } from '@/features/receipt-viewer/ReceiptDetailsCard';
+import { ReceiptSummaryCard } from '@/features/receipt-viewer/ReceiptSummaryCard';
 import { ReceiptViewer } from '@/features/receipt-viewer/ReceiptViewer';
 import { motion } from 'framer-motion';
 import { Provider as JotaiProvider } from 'jotai';
@@ -51,6 +52,8 @@ const ReceiptCollabContent = () => {
               - useAtom(personTotalsAtom) for modifiable derived values
           */}
           <ReceiptDetailsCard />
+          <Separator />
+          <ReceiptSummaryCard />
           <Separator />
           <ReceiptViewer />
         </div>

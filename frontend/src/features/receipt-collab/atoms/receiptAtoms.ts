@@ -61,6 +61,17 @@ export const personPretaxTotalsAtom = atom((get) => {
 });
 
 /**
+ * Total of all line items (pre-tax, pre-tip, pre-gratuity)
+ */
+export const itemsTotalAtom = atom((get) => {
+  const receipt = get(receiptAtom);
+  if (!receipt) return new Decimal(0);
+
+  const receiptData = buildReceiptData(receipt);
+  return calculations.pretax.getTotalForAllItems(receiptData);
+});
+
+/**
  * Total receipt amount including all items, tax, tip, and gratuity
  */
 export const receiptTotalAtom = atom((get) => {
@@ -293,7 +304,7 @@ export const peopleAtom = atom(
  *       - Eliminate potential bugs from mapping mismatches
  *       - Simplify the data flow from Zero → atoms → calculations
  */
-function buildReceiptData(receipt: ReceiptWithLineItems) {
+export function buildReceiptData(receipt: ReceiptWithLineItems) {
   return {
     // Required boolean fields - hardcoded since Zero schema doesn't have these
     is_receipt: true,
