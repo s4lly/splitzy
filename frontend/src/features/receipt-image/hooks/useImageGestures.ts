@@ -57,6 +57,8 @@ export const useImageGestures = (): UseImageGesturesReturn => {
           memo = [style.x.get(), style.y.get(), tx, ty];
         }
 
+        if (!memo) return;
+
         const x = memo[0] - (ms - 1) * memo[2];
         const y = memo[1] - (ms - 1) * memo[3];
         api.start({ scale: s, rotateZ: a, x, y });
