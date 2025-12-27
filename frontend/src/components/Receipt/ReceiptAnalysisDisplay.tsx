@@ -134,8 +134,6 @@ const ReceiptAnalysisDisplay = ({
       console.info(`Adding person ${person} to item ${itemId}`);
     }
 
-    setPeople(getPeopleFromLineItems(receipt.lineItems));
-
     // Persist to backend
     updateItemAssignmentsMutation.mutate({
       receiptId,
