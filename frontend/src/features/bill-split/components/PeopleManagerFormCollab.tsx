@@ -1,5 +1,8 @@
 import PersonBadge from '@/components/Receipt/PersonBadge';
-import { getColorForName, getColorStyle } from '@/components/Receipt/utils/get-color-for-name';
+import {
+  getColorForName,
+  getColorStyle,
+} from '@/components/Receipt/utils/get-color-for-name';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { peopleAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
@@ -36,19 +39,23 @@ export const PeopleManagerFormCollab = () => {
           onKeyDown={(e) => e.key === 'Enter' && handleAddPerson()}
           className="w-full sm:max-w-xs"
         />
-        <Button onClick={handleAddPerson} size="sm" className="w-full sm:w-auto">
+        <Button
+          onClick={handleAddPerson}
+          size="sm"
+          className="w-full sm:w-auto"
+        >
           <Plus className="mr-1 h-4 w-4" />
           Add
         </Button>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {people.map((person, idx) => {
-          const colorPair = getColorForName(person, idx, people.length);
+        {people.map((person, index) => {
+          const colorPair = getColorForName(person, index, people.length);
           const colorStyle = getColorStyle(colorPair);
           return (
             <div
-              key={idx}
+              key={person}
               className="flex items-center rounded-full px-3 py-1"
               style={colorStyle}
             >
@@ -81,4 +88,3 @@ export const PeopleManagerFormCollab = () => {
     </div>
   );
 };
-
