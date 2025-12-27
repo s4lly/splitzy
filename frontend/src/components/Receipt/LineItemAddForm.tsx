@@ -1,5 +1,4 @@
 import LineItemForm from '@/components/Receipt/LineItemForm';
-import { useLineItemAddMutation } from '@/components/Receipt/hooks/useLineItemAddMutation';
 import type { ReceiptLineItem } from '@/models/Receipt';
 import Decimal from 'decimal.js';
 import { useState } from 'react';
@@ -12,11 +11,21 @@ function isStringEmpty(str: string) {
 export default function LineItemAddForm({
   receiptId,
   onAddCancel,
+  onAddLineItem,
+  isPending,
 }: {
   receiptId: string;
   onAddCancel: () => void;
+  onAddLineItem: (data: {
+    receiptId: string;
+    lineItemData: {
+      name?: string;
+      quantity?: number;
+      price_per_item?: number;
+    };
+  }) => void;
+  isPending?: boolean;
 }) {
-  const addLineItemMutation = useLineItemAddMutation();
 
   // Local state for form values with default values
   const [formData, setFormData] = useState({
@@ -26,17 +35,10 @@ export default function LineItemAddForm({
   });
 
   const handleAddItem = () => {
-    addLineItemMutation.mutate(
-      {
-        receiptId,
-        lineItemData: formData,
-      },
-      {
-        onSuccess: () => {
-          onAddCancel(); // Close the form after successful addition
-        },
-      }
-    );
+    onAddLineItem({
+      receiptId,
+      lineItemData: formData,
+    });
   };
 
   const handleNameChange = (name: string) => {
@@ -103,16 +105,14 @@ export default function LineItemAddForm({
         <Button
           onClick={onAddCancel}
           variant="outline"
-          disabled={addLineItemMutation.isPending}
+          disabled={isPending}
         >
           Cancel
         </Button>
         <Button
           onClick={handleAddItem}
           variant="outline"
-          disabled={
-            addLineItemMutation.isPending || isStringEmpty(formData.name)
-          }
+          disabled={isPending || isStringEmpty(formData.name)}
         >
           Add
         </Button>

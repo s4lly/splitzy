@@ -1,26 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { QRCode } from '@/components/ui/kibo-ui/qr-code';
-import { useFeatureFlag } from '@/context/FeatureFlagProvider';
 import { BillSplitSection } from '@/features/bill-split/BillSplitSection';
+import { LineItemAddFormAdapter } from '@/features/line-items/adapters/tanstack/LineItemAddFormAdapter';
+import { LineItemsTableDesktopAdapter } from '@/features/line-items/adapters/tanstack/LineItemsTableDesktopAdapter';
+import { LineItemsTableMobileAdapter } from '@/features/line-items/adapters/tanstack/LineItemsTableMobileAdapter';
+import { NoLineItemsMessage } from '@/features/line-items/components/NoLineItemsMessage';
+import { ReceiptDetailsCard } from '@/features/receipt-viewer/ReceiptDetailsCard';
 import { useMobile } from '@/hooks/use-mobile';
 import type { Receipt } from '@/models/Receipt';
 import Decimal from 'decimal.js';
 import { motion } from 'framer-motion';
-import {
-  AlertCircle,
-  Calendar,
-  Plus,
-  QrCode,
-  Receipt as ReceiptIcon,
-  ShoppingBag,
-  Tag,
-} from 'lucide-react';
+import { Plus, Receipt as ReceiptIcon, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import LineItemAddForm from './LineItemAddForm';
-import LineItemsTableDesktop from './LineItemsTableDesktop';
-import LineItemsTableDesktopV2 from './LineItemsTableDesktopV2';
-import LineItemsTableMobile from './LineItemsTableMobile';
 import SummaryCard from './SummaryCard';
 import LineItemCard from './components/LineItemCard';
 import { useItemAssignmentsUpdateMutation } from './hooks/useItemAssignmentsUpdateMutation';
@@ -48,11 +39,9 @@ const ReceiptAnalysisDisplay = ({
     return getPeopleFromLineItems(receipt.lineItems);
   });
 
-  const [showQrCode, setShowQrCode] = useState(false);
   const [searchInputs, setSearchInputs] = useState<Record<string, string>>({});
   const [isAddingItem, setIsAddingItem] = useState(false);
   const updateItemAssignmentsMutation = useItemAssignmentsUpdateMutation();
-  const receiptDesktopTableV2Enabled = useFeatureFlag('receipt-desktop-table');
   const isMobile = useMobile();
 
   // Update people state when receipt changes (e.g., when line items are deleted)
@@ -199,57 +188,7 @@ const ReceiptAnalysisDisplay = ({
       </div>
 
       {/* Document Details Card - Now first */}
-      <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
-        <CardHeader className="px-3 pb-2 sm:px-6">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-3 text-xl font-bold">
-              <ShoppingBag className="h-6 w-6" />
-              Document Details
-            </CardTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowQrCode(!showQrCode)}
-            >
-              <QrCode className="mr-1 h-4 w-4" />
-              {showQrCode ? 'Hide QR Code' : 'Show QR Code'}
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="px-3 sm:px-6">
-          {showQrCode && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex justify-center py-4"
-            >
-              <QRCode data={window.location.href} className="h-48 w-48" />
-            </motion.div>
-          )}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <Tag className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
-              <span className="whitespace-nowrap text-base font-medium">
-                Merchant:
-              </span>
-              <span className="ml-auto truncate text-base font-semibold">
-                {receipt.merchant || 'Unknown'}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3 overflow-hidden">
-              <Calendar className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
-              <span className="whitespace-nowrap text-base font-medium">
-                Date:
-              </span>
-              <span className="ml-auto truncate text-base font-semibold">
-                {receipt.date ? receipt.date.toLocaleDateString() : 'Unknown'}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <ReceiptDetailsCard merchant={receipt.merchant} date={receipt.date} />
 
       {/* Items Card - Second position */}
       <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
@@ -274,7 +213,7 @@ const ReceiptAnalysisDisplay = ({
         <CardContent className="px-3 sm:px-6">
           {isAddingItem && (
             <LineItemCard selected={true}>
-              <LineItemAddForm
+              <LineItemAddFormAdapter
                 receiptId={receiptId}
                 onAddCancel={() => setIsAddingItem(false)}
               />
@@ -284,45 +223,23 @@ const ReceiptAnalysisDisplay = ({
           {receipt.lineItems && receipt.lineItems.length > 0 ? (
             <>
               {isMobile ? (
-                <LineItemsTableMobile
+                <LineItemsTableMobileAdapter
                   line_items={receipt.lineItems}
                   receipt={receipt}
                   people={people}
                   togglePersonAssignment={togglePersonAssignment}
                 />
               ) : (
-                <>
-                  {receiptDesktopTableV2Enabled ? (
-                    <LineItemsTableDesktopV2
-                      line_items={receipt.lineItems}
-                      people={people}
-                      receipt={receipt}
-                      togglePersonAssignment={togglePersonAssignment}
-                    />
-                  ) : (
-                    <LineItemsTableDesktop
-                      line_items={receipt.lineItems}
-                      people={people}
-                    />
-                  )}
-                </>
+                <LineItemsTableDesktopAdapter
+                  line_items={receipt.lineItems}
+                  people={people}
+                  receipt={receipt}
+                  togglePersonAssignment={togglePersonAssignment}
+                />
               )}
             </>
           ) : (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-center dark:border-amber-800/30 dark:bg-amber-900/20">
-              <AlertCircle className="mx-auto mb-2 h-10 w-10 text-amber-500 dark:text-amber-400" />
-              <p className="mb-1 text-base font-medium text-amber-800 dark:text-amber-200">
-                No Item Details Available
-              </p>
-              <p className="text-sm text-amber-700 dark:text-amber-300">
-                This{' '}
-                {receipt.merchant
-                  ? 'document from ' + receipt.merchant
-                  : 'document'}{' '}
-                doesn't include detailed line items. The total amount has been
-                equally divided among all people.
-              </p>
-            </div>
+            <NoLineItemsMessage merchant={receipt.merchant} />
           )}
         </CardContent>
       </Card>

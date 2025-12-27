@@ -1,9 +1,8 @@
 import { AssignmentsContainer } from '@/features/assignments/assignments-container';
 import { AssignmentsHeader } from '@/features/assignments/assignments-header';
 import AssignmentsList from '@/features/assignments/assignments-list';
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
 import { cn } from '@/lib/utils';
-import Decimal from 'decimal.js';
+import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
 import { ChevronUp, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../ui/button';
@@ -12,7 +11,6 @@ import { Toggle } from '../ui/toggle';
 import LineItemEditForm from './LineItemEditForm';
 import PersonAssignmentSection from './PersonAssignmentSection';
 import LineItemCard from './components/LineItemCard';
-import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
 import { formatCurrency } from './utils/format-currency';
 import { calculations } from './utils/receipt-calculation';
 
@@ -21,16 +19,35 @@ export default function LineItemsTableMobile({
   receipt,
   people,
   togglePersonAssignment,
+  onUpdateLineItem,
+  onDeleteLineItem,
+  isDeleting,
 }: {
   line_items: readonly ReceiptLineItem[];
   receipt: Receipt;
   people: string[];
   togglePersonAssignment: (itemId: string, person: string) => void;
+  onUpdateLineItem: (data: {
+    receiptId: string;
+    itemId: string;
+    name?: string;
+    quantity?: number;
+    price_per_item?: number;
+  }) => void;
+  onDeleteLineItem: (
+    data: {
+      receiptId: string;
+      itemId: string;
+    },
+    options?: {
+      onSuccess?: () => void;
+      onError?: (error: Error) => void;
+    }
+  ) => void;
+  isDeleting?: boolean;
 }) {
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [assignmentItemId, setAssignmentItemId] = useState<string | null>(null);
-
-  const { mutate: deleteItem } = useLineItemDeleteMutation();
 
   // Edit mode handlers
   const handleEditOpen = (e: React.MouseEvent, itemId: string) => {
@@ -56,7 +73,7 @@ export default function LineItemsTableMobile({
   };
 
   const handleDeleteItem = (itemId: string) => {
-    deleteItem(
+    onDeleteLineItem(
       {
         receiptId: String(receipt.id),
         itemId: itemId,
@@ -87,6 +104,7 @@ export default function LineItemsTableMobile({
                 item={item}
                 receipt={receipt}
                 onEditCancel={handleEditClose}
+                onUpdateLineItem={onUpdateLineItem}
               />
             ) : (
               // view

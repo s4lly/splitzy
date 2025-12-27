@@ -1,14 +1,14 @@
+import { DBSchema, openDB } from 'idb';
 import { useFeatureFlagEnabled } from 'posthog-js/react';
 import {
-  createContext,
-  useReducer,
-  useContext,
-  ReactNode,
   Dispatch,
+  ReactNode,
+  createContext,
+  useContext,
   useEffect,
+  useReducer,
   useState,
 } from 'react';
-import { DBSchema, openDB } from 'idb';
 
 // Define the shape of your feature flags
 type FlagValue = {
@@ -17,7 +17,6 @@ type FlagValue = {
 };
 
 interface FeatureFlags {
-  'receipt-desktop-table': FlagValue;
   'edit-line-items': FlagValue;
   'assignments-add-all': FlagValue;
 }
@@ -85,7 +84,6 @@ async function clearFlagsFromDB() {
 
 // Initial state
 const initialFlags: FeatureFlags = {
-  'receipt-desktop-table': { location: 'unset', value: false },
   'edit-line-items': { location: 'unset', value: false },
   'assignments-add-all': { location: 'unset', value: false },
 };

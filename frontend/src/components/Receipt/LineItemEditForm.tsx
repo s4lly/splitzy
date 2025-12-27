@@ -1,42 +1,48 @@
 import { useEffect, useMemo } from 'react';
 import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
 import debounce from 'lodash.debounce';
-import { useLineItemUpdateMutation } from './hooks/useLineItemUpdateMutation';
 import LineItemForm from './LineItemForm';
 
 export default function LineItemEditForm({
   item,
   receipt,
   onEditCancel,
+  onUpdateLineItem,
 }: {
   item: ReceiptLineItem;
   receipt: Receipt;
   onEditCancel: () => void;
+  onUpdateLineItem: (data: {
+    receiptId: string;
+    itemId: string;
+    name?: string;
+    quantity?: number;
+    price_per_item?: number;
+  }) => void;
 }) {
-  const { mutate: updateItem } = useLineItemUpdateMutation();
 
   const debouncedPersistName = useMemo(
     () =>
       debounce((value: string) => {
-        updateItem({
+        onUpdateLineItem({
           receiptId: String(receipt.id),
           itemId: item.id,
           name: value,
         });
       }, 300),
-    [receipt.id, item.id, updateItem]
+    [receipt.id, item.id, onUpdateLineItem]
   );
 
   const debouncedPersistQuantity = useMemo(
     () =>
       debounce((value: number) => {
-        updateItem({
+        onUpdateLineItem({
           receiptId: String(receipt.id),
           itemId: item.id,
           quantity: value,
         });
       }, 300),
-    [receipt.id, item.id, updateItem]
+    [receipt.id, item.id, onUpdateLineItem]
   );
 
   useEffect(() => {
@@ -63,7 +69,7 @@ export default function LineItemEditForm({
         receiptId={String(receipt.id)}
         onNameChange={handleNameChange}
         onQuantityChange={handleQuantityChange}
-        mutate={updateItem}
+        mutate={onUpdateLineItem}
         onEditCancel={onEditCancel}
       />
     </div>

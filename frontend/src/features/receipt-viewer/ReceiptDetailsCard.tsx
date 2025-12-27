@@ -1,19 +1,36 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { QRCode } from '@/components/ui/kibo-ui/qr-code';
-import { useReceipt } from '@/context/ReceiptContext';
 import { motion } from 'framer-motion';
 import { Calendar, QrCode, ShoppingBag, Tag } from 'lucide-react';
 import { useState } from 'react';
 
+interface ReceiptDetailsCardProps {
+  merchant: string | null;
+  date: Date | number | null;
+}
+
 /**
  * Receipt details card component that displays merchant and date information.
- * Uses ReceiptContext to access receipt data - must be within a ReceiptProvider.
  * Includes a QR code toggle to display the current page URL.
  */
-export const ReceiptDetailsCard = () => {
-  const receipt = useReceipt();
+export const ReceiptDetailsCard = ({
+  merchant,
+  date,
+}: ReceiptDetailsCardProps) => {
   const [showQrCode, setShowQrCode] = useState(false);
+
+  // Format date - handle both Date objects and timestamps (seconds or milliseconds)
+  const formatDate = (): string => {
+    if (!date) return 'Unknown';
+    if (date instanceof Date) {
+      return date.toLocaleDateString();
+    }
+    // Handle numeric timestamp (check if seconds or milliseconds)
+    const timestamp = typeof date === 'number' ? date : 0;
+    const dateObj = new Date(timestamp < 1e12 ? timestamp * 1000 : timestamp);
+    return dateObj.toLocaleDateString();
+  };
 
   return (
     <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
@@ -51,7 +68,7 @@ export const ReceiptDetailsCard = () => {
               Merchant:
             </span>
             <span className="ml-auto truncate text-base font-semibold">
-              {receipt.merchant || 'Unknown'}
+              {merchant || 'Unknown'}
             </span>
           </div>
 
@@ -61,11 +78,7 @@ export const ReceiptDetailsCard = () => {
               Date:
             </span>
             <span className="ml-auto truncate text-base font-semibold">
-              {receipt.date
-                ? new Date(
-                    receipt.date < 1e12 ? receipt.date * 1000 : receipt.date
-                  ).toLocaleDateString()
-                : 'Unknown'}
+              {formatDate()}
             </span>
           </div>
         </div>
