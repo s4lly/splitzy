@@ -1,15 +1,14 @@
-import { formatCurrency } from './utils/format-currency';
-import PersonAssignmentSection from './PersonAssignmentSection';
-import { calculations } from './utils/receipt-calculation';
+import type { ReceiptLineItem } from '@/models/Receipt';
 import { motion } from 'framer-motion';
-import { LineItemSchema } from '@/lib/receiptSchemas';
-import { z } from 'zod';
+import PersonAssignmentSection from './PersonAssignmentSection';
+import { formatCurrency } from './utils/format-currency';
+import { calculations } from './utils/receipt-calculation';
 
 export default function LineItemsTableDesktop({
   line_items,
   people,
 }: {
-  line_items: z.infer<typeof LineItemSchema>[];
+  line_items: readonly ReceiptLineItem[];
   people: string[];
 }) {
   return (
@@ -34,15 +33,19 @@ export default function LineItemsTableDesktop({
             <span className="text-base font-medium">{item.name}</span>
           </div>
           <div className="col-span-1 hidden text-right md:block">
-            <span className="text-base font-medium">{item.quantity}</span>
+            <span className="text-base font-medium">
+              {item.quantity.toNumber()}
+            </span>
           </div>
           <div className="col-span-2 hidden text-right md:block">
             <span className="text-base font-medium">
-              {formatCurrency(item.price_per_item)}
+              {formatCurrency(item.pricePerItem)}
             </span>
           </div>
           <div className="col-span-2 hidden text-right font-medium md:block">
-            {formatCurrency(calculations.pretax.getIndividualItemTotalPrice(item))}
+            {formatCurrency(
+              calculations.pretax.getIndividualItemTotalPrice(item)
+            )}
           </div>
           <div className="col-span-2 hidden justify-center md:flex">
             <PersonAssignmentSection

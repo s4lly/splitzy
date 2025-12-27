@@ -4,7 +4,7 @@ import { QRCode } from '@/components/ui/kibo-ui/qr-code';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
 import { BillSplitSection } from '@/features/bill-split/BillSplitSection';
 import { useMobile } from '@/hooks/use-mobile';
-import { ReceiptSchema } from '@/lib/receiptSchemas';
+import type { Receipt } from '@/models/Receipt';
 import Decimal from 'decimal.js';
 import { motion } from 'framer-motion';
 import {
@@ -12,12 +12,11 @@ import {
   Calendar,
   Plus,
   QrCode,
-  Receipt,
+  Receipt as ReceiptIcon,
   ShoppingBag,
   Tag,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { z } from 'zod';
 import LineItemAddForm from './LineItemAddForm';
 import LineItemsTableDesktop from './LineItemsTableDesktop';
 import LineItemsTableDesktopV2 from './LineItemsTableDesktopV2';
@@ -34,9 +33,11 @@ import {
 } from './utils/receipt-conditions';
 
 const ReceiptAnalysisDisplay = ({
-  result,
+  receipt,
+  receiptId,
 }: {
-  result: z.infer<typeof ReceiptSchema>;
+  receipt: Receipt;
+  receiptId: string;
 }) => {
   /**
    * TODO looks like used to keep track of all people, including those not assigned to any items
@@ -44,7 +45,7 @@ const ReceiptAnalysisDisplay = ({
    * should also persist this list of people in the backend. leaving this here for now.
    */
   const [people, setPeople] = useState(() => {
-    return getPeopleFromLineItems(result.receipt_data.line_items);
+    return getPeopleFromLineItems(receipt.lineItems);
   });
 
   const [showQrCode, setShowQrCode] = useState(false);
@@ -54,22 +55,21 @@ const ReceiptAnalysisDisplay = ({
   const receiptDesktopTableV2Enabled = useFeatureFlag('receipt-desktop-table');
   const isMobile = useMobile();
 
-  // Update people state when result changes (e.g., when line items are deleted)
+  // Update people state when receipt changes (e.g., when line items are deleted)
   useEffect(() => {
-    setPeople(getPeopleFromLineItems(result.receipt_data.line_items));
-  }, [result.receipt_data.line_items]);
+    setPeople(getPeopleFromLineItems(receipt.lineItems));
+  }, [receipt.lineItems]);
 
-  if (!result) return null;
-  const { receipt_data } = result;
+  if (!receipt) return null;
 
   // Check if we need to use equal split mode (no line items or no assignments made)
-  const receiptHasLineItems = hasLineItems(receipt_data);
-  const useEqualSplit = shouldUseEqualSplit(receipt_data);
+  const receiptHasLineItems = hasLineItems(receipt);
+  const useEqualSplit = shouldUseEqualSplit(receipt);
 
   // --
 
   const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
-    receipt_data.line_items
+    receipt.lineItems
   );
 
   // --
@@ -79,10 +79,10 @@ const ReceiptAnalysisDisplay = ({
     calculations.pretax.getAllPersonItemTotals(itemSplits);
 
   // Calculate total receipt amount including assigned items and unassigned items
-  const receiptTotal = calculations.final.getReceiptTotal(receipt_data);
+  const receiptTotal = calculations.final.getReceiptTotal(receipt);
 
   // Calculate the amount each person owes
-  const personTotals = calculations.final.getPersonTotals(receipt_data, {
+  const personTotals = calculations.final.getPersonTotals(receipt, {
     itemSplits,
   });
 
@@ -99,7 +99,7 @@ const ReceiptAnalysisDisplay = ({
   // --
 
   const unassignedAmount = Decimal.max(0, receiptTotal.minus(personTotalsSum));
-  const isFullyAssigned = areAllItemsAssigned(receipt_data);
+  const isFullyAssigned = areAllItemsAssigned(receipt);
 
   // --
 
@@ -114,20 +114,11 @@ const ReceiptAnalysisDisplay = ({
     // see TODO above
     setPeople(people.filter((person) => person !== personToRemove));
 
-    // Also remove this person from all item assignments
-    receipt_data.line_items.forEach((item) => {
-      if (item.assignments && Array.isArray(item.assignments)) {
-        item.assignments = item.assignments.filter(
-          (person) => person !== personToRemove
-        );
-      }
-    });
-
-    // Persist to backend
-    receipt_data.line_items.forEach((item) => {
-      if (item.assignments && item.assignments.includes(personToRemove)) {
+    // Persist to backend - remove person from all items
+    receipt.lineItems.forEach((item) => {
+      if (item.assignments.includes(personToRemove)) {
         updateItemAssignmentsMutation.mutate({
-          receiptId: String(result.id),
+          receiptId,
           lineItemId: item.id,
           assignments: item.assignments.filter((p) => p !== personToRemove),
         });
@@ -136,30 +127,31 @@ const ReceiptAnalysisDisplay = ({
   };
 
   const togglePersonAssignment = async (itemId: string, person: string) => {
-    const item = receipt_data.line_items.find((item) => item.id === itemId);
+    const item = receipt.lineItems.find((item) => item.id === itemId);
 
     if (!item) {
       console.error(`Item with id ${itemId} not found`);
       return;
     }
 
-    if (!item.assignments) item.assignments = [];
+    const currentAssignments = item.assignments;
+    const newAssignments = currentAssignments.includes(person)
+      ? currentAssignments.filter((p) => p !== person)
+      : [...currentAssignments, person];
 
-    if (item.assignments.includes(person)) {
+    if (currentAssignments.includes(person)) {
       console.info(`Removing person ${person} from item ${itemId}`);
-      item.assignments = item.assignments.filter((p) => p !== person);
     } else {
       console.info(`Adding person ${person} to item ${itemId}`);
-      item.assignments = [...item.assignments, person];
     }
 
-    setPeople(getPeopleFromLineItems(receipt_data.line_items));
+    setPeople(getPeopleFromLineItems(receipt.lineItems));
 
     // Persist to backend
     updateItemAssignmentsMutation.mutate({
-      receiptId: String(result.id),
+      receiptId,
       lineItemId: itemId,
-      assignments: item.assignments,
+      assignments: newAssignments,
     });
   };
 
@@ -202,7 +194,7 @@ const ReceiptAnalysisDisplay = ({
       className="max-w-full space-y-4 px-0 sm:px-4"
     >
       <div className="mb-2 flex items-center gap-3 px-2 sm:px-0">
-        <Receipt className="h-6 w-6" />
+        <ReceiptIcon className="h-6 w-6" />
         <h2 className="text-2xl font-bold">Document Analysis</h2>
       </div>
 
@@ -242,7 +234,7 @@ const ReceiptAnalysisDisplay = ({
                 Merchant:
               </span>
               <span className="ml-auto truncate text-base font-semibold">
-                {receipt_data.merchant || 'Unknown'}
+                {receipt.merchant || 'Unknown'}
               </span>
             </div>
 
@@ -252,7 +244,7 @@ const ReceiptAnalysisDisplay = ({
                 Date:
               </span>
               <span className="ml-auto truncate text-base font-semibold">
-                {receipt_data.date || 'Unknown'}
+                {receipt.date ? receipt.date.toLocaleDateString() : 'Unknown'}
               </span>
             </div>
           </div>
@@ -283,18 +275,18 @@ const ReceiptAnalysisDisplay = ({
           {isAddingItem && (
             <LineItemCard selected={true}>
               <LineItemAddForm
-                result={result}
+                receiptId={receiptId}
                 onAddCancel={() => setIsAddingItem(false)}
               />
             </LineItemCard>
           )}
 
-          {receipt_data.line_items && receipt_data.line_items.length > 0 ? (
+          {receipt.lineItems && receipt.lineItems.length > 0 ? (
             <>
               {isMobile ? (
                 <LineItemsTableMobile
-                  line_items={receipt_data.line_items}
-                  result={result}
+                  line_items={receipt.lineItems}
+                  receipt={receipt}
                   people={people}
                   togglePersonAssignment={togglePersonAssignment}
                 />
@@ -302,14 +294,14 @@ const ReceiptAnalysisDisplay = ({
                 <>
                   {receiptDesktopTableV2Enabled ? (
                     <LineItemsTableDesktopV2
-                      line_items={receipt_data.line_items}
+                      line_items={receipt.lineItems}
                       people={people}
-                      result={result}
+                      receipt={receipt}
                       togglePersonAssignment={togglePersonAssignment}
                     />
                   ) : (
                     <LineItemsTableDesktop
-                      line_items={receipt_data.line_items}
+                      line_items={receipt.lineItems}
                       people={people}
                     />
                   )}
@@ -324,8 +316,8 @@ const ReceiptAnalysisDisplay = ({
               </p>
               <p className="text-sm text-amber-700 dark:text-amber-300">
                 This{' '}
-                {receipt_data.merchant
-                  ? 'document from ' + receipt_data.merchant
+                {receipt.merchant
+                  ? 'document from ' + receipt.merchant
                   : 'document'}{' '}
                 doesn't include detailed line items. The total amount has been
                 equally divided among all people.
@@ -336,14 +328,13 @@ const ReceiptAnalysisDisplay = ({
       </Card>
 
       {/* Summary Card - Third position */}
-      <SummaryCard receiptId={String(result.id)} receipt_data={receipt_data} />
+      <SummaryCard receiptId={receiptId} receipt={receipt} />
 
       {/* People Manager Section - Now at the bottom */}
       <BillSplitSection
         people={people}
-        receiptId={String(result.id)}
-        receiptData={receipt_data}
-        receiptResult={result}
+        receiptId={receiptId}
+        receipt={receipt}
         personFairTotals={personFairTotals}
         personPretaxTotals={personPretaxTotals}
         personTotalsSum={personTotalsSum}

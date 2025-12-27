@@ -17,16 +17,14 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useMobile } from '@/hooks/use-mobile';
-import { ReceiptSchema } from '@/lib/receiptSchemas';
+import type { Receipt } from '@/models/Receipt';
 import { cn } from '@/lib/utils';
 import Decimal from 'decimal.js';
 import { FileText, UserPlus } from 'lucide-react';
-import { z } from 'zod';
 
 interface BillBreakdownProps {
   people: string[];
-  receiptResult: z.infer<typeof ReceiptSchema>;
-  receiptData: z.infer<typeof ReceiptSchema>['receipt_data'];
+  receipt: Receipt;
   personFairTotals: Map<string, Decimal>;
   personPretaxTotals: Map<string, Decimal>;
   receiptTotal: Decimal;
@@ -36,8 +34,7 @@ interface BillBreakdownProps {
 
 export const BillBreakdown = ({
   people,
-  receiptResult,
-  receiptData,
+  receipt,
   personFairTotals,
   personPretaxTotals,
   receiptTotal,
@@ -85,10 +82,10 @@ export const BillBreakdown = ({
             personPretaxTotals.get(person) ?? new Decimal(0);
 
           const taxAmount: Decimal = personPretaxTotal.mul(
-            calculations.tax.getRate(receiptData)
+            calculations.tax.getRate(receipt)
           );
 
-          const personItems = getPersonItems(person, receiptResult);
+          const personItems = getPersonItems(person, receipt);
 
           return (
             <Dialog key={idx}>
@@ -125,8 +122,8 @@ export const BillBreakdown = ({
                           : ''}
                       </div>
                     </>
-                  ) : !receiptData.tax_included_in_items &&
-                    (receiptData.tax ?? 0) > 0 ? (
+                  ) : !receipt.taxIncludedInItems &&
+                    (receipt.tax?.toNumber() ?? 0) > 0 ? (
                     <>
                       <div className="flex items-end justify-between">
                         <div className="text-sm text-muted-foreground">
@@ -235,7 +232,7 @@ export const BillBreakdown = ({
                                 )}
                               </td>
                               <td className="px-3 py-2.5 text-right align-top text-sm">
-                                {item.quantity}
+                                {item.quantity.toNumber()}
                               </td>
                               <td className="whitespace-nowrap px-3 py-2.5 text-right align-top text-sm">
                                 <div className="font-medium">
@@ -264,8 +261,8 @@ export const BillBreakdown = ({
                               )}
                             </td>
                           </tr>
-                          {!receiptData.tax_included_in_items &&
-                            (receiptData.tax ?? 0) > 0 && (
+                          {!receipt.taxIncludedInItems &&
+                            (receipt.tax?.toNumber() ?? 0) > 0 && (
                               <tr className="border-t">
                                 <td colSpan={2} className="px-3 py-2 text-sm">
                                   Tax
@@ -275,8 +272,8 @@ export const BillBreakdown = ({
                                 </td>
                               </tr>
                             )}
-                          {((receiptData.tip ?? 0) > 0 ||
-                            (receiptData.gratuity ?? 0) > 0) && (
+                          {((receipt.tip?.toNumber() ?? 0) > 0 ||
+                            (receipt.gratuity?.toNumber() ?? 0) > 0) && (
                             <tr className="border-t">
                               <td colSpan={2} className="px-3 py-2 text-sm">
                                 Tip
@@ -284,8 +281,8 @@ export const BillBreakdown = ({
                               <td className="px-3 py-2 text-right text-sm">
                                 {(() => {
                                   const totalTip =
-                                    (receiptData.tip ?? 0) +
-                                    (receiptData.gratuity ?? 0);
+                                    (receipt.tip?.toNumber() ?? 0) +
+                                    (receipt.gratuity?.toNumber() ?? 0);
                                   const tipPerPerson = totalTip / people.length;
                                   return formatCurrency(
                                     new Decimal(tipPerPerson)

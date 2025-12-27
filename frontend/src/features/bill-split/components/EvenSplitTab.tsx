@@ -3,22 +3,21 @@ import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { ReceiptSchema } from '@/lib/receiptSchemas';
+import type { Receipt } from '@/models/Receipt';
 import { Divide } from 'lucide-react';
 import { useState } from 'react';
-import { z } from 'zod';
 
 interface EvenSplitTabProps {
-  receiptData: z.infer<typeof ReceiptSchema>['receipt_data'];
+  receipt: Receipt;
   people: string[];
 }
 
-export const EvenSplitTab = ({ receiptData, people }: EvenSplitTabProps) => {
+export const EvenSplitTab = ({ receipt, people }: EvenSplitTabProps) => {
   const [numberOfPeople, setNumberOfPeople] = useState(
     people.length > 0 ? people.length : 1
   );
 
-  const calculatedTotal = calculations.final.getReceiptTotal(receiptData);
+  const calculatedTotal = calculations.final.getReceiptTotal(receipt);
   const evenlySplitTotalRounded = calculatedTotal
     .div(numberOfPeople)
     .toDecimalPlaces(2);

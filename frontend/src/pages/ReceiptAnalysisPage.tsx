@@ -1,35 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import ReceiptAnalysisDisplay from '../components/Receipt/ReceiptAnalysisDisplay';
-import receiptService from '../services/receiptService';
-import { Button } from '../components/ui/button';
+import { fromTanStackResponse } from '@/models/transformers/fromTanStack';
+import { animated, useSpring } from '@react-spring/web';
+import { useQuery } from '@tanstack/react-query';
+import { createUseGesture, dragAction, pinchAction } from '@use-gesture/react';
+import { motion } from 'framer-motion';
 import {
-  ArrowLeft,
   AlertCircle,
-  Loader2,
-  Image as ImageIcon,
-  Undo,
+  ArrowLeft,
   Download,
+  Image as ImageIcon,
+  Loader2,
+  Undo,
 } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import ReceiptAnalysisDisplay from '../components/Receipt/ReceiptAnalysisDisplay';
+import { Button } from '../components/ui/button';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from '../components/ui/card';
-import { motion } from 'framer-motion';
-import { createUseGesture, dragAction, pinchAction } from '@use-gesture/react';
-import { useSpring, animated } from '@react-spring/web';
-import { useQuery } from '@tanstack/react-query';
+import receiptService from '../services/receiptService';
 
 const useGesture = createUseGesture([dragAction, pinchAction]);
 
 const ReceiptAnalysisPage = () => {
   const { receiptId } = useParams();
   const navigate = useNavigate();
-  const [receipt, setReceipt] = useState(null);
-  const [error, setError] = useState(null);
-  const [previewImage, setPreviewImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const {
     data: receiptData,
@@ -38,11 +37,18 @@ const ReceiptAnalysisPage = () => {
     isLoading: receiptDataIsLoading,
   } = useQuery({
     queryKey: ['receipt', receiptId],
-    queryFn: () => receiptService.getSingleReceipt(parseInt(receiptId)),
+    queryFn: () => receiptService.getSingleReceipt(parseInt(receiptId ?? '0')),
+    enabled: !!receiptId,
   });
 
+  // Transform receipt data once and reuse throughout the component
+  const receipt = useMemo(() => {
+    if (!receiptData?.receipt) return null;
+    return fromTanStackResponse(receiptData);
+  }, [receiptData]);
+
   useEffect(() => {
-    const handler = (e) => e.preventDefault();
+    const handler = (e: Event) => e.preventDefault();
     document.addEventListener('gesturestart', handler);
     document.addEventListener('gesturechange', handler);
     document.addEventListener('gestureend', handler);
@@ -59,7 +65,7 @@ const ReceiptAnalysisPage = () => {
     scale: 1,
     rotateZ: 0,
   }));
-  const ref = React.useRef(null);
+  const ref = React.useRef<HTMLDivElement>(null);
 
   useGesture(
     {
@@ -74,7 +80,7 @@ const ReceiptAnalysisPage = () => {
         offset: [s, a],
         memo,
       }) => {
-        if (first) {
+        if (first && ref.current) {
           const { width, height, x, y } = ref.current.getBoundingClientRect();
           const tx = ox - (x + width / 2);
           const ty = oy - (y + height / 2);
@@ -95,23 +101,11 @@ const ReceiptAnalysisPage = () => {
   );
 
   useEffect(() => {
-    // TODO revisit and potentially cleanup this useEffect. no longer need to
-    // make separate fetch for receipt details and image path.
-    const fetchReceiptDetails = async () => {
-      if (receiptData?.receipt) {
-        // ideally don't need to save, just use data from useQuery
-        setReceipt(receiptData.receipt);
-        setPreviewImage(receiptData.receipt.image_path);
-        setError(null);
-      } else {
-        throw new Error('Failed to retrieve receipt details');
-      }
-    };
-
-    if (receiptDataStatus === 'success') {
-      fetchReceiptDetails();
+    // Set preview image from receipt data
+    if (receiptData?.receipt?.image_path) {
+      setPreviewImage(receiptData.receipt.image_path);
     }
-  }, [receiptDataStatus, receiptData, receiptId]);
+  }, [receiptData]);
 
   const handleBackClick = () => {
     navigate('/');
@@ -160,9 +154,11 @@ const ReceiptAnalysisPage = () => {
 
       // Create a file name from the merchant and date if available
       let fileName = 'receipt';
-      if (receipt && receipt.receipt_data) {
-        const merchant = receipt.receipt_data.merchant || '';
-        const date = receipt.receipt_data.date || '';
+      if (receipt) {
+        const merchant = receipt.merchant || '';
+        const date = receipt.date
+          ? receipt.date.toISOString().split('T')[0]
+          : '';
         fileName = `receipt_${merchant.replace(/\s+/g, '_').toLowerCase()}_${date.replace(/[/\\:]/g, '-')}`;
       }
 
@@ -196,7 +192,7 @@ const ReceiptAnalysisPage = () => {
             <span className="ml-2 text-lg">Loading receipt details...</span>
           </div>
         </div>
-      ) : receiptDataStatus === 'error' || error ? (
+      ) : receiptDataStatus === 'error' ? (
         <div className="mx-auto max-w-4xl py-8">
           <Button variant="ghost" className="mb-6" onClick={handleBackClick}>
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -209,7 +205,11 @@ const ReceiptAnalysisPage = () => {
               <h2 className="font-semibold text-destructive">
                 Error Loading Receipt
               </h2>
-              <p className="text-destructive/90">{receiptDataError || error}</p>
+              <p className="text-destructive/90">
+                {receiptDataError instanceof Error
+                  ? receiptDataError.message
+                  : String(receiptDataError ?? 'Unknown error')}
+              </p>
             </div>
           </div>
         </div>
@@ -254,10 +254,11 @@ const ReceiptAnalysisPage = () => {
                           className={`mx-auto max-h-[75vh] touch-none object-contain transition-transform duration-100`}
                           onError={(e) => {
                             // Don't try to load another image, just hide this one and show fallback
-                            e.target.style.display = 'none';
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
 
                             // Find closest parent that would be good for appending fallback
-                            const container = e.target.closest('.relative');
+                            const container = target.closest('.relative');
                             if (container) {
                               // Check if fallback already exists to prevent infinite loop
                               if (
@@ -305,10 +306,11 @@ const ReceiptAnalysisPage = () => {
               </Card>
             </motion.div>
 
-            {receiptData?.receipt && (
+            {receipt && (
               <ReceiptAnalysisDisplay
-                key={`receipt-${receiptId}-${receiptData.receipt.receipt_data.line_items.length}-${receiptData.receipt.receipt_data.gratuity ?? 0}-${receiptData.receipt.receipt_data.tip ?? 0}`}
-                result={receiptData.receipt}
+                key={`receipt-${receiptId}-${receipt.lineItems.length}-${receipt.gratuity?.toNumber() ?? 0}-${receipt.tip?.toNumber() ?? 0}`}
+                receipt={receipt}
+                receiptId={receiptId ?? ''}
               />
             )}
           </div>

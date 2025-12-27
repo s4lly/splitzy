@@ -1,8 +1,8 @@
 import LineItemForm from '@/components/Receipt/LineItemForm';
-import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
-import { z } from 'zod';
-import { useState } from 'react';
 import { useLineItemAddMutation } from '@/components/Receipt/hooks/useLineItemAddMutation';
+import type { ReceiptLineItem } from '@/models/Receipt';
+import Decimal from 'decimal.js';
+import { useState } from 'react';
 import { Button } from '../ui/button';
 
 function isStringEmpty(str: string) {
@@ -10,10 +10,10 @@ function isStringEmpty(str: string) {
 }
 
 export default function LineItemAddForm({
-  result,
+  receiptId,
   onAddCancel,
 }: {
-  result: z.infer<typeof ReceiptSchema>;
+  receiptId: string;
   onAddCancel: () => void;
 }) {
   const addLineItemMutation = useLineItemAddMutation();
@@ -28,7 +28,7 @@ export default function LineItemAddForm({
   const handleAddItem = () => {
     addLineItemMutation.mutate(
       {
-        receiptId: result.id.toString(),
+        receiptId,
         lineItemData: formData,
       },
       {
@@ -51,12 +51,13 @@ export default function LineItemAddForm({
   };
 
   // Create a mutate function that updates local state instead of calling the API
-  const mutate = (
-    data: Partial<z.infer<typeof LineItemSchema>> & {
-      receiptId: string;
-      itemId: string;
-    }
-  ) => {
+  const mutate = (data: {
+    receiptId: string;
+    itemId: string;
+    name?: string;
+    quantity?: number;
+    price_per_item?: number;
+  }) => {
     // Update local state based on what field changed
     if ('price_per_item' in data) {
       setFormData((prev) => ({
@@ -78,18 +79,21 @@ export default function LineItemAddForm({
     }
   };
 
+  // Create a temporary ReceiptLineItem for the form
+  const tempItem: ReceiptLineItem = {
+    id: 'temp', // Temporary ID for the form
+    name: formData.name,
+    quantity: new Decimal(formData.quantity),
+    pricePerItem: new Decimal(formData.price_per_item),
+    totalPrice: new Decimal(formData.quantity * formData.price_per_item),
+    assignments: [],
+  };
+
   return (
     <div className="w-full">
       <LineItemForm
-        item={{
-          id: 'temp', // Temporary ID for the form
-          name: formData.name,
-          quantity: formData.quantity,
-          price_per_item: formData.price_per_item,
-          total_price: formData.quantity * formData.price_per_item,
-          assignments: [],
-        }}
-        result={result}
+        item={tempItem}
+        receiptId={receiptId}
         onNameChange={handleNameChange}
         onQuantityChange={handleQuantityChange}
         mutate={mutate}

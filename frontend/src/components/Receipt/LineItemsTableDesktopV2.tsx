@@ -9,12 +9,11 @@ import {
 } from '@/components/ui/table';
 import { AssignmentsContainer } from '@/features/assignments/assignments-container';
 import AssignmentsList from '@/features/assignments/assignments-list';
-import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
+import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
 import { cn } from '@/lib/utils';
 import Decimal from 'decimal.js';
 import { Pencil } from 'lucide-react';
 import { Fragment, useState } from 'react';
-import { z } from 'zod';
 import { Separator } from '../ui/separator';
 import { Toggle } from '../ui/toggle';
 import LineItemEditForm from './LineItemEditForm';
@@ -26,12 +25,12 @@ import { calculations } from './utils/receipt-calculation';
 export default function LineItemsTableDesktopV2({
   line_items,
   people,
-  result,
+  receipt,
   togglePersonAssignment,
 }: {
-  line_items: z.infer<typeof LineItemSchema>[];
+  line_items: readonly ReceiptLineItem[];
   people: string[];
-  result: z.infer<typeof ReceiptSchema>;
+  receipt: Receipt;
   togglePersonAssignment: (itemId: string, person: string) => void;
 }) {
   const [editItemId, setEditItemId] = useState<string | null>(null);
@@ -54,7 +53,7 @@ export default function LineItemsTableDesktopV2({
   const handleDeleteItem = (itemId: string) => {
     deleteItem(
       {
-        receiptId: String(result?.id),
+        receiptId: String(receipt.id),
         itemId: itemId,
       },
       {
@@ -93,11 +92,13 @@ export default function LineItemsTableDesktopV2({
                   <span className="text-base font-medium">{item.name}</span>
                 </TableCell>
                 <TableCell>
-                  <span className="text-base font-medium">{item.quantity}</span>
+                  <span className="text-base font-medium">
+                    {item.quantity.toNumber()}
+                  </span>
                 </TableCell>
                 <TableCell>
                   <span className="text-base font-medium">
-                    {formatCurrency(item.price_per_item)}
+                    {formatCurrency(item.pricePerItem)}
                   </span>
                 </TableCell>
                 <TableCell>
@@ -131,7 +132,7 @@ export default function LineItemsTableDesktopV2({
                     <div className="rounded-lg border">
                       <LineItemEditForm
                         item={item}
-                        result={result}
+                        receipt={receipt}
                         onEditCancel={() => setEditItemId(null)}
                       />
                       <Separator />
@@ -180,8 +181,8 @@ export default function LineItemsTableDesktopV2({
                           togglePersonAssignment(item.id, person);
                         }}
                         item={item}
-                        formPricePerItem={new Decimal(item.price_per_item)}
-                        formQuantity={new Decimal(item.quantity)}
+                        formPricePerItem={item.pricePerItem}
+                        formQuantity={item.quantity}
                       />
                       <Separator />
                       <div className="flex justify-between gap-2 p-2">

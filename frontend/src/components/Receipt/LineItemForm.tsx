@@ -5,36 +5,38 @@ import {
 } from '@/components/Receipt/utils/format-currency';
 import { Input } from '@/components/ui/input';
 import { Toggle } from '@/components/ui/toggle';
-import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
+import type { ReceiptLineItem } from '@/models/Receipt';
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import { z } from 'zod';
 
 export default function LineItemForm({
   item,
-  result,
+  receiptId,
   onNameChange,
   onQuantityChange,
   mutate,
   onEditCancel,
 }: {
-  item: z.infer<typeof LineItemSchema>;
-  result: z.infer<typeof ReceiptSchema>;
+  item: ReceiptLineItem;
+  receiptId: string;
   onNameChange: (name: string) => void;
   onQuantityChange: (quantity: number) => void;
-  mutate: (
-    data: Partial<z.infer<typeof LineItemSchema>> & {
-      receiptId: string;
-      itemId: string;
-    }
-  ) => void;
+  mutate: (data: {
+    receiptId: string;
+    itemId: string;
+    name?: string;
+    quantity?: number;
+    price_per_item?: number;
+  }) => void;
   onEditCancel?: () => void;
 }) {
   const [formName, setFormName] = useState(item.name);
-  const [formQuantity, setFormQuantity] = useState<number>(item.quantity);
+  const [formQuantity, setFormQuantity] = useState<number>(
+    item.quantity.toNumber()
+  );
   const [formPricePerItem, setFormPricePerItem] = useState<string>(
-    truncateToTwoDecimals(item.price_per_item)
+    truncateToTwoDecimals(item.pricePerItem)
   );
   const [isNameFocused, setIsNameFocused] = useState(false);
 
@@ -59,14 +61,15 @@ export default function LineItemForm({
 
   const handlePriceBlur = () => {
     const num = parseFloat(formPricePerItem);
-    const originalTruncated = Math.trunc(item.price_per_item * 100) / 100;
+    const originalTruncated =
+      Math.trunc(item.pricePerItem.toNumber() * 100) / 100;
     if (!isNaN(num)) {
       const truncated = Math.trunc(num * 100) / 100;
       const truncatedStr = truncateToTwoDecimals(truncated);
       setFormPricePerItem(truncatedStr);
       if (truncated !== originalTruncated) {
         mutate({
-          receiptId: String(result?.id),
+          receiptId,
           itemId: item.id,
           price_per_item: truncated,
         });
@@ -75,7 +78,7 @@ export default function LineItemForm({
       setFormPricePerItem('0.00');
       if (originalTruncated !== 0) {
         mutate({
-          receiptId: String(result?.id),
+          receiptId,
           itemId: item.id,
           price_per_item: 0,
         });

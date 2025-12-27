@@ -1,8 +1,7 @@
 import { useMobile } from '@/hooks/use-mobile';
-import { LineItemSchema } from '@/lib/receiptSchemas';
+import type { ReceiptLineItem } from '@/models/Receipt';
 import { cn } from '@/lib/utils';
 import React from 'react';
-import { z } from 'zod';
 import PersonBadge from './PersonBadge';
 import { MAX_VISIBLE_ASSIGNED_PEOPLE_DESKTOP } from './constants';
 import {
@@ -11,7 +10,7 @@ import {
 } from './utils/get-color-for-name';
 
 interface PersonAssignmentSectionProps {
-  item: z.infer<typeof LineItemSchema>;
+  item: ReceiptLineItem;
   people: string[];
   className?: string;
 }

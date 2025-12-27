@@ -1,17 +1,16 @@
 import { useEffect, useMemo } from 'react';
-import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
-import { z } from 'zod';
+import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
 import debounce from 'lodash.debounce';
 import { useLineItemUpdateMutation } from './hooks/useLineItemUpdateMutation';
 import LineItemForm from './LineItemForm';
 
 export default function LineItemEditForm({
   item,
-  result,
+  receipt,
   onEditCancel,
 }: {
-  item: z.infer<typeof LineItemSchema>;
-  result: z.infer<typeof ReceiptSchema>;
+  item: ReceiptLineItem;
+  receipt: Receipt;
   onEditCancel: () => void;
 }) {
   const { mutate: updateItem } = useLineItemUpdateMutation();
@@ -20,24 +19,24 @@ export default function LineItemEditForm({
     () =>
       debounce((value: string) => {
         updateItem({
-          receiptId: String(result?.id),
+          receiptId: String(receipt.id),
           itemId: item.id,
           name: value,
         });
       }, 300),
-    [result?.id, item.id, updateItem]
+    [receipt.id, item.id, updateItem]
   );
 
   const debouncedPersistQuantity = useMemo(
     () =>
       debounce((value: number) => {
         updateItem({
-          receiptId: String(result?.id),
+          receiptId: String(receipt.id),
           itemId: item.id,
           quantity: value,
         });
       }, 300),
-    [result?.id, item.id, updateItem]
+    [receipt.id, item.id, updateItem]
   );
 
   useEffect(() => {
@@ -61,7 +60,7 @@ export default function LineItemEditForm({
     <div className="w-full">
       <LineItemForm
         item={item}
-        result={result}
+        receiptId={String(receipt.id)}
         onNameChange={handleNameChange}
         onQuantityChange={handleQuantityChange}
         mutate={updateItem}

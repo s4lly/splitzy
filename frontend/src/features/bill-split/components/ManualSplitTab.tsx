@@ -1,10 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ReceiptSchema } from '@/lib/receiptSchemas';
+import type { Receipt } from '@/models/Receipt';
 import Decimal from 'decimal.js';
 import { Users } from 'lucide-react';
 import { useState } from 'react';
-import { z } from 'zod';
 import { AssignmentProgress } from './AssignmentProgress';
 import { BillBreakdown } from './BillBreakdown';
 import { EqualSplitBanner } from './EqualSplitBanner';
@@ -12,8 +11,7 @@ import { PeopleManagerForm } from './PeopleManagerForm';
 
 interface ManualSplitTabProps {
   people: string[];
-  receiptResult: z.infer<typeof ReceiptSchema>;
-  receiptData: z.infer<typeof ReceiptSchema>['receipt_data'];
+  receipt: Receipt;
   personFairTotals: Map<string, Decimal>;
   personPretaxTotals: Map<string, Decimal>;
   personTotalsSum: Decimal;
@@ -28,8 +26,7 @@ interface ManualSplitTabProps {
 
 export const ManualSplitTab = ({
   people,
-  receiptResult,
-  receiptData,
+  receipt,
   personFairTotals,
   personPretaxTotals,
   personTotalsSum,
@@ -99,8 +96,7 @@ export const ManualSplitTab = ({
         {/* Bill Breakdown */}
         <BillBreakdown
           people={people}
-          receiptResult={receiptResult}
-          receiptData={receiptData}
+          receipt={receipt}
           personFairTotals={personFairTotals}
           personPretaxTotals={personPretaxTotals}
           receiptTotal={receiptTotal}

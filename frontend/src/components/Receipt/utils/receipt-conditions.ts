@@ -1,15 +1,13 @@
-import { ReceiptDataSchema } from '@/lib/receiptSchemas';
-import { z } from 'zod';
+import Decimal from 'decimal.js';
+import type { Receipt } from '@/models/Receipt';
 import { ItemSplits } from './receipt-calculation';
-
-type ReceiptData = z.infer<typeof ReceiptDataSchema>;
 
 /**
  * Pure function to check if receipt has line items.
- * Returns true if receipt_data has line_items array with at least one item.
+ * Returns true if receipt has lineItems array with at least one item.
  */
-export const hasLineItems = (receipt_data: ReceiptData): boolean => {
-  return !!(receipt_data.line_items && receipt_data.line_items.length > 0);
+export const hasLineItems = (receipt: Receipt): boolean => {
+  return !!(receipt.lineItems && receipt.lineItems.length > 0);
 };
 
 /**
@@ -23,10 +21,10 @@ export const receiptHasLineItems = (itemSplits: ItemSplits) => {
 /**
  * Pure function to check if no assignments have been made to any line items
  */
-export const hasNoAssignmentsMade = (receipt_data: ReceiptData): boolean => {
+export const hasNoAssignmentsMade = (receipt: Receipt): boolean => {
   return (
-    hasLineItems(receipt_data) &&
-    receipt_data.line_items.every(
+    hasLineItems(receipt) &&
+    receipt.lineItems.every(
       (item) => !item.assignments || item.assignments.length === 0
     )
   );
@@ -40,13 +38,13 @@ export const hasNoAssignmentsMade = (receipt_data: ReceiptData): boolean => {
  * Returns false if:
  * - There are line items and at least one has assignments
  */
-export const receiptHasNoAssignments = (receipt_data: ReceiptData): boolean => {
-  if (!hasLineItems(receipt_data)) {
+export const receiptHasNoAssignments = (receipt: Receipt): boolean => {
+  if (!hasLineItems(receipt)) {
     return true; // No line items means no assignments
   }
 
   // Check if all line items have no assignments
-  return receipt_data.line_items.every(
+  return receipt.lineItems.every(
     (item) => !item.assignments || item.assignments.length === 0
   );
 };
@@ -55,18 +53,18 @@ export const receiptHasNoAssignments = (receipt_data: ReceiptData): boolean => {
  * Pure function to check if equal split mode should be used
  * (no line items or no assignments made)
  */
-export const shouldUseEqualSplit = (receipt_data: ReceiptData): boolean => {
-  const noAssignmentsMade = hasNoAssignmentsMade(receipt_data);
-  return !hasLineItems(receipt_data) || noAssignmentsMade;
+export const shouldUseEqualSplit = (receipt: Receipt): boolean => {
+  const noAssignmentsMade = hasNoAssignmentsMade(receipt);
+  return !hasLineItems(receipt) || noAssignmentsMade;
 };
 
 /**
  * Pure function to check if all items have been assigned
  */
-export const areAllItemsAssigned = (receipt_data: ReceiptData): boolean => {
+export const areAllItemsAssigned = (receipt: Receipt): boolean => {
   return (
-    hasLineItems(receipt_data) &&
-    receipt_data.line_items.every(
+    hasLineItems(receipt) &&
+    receipt.lineItems.every(
       (item) => item.assignments && item.assignments.length > 0
     )
   );
@@ -81,13 +79,14 @@ export const areAllItemsAssigned = (receipt_data: ReceiptData): boolean => {
  * - There is at least some pre-tax assigned amount
  */
 export const shouldApplyTaxToAssignedItems = (
-  receipt_data: ReceiptData,
-  totalPreTaxAssignedAmount: number
+  receipt: Receipt,
+  totalPreTaxAssignedAmount: Decimal
 ): boolean => {
   return (
-    hasLineItems(receipt_data) &&
-    !receipt_data.tax_included_in_items &&
-    (receipt_data.tax ?? 0) > 0 &&
-    totalPreTaxAssignedAmount > 0
+    hasLineItems(receipt) &&
+    !receipt.taxIncludedInItems &&
+    receipt.tax !== null &&
+    receipt.tax.gt(0) &&
+    totalPreTaxAssignedAmount.gt(0)
   );
 };

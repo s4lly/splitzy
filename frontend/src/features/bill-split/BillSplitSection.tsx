@@ -6,8 +6,7 @@ import { BillSplitSectionProps } from './types';
 
 export const BillSplitSection = ({
   people,
-  receiptData,
-  receiptResult,
+  receipt,
   personFairTotals,
   personPretaxTotals,
   personTotalsSum,
@@ -29,8 +28,7 @@ export const BillSplitSection = ({
         <TabsContent value="manual">
           <ManualSplitTab
             people={people}
-            receiptResult={receiptResult}
-            receiptData={receiptData}
+            receipt={receipt}
             personFairTotals={personFairTotals}
             personPretaxTotals={personPretaxTotals}
             personTotalsSum={personTotalsSum}
@@ -44,7 +42,7 @@ export const BillSplitSection = ({
           />
         </TabsContent>
         <TabsContent value="evenly">
-          <EvenSplitTab receiptData={receiptData} people={people} />
+          <EvenSplitTab receipt={receipt} people={people} />
         </TabsContent>
       </Tabs>
     </Card>
