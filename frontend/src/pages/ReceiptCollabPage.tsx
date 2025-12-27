@@ -4,12 +4,14 @@ import {
   ReceiptWithLineItems,
 } from '@/context/ReceiptContext';
 import { useReceiptSync } from '@/features/receipt-collab/hooks/useReceiptSync';
+import { ReceiptDetailsCard } from '@/features/receipt-viewer/ReceiptDetailsCard';
 import { ReceiptViewer } from '@/features/receipt-viewer/ReceiptViewer';
 import { motion } from 'framer-motion';
 import { Provider as JotaiProvider } from 'jotai';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
+import { Separator } from '@/components/ui/separator';
 import { queries } from '@/zero/queries';
 import { useQuery } from '@rocicorp/zero/react';
 
@@ -48,6 +50,8 @@ const ReceiptCollabContent = () => {
               - useAtomValue(receiptTotalAtom) for derived values
               - useAtom(personTotalsAtom) for modifiable derived values
           */}
+          <ReceiptDetailsCard />
+          <Separator />
           <ReceiptViewer />
         </div>
       </div>
