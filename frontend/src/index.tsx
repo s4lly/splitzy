@@ -13,7 +13,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
-import { schema } from '@/zero/schema';
+import { schema, Schema } from '@/zero/schema';
 import type { ZeroOptions } from '@rocicorp/zero';
 import { ZeroProvider } from '@rocicorp/zero/react';
 import { PostHog, PostHogConfig } from 'posthog-js';
@@ -38,7 +38,7 @@ const getUserID = () => {
   return userID;
 };
 
-const zeroOptions: ZeroOptions = {
+const zeroOptions: ZeroOptions<Schema> = {
   cacheURL: ZERO_CACHE_URL,
   queryURL: ZERO_QUERY_URL,
   mutateURL: ZERO_MUTATE_URL,
