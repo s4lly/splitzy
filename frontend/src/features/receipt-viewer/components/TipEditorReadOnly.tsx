@@ -76,7 +76,7 @@ const TipEditorReadOnly = ({
   };
 
   const handleCancelTip = () => {
-    setTip(receiptTip ?? 0);
+    setTip(receiptTip);
     setIsEditing(false);
   };
 
