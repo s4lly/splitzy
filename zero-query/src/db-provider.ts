@@ -2,8 +2,13 @@ import { zeroNodePg } from "@rocicorp/zero/server/adapters/pg";
 import { Pool } from "pg";
 import { schema } from "./schema.js";
 
+const connectionString = process.env.ZERO_UPSTREAM_DB;
+if (!connectionString) {
+  throw new Error("ZERO_UPSTREAM_DB environment variable is required");
+}
+
 const pool = new Pool({
-  connectionString: process.env.ZERO_UPSTREAM_DB,
+  connectionString,
 });
 export const dbProvider = zeroNodePg(schema, pool);
 
