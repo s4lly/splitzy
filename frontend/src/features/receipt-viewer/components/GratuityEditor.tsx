@@ -2,23 +2,26 @@ import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useReceiptMutation } from '@/features/receipt-viewer/hooks/useReceiptMutation';
 import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
 import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface GratuityEditorReadOnlyProps {
+interface GratuityEditorProps {
   receiptGratuity: Decimal;
+  receiptId: number;
 }
 
 /**
- * Read-only version of GratuityEditor that maintains the UI but doesn't perform mutations.
- * All save/delete operations are noops.
+ * GratuityEditor component that allows editing and saving gratuity values.
+ * Performs mutations using Zero mutators.
  */
-const GratuityEditorReadOnly = ({
+const GratuityEditor = ({
   receiptGratuity = new Decimal(0),
-}: GratuityEditorReadOnlyProps) => {
+  receiptId,
+}: GratuityEditorProps) => {
   const [gratuity, setGratuity] = useState<Decimal>(receiptGratuity);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -28,19 +31,24 @@ const GratuityEditorReadOnly = ({
 
   const hasValueToDelete = !receiptGratuity.isZero();
 
+  const { mutate, isSaving } = useReceiptMutation({
+    onSuccess: () => setIsEditing(false),
+  });
+
   useEffect(() => {
     resetToInitialValue();
   }, [receiptGratuity]);
 
-  // Noop functions - UI only, no mutations
   const handleEditGratuity = () => {
     resetToInitialValue();
     setIsEditing(true);
   };
 
-  const handleSaveGratuity = () => {
-    // Noop - no mutation performed
-    setIsEditing(false);
+  const handleSaveGratuity = async () => {
+    await mutate({
+      id: receiptId,
+      gratuity: gratuity.toNumber(),
+    });
   };
 
   const handleGratuityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,9 +82,11 @@ const GratuityEditorReadOnly = ({
     setIsEditing(false);
   };
 
-  const handleDeleteGratuity = () => {
-    // Noop - no mutation performed
-    setIsEditing(false);
+  const handleDeleteGratuity = async () => {
+    await mutate({
+      id: receiptId,
+      gratuity: 0,
+    });
   };
 
   if (!hasValueToDelete && !isEditing) {
@@ -115,6 +125,7 @@ const GratuityEditorReadOnly = ({
               required
               className="text-center"
               id="gratuity"
+              disabled={isSaving}
             />
           </div>
 
@@ -132,15 +143,24 @@ const GratuityEditorReadOnly = ({
                 onClick={handleDeleteGratuity}
                 aria-label="Delete gratuity"
                 title="Delete gratuity"
+                disabled={isSaving}
               >
                 <Trash className="size-4" />
               </Button>
             )}
             <div className="flex gap-2">
-              <Button onClick={handleCancelGratuity} variant="outline">
+              <Button
+                onClick={handleCancelGratuity}
+                variant="outline"
+                disabled={isSaving}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSaveGratuity} variant="outline">
+              <Button
+                onClick={handleSaveGratuity}
+                variant="outline"
+                disabled={isSaving}
+              >
                 Done
               </Button>
             </div>
@@ -157,4 +177,4 @@ const GratuityEditorReadOnly = ({
   );
 };
 
-export default GratuityEditorReadOnly;
+export default GratuityEditor;

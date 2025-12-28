@@ -6,8 +6,8 @@ import {
   receiptAtom,
   receiptTotalAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
-import GratuityEditorReadOnly from '@/features/receipt-viewer/components/GratuityEditorReadOnly';
-import TipEditorReadOnly from '@/features/receipt-viewer/components/TipEditorReadOnly';
+import GratuityEditor from '@/features/receipt-viewer/components/GratuityEditor';
+import TipEditor from '@/features/receipt-viewer/components/TipEditor';
 import Decimal from 'decimal.js';
 import { useAtomValue } from 'jotai';
 import { AlertCircle, DollarSign } from 'lucide-react';
@@ -15,7 +15,7 @@ import { AlertCircle, DollarSign } from 'lucide-react';
 /**
  * Summary card component that displays receipt totals and breakdown.
  * Uses Jotai atoms for derived values - must be within a JotaiProvider.
- * Includes read-only versions of TipEditor and GratuityEditor (no mutations).
+ * Includes TipEditor and GratuityEditor components with mutation support.
  */
 export const ReceiptSummaryCard = () => {
   const receipt = useAtomValue(receiptAtom);
@@ -146,15 +146,17 @@ export const ReceiptSummaryCard = () => {
             </div>
           )}
 
-          {/* Tip - Read-only version */}
-          <TipEditorReadOnly
+          {/* Tip */}
+          <TipEditor
             receiptTip={receipt.tip ?? new Decimal(0)}
             itemsTotal={itemsTotal}
+            receiptId={receipt.id}
           />
 
-          {/* Gratuity - Read-only version */}
-          <GratuityEditorReadOnly
+          {/* Gratuity */}
+          <GratuityEditor
             receiptGratuity={receipt.gratuity ?? new Decimal(0)}
+            receiptId={receipt.id}
           />
 
           {/* Final Total */}

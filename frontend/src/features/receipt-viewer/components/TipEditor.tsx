@@ -5,43 +5,51 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useReceiptMutation } from '@/features/receipt-viewer/hooks/useReceiptMutation';
 import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
 import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface TipEditorReadOnlyProps {
+interface TipEditorProps {
   receiptTip: Decimal;
   itemsTotal: Decimal;
+  receiptId: number;
 }
 
 /**
- * Read-only version of TipEditor that maintains the UI but doesn't perform mutations.
- * All save/delete operations are noops.
+ * TipEditor component that allows editing and saving tip values.
+ * Performs mutations using Zero mutators.
  */
-const TipEditorReadOnly = ({
+const TipEditor = ({
   receiptTip = new Decimal(0),
   itemsTotal,
-}: TipEditorReadOnlyProps) => {
+  receiptId,
+}: TipEditorProps) => {
   const [tip, setTip] = useState<Decimal>(receiptTip);
   const [isEditing, setIsEditing] = useState(false);
 
   const hasValueToDelete = !receiptTip.isZero();
 
+  const { mutate, isSaving } = useReceiptMutation({
+    onSuccess: () => setIsEditing(false),
+  });
+
   useEffect(() => {
     setTip(receiptTip);
   }, [receiptTip]);
 
-  // Noop functions - UI only, no mutations
   const handleEditTip = () => {
     setTip(receiptTip);
     setIsEditing(true);
   };
 
-  const handleSaveTip = () => {
-    // Noop - no mutation performed
-    setIsEditing(false);
+  const handleSaveTip = async () => {
+    await mutate({
+      id: receiptId,
+      tip: tip.toNumber(),
+    });
   };
 
   const handleTipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,9 +78,11 @@ const TipEditorReadOnly = ({
     setTip(roundedValue);
   };
 
-  const handleDeleteTip = () => {
-    // Noop - no mutation performed
-    setIsEditing(false);
+  const handleDeleteTip = async () => {
+    await mutate({
+      id: receiptId,
+      tip: 0,
+    });
   };
 
   const handleCancelTip = () => {
@@ -126,6 +136,7 @@ const TipEditorReadOnly = ({
                   required
                   className="text-center"
                   id="tip"
+                  disabled={isSaving}
                 />
               </div>
               <div className="flex justify-center text-sm text-muted-foreground">
@@ -169,15 +180,24 @@ const TipEditorReadOnly = ({
                 className="border-red-500 text-red-500"
                 onClick={handleDeleteTip}
                 aria-label="Delete tip"
+                disabled={isSaving}
               >
                 <Trash className="size-4" />
               </Button>
             )}
             <div className="flex gap-2">
-              <Button onClick={handleCancelTip} variant="outline">
+              <Button
+                onClick={handleCancelTip}
+                variant="outline"
+                disabled={isSaving}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSaveTip} variant="outline">
+              <Button
+                onClick={handleSaveTip}
+                variant="outline"
+                disabled={isSaving}
+              >
                 Done
               </Button>
             </div>
@@ -194,4 +214,4 @@ const TipEditorReadOnly = ({
   );
 };
 
-export default TipEditorReadOnly;
+export default TipEditor;
