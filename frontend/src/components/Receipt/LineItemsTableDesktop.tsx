@@ -9,6 +9,11 @@ import {
 } from '@/components/ui/table';
 import { AssignmentsContainer } from '@/features/assignments/assignments-container';
 import AssignmentsList from '@/features/assignments/assignments-list';
+import type {
+  DeleteLineItemData,
+  MutationCallbackOptions,
+  UpdateLineItemData,
+} from '@/features/line-items/types';
 import { cn } from '@/lib/utils';
 import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
 import { Pencil } from 'lucide-react';
@@ -33,22 +38,10 @@ export default function LineItemsTableDesktop({
   people: string[];
   receipt: Receipt;
   togglePersonAssignment: (itemId: string, person: string) => void;
-  onUpdateLineItem: (data: {
-    receiptId: string;
-    itemId: string;
-    name?: string;
-    quantity?: number;
-    price_per_item?: number;
-  }) => void;
+  onUpdateLineItem: (data: UpdateLineItemData) => void;
   onDeleteLineItem: (
-    data: {
-      receiptId: string;
-      itemId: string;
-    },
-    options?: {
-      onSuccess?: () => void;
-      onError?: (error: Error) => void;
-    }
+    data: DeleteLineItemData,
+    options?: MutationCallbackOptions
   ) => void;
   isDeleting?: boolean;
 }) {

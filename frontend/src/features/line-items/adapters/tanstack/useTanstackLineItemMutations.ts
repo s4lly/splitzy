@@ -1,6 +1,11 @@
 import { useItemAssignmentsUpdateMutation } from '@/components/Receipt/hooks/useItemAssignmentsUpdateMutation';
 import { useLineItemDeleteMutation } from '@/components/Receipt/hooks/useLineItemDeleteMutation';
 import { useLineItemUpdateMutation } from '@/components/Receipt/hooks/useLineItemUpdateMutation';
+import type {
+  DeleteLineItemData,
+  MutationCallbackOptions,
+  UpdateLineItemData,
+} from '@/features/line-items/types';
 import type { Receipt } from '@/models/Receipt';
 
 export function useTanstackLineItemMutations(receipt: Receipt) {
@@ -37,13 +42,7 @@ export function useTanstackLineItemMutations(receipt: Receipt) {
     });
   };
 
-  const handleUpdateLineItem = (data: {
-    receiptId: string;
-    itemId: string;
-    name?: string;
-    quantity?: number;
-    price_per_item?: number;
-  }) => {
+  const handleUpdateLineItem = (data: UpdateLineItemData) => {
     console.info(
       `Updating line item ${data.itemId} in receipt ${data.receiptId}`,
       {
@@ -65,14 +64,8 @@ export function useTanstackLineItemMutations(receipt: Receipt) {
   };
 
   const handleDeleteLineItem = (
-    data: {
-      receiptId: string;
-      itemId: string;
-    },
-    options?: {
-      onSuccess?: () => void;
-      onError?: (error: Error) => void;
-    }
+    data: DeleteLineItemData,
+    options?: MutationCallbackOptions
   ) => {
     console.info(
       `Deleting line item ${data.itemId} from receipt ${data.receiptId}`

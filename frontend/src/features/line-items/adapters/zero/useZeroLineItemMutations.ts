@@ -1,3 +1,8 @@
+import type {
+  DeleteLineItemData,
+  MutationCallbackOptions,
+  UpdateLineItemData,
+} from '@/features/line-items/types';
 import {
   receiptAtom,
   receiptIdAtom,
@@ -46,13 +51,7 @@ export function useZeroLineItemMutations() {
     }
   };
 
-  const handleUpdateLineItem = async (data: {
-    receiptId: string;
-    itemId: string;
-    name?: string;
-    quantity?: number;
-    price_per_item?: number;
-  }) => {
+  const handleUpdateLineItem = async (data: UpdateLineItemData) => {
     const result = zero.mutate(
       mutators.lineItems.update({
         id: data.itemId,
@@ -72,14 +71,8 @@ export function useZeroLineItemMutations() {
   };
 
   const handleDeleteLineItem = async (
-    data: {
-      receiptId: string;
-      itemId: string;
-    },
-    options?: {
-      onSuccess?: () => void;
-      onError?: (error: Error) => void;
-    }
+    data: DeleteLineItemData,
+    options?: MutationCallbackOptions
   ) => {
     const result = zero.mutate(
       mutators.lineItems.delete({

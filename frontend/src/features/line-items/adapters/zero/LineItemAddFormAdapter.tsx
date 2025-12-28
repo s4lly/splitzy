@@ -1,4 +1,5 @@
 import LineItemAddForm from '@/components/Receipt/LineItemAddForm';
+import type { AddLineItemData } from '@/features/line-items/types';
 import { receiptIdAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { mutators } from '@/zero/mutators';
 import { useZero } from '@rocicorp/zero/react';
@@ -13,14 +14,7 @@ export function LineItemAddFormAdapter({
   const zero = useZero();
   const receiptId = useAtomValue(receiptIdAtom);
 
-  const handleAddLineItem = async (data: {
-    receiptId: string;
-    lineItemData: {
-      name?: string;
-      quantity?: number;
-      price_per_item?: number;
-    };
-  }) => {
+  const handleAddLineItem = async (data: AddLineItemData) => {
     if (!receiptId) {
       console.error('Cannot add line item: receiptId is missing');
       return;
