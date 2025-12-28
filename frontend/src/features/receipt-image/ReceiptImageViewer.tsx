@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { toast } from 'sonner';
 import { useImageGestures } from './hooks/useImageGestures';
 import { downloadImage } from './utils/downloadImage';
 
@@ -24,7 +25,16 @@ export const ReceiptImageViewer = ({
 
   const handleDownloadImage = async () => {
     if (!imageUrl) return;
-    await downloadImage(imageUrl, fileName);
+    try {
+      await downloadImage(imageUrl, fileName);
+      toast.success('Image downloaded successfully');
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to download image';
+      toast.error('Download failed', {
+        description: message,
+      });
+    }
   };
 
   return (
