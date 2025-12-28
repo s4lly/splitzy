@@ -2,6 +2,18 @@ import { defineMutator, defineMutators } from "@rocicorp/zero";
 import { z } from "zod";
 
 export const mutators = defineMutators({
+  receipts: {
+    update: defineMutator(
+      z.object({
+        id: z.number(),
+        tip: z.number().optional(),
+        gratuity: z.number().optional(),
+      }),
+      async ({ tx, args }) => {
+        await tx.mutate.user_receipts.update(args);
+      }
+    ),
+  },
   lineItems: {
     update: defineMutator(
       z.object({

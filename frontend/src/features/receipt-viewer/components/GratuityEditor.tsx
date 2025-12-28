@@ -4,23 +4,29 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
+import { mutators } from '@/zero/mutators';
+import { useZero } from '@rocicorp/zero/react';
 import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface GratuityEditorReadOnlyProps {
+interface GratuityEditorProps {
   receiptGratuity: Decimal;
+  receiptId: number;
 }
 
 /**
- * Read-only version of GratuityEditor that maintains the UI but doesn't perform mutations.
- * All save/delete operations are noops.
+ * GratuityEditor component that allows editing and saving gratuity values.
+ * Performs mutations using Zero mutators.
  */
-const GratuityEditorReadOnly = ({
+const GratuityEditor = ({
   receiptGratuity = new Decimal(0),
-}: GratuityEditorReadOnlyProps) => {
+  receiptId,
+}: GratuityEditorProps) => {
+  const zero = useZero();
   const [gratuity, setGratuity] = useState<Decimal>(receiptGratuity);
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const resetToInitialValue = () => {
     setGratuity(receiptGratuity);
@@ -32,15 +38,39 @@ const GratuityEditorReadOnly = ({
     resetToInitialValue();
   }, [receiptGratuity]);
 
-  // Noop functions - UI only, no mutations
   const handleEditGratuity = () => {
     resetToInitialValue();
     setIsEditing(true);
   };
 
-  const handleSaveGratuity = () => {
-    // Noop - no mutation performed
-    setIsEditing(false);
+  const handleSaveGratuity = async () => {
+    if (!receiptId) {
+      console.error('Receipt ID is required to save gratuity');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const result = zero.mutate(
+        mutators.receipts.update({
+          id: receiptId,
+          gratuity: gratuity.toNumber(),
+        })
+      );
+
+      const clientResult = await result.client;
+
+      if (clientResult.type === 'error') {
+        console.error('Failed to update gratuity:', clientResult.error.message);
+      } else {
+        console.info('Successfully updated gratuity');
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Error updating gratuity:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleGratuityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,9 +104,34 @@ const GratuityEditorReadOnly = ({
     setIsEditing(false);
   };
 
-  const handleDeleteGratuity = () => {
-    // Noop - no mutation performed
-    setIsEditing(false);
+  const handleDeleteGratuity = async () => {
+    if (!receiptId) {
+      console.error('Receipt ID is required to delete gratuity');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const result = zero.mutate(
+        mutators.receipts.update({
+          id: receiptId,
+          gratuity: 0,
+        })
+      );
+
+      const clientResult = await result.client;
+
+      if (clientResult.type === 'error') {
+        console.error('Failed to delete gratuity:', clientResult.error.message);
+      } else {
+        console.info('Successfully deleted gratuity');
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Error deleting gratuity:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!hasValueToDelete && !isEditing) {
@@ -132,15 +187,24 @@ const GratuityEditorReadOnly = ({
                 onClick={handleDeleteGratuity}
                 aria-label="Delete gratuity"
                 title="Delete gratuity"
+                disabled={isSaving}
               >
                 <Trash className="size-4" />
               </Button>
             )}
             <div className="flex gap-2">
-              <Button onClick={handleCancelGratuity} variant="outline">
+              <Button
+                onClick={handleCancelGratuity}
+                variant="outline"
+                disabled={isSaving}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSaveGratuity} variant="outline">
+              <Button
+                onClick={handleSaveGratuity}
+                variant="outline"
+                disabled={isSaving}
+              >
                 Done
               </Button>
             </div>
@@ -157,4 +221,5 @@ const GratuityEditorReadOnly = ({
   );
 };
 
-export default GratuityEditorReadOnly;
+export default GratuityEditor;
+

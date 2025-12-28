@@ -7,25 +7,31 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
+import { mutators } from '@/zero/mutators';
+import { useZero } from '@rocicorp/zero/react';
 import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface TipEditorReadOnlyProps {
+interface TipEditorProps {
   receiptTip: Decimal;
   itemsTotal: Decimal;
+  receiptId: number;
 }
 
 /**
- * Read-only version of TipEditor that maintains the UI but doesn't perform mutations.
- * All save/delete operations are noops.
+ * TipEditor component that allows editing and saving tip values.
+ * Performs mutations using Zero mutators.
  */
-const TipEditorReadOnly = ({
+const TipEditor = ({
   receiptTip = new Decimal(0),
   itemsTotal,
-}: TipEditorReadOnlyProps) => {
+  receiptId,
+}: TipEditorProps) => {
+  const zero = useZero();
   const [tip, setTip] = useState<Decimal>(receiptTip);
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const hasValueToDelete = !receiptTip.isZero();
 
@@ -33,15 +39,39 @@ const TipEditorReadOnly = ({
     setTip(receiptTip);
   }, [receiptTip]);
 
-  // Noop functions - UI only, no mutations
   const handleEditTip = () => {
     setTip(receiptTip);
     setIsEditing(true);
   };
 
-  const handleSaveTip = () => {
-    // Noop - no mutation performed
-    setIsEditing(false);
+  const handleSaveTip = async () => {
+    if (!receiptId) {
+      console.error('Receipt ID is required to save tip');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const result = zero.mutate(
+        mutators.receipts.update({
+          id: receiptId,
+          tip: tip.toNumber(),
+        })
+      );
+
+      const clientResult = await result.client;
+
+      if (clientResult.type === 'error') {
+        console.error('Failed to update tip:', clientResult.error.message);
+      } else {
+        console.info('Successfully updated tip');
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Error updating tip:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleTipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,9 +100,34 @@ const TipEditorReadOnly = ({
     setTip(roundedValue);
   };
 
-  const handleDeleteTip = () => {
-    // Noop - no mutation performed
-    setIsEditing(false);
+  const handleDeleteTip = async () => {
+    if (!receiptId) {
+      console.error('Receipt ID is required to delete tip');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const result = zero.mutate(
+        mutators.receipts.update({
+          id: receiptId,
+          tip: 0,
+        })
+      );
+
+      const clientResult = await result.client;
+
+      if (clientResult.type === 'error') {
+        console.error('Failed to delete tip:', clientResult.error.message);
+      } else {
+        console.info('Successfully deleted tip');
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Error deleting tip:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancelTip = () => {
@@ -169,15 +224,24 @@ const TipEditorReadOnly = ({
                 className="border-red-500 text-red-500"
                 onClick={handleDeleteTip}
                 aria-label="Delete tip"
+                disabled={isSaving}
               >
                 <Trash className="size-4" />
               </Button>
             )}
             <div className="flex gap-2">
-              <Button onClick={handleCancelTip} variant="outline">
+              <Button
+                onClick={handleCancelTip}
+                variant="outline"
+                disabled={isSaving}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSaveTip} variant="outline">
+              <Button
+                onClick={handleSaveTip}
+                variant="outline"
+                disabled={isSaving}
+              >
                 Done
               </Button>
             </div>
@@ -194,4 +258,5 @@ const TipEditorReadOnly = ({
   );
 };
 
-export default TipEditorReadOnly;
+export default TipEditor;
+
