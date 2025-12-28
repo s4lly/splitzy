@@ -2,8 +2,8 @@ import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import EditableDetail from '@/features/summary-card/EditableDetail';
 import { useReceiptMutation } from '@/features/receipt-viewer/hooks/useReceiptMutation';
+import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
 import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
@@ -125,6 +125,7 @@ const GratuityEditor = ({
               required
               className="text-center"
               id="gratuity"
+              disabled={isSaving}
             />
           </div>
 
@@ -177,4 +178,3 @@ const GratuityEditor = ({
 };
 
 export default GratuityEditor;
-

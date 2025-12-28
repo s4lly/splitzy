@@ -18,6 +18,7 @@ import { ReceiptDetailsCard } from '@/features/receipt-viewer/ReceiptDetailsCard
 import { ReceiptSummaryCard } from '@/features/receipt-viewer/ReceiptSummaryCard';
 import { ReceiptViewer } from '@/features/receipt-viewer/ReceiptViewer';
 import { useMobile } from '@/hooks/use-mobile';
+import { isLocalDevelopment } from '@/utils/env';
 import { motion } from 'framer-motion';
 import { useAtomValue } from 'jotai';
 import { Plus, ShoppingBag } from 'lucide-react';
@@ -113,7 +114,7 @@ export const ReceiptCollabContent = () => {
 
           <Separator />
 
-          <ReceiptViewer />
+          {isLocalDevelopment() && <ReceiptViewer />}
         </div>
       </div>
     </motion.div>
