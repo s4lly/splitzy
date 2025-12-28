@@ -100,7 +100,7 @@ const TipEditorReadOnly = ({
     <div className="-ml-2 -mr-2 rounded-sm border">
       {isEditing ? (
         <div className="flex flex-col gap-4 bg-background px-2 py-2">
-          <Tabs defaultValue="exact" className="">
+          <Tabs defaultValue="exact">
             <div className="flex items-center justify-between">
               <Label htmlFor="tip" className="text-sm font-medium">
                 Tip:

@@ -121,9 +121,7 @@ export const BillBreakdownCollab = () => {
                         </div>
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        {people.length > 0
-                          ? `1/${people.length} of the total`
-                          : ''}
+                        {`1/${people.length} of the total`}
                       </div>
                     </>
                   ) : !receipt.taxIncludedInItems &&

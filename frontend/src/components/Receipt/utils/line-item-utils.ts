@@ -9,8 +9,6 @@ import Decimal from 'decimal.js';
 export const getPeopleFromLineItems = (
   lineItems: readonly ReceiptLineItem[]
 ): string[] => {
-  if (!lineItems) return [];
-
   const allAssignments = lineItems.flatMap((item) => item.assignments);
 
   return Array.from(new Set(allAssignments));
@@ -38,8 +36,6 @@ export const getPersonItems = (
   person: string,
   receipt: Receipt
 ): PersonItem[] => {
-  if (!receipt.lineItems) return [];
-
   const personItems: PersonItem[] = [];
   receipt.lineItems.forEach((item) => {
     const assignedPeople = item.assignments;

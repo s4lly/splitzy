@@ -18,7 +18,7 @@ const MIME_TO_EXTENSION: Record<string, string> = {
  * @returns The file extension without the dot (e.g., 'png'), defaults to 'jpg' if unknown
  */
 export const getExtensionFromMimeType = (mimeType: string): string => {
-  return MIME_TO_EXTENSION[mimeType] || 'jpg';
+  return MIME_TO_EXTENSION[mimeType.toLowerCase().trim()] || 'jpg';
 };
 
 /**
@@ -30,4 +30,3 @@ export const getMimeTypeFromDataUrl = (dataUrl: string): string | null => {
   const match = dataUrl.match(/^data:(image\/[^;]+);/);
   return match ? match[1] : null;
 };
-

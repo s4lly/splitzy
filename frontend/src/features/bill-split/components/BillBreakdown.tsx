@@ -88,7 +88,7 @@ export const BillBreakdown = ({
           const personItems = getPersonItems(person, receipt);
 
           return (
-            <Dialog key={idx}>
+            <Dialog key={person}>
               <DialogTrigger asChild>
                 <div
                   className="cursor-pointer rounded-lg border p-4 transition-shadow [background-color:color-mix(in_srgb,var(--bg-light)_5%,transparent)] hover:shadow-md dark:[background-color:color-mix(in_srgb,var(--bg-dark)_20%,transparent)]"
@@ -117,9 +117,7 @@ export const BillBreakdown = ({
                         </div>
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        {people.length > 0
-                          ? `1/${people.length} of the total`
-                          : ''}
+                        {`1/${people.length} of the total`}
                       </div>
                     </>
                   ) : !receipt.taxIncludedInItems &&
