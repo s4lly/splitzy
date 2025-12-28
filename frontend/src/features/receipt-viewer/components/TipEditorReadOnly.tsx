@@ -53,8 +53,13 @@ const TipEditorReadOnly = ({
       return;
     }
 
-    // Parse with parseFloat, fallback to 0 on NaN
-    const parsedValue = new Decimal(rawValue);
+    // Parse with Decimal, fallback to current value on invalid input
+    let parsedValue: Decimal;
+    try {
+      parsedValue = new Decimal(rawValue);
+    } catch {
+      return; // Keep current value on invalid input
+    }
 
     // Clamp to non-negative value
     const clampedValue = Decimal.max(0, parsedValue);
@@ -190,4 +195,3 @@ const TipEditorReadOnly = ({
 };
 
 export default TipEditorReadOnly;
-
