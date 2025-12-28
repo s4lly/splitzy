@@ -8,6 +8,7 @@ export function LineItemsTableDesktopAdapter({ people }: { people: string[] }) {
     handleDeleteLineItem,
     receipt,
     isReady,
+    isDeleting,
   } = useZeroLineItemMutations();
 
   if (!isReady || !receipt) {
@@ -22,7 +23,7 @@ export function LineItemsTableDesktopAdapter({ people }: { people: string[] }) {
       togglePersonAssignment={togglePersonAssignment}
       onUpdateLineItem={handleUpdateLineItem}
       onDeleteLineItem={handleDeleteLineItem}
-      isDeleting={false}
+      isDeleting={isDeleting}
     />
   );
 }

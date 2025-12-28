@@ -10,11 +10,13 @@ import {
 import { mutators } from '@/zero/mutators';
 import { useZero } from '@rocicorp/zero/react';
 import { useAtomValue } from 'jotai';
+import { useState } from 'react';
 
 export function useZeroLineItemMutations() {
   const zero = useZero();
   const receipt = useAtomValue(receiptAtom);
   const receiptId = useAtomValue(receiptIdAtom);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const togglePersonAssignment = async (itemId: string, person: string) => {
     if (!receipt) {
@@ -74,20 +76,28 @@ export function useZeroLineItemMutations() {
     data: DeleteLineItemData,
     options?: MutationCallbackOptions
   ) => {
-    const result = zero.mutate(
-      mutators.lineItems.delete({
-        id: data.itemId,
-      })
-    );
+    setIsDeleting(true);
+    try {
+      const result = zero.mutate(
+        mutators.lineItems.delete({
+          id: data.itemId,
+        })
+      );
 
-    const clientResult = await result.client;
+      const clientResult = await result.client;
 
-    if (clientResult.type === 'error') {
-      console.error('Failed to delete line item:', clientResult.error.message);
-      options?.onError?.(new Error(clientResult.error.message));
-    } else {
-      console.info('Successfully deleted line item');
-      options?.onSuccess?.();
+      if (clientResult.type === 'error') {
+        console.error(
+          'Failed to delete line item:',
+          clientResult.error.message
+        );
+        options?.onError?.(new Error(clientResult.error.message));
+      } else {
+        console.info('Successfully deleted line item');
+        options?.onSuccess?.();
+      }
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -98,5 +108,6 @@ export function useZeroLineItemMutations() {
     receipt,
     receiptId,
     isReady: !!receipt && !!receiptId,
+    isDeleting,
   };
 }

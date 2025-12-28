@@ -4,6 +4,7 @@ import { receiptIdAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { mutators } from '@/zero/mutators';
 import { useZero } from '@rocicorp/zero/react';
 import { useAtomValue } from 'jotai';
+import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export function LineItemAddFormAdapter({
@@ -13,6 +14,7 @@ export function LineItemAddFormAdapter({
 }) {
   const zero = useZero();
   const receiptId = useAtomValue(receiptIdAtom);
+  const [isPending, setIsPending] = useState(false);
 
   const handleAddLineItem = async (data: AddLineItemData) => {
     if (!receiptId) {
@@ -20,6 +22,7 @@ export function LineItemAddFormAdapter({
       return;
     }
 
+    setIsPending(true);
     const id = uuidv4();
     const quantity = data.lineItemData.quantity ?? 1;
     const pricePerItem = data.lineItemData.price_per_item ?? 0;
@@ -44,7 +47,10 @@ export function LineItemAddFormAdapter({
       console.error('Failed to add line item:', clientResult.error.message);
     } else {
       console.info('Successfully added line item');
+      onAddCancel();
     }
+
+    setIsPending(false);
   };
 
   if (!receiptId) {
@@ -56,7 +62,7 @@ export function LineItemAddFormAdapter({
       receiptId={receiptId}
       onAddCancel={onAddCancel}
       onAddLineItem={handleAddLineItem}
-      isPending={false}
+      isPending={isPending}
     />
   );
 }
