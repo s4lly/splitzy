@@ -38,7 +38,6 @@ const ReceiptAnalysisDisplay = ({
     return getPeopleFromLineItems(receipt.lineItems);
   });
 
-  // const [searchInputs, setSearchInputs] = useState<Record<string, string>>({});
   const [isAddingItem, setIsAddingItem] = useState(false);
   const isMobile = useMobile();
 
