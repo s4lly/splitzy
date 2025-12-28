@@ -13,7 +13,7 @@ export function useTanstackLineItemMutations(receipt: Receipt) {
   const deleteLineItemMutation = useLineItemDeleteMutation();
   const updateItemAssignmentsMutation = useItemAssignmentsUpdateMutation();
 
-  const togglePersonAssignment = async (itemId: string, person: string) => {
+  const togglePersonAssignment = (itemId: string, person: string) => {
     const item = receipt.lineItems.find((item) => item.id === itemId);
 
     if (!item) {
@@ -91,4 +91,3 @@ export function useTanstackLineItemMutations(receipt: Receipt) {
     isDeleting: deleteLineItemMutation.isPending,
   };
 }
-

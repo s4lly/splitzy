@@ -202,8 +202,9 @@ export default function LineItemsTableMobile({
                   onClick={() => handleDeleteItem(item.id)}
                   variant="outline"
                   className="border-red-500 text-red-500"
+                  disabled={isDeleting}
                 >
-                  Delete
+                  {isDeleting ? 'Deleting...' : 'Delete'}
                 </Button>
                 <Button onClick={handleEditClose} variant="outline">
                   Done
