@@ -9,6 +9,5 @@ export const generateImageFileName = (receipt: Receipt | null): string => {
   if (!receipt) return 'receipt';
   const merchant = receipt.merchant || '';
   const date = receipt.date ? receipt.date.toISOString().split('T')[0] : '';
-  return `receipt_${merchant.replace(/\s+/g, '_').toLowerCase()}_${date.replace(/[/\\:]/g, '-')}`;
+  return `receipt_${merchant.replace(/\s+/g, '_').toLowerCase()}_${date}`;
 };
-
