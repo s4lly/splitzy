@@ -1,4 +1,5 @@
 import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import Decimal from 'decimal.js';
 
 /**
  * Extracts unique person names from line item assignments
@@ -14,8 +15,6 @@ export const getPeopleFromLineItems = (
 
   return Array.from(new Set(allAssignments));
 };
-
-import Decimal from 'decimal.js';
 
 /**
  * Person item type for detailed breakdown
