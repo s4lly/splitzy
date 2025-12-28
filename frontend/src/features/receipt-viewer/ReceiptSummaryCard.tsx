@@ -137,9 +137,10 @@ export const ReceiptSummaryCard = () => {
               <span className="text-base">Post-tax Total:</span>
               <span className="text-base font-medium">
                 {formatCurrency(
-                  itemsTotal.plus(
-                    itemsTotal.mul(calculations.tax.getRate(receipt))
-                  )
+                  receipt.posttaxTotal ??
+                    itemsTotal.plus(
+                      itemsTotal.mul(calculations.tax.getRate(receipt))
+                    )
                 )}
               </span>
             </div>
@@ -153,7 +154,7 @@ export const ReceiptSummaryCard = () => {
 
           {/* Gratuity - Read-only version */}
           <GratuityEditorReadOnly
-            receiptGratuity={receipt.gratuity?.toNumber() ?? 0}
+            receiptGratuity={receipt.gratuity ?? new Decimal(0)}
           />
 
           {/* Final Total */}

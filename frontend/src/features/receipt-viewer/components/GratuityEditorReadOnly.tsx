@@ -4,11 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
+import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface GratuityEditorReadOnlyProps {
-  receiptGratuity: number;
+  receiptGratuity: Decimal;
 }
 
 /**
@@ -16,20 +17,16 @@ interface GratuityEditorReadOnlyProps {
  * All save/delete operations are noops.
  */
 const GratuityEditorReadOnly = ({
-  receiptGratuity,
+  receiptGratuity = new Decimal(0),
 }: GratuityEditorReadOnlyProps) => {
-  const [gratuity, setGratuity] = useState(receiptGratuity ?? 0);
-  const [gratuityInput, setGratuityInput] = useState(
-    receiptGratuity ? receiptGratuity.toFixed(2) : '0.00'
-  );
+  const [gratuity, setGratuity] = useState<Decimal>(receiptGratuity);
   const [isEditing, setIsEditing] = useState(false);
 
   const resetToInitialValue = () => {
-    setGratuity(receiptGratuity ?? 0);
-    setGratuityInput(receiptGratuity ? receiptGratuity.toFixed(2) : '0.00');
+    setGratuity(receiptGratuity);
   };
 
-  const hasValueToDelete = receiptGratuity > 0;
+  const hasValueToDelete = !receiptGratuity.isZero();
 
   useEffect(() => {
     resetToInitialValue();
@@ -47,29 +44,33 @@ const GratuityEditorReadOnly = ({
   };
 
   const handleGratuityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
+    const rawValue = e.target.value;
 
-    // Allow empty input for better UX
-    if (inputValue === '') {
-      resetToInitialValue();
+    // Treat empty or "." as 0
+    if (rawValue === '' || rawValue === '.') {
+      setGratuity(new Decimal(0));
       return;
     }
 
-    // Validate the input pattern
-    const pattern = /^\d*(\.\d{0,2})?$/;
-    if (!pattern.test(inputValue)) {
-      return; // Don't update if pattern doesn't match
+    // Parse with Decimal, fallback to current value on invalid input
+    let parsedValue: Decimal;
+    try {
+      parsedValue = new Decimal(rawValue);
+    } catch {
+      return; // Keep current value on invalid input
     }
 
-    const v = parseFloat(inputValue);
-    const newValue = Number.isFinite(v) ? Math.max(0, v) : 0;
-    setGratuity(newValue);
-    setGratuityInput(inputValue);
+    // Clamp to non-negative value
+    const clampedValue = Decimal.max(0, parsedValue);
+
+    // Round to two decimals
+    const roundedValue = clampedValue.toDP(2);
+
+    setGratuity(roundedValue);
   };
 
   const handleCancelGratuity = () => {
-    setGratuityInput(receiptGratuity ? receiptGratuity.toFixed(2) : '0.00');
-    setGratuity(receiptGratuity ?? 0);
+    setGratuity(receiptGratuity);
     setIsEditing(false);
   };
 
@@ -106,13 +107,11 @@ const GratuityEditorReadOnly = ({
             </span>
             <Input
               type="number"
-              value={gratuityInput}
+              value={gratuity.toNumber()}
               onChange={handleGratuityChange}
               placeholder="Gratuity"
-              min="0"
+              min={0}
               step="0.01"
-              inputMode="decimal"
-              pattern="^\d*(\.\d{0,2})?$"
               required
               className="text-center"
               id="gratuity"
@@ -150,7 +149,7 @@ const GratuityEditorReadOnly = ({
       ) : (
         <EditableDetail
           label="Gratuity"
-          value={formatCurrency(receiptGratuity ?? 0)}
+          value={formatCurrency(receiptGratuity)}
           onClick={handleEditGratuity}
         />
       )}
