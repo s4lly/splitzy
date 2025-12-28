@@ -1,37 +1,53 @@
 import { AssignmentsContainer } from '@/features/assignments/assignments-container';
 import { AssignmentsHeader } from '@/features/assignments/assignments-header';
 import AssignmentsList from '@/features/assignments/assignments-list';
-import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
 import { cn } from '@/lib/utils';
-import Decimal from 'decimal.js';
+import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
 import { ChevronUp, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { z } from 'zod';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 import { Toggle } from '../ui/toggle';
 import LineItemEditForm from './LineItemEditForm';
 import PersonAssignmentSection from './PersonAssignmentSection';
 import LineItemCard from './components/LineItemCard';
-import { useLineItemDeleteMutation } from './hooks/useLineItemDeleteMutation';
 import { formatCurrency } from './utils/format-currency';
 import { calculations } from './utils/receipt-calculation';
 
 export default function LineItemsTableMobile({
   line_items,
-  result,
+  receipt,
   people,
   togglePersonAssignment,
+  onUpdateLineItem,
+  onDeleteLineItem,
+  isDeleting,
 }: {
-  line_items: z.infer<typeof LineItemSchema>[];
-  result: z.infer<typeof ReceiptSchema>;
+  line_items: readonly ReceiptLineItem[];
+  receipt: Receipt;
   people: string[];
   togglePersonAssignment: (itemId: string, person: string) => void;
+  onUpdateLineItem: (data: {
+    receiptId: string;
+    itemId: string;
+    name?: string;
+    quantity?: number;
+    price_per_item?: number;
+  }) => void;
+  onDeleteLineItem: (
+    data: {
+      receiptId: string;
+      itemId: string;
+    },
+    options?: {
+      onSuccess?: () => void;
+      onError?: (error: Error) => void;
+    }
+  ) => void;
+  isDeleting?: boolean;
 }) {
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [assignmentItemId, setAssignmentItemId] = useState<string | null>(null);
-
-  const { mutate: deleteItem } = useLineItemDeleteMutation();
 
   // Edit mode handlers
   const handleEditOpen = (e: React.MouseEvent, itemId: string) => {
@@ -57,9 +73,9 @@ export default function LineItemsTableMobile({
   };
 
   const handleDeleteItem = (itemId: string) => {
-    deleteItem(
+    onDeleteLineItem(
       {
-        receiptId: String(result?.id),
+        receiptId: String(receipt.id),
         itemId: itemId,
       },
       {
@@ -86,8 +102,9 @@ export default function LineItemsTableMobile({
               // edit
               <LineItemEditForm
                 item={item}
-                result={result}
+                receipt={receipt}
                 onEditCancel={handleEditClose}
+                onUpdateLineItem={onUpdateLineItem}
               />
             ) : (
               // view
@@ -112,13 +129,13 @@ export default function LineItemsTableMobile({
                     <div className="flex items-baseline gap-2 text-sm">
                       <span className="text-muted-foreground">Quantity:</span>
                       <span className="flex-1 text-right text-base font-medium">
-                        {item.quantity}
+                        {item.quantity.toNumber()}
                       </span>
                     </div>
                     <div className="flex items-baseline gap-2 text-sm">
                       <span className="text-muted-foreground">Unit Price:</span>
                       <span className="flex-1 text-right text-base font-medium">
-                        {formatCurrency(item.price_per_item)}
+                        {formatCurrency(item.pricePerItem)}
                       </span>
                     </div>
                   </div>
@@ -140,8 +157,8 @@ export default function LineItemsTableMobile({
                     togglePersonAssignment(item.id, person)
                   }
                   item={item}
-                  formPricePerItem={new Decimal(item.price_per_item)}
-                  formQuantity={new Decimal(item.quantity)}
+                  formPricePerItem={item.pricePerItem}
+                  formQuantity={item.quantity}
                 />
               </>
             ) : (

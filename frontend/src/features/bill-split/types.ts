@@ -1,6 +1,5 @@
-import { ReceiptSchema } from '@/lib/receiptSchemas';
+import type { Receipt } from '@/models/Receipt';
 import Decimal from 'decimal.js';
-import { z } from 'zod';
 
 /**
  * Props for the BillSplitSection component.
@@ -11,10 +10,8 @@ export interface BillSplitSectionProps {
   people: string[];
   /** Unique identifier for the receipt */
   receiptId: string;
-  /** Receipt data containing line items, tax, tip, etc. */
-  receiptData: z.infer<typeof ReceiptSchema>['receipt_data'];
-  /** Complete receipt result including metadata */
-  receiptResult: z.infer<typeof ReceiptSchema>;
+  /** Complete receipt including metadata and line items */
+  receipt: Receipt;
   /** Map of person names to their final fair-rounded totals */
   personFairTotals: Map<string, Decimal>;
   /** Map of person names to their pre-tax item totals */

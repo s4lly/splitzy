@@ -4,17 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
-import { LineItemSchema } from '@/lib/receiptSchemas';
+import type { ReceiptLineItem } from '@/models/Receipt';
 import Decimal from 'decimal.js';
 import { Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
-import { z } from 'zod';
 
 interface AssignmentsListProps {
   possiblePeople: string[];
   onAddAssignment: (person: string) => void;
   onRemoveAssignment: (person: string) => void;
-  item: z.infer<typeof LineItemSchema>;
+  item: ReceiptLineItem;
   formPricePerItem: Decimal;
   formQuantity: Decimal;
 }
@@ -71,7 +70,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                     {formatCurrency(
                       calculations.pretax.getPersonTotalForItem(item, person, {
                         candidate: {
-                          price_per_item: formPricePerItem,
+                          pricePerItem: formPricePerItem,
                           quantity: formQuantity,
                         },
                       })

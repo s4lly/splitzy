@@ -1,6 +1,5 @@
-import { LineItemSchema, ReceiptDataSchema } from '@/lib/receiptSchemas';
+import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
 import Decimal from 'decimal.js';
-import { z } from 'zod';
 import { receiptHasLineItems } from './receipt-conditions';
 
 /**
@@ -59,7 +58,7 @@ export type ItemSplits = {
 export type SplitType = 'even' | 'proportional' | 'custom';
 
 type IndividualSplit = {
-  item: z.infer<typeof LineItemSchema>;
+  item: ReceiptLineItem;
   type: SplitType;
 };
 
@@ -112,37 +111,35 @@ export namespace calculations {
      * Calculates the total price for a single line item by multiplying price per item by quantity.
      * Uses Decimal.js for precise arithmetic to avoid floating-point rounding errors.
      *
-     * @param item - The line item containing price_per_item and quantity
-     * @param candidate - Optional override values for price_per_item and quantity (as Decimal instances)
-     * @returns The total price as a Decimal instance (price_per_item * quantity)
+     * @param item - The line item containing pricePerItem and quantity (already as Decimal)
+     * @param candidate - Optional override values for pricePerItem and quantity (as Decimal instances)
+     * @returns The total price as a Decimal instance (pricePerItem * quantity)
      *
      * @example
      * ```ts
-     * const item = { price_per_item: 9.99, quantity: 2, ... };
+     * const item = { pricePerItem: new Decimal(9.99), quantity: new Decimal(2), ... };
      * const total = calculations.pretax.getIndividualItemTotalPrice(item);
      * // Returns: new Decimal(19.98)
      *
      * // With candidate values
      * const total = calculations.pretax.getIndividualItemTotalPrice(item, {
-     *   price_per_item: new Decimal(10.00),
+     *   pricePerItem: new Decimal(10.00),
      *   quantity: new Decimal(3)
      * });
      * // Returns: new Decimal(30.00)
      * ```
      */
     export function getIndividualItemTotalPrice(
-      item: z.infer<typeof LineItemSchema>,
-      candidate?: { price_per_item: Decimal; quantity: Decimal }
+      item: ReceiptLineItem,
+      candidate?: { pricePerItem: Decimal; quantity: Decimal }
     ): Decimal {
       const price =
-        candidate?.price_per_item != null
-          ? candidate.price_per_item
-          : new Decimal(item.price_per_item);
+        candidate?.pricePerItem != null
+          ? candidate.pricePerItem
+          : item.pricePerItem;
 
       const quantity =
-        candidate?.quantity != null
-          ? candidate.quantity
-          : new Decimal(item.quantity);
+        candidate?.quantity != null ? candidate.quantity : item.quantity;
 
       return price.mul(quantity);
     }
@@ -152,22 +149,20 @@ export namespace calculations {
      * Includes all items regardless of whether they are assigned to people or not.
      * Uses Decimal.js for precise arithmetic to ensure accurate totals.
      *
-     * @param receipt_data - The receipt data containing line items
+     * @param receipt - The receipt containing line items
      * @returns The sum of all line item totals as a Decimal instance. Returns Decimal(0) if no items exist.
      *
      * @example
      * ```ts
      * // Receipt with items: $10.50, $5.25, $3.75
-     * const subtotal = calculations.pretax.getTotalForAllItems(receipt_data);
+     * const subtotal = calculations.pretax.getTotalForAllItems(receipt);
      * // Returns: new Decimal(19.50)
      * ```
      */
-    export function getTotalForAllItems(
-      receipt_data: z.infer<typeof ReceiptDataSchema>
-    ): Decimal {
+    export function getTotalForAllItems(receipt: Receipt): Decimal {
       let total = new Decimal(0);
 
-      for (let item of receipt_data.line_items) {
+      for (const item of receipt.lineItems) {
         total = total.plus(getIndividualItemTotalPrice(item));
       }
 
@@ -180,10 +175,10 @@ export namespace calculations {
      * The amount is split evenly among all people assigned to the item.
      * Uses Decimal.js for precise division to avoid rounding errors.
      *
-     * @param item - The line item containing price_per_item, quantity, and assignments
+     * @param item - The line item containing pricePerItem, quantity, and assignments
      * @param person - The person identifier to calculate the total for
      * @param options - Optional configuration
-     * @param options.candidate - Optional override values for price_per_item and quantity (as Decimal instances)
+     * @param options.candidate - Optional override values for pricePerItem and quantity (as Decimal instances)
      * @returns The person's share of the item total as a Decimal instance. Returns Decimal(0) if person is not assigned.
      *
      * @example
@@ -198,13 +193,13 @@ export namespace calculations {
      * ```
      */
     export function getPersonTotalForItem(
-      item: z.infer<typeof LineItemSchema>,
+      item: ReceiptLineItem,
       person: string,
       options?: {
-        candidate?: { price_per_item: Decimal; quantity: Decimal };
+        candidate?: { pricePerItem: Decimal; quantity: Decimal };
       }
     ): Decimal {
-      const assignedPeople = item.assignments || [];
+      const assignedPeople = item.assignments;
 
       if (assignedPeople.length === 0 || !assignedPeople.includes(person)) {
         return new Decimal(0);
@@ -255,7 +250,7 @@ export namespace calculations {
      * ```
      */
     export function createItemSplitsFromAssignments(
-      lineItems: z.infer<typeof LineItemSchema>[]
+      lineItems: readonly ReceiptLineItem[]
     ): ItemSplits {
       const splits: ItemSplits = {
         individuals: new Map(),
@@ -337,8 +332,8 @@ export namespace calculations {
             subtotal = Decimal.add(
               subtotal,
               Decimal.mul(
-                new Decimal(individualSplit.item.price_per_item),
-                new Decimal(individualSplit.item.quantity)
+                individualSplit.item.pricePerItem,
+                individualSplit.item.quantity
               ).div(new Decimal(groupSize))
             );
             break;
@@ -398,8 +393,8 @@ export namespace calculations {
               }
 
               const splitValue = Decimal.mul(
-                new Decimal(item.price_per_item),
-                new Decimal(item.quantity)
+                item.pricePerItem,
+                item.quantity
               ).div(new Decimal(groupSize));
 
               personItemTotals.set(
@@ -436,35 +431,31 @@ export namespace calculations {
      * Uses Decimal.js for precise division to avoid floating-point errors.
      * Returns Decimal(0) if subtotal is zero or tax is not provided.
      *
-     * @param receipt_data - The receipt data containing tax and display_subtotal
-     * @returns The tax rate as a Decimal instance (tax / display_subtotal). Returns Decimal(0) if subtotal is zero or tax is missing.
+     * @param receipt - The receipt containing tax and displaySubtotal (already as Decimal)
+     * @returns The tax rate as a Decimal instance (tax / displaySubtotal). Returns Decimal(0) if subtotal is zero or tax is missing.
      *
      * @example
      * ```ts
      * // Receipt with $10.00 tax on $100.00 subtotal
-     * const taxRate = calculations.tax.getRate(receipt_data);
+     * const taxRate = calculations.tax.getRate(receipt);
      * // Returns: new Decimal(0.10) // 10% tax rate
      *
      * // Receipt with $8.50 tax on $85.00 subtotal
-     * const taxRate = calculations.tax.getRate(receipt_data);
+     * const taxRate = calculations.tax.getRate(receipt);
      * // Returns: new Decimal(0.10) // Still 10% tax rate
      * ```
      */
-    export function getRate(
-      receipt_data: z.infer<typeof ReceiptDataSchema>
-    ): Decimal {
+    export function getRate(receipt: Receipt): Decimal {
       // Avoid division by zero
-      if (!receipt_data.display_subtotal) {
+      if (!receipt.displaySubtotal) {
         return new Decimal(0);
       }
 
-      if (!receipt_data.tax) {
+      if (!receipt.tax) {
         return new Decimal(0);
       }
 
-      return new Decimal(receipt_data.tax).div(
-        new Decimal(receipt_data.display_subtotal)
-      );
+      return receipt.tax.div(receipt.displaySubtotal);
     }
   }
 
@@ -489,38 +480,36 @@ export namespace calculations {
      * Uses Decimal.js for precise arithmetic to ensure accurate totals and avoid floating-point
      * rounding errors when adding tax, tip, and gratuity.
      *
-     * @param receipt_data - The receipt data containing line items, tax, tip, and gratuity
+     * @param receipt - The receipt containing line items, tax, tip, and gratuity (already as Decimal)
      * @returns The total receipt amount as a Decimal instance. Returns Decimal(0) if there are no line items.
      *
      * @example
      * ```ts
      * // Receipt with items totaling $100, 10% tax, $5 tip, $2 gratuity
      * // Calculation: 100 + (100 * 0.10) + 5 + 2 = $117.00
-     * const receiptTotal = calculations.final.getReceiptTotal(receipt_data);
+     * const receiptTotal = calculations.final.getReceiptTotal(receipt);
      * // Returns: new Decimal(117.00)
      *
      * // Receipt with items totaling $99.99, 8.5% tax, $10 tip
      * // Calculation: 99.99 + (99.99 * 0.085) + 10 = $118.48915
-     * const receiptTotal = calculations.final.getReceiptTotal(receipt_data);
+     * const receiptTotal = calculations.final.getReceiptTotal(receipt);
      * // Returns: new Decimal(118.48915) // Precise, no rounding errors
      * ```
      */
-    export function getReceiptTotal(
-      receipt_data: z.infer<typeof ReceiptDataSchema>
-    ): Decimal {
+    export function getReceiptTotal(receipt: Receipt): Decimal {
       let total = new Decimal(0);
 
-      if (!(receipt_data.line_items && receipt_data.line_items.length > 0)) {
+      if (!(receipt.lineItems && receipt.lineItems.length > 0)) {
         return total;
       }
 
       // derived
-      total = total.plus(pretax.getTotalForAllItems(receipt_data));
-      total = total.plus(total.mul(tax.getRate(receipt_data)));
+      total = total.plus(pretax.getTotalForAllItems(receipt));
+      total = total.plus(total.mul(tax.getRate(receipt)));
 
       // pulled from receipt
-      total = total.plus(new Decimal(receipt_data.gratuity ?? 0));
-      total = total.plus(new Decimal(receipt_data.tip ?? 0));
+      total = total.plus(receipt.gratuity ?? new Decimal(0));
+      total = total.plus(receipt.tip ?? new Decimal(0));
 
       return total;
     }
@@ -550,7 +539,7 @@ export namespace calculations {
      * Uses Decimal.js for precise arithmetic to ensure accurate calculations and avoid rounding errors
      * when splitting tax, tip, and gratuity among multiple people.
      *
-     * @param receipt_data - The receipt data containing line items, tax, tip, and gratuity
+     * @param receipt - The receipt containing line items, tax, tip, and gratuity (already as Decimal)
      * @param options - Configuration for how amounts should be split
      * @param options.itemSplits - Map of which items are assigned to which people
      * @param options.taxSplitType - How to split tax: 'even' (equal) or 'proportional' (by item total). Default: 'proportional'
@@ -563,7 +552,7 @@ export namespace calculations {
      * // Alice assigned to $50 item, Bob assigned to $30 item
      * // Tax: 10%, Tip: $5, Gratuity: $2
      * // Tax split: proportional, Tip/Gratuity: even
-     * const personTotals = calculations.final.getPersonTotals(receipt_data, {
+     * const personTotals = calculations.final.getPersonTotals(receipt, {
      *   itemSplits,
      *   taxSplitType: 'proportional',
      *   tipSplitType: 'even',
@@ -576,7 +565,7 @@ export namespace calculations {
      *
      * // Even split example (no items assigned)
      * // Receipt total: $100, 2 people
-     * const personTotals = calculations.final.getPersonTotals(receipt_data, {
+     * const personTotals = calculations.final.getPersonTotals(receipt, {
      *   itemSplits: { individuals: new Map([['Alice', []], ['Bob', []]]), groups: new Map() },
      *   taxSplitType: 'even'
      * });
@@ -587,7 +576,7 @@ export namespace calculations {
      * ```
      */
     export function getPersonTotals(
-      receipt_data: z.infer<typeof ReceiptDataSchema>,
+      receipt: Receipt,
       {
         itemSplits,
         taxSplitType = 'proportional',
@@ -604,7 +593,7 @@ export namespace calculations {
 
       // if no assignments made to any line item, split total evenly
       if (!hasLineItems && itemSplits.individuals.size > 0) {
-        const receiptTotal = getReceiptTotal(receipt_data);
+        const receiptTotal = getReceiptTotal(receipt);
 
         // split total evenly
         const splitAmount = receiptTotal.div(itemSplits.individuals.size);
@@ -627,13 +616,13 @@ export namespace calculations {
 
       // --
 
-      if (hasLineItems && !receipt_data.tax_included_in_items) {
+      if (hasLineItems && !receipt.taxIncludedInItems) {
         // get the total value of all assigned items
         const totalAssignedItemsValue = personItemTotals.size
           ? Decimal.sum(...Array.from(personItemTotals.values()))
           : new Decimal(0);
 
-        const taxRate = tax.getRate(receipt_data);
+        const taxRate = tax.getRate(receipt);
         const taxAmount = totalAssignedItemsValue.mul(taxRate);
 
         switch (taxSplitType) {
@@ -680,10 +669,10 @@ export namespace calculations {
 
       // --
 
-      if (receipt_data.tip) {
+      if (receipt.tip) {
         switch (tipSplitType) {
           case 'even': {
-            const tipPerPerson = new Decimal(receipt_data.tip).div(
+            const tipPerPerson = receipt.tip.div(
               new Decimal(personItemTotals.size)
             );
 
@@ -707,10 +696,10 @@ export namespace calculations {
 
       // --
 
-      if (receipt_data.gratuity) {
+      if (receipt.gratuity) {
         switch (gratuitySplitType) {
           case 'even': {
-            const gratuityPerPerson = new Decimal(receipt_data.gratuity).div(
+            const gratuityPerPerson = receipt.gratuity.div(
               new Decimal(personItemTotals.size)
             );
 
@@ -836,8 +825,8 @@ export namespace calculations {
      * @returns Filtered people not assigned and matching search (if provided)
      */
     export function filterPeople(
-      people: string[],
-      assignedPeople: string[],
+      people: readonly string[],
+      assignedPeople: readonly string[],
       searchValue?: string
     ): string[] {
       if (searchValue) {

@@ -17,16 +17,14 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useMobile } from '@/hooks/use-mobile';
-import { ReceiptSchema } from '@/lib/receiptSchemas';
 import { cn } from '@/lib/utils';
+import type { Receipt } from '@/models/Receipt';
 import Decimal from 'decimal.js';
 import { FileText, UserPlus } from 'lucide-react';
-import { z } from 'zod';
 
 interface BillBreakdownProps {
   people: string[];
-  receiptResult: z.infer<typeof ReceiptSchema>;
-  receiptData: z.infer<typeof ReceiptSchema>['receipt_data'];
+  receipt: Receipt;
   personFairTotals: Map<string, Decimal>;
   personPretaxTotals: Map<string, Decimal>;
   receiptTotal: Decimal;
@@ -36,8 +34,7 @@ interface BillBreakdownProps {
 
 export const BillBreakdown = ({
   people,
-  receiptResult,
-  receiptData,
+  receipt,
   personFairTotals,
   personPretaxTotals,
   receiptTotal,
@@ -85,13 +82,13 @@ export const BillBreakdown = ({
             personPretaxTotals.get(person) ?? new Decimal(0);
 
           const taxAmount: Decimal = personPretaxTotal.mul(
-            calculations.tax.getRate(receiptData)
+            calculations.tax.getRate(receipt)
           );
 
-          const personItems = getPersonItems(person, receiptResult);
+          const personItems = getPersonItems(person, receipt);
 
           return (
-            <Dialog key={idx}>
+            <Dialog key={person}>
               <DialogTrigger asChild>
                 <div
                   className="cursor-pointer rounded-lg border p-4 transition-shadow [background-color:color-mix(in_srgb,var(--bg-light)_5%,transparent)] hover:shadow-md dark:[background-color:color-mix(in_srgb,var(--bg-dark)_20%,transparent)]"
@@ -120,13 +117,11 @@ export const BillBreakdown = ({
                         </div>
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        {people.length > 0
-                          ? `1/${people.length} of the total`
-                          : ''}
+                        {`1/${people.length} of the total`}
                       </div>
                     </>
-                  ) : !receiptData.tax_included_in_items &&
-                    (receiptData.tax ?? 0) > 0 ? (
+                  ) : !receipt.taxIncludedInItems &&
+                    (receipt.tax?.toNumber() ?? 0) > 0 ? (
                     <>
                       <div className="flex items-end justify-between">
                         <div className="text-sm text-muted-foreground">
@@ -235,18 +230,15 @@ export const BillBreakdown = ({
                                 )}
                               </td>
                               <td className="px-3 py-2.5 text-right align-top text-sm">
-                                {item.quantity}
+                                {item.quantity.toNumber()}
                               </td>
                               <td className="whitespace-nowrap px-3 py-2.5 text-right align-top text-sm">
                                 <div className="font-medium">
-                                  {formatCurrency(new Decimal(item.price))}
+                                  {formatCurrency(item.price)}
                                 </div>
                                 {item.shared && (
                                   <div className="text-xs text-muted-foreground">
-                                    of{' '}
-                                    {formatCurrency(
-                                      new Decimal(item.originalPrice)
-                                    )}
+                                    of {formatCurrency(item.originalPrice)}
                                   </div>
                                 )}
                               </td>
@@ -264,8 +256,8 @@ export const BillBreakdown = ({
                               )}
                             </td>
                           </tr>
-                          {!receiptData.tax_included_in_items &&
-                            (receiptData.tax ?? 0) > 0 && (
+                          {!receipt.taxIncludedInItems &&
+                            (receipt.tax?.toNumber() ?? 0) > 0 && (
                               <tr className="border-t">
                                 <td colSpan={2} className="px-3 py-2 text-sm">
                                   Tax
@@ -275,21 +267,21 @@ export const BillBreakdown = ({
                                 </td>
                               </tr>
                             )}
-                          {((receiptData.tip ?? 0) > 0 ||
-                            (receiptData.gratuity ?? 0) > 0) && (
+                          {((receipt.tip?.toNumber() ?? 0) > 0 ||
+                            (receipt.gratuity?.toNumber() ?? 0) > 0) && (
                             <tr className="border-t">
                               <td colSpan={2} className="px-3 py-2 text-sm">
                                 Tip
                               </td>
                               <td className="px-3 py-2 text-right text-sm">
                                 {(() => {
-                                  const totalTip =
-                                    (receiptData.tip ?? 0) +
-                                    (receiptData.gratuity ?? 0);
-                                  const tipPerPerson = totalTip / people.length;
-                                  return formatCurrency(
-                                    new Decimal(tipPerPerson)
+                                  const totalTip = (
+                                    receipt.tip ?? new Decimal(0)
+                                  ).plus(receipt.gratuity ?? new Decimal(0));
+                                  const tipPerPerson = totalTip.div(
+                                    people.length
                                   );
+                                  return formatCurrency(tipPerPerson);
                                 })()}
                               </td>
                             </tr>

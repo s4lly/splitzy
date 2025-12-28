@@ -1,5 +1,5 @@
-import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
-import { z } from 'zod';
+import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import Decimal from 'decimal.js';
 
 /**
  * Extracts unique person names from line item assignments
@@ -7,11 +7,9 @@ import { z } from 'zod';
  * @returns Array of unique person names
  */
 export const getPeopleFromLineItems = (
-  lineItems: z.infer<typeof LineItemSchema>[]
+  lineItems: readonly ReceiptLineItem[]
 ): string[] => {
-  if (!lineItems) return [];
-
-  const allAssignments = lineItems.flatMap((item) => item.assignments || []);
+  const allAssignments = lineItems.flatMap((item) => item.assignments);
 
   return Array.from(new Set(allAssignments));
 };
@@ -21,9 +19,9 @@ export const getPeopleFromLineItems = (
  */
 export type PersonItem = {
   name: string;
-  quantity: number;
-  originalPrice: number;
-  price: number;
+  quantity: Decimal;
+  originalPrice: Decimal;
+  price: Decimal;
   shared: boolean;
   sharedWith: string[];
 };
@@ -31,25 +29,23 @@ export type PersonItem = {
 /**
  * Finds all items assigned to a person and calculates their costs
  * @param person The person to find items for
- * @param receiptData The receipt data containing line items
+ * @param receipt The receipt containing line items
  * @returns Array of person items with calculated costs
  */
 export const getPersonItems = (
   person: string,
-  receiptData: z.infer<typeof ReceiptSchema>
+  receipt: Receipt
 ): PersonItem[] => {
-  if (!receiptData.receipt_data.line_items) return [];
-
   const personItems: PersonItem[] = [];
-  receiptData.receipt_data.line_items.forEach((item) => {
-    const assignedPeople = item.assignments || [];
-    const totalPrice = item.price_per_item * item.quantity;
+  receipt.lineItems.forEach((item) => {
+    const assignedPeople = item.assignments;
 
     if (assignedPeople.includes(person)) {
-      const pricePerPerson = totalPrice / assignedPeople.length;
+      const totalPrice = item.pricePerItem.mul(item.quantity);
+      const pricePerPerson = totalPrice.div(new Decimal(assignedPeople.length));
       personItems.push({
         name: item.name,
-        quantity: item.quantity || 1,
+        quantity: item.quantity,
         originalPrice: totalPrice,
         price: pricePerPerson,
         shared: assignedPeople.length > 1,

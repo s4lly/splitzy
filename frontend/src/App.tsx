@@ -2,6 +2,7 @@
 import AuthenticatedOnly from '@/components/Auth/AuthenticatedOnly';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import { Toaster } from '@/components/ui/sonner';
 import HomePage from '@/pages/HomePage';
 import ReceiptAnalysisPage from '@/pages/ReceiptAnalysisPage';
 import ReceiptCollabPage from '@/pages/ReceiptCollabPage';
@@ -45,6 +46,7 @@ function ReceiptRoute() {
     );
   }
 
+  // return <ReceiptAnalysisPage />;
   return isCollabEnabled ? <ReceiptCollabPage /> : <ReceiptAnalysisPage />;
 }
 
@@ -84,6 +86,7 @@ function App() {
       </main>
 
       <Footer />
+      <Toaster />
     </div>
   );
 }

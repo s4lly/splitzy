@@ -1,91 +1,14 @@
-import { Button } from '@/components/ui/button';
+import { ErrorState } from '@/components/shared/ErrorState';
+import { LoadingState } from '@/components/shared/LoadingState';
 import {
   ReceiptProvider,
   ReceiptWithLineItems,
 } from '@/context/ReceiptContext';
-import { useReceiptSync } from '@/features/receipt-collab/hooks/useReceiptSync';
-import { ReceiptViewer } from '@/features/receipt-viewer/ReceiptViewer';
-import { motion } from 'framer-motion';
-import { Provider as JotaiProvider } from 'jotai';
-import { ArrowLeft, Loader2 } from 'lucide-react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
-
+import { ReceiptCollabContent } from '@/features/receipt-collab/components/ReceiptCollabContent';
 import { queries } from '@/zero/queries';
 import { useQuery } from '@rocicorp/zero/react';
-
-/**
- * Inner component that has access to both ReceiptContext and Jotai.
- * This is where the sync hook runs and child components are rendered.
- */
-const ReceiptCollabContent = () => {
-  const navigate = useNavigate();
-
-  // Sync receipt from Context into Jotai atoms
-  useReceiptSync();
-
-  const handleBackClick = () => {
-    navigate('/');
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="w-full"
-    >
-      <div className="mx-auto max-w-4xl space-y-4 py-8">
-        <div>
-          <Button variant="ghost" onClick={handleBackClick}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Button>
-        </div>
-
-        <div className="flex flex-col gap-6">
-          {/* Child components can now use:
-              - useReceiptContext() for direct receipt access
-              - useAtomValue(receiptTotalAtom) for derived values
-              - useAtom(personTotalsAtom) for modifiable derived values
-          */}
-          <ReceiptViewer />
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-/**
- * Loading state component
- */
-const LoadingState = () => (
-  <div className="flex h-64 items-center justify-center">
-    <Loader2 className="h-10 w-10 animate-spin text-primary" />
-    <span className="ml-2 text-lg">Loading receipt...</span>
-  </div>
-);
-
-/**
- * Error state component
- */
-const ErrorState = ({ message }: { message: string }) => {
-  const navigate = useNavigate();
-
-  return (
-    <div className="mx-auto max-w-4xl py-8">
-      <Button variant="ghost" className="mb-6" onClick={() => navigate('/')}>
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Home
-      </Button>
-      <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-6">
-        <h2 className="font-semibold text-destructive">
-          Error Loading Receipt
-        </h2>
-        <p className="text-destructive/90">{message}</p>
-      </div>
-    </div>
-  );
-};
+import { Provider as JotaiProvider } from 'jotai';
+import { Navigate, useParams } from 'react-router-dom';
 
 /**
  * Root page component for collaborative receipt viewing/editing.

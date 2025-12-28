@@ -1,8 +1,7 @@
 import LineItemForm from '@/components/Receipt/LineItemForm';
-import { LineItemSchema, ReceiptSchema } from '@/lib/receiptSchemas';
-import { z } from 'zod';
+import type { ReceiptLineItem } from '@/models/Receipt';
+import Decimal from 'decimal.js';
 import { useState } from 'react';
-import { useLineItemAddMutation } from '@/components/Receipt/hooks/useLineItemAddMutation';
 import { Button } from '../ui/button';
 
 function isStringEmpty(str: string) {
@@ -10,13 +9,23 @@ function isStringEmpty(str: string) {
 }
 
 export default function LineItemAddForm({
-  result,
+  receiptId,
   onAddCancel,
+  onAddLineItem,
+  isPending,
 }: {
-  result: z.infer<typeof ReceiptSchema>;
+  receiptId: string;
   onAddCancel: () => void;
+  onAddLineItem: (data: {
+    receiptId: string;
+    lineItemData: {
+      name?: string;
+      quantity?: number;
+      price_per_item?: number;
+    };
+  }) => void;
+  isPending?: boolean;
 }) {
-  const addLineItemMutation = useLineItemAddMutation();
 
   // Local state for form values with default values
   const [formData, setFormData] = useState({
@@ -26,17 +35,10 @@ export default function LineItemAddForm({
   });
 
   const handleAddItem = () => {
-    addLineItemMutation.mutate(
-      {
-        receiptId: result.id.toString(),
-        lineItemData: formData,
-      },
-      {
-        onSuccess: () => {
-          onAddCancel(); // Close the form after successful addition
-        },
-      }
-    );
+    onAddLineItem({
+      receiptId,
+      lineItemData: formData,
+    });
   };
 
   const handleNameChange = (name: string) => {
@@ -51,12 +53,13 @@ export default function LineItemAddForm({
   };
 
   // Create a mutate function that updates local state instead of calling the API
-  const mutate = (
-    data: Partial<z.infer<typeof LineItemSchema>> & {
-      receiptId: string;
-      itemId: string;
-    }
-  ) => {
+  const mutate = (data: {
+    receiptId: string;
+    itemId: string;
+    name?: string;
+    quantity?: number;
+    price_per_item?: number;
+  }) => {
     // Update local state based on what field changed
     if ('price_per_item' in data) {
       setFormData((prev) => ({
@@ -78,18 +81,21 @@ export default function LineItemAddForm({
     }
   };
 
+  // Create a temporary ReceiptLineItem for the form
+  const tempItem: ReceiptLineItem = {
+    id: 'temp', // Temporary ID for the form
+    name: formData.name,
+    quantity: new Decimal(formData.quantity),
+    pricePerItem: new Decimal(formData.price_per_item),
+    totalPrice: new Decimal(formData.quantity * formData.price_per_item),
+    assignments: [],
+  };
+
   return (
     <div className="w-full">
       <LineItemForm
-        item={{
-          id: 'temp', // Temporary ID for the form
-          name: formData.name,
-          quantity: formData.quantity,
-          price_per_item: formData.price_per_item,
-          total_price: formData.quantity * formData.price_per_item,
-          assignments: [],
-        }}
-        result={result}
+        item={tempItem}
+        receiptId={receiptId}
         onNameChange={handleNameChange}
         onQuantityChange={handleQuantityChange}
         mutate={mutate}
@@ -99,16 +105,14 @@ export default function LineItemAddForm({
         <Button
           onClick={onAddCancel}
           variant="outline"
-          disabled={addLineItemMutation.isPending}
+          disabled={isPending}
         >
           Cancel
         </Button>
         <Button
           onClick={handleAddItem}
           variant="outline"
-          disabled={
-            addLineItemMutation.isPending || isStringEmpty(formData.name)
-          }
+          disabled={isPending || isStringEmpty(formData.name)}
         >
           Add
         </Button>

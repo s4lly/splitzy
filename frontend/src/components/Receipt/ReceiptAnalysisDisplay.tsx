@@ -1,27 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { QRCode } from '@/components/ui/kibo-ui/qr-code';
-import { useFeatureFlag } from '@/context/FeatureFlagProvider';
 import { BillSplitSection } from '@/features/bill-split/BillSplitSection';
+import { LineItemAddFormAdapter } from '@/features/line-items/adapters/tanstack/LineItemAddFormAdapter';
+import { LineItemsTableDesktopAdapter } from '@/features/line-items/adapters/tanstack/LineItemsTableDesktopAdapter';
+import { LineItemsTableMobileAdapter } from '@/features/line-items/adapters/tanstack/LineItemsTableMobileAdapter';
+import { NoLineItemsMessage } from '@/features/line-items/components/NoLineItemsMessage';
+import { ReceiptDetailsCard } from '@/features/receipt-viewer/ReceiptDetailsCard';
 import { useMobile } from '@/hooks/use-mobile';
-import { ReceiptSchema } from '@/lib/receiptSchemas';
+import type { Receipt } from '@/models/Receipt';
 import Decimal from 'decimal.js';
 import { motion } from 'framer-motion';
-import {
-  AlertCircle,
-  Calendar,
-  Plus,
-  QrCode,
-  Receipt,
-  ShoppingBag,
-  Tag,
-} from 'lucide-react';
+import { Plus, Receipt as ReceiptIcon, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { z } from 'zod';
-import LineItemAddForm from './LineItemAddForm';
-import LineItemsTableDesktop from './LineItemsTableDesktop';
-import LineItemsTableDesktopV2 from './LineItemsTableDesktopV2';
-import LineItemsTableMobile from './LineItemsTableMobile';
 import SummaryCard from './SummaryCard';
 import LineItemCard from './components/LineItemCard';
 import { useItemAssignmentsUpdateMutation } from './hooks/useItemAssignmentsUpdateMutation';
@@ -34,9 +24,11 @@ import {
 } from './utils/receipt-conditions';
 
 const ReceiptAnalysisDisplay = ({
-  result,
+  receipt,
+  receiptId,
 }: {
-  result: z.infer<typeof ReceiptSchema>;
+  receipt: Receipt;
+  receiptId: string;
 }) => {
   /**
    * TODO looks like used to keep track of all people, including those not assigned to any items
@@ -44,32 +36,29 @@ const ReceiptAnalysisDisplay = ({
    * should also persist this list of people in the backend. leaving this here for now.
    */
   const [people, setPeople] = useState(() => {
-    return getPeopleFromLineItems(result.receipt_data.line_items);
+    return getPeopleFromLineItems(receipt.lineItems);
   });
 
-  const [showQrCode, setShowQrCode] = useState(false);
   const [searchInputs, setSearchInputs] = useState<Record<string, string>>({});
   const [isAddingItem, setIsAddingItem] = useState(false);
   const updateItemAssignmentsMutation = useItemAssignmentsUpdateMutation();
-  const receiptDesktopTableV2Enabled = useFeatureFlag('receipt-desktop-table');
   const isMobile = useMobile();
 
-  // Update people state when result changes (e.g., when line items are deleted)
+  // Update people state when receipt changes (e.g., when line items are deleted)
   useEffect(() => {
-    setPeople(getPeopleFromLineItems(result.receipt_data.line_items));
-  }, [result.receipt_data.line_items]);
+    setPeople(getPeopleFromLineItems(receipt.lineItems));
+  }, [receipt.lineItems]);
 
-  if (!result) return null;
-  const { receipt_data } = result;
+  if (!receipt) return null;
 
   // Check if we need to use equal split mode (no line items or no assignments made)
-  const receiptHasLineItems = hasLineItems(receipt_data);
-  const useEqualSplit = shouldUseEqualSplit(receipt_data);
+  const receiptHasLineItems = hasLineItems(receipt);
+  const useEqualSplit = shouldUseEqualSplit(receipt);
 
   // --
 
   const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
-    receipt_data.line_items
+    receipt.lineItems
   );
 
   // --
@@ -79,10 +68,10 @@ const ReceiptAnalysisDisplay = ({
     calculations.pretax.getAllPersonItemTotals(itemSplits);
 
   // Calculate total receipt amount including assigned items and unassigned items
-  const receiptTotal = calculations.final.getReceiptTotal(receipt_data);
+  const receiptTotal = calculations.final.getReceiptTotal(receipt);
 
   // Calculate the amount each person owes
-  const personTotals = calculations.final.getPersonTotals(receipt_data, {
+  const personTotals = calculations.final.getPersonTotals(receipt, {
     itemSplits,
   });
 
@@ -99,7 +88,7 @@ const ReceiptAnalysisDisplay = ({
   // --
 
   const unassignedAmount = Decimal.max(0, receiptTotal.minus(personTotalsSum));
-  const isFullyAssigned = areAllItemsAssigned(receipt_data);
+  const isFullyAssigned = areAllItemsAssigned(receipt);
 
   // --
 
@@ -114,20 +103,11 @@ const ReceiptAnalysisDisplay = ({
     // see TODO above
     setPeople(people.filter((person) => person !== personToRemove));
 
-    // Also remove this person from all item assignments
-    receipt_data.line_items.forEach((item) => {
-      if (item.assignments && Array.isArray(item.assignments)) {
-        item.assignments = item.assignments.filter(
-          (person) => person !== personToRemove
-        );
-      }
-    });
-
-    // Persist to backend
-    receipt_data.line_items.forEach((item) => {
-      if (item.assignments && item.assignments.includes(personToRemove)) {
+    // Persist to backend - remove person from all items
+    receipt.lineItems.forEach((item) => {
+      if (item.assignments.includes(personToRemove)) {
         updateItemAssignmentsMutation.mutate({
-          receiptId: String(result.id),
+          receiptId,
           lineItemId: item.id,
           assignments: item.assignments.filter((p) => p !== personToRemove),
         });
@@ -136,30 +116,29 @@ const ReceiptAnalysisDisplay = ({
   };
 
   const togglePersonAssignment = async (itemId: string, person: string) => {
-    const item = receipt_data.line_items.find((item) => item.id === itemId);
+    const item = receipt.lineItems.find((item) => item.id === itemId);
 
     if (!item) {
       console.error(`Item with id ${itemId} not found`);
       return;
     }
 
-    if (!item.assignments) item.assignments = [];
+    const currentAssignments = item.assignments;
+    const newAssignments = currentAssignments.includes(person)
+      ? currentAssignments.filter((p) => p !== person)
+      : [...currentAssignments, person];
 
-    if (item.assignments.includes(person)) {
+    if (currentAssignments.includes(person)) {
       console.info(`Removing person ${person} from item ${itemId}`);
-      item.assignments = item.assignments.filter((p) => p !== person);
     } else {
       console.info(`Adding person ${person} to item ${itemId}`);
-      item.assignments = [...item.assignments, person];
     }
-
-    setPeople(getPeopleFromLineItems(receipt_data.line_items));
 
     // Persist to backend
     updateItemAssignmentsMutation.mutate({
-      receiptId: String(result.id),
+      receiptId,
       lineItemId: itemId,
-      assignments: item.assignments,
+      assignments: newAssignments,
     });
   };
 
@@ -202,62 +181,12 @@ const ReceiptAnalysisDisplay = ({
       className="max-w-full space-y-4 px-0 sm:px-4"
     >
       <div className="mb-2 flex items-center gap-3 px-2 sm:px-0">
-        <Receipt className="h-6 w-6" />
+        <ReceiptIcon className="h-6 w-6" />
         <h2 className="text-2xl font-bold">Document Analysis</h2>
       </div>
 
       {/* Document Details Card - Now first */}
-      <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
-        <CardHeader className="px-3 pb-2 sm:px-6">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-3 text-xl font-bold">
-              <ShoppingBag className="h-6 w-6" />
-              Document Details
-            </CardTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowQrCode(!showQrCode)}
-            >
-              <QrCode className="mr-1 h-4 w-4" />
-              {showQrCode ? 'Hide QR Code' : 'Show QR Code'}
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="px-3 sm:px-6">
-          {showQrCode && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex justify-center py-4"
-            >
-              <QRCode data={window.location.href} className="h-48 w-48" />
-            </motion.div>
-          )}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <Tag className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
-              <span className="whitespace-nowrap text-base font-medium">
-                Merchant:
-              </span>
-              <span className="ml-auto truncate text-base font-semibold">
-                {receipt_data.merchant || 'Unknown'}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3 overflow-hidden">
-              <Calendar className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
-              <span className="whitespace-nowrap text-base font-medium">
-                Date:
-              </span>
-              <span className="ml-auto truncate text-base font-semibold">
-                {receipt_data.date || 'Unknown'}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <ReceiptDetailsCard merchant={receipt.merchant} date={receipt.date} />
 
       {/* Items Card - Second position */}
       <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
@@ -282,68 +211,45 @@ const ReceiptAnalysisDisplay = ({
         <CardContent className="px-3 sm:px-6">
           {isAddingItem && (
             <LineItemCard selected={true}>
-              <LineItemAddForm
-                result={result}
+              <LineItemAddFormAdapter
+                receiptId={receiptId}
                 onAddCancel={() => setIsAddingItem(false)}
               />
             </LineItemCard>
           )}
 
-          {receipt_data.line_items && receipt_data.line_items.length > 0 ? (
+          {receipt.lineItems && receipt.lineItems.length > 0 ? (
             <>
               {isMobile ? (
-                <LineItemsTableMobile
-                  line_items={receipt_data.line_items}
-                  result={result}
+                <LineItemsTableMobileAdapter
+                  line_items={receipt.lineItems}
+                  receipt={receipt}
                   people={people}
                   togglePersonAssignment={togglePersonAssignment}
                 />
               ) : (
-                <>
-                  {receiptDesktopTableV2Enabled ? (
-                    <LineItemsTableDesktopV2
-                      line_items={receipt_data.line_items}
-                      people={people}
-                      result={result}
-                      togglePersonAssignment={togglePersonAssignment}
-                    />
-                  ) : (
-                    <LineItemsTableDesktop
-                      line_items={receipt_data.line_items}
-                      people={people}
-                    />
-                  )}
-                </>
+                <LineItemsTableDesktopAdapter
+                  line_items={receipt.lineItems}
+                  people={people}
+                  receipt={receipt}
+                  togglePersonAssignment={togglePersonAssignment}
+                />
               )}
             </>
           ) : (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-center dark:border-amber-800/30 dark:bg-amber-900/20">
-              <AlertCircle className="mx-auto mb-2 h-10 w-10 text-amber-500 dark:text-amber-400" />
-              <p className="mb-1 text-base font-medium text-amber-800 dark:text-amber-200">
-                No Item Details Available
-              </p>
-              <p className="text-sm text-amber-700 dark:text-amber-300">
-                This{' '}
-                {receipt_data.merchant
-                  ? 'document from ' + receipt_data.merchant
-                  : 'document'}{' '}
-                doesn't include detailed line items. The total amount has been
-                equally divided among all people.
-              </p>
-            </div>
+            <NoLineItemsMessage merchant={receipt.merchant} />
           )}
         </CardContent>
       </Card>
 
       {/* Summary Card - Third position */}
-      <SummaryCard receiptId={String(result.id)} receipt_data={receipt_data} />
+      <SummaryCard receiptId={receiptId} receipt={receipt} />
 
       {/* People Manager Section - Now at the bottom */}
       <BillSplitSection
         people={people}
-        receiptId={String(result.id)}
-        receiptData={receipt_data}
-        receiptResult={result}
+        receiptId={receiptId}
+        receipt={receipt}
         personFairTotals={personFairTotals}
         personPretaxTotals={personPretaxTotals}
         personTotalsSum={personTotalsSum}
