@@ -1,3 +1,8 @@
+import {
+  getExtensionFromMimeType,
+  getMimeTypeFromDataUrl,
+} from './imageFormat';
+
 /**
  * Downloads an image from various URL types (blob, data, or remote URL)
  * @param imageUrl - The URL of the image to download
@@ -13,6 +18,7 @@ export const downloadImage = async (
   let downloadUrl = imageUrl;
   let blob: Blob | undefined;
   let objectUrlCreated = false;
+  let mimeType: string | null = null;
 
   try {
     // Handle different URL types
@@ -32,6 +38,7 @@ export const downloadImage = async (
         }
 
         blob = await response.blob();
+        mimeType = blob.type;
         downloadUrl = URL.createObjectURL(blob);
         objectUrlCreated = true;
       } catch (error) {
@@ -55,6 +62,7 @@ export const downloadImage = async (
     } else if (imageUrl.startsWith('data:')) {
       // Data URL - already good to go
       downloadUrl = imageUrl;
+      mimeType = getMimeTypeFromDataUrl(imageUrl);
     } else if (imageUrl.startsWith('http')) {
       // Remote URL - fetch and convert to blob
       const controller = new AbortController();
@@ -71,6 +79,7 @@ export const downloadImage = async (
         }
 
         blob = await response.blob();
+        mimeType = blob.type;
         downloadUrl = URL.createObjectURL(blob);
         objectUrlCreated = true;
       } catch (error) {
@@ -101,8 +110,9 @@ export const downloadImage = async (
       .toLowerCase()
       .replace(/[/\\:]/g, '-');
 
+    const extension = getExtensionFromMimeType(mimeType || '');
     const link = document.createElement('a');
-    link.download = `${sanitizedFileName}.jpg`;
+    link.download = `${sanitizedFileName}.${extension}`;
     link.href = downloadUrl;
     document.body.appendChild(link);
     link.click();
