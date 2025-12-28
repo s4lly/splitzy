@@ -23,34 +23,37 @@ export function LineItemAddFormAdapter({
     }
 
     setIsPending(true);
-    const id = uuidv4();
-    const quantity = data.lineItemData.quantity ?? 1;
-    const pricePerItem = data.lineItemData.price_per_item ?? 0;
-    const totalPrice = quantity * pricePerItem;
 
-    const result = zero.mutate(
-      mutators.lineItems.insert({
-        id,
-        receipt_id: Number(data.receiptId),
-        name: data.lineItemData.name,
-        quantity,
-        price_per_item: pricePerItem,
-        total_price: totalPrice,
-        assignments: [],
-        created_at: Date.now(),
-      })
-    );
+    try {
+      const id = uuidv4();
+      const quantity = data.lineItemData.quantity ?? 1;
+      const pricePerItem = data.lineItemData.price_per_item ?? 0;
+      const totalPrice = quantity * pricePerItem;
 
-    const clientResult = await result.client;
+      const result = zero.mutate(
+        mutators.lineItems.insert({
+          id,
+          receipt_id: Number(data.receiptId),
+          name: data.lineItemData.name,
+          quantity,
+          price_per_item: pricePerItem,
+          total_price: totalPrice,
+          assignments: [],
+          created_at: Date.now(),
+        })
+      );
 
-    if (clientResult.type === 'error') {
-      console.error('Failed to add line item:', clientResult.error.message);
-    } else {
-      console.info('Successfully added line item');
-      onAddCancel();
+      const clientResult = await result.client;
+
+      if (clientResult.type === 'error') {
+        console.error('Failed to add line item:', clientResult.error.message);
+      } else {
+        console.info('Successfully added line item');
+        onAddCancel();
+      }
+    } finally {
+      setIsPending(false);
     }
-
-    setIsPending(false);
   };
 
   if (!receiptId) {
