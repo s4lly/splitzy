@@ -1,14 +1,14 @@
+import ReceiptAnalysisDisplay from '@/components/Receipt/ReceiptAnalysisDisplay';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { LoadingState } from '@/components/shared/LoadingState';
+import { ReceiptImageViewer } from '@/features/receipt-image/ReceiptImageViewer';
+import { generateImageFileName } from '@/features/receipt-image/utils/generateImageFileName';
 import { fromTanStackResponse } from '@/models/transformers/fromTanStack';
+import receiptService from '@/services/receiptService';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import ReceiptAnalysisDisplay from '../components/Receipt/ReceiptAnalysisDisplay';
-import { ReceiptImageViewer } from '../features/receipt-image/ReceiptImageViewer';
-import { generateImageFileName } from '../features/receipt-image/utils/generateImageFileName';
-import receiptService from '../services/receiptService';
 
 const ReceiptAnalysisPage = () => {
   const { receiptId } = useParams();
