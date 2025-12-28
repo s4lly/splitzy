@@ -186,7 +186,7 @@ const TipEditorReadOnly = ({
       ) : (
         <EditableDetail
           label="Tip"
-          value={formatCurrency(receiptTip ?? 0)}
+          value={formatCurrency(receiptTip)}
           onClick={handleEditTip}
         />
       )}
