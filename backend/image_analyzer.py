@@ -135,6 +135,34 @@ class ImageAnalyzer:
                 if 'items' in json_response and 'line_items' not in json_response:
                     json_response['line_items'] = json_response.pop('items')
                 
+                # Clean up line items to ensure required fields are never None
+                cleaned_line_items = []
+                for idx, item in enumerate(json_response.get('line_items', [])):
+                    cleaned_item = item.copy()
+                    
+                    # Handle name field (required, no default in schema)
+                    if cleaned_item.get('name') is None:
+                        cleaned_item['name'] = f'Item {idx}'
+                        logger.warning(f"Line item at index {idx} has None name, defaulting to 'Item {idx}'")
+                    
+                    item_name = cleaned_item.get('name', f'Item {idx}')
+                    
+                    # Handle quantity field (default is 1.0 in schema)
+                    if cleaned_item.get('quantity') is None:
+                        logger.warning(f"Line item '{item_name}' has None quantity, defaulting to 1.0")
+                        cleaned_item['quantity'] = 1.0
+                    
+                    # Convert None values to 0.00 for price fields
+                    if cleaned_item.get('price_per_item') is None:
+                        logger.warning(f"Line item '{item_name}' has None price_per_item, defaulting to 0.00")
+                        cleaned_item['price_per_item'] = 0.00
+                    if cleaned_item.get('total_price') is None:
+                        logger.warning(f"Line item '{item_name}' has None total_price, defaulting to 0.00")
+                        cleaned_item['total_price'] = 0.00
+                    
+                    cleaned_line_items.append(cleaned_item)
+                json_response['line_items'] = cleaned_line_items
+                
                 # Calculate totals
                 items_total = sum(
                     item.get('total_price', 0) or 0 
