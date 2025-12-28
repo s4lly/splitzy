@@ -1,8 +1,10 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 
-import { mustGetQuery } from "@rocicorp/zero";
-import { handleQueryRequest } from "@rocicorp/zero/server";
+import { mustGetMutator, mustGetQuery } from "@rocicorp/zero";
+import { handleMutateRequest, handleQueryRequest } from "@rocicorp/zero/server";
+import { dbProvider } from "./db-provider.js";
+import { mutators } from "./mutators.js";
 import { queries } from "./queries.js";
 import { schema } from "./schema.js";
 
@@ -10,6 +12,7 @@ import { schema } from "./schema.js";
 interface LogContext {
   requestId?: string;
   queryName?: string;
+  mutatorName?: string;
   method?: string;
   path?: string;
   statusCode?: number;
@@ -138,6 +141,58 @@ app.post("/api/query", async (c) => {
     log("error", "Query execution failed", {
       requestId,
       queryName,
+      duration,
+      userID: "anon",
+      error: errorMessage,
+      stack: errorStack,
+    });
+
+    // Log detailed error server-side, return generic message to client
+    return c.json({ error: "Internal server error", requestId }, 500);
+  }
+});
+
+app.post("/api/mutate", async (c) => {
+  const requestId = c.get("requestId");
+  const startTime = c.get("startTime");
+  let mutatorName: string | undefined;
+
+  try {
+    const result = await handleMutateRequest(
+      dbProvider,
+      (transact) =>
+        transact((tx, name, args) => {
+          mutatorName = name;
+          log("debug", "Executing mutator", {
+            requestId,
+            mutatorName,
+            userID: "anon",
+          });
+
+          const mutator = mustGetMutator(mutators, name);
+          return mutator.fn({ args, tx, ctx: { userID: "anon" } });
+        }),
+      c.req.raw
+    );
+
+    const duration = Date.now() - startTime;
+
+    log("info", "Mutator executed successfully", {
+      requestId,
+      mutatorName,
+      duration,
+      userID: "anon",
+    });
+
+    return c.json(result);
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+
+    log("error", "Mutator execution failed", {
+      requestId,
+      mutatorName,
       duration,
       userID: "anon",
       error: errorMessage,
