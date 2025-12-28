@@ -89,7 +89,8 @@ const ReceiptAnalysisDisplay = ({
 
   // ----
 
-  // TODO revisit "people manager" and work with server state instead
+  // Linear project: people manager
+  // revisit "people manager" and work with server state instead
 
   // const handleAddPerson = (name: string) => {
   //   if (name.trim() && !people.includes(name.trim())) {
