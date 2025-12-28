@@ -135,6 +135,18 @@ class ImageAnalyzer:
                 if 'items' in json_response and 'line_items' not in json_response:
                     json_response['line_items'] = json_response.pop('items')
                 
+                # Clean up line items to ensure price fields are never None
+                cleaned_line_items = []
+                for item in json_response.get('line_items', []):
+                    cleaned_item = item.copy()
+                    # Convert None values to 0.00 for price fields
+                    if cleaned_item.get('price_per_item') is None:
+                        cleaned_item['price_per_item'] = 0.00
+                    if cleaned_item.get('total_price') is None:
+                        cleaned_item['total_price'] = 0.00
+                    cleaned_line_items.append(cleaned_item)
+                json_response['line_items'] = cleaned_line_items
+                
                 # Calculate totals
                 items_total = sum(
                     item.get('total_price', 0) or 0 
