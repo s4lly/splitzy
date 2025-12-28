@@ -24,17 +24,20 @@ const GratuityEditorReadOnly = ({
   );
   const [isEditing, setIsEditing] = useState(false);
 
+  const resetToInitialValue = () => {
+    setGratuity(receiptGratuity ?? 0);
+    setGratuityInput(receiptGratuity ? receiptGratuity.toFixed(2) : '0.00');
+  };
+
   const hasValueToDelete = receiptGratuity > 0;
 
   useEffect(() => {
-    setGratuity(receiptGratuity ?? 0);
-    setGratuityInput(receiptGratuity ? receiptGratuity.toFixed(2) : '0.00');
+    resetToInitialValue();
   }, [receiptGratuity]);
 
   // Noop functions - UI only, no mutations
   const handleEditGratuity = () => {
-    setGratuityInput(receiptGratuity ? receiptGratuity.toFixed(2) : '0.00');
-    setGratuity(receiptGratuity ?? 0);
+    resetToInitialValue();
     setIsEditing(true);
   };
 
@@ -48,8 +51,7 @@ const GratuityEditorReadOnly = ({
 
     // Allow empty input for better UX
     if (inputValue === '') {
-      setGratuityInput('');
-      setGratuity(0);
+      resetToInitialValue();
       return;
     }
 
@@ -157,4 +159,3 @@ const GratuityEditorReadOnly = ({
 };
 
 export default GratuityEditorReadOnly;
-
