@@ -17,7 +17,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  hasLineItemsAtom,
   peopleAtom,
   personFairTotalsAtom,
   personPretaxTotalsAtom,
@@ -28,8 +27,8 @@ import {
 import { useMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import Decimal from 'decimal.js';
-import { FileText, UserPlus } from 'lucide-react';
 import { useAtomValue } from 'jotai';
+import { FileText, UserPlus } from 'lucide-react';
 
 export const BillBreakdownCollab = () => {
   const isMobile = useMobile();
@@ -93,7 +92,7 @@ export const BillBreakdownCollab = () => {
           const personItems = getPersonItems(person, receipt);
 
           return (
-            <Dialog key={idx}>
+            <Dialog key={person}>
               <DialogTrigger asChild>
                 <div
                   className="cursor-pointer rounded-lg border p-4 transition-shadow [background-color:color-mix(in_srgb,var(--bg-light)_5%,transparent)] hover:shadow-md dark:[background-color:color-mix(in_srgb,var(--bg-dark)_20%,transparent)]"
@@ -241,14 +240,11 @@ export const BillBreakdownCollab = () => {
                               </td>
                               <td className="whitespace-nowrap px-3 py-2.5 text-right align-top text-sm">
                                 <div className="font-medium">
-                                  {formatCurrency(new Decimal(item.price))}
+                                  {formatCurrency(item.price)}
                                 </div>
                                 {item.shared && (
                                   <div className="text-xs text-muted-foreground">
-                                    of{' '}
-                                    {formatCurrency(
-                                      new Decimal(item.originalPrice)
-                                    )}
+                                    of {formatCurrency(item.originalPrice)}
                                   </div>
                                 )}
                               </td>
@@ -285,13 +281,13 @@ export const BillBreakdownCollab = () => {
                               </td>
                               <td className="px-3 py-2 text-right text-sm">
                                 {(() => {
-                                  const totalTip =
-                                    (receipt.tip?.toNumber() ?? 0) +
-                                    (receipt.gratuity?.toNumber() ?? 0);
-                                  const tipPerPerson = totalTip / people.length;
-                                  return formatCurrency(
-                                    new Decimal(tipPerPerson)
+                                  const totalTip = (
+                                    receipt.tip ?? new Decimal(0)
+                                  ).plus(receipt.gratuity ?? new Decimal(0));
+                                  const tipPerPerson = totalTip.div(
+                                    people.length
                                   );
+                                  return formatCurrency(tipPerPerson);
                                 })()}
                               </td>
                             </tr>
@@ -334,4 +330,3 @@ export const BillBreakdownCollab = () => {
     </div>
   );
 };
-
