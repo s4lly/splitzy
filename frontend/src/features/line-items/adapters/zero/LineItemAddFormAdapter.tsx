@@ -39,6 +39,7 @@ export function LineItemAddFormAdapter({
         quantity,
         price_per_item: pricePerItem,
         total_price: totalPrice,
+        assignments: [],
         created_at: Date.now(),
       })
     );
