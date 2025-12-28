@@ -1,4 +1,5 @@
 import LineItemsTableMobile from '@/components/Receipt/LineItemsTableMobile';
+import { useItemAssignmentsUpdateMutation } from '@/components/Receipt/hooks/useItemAssignmentsUpdateMutation';
 import { useLineItemDeleteMutation } from '@/components/Receipt/hooks/useLineItemDeleteMutation';
 import { useLineItemUpdateMutation } from '@/components/Receipt/hooks/useLineItemUpdateMutation';
 import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
@@ -7,15 +8,43 @@ export function LineItemsTableMobileAdapter({
   line_items,
   receipt,
   people,
-  togglePersonAssignment,
 }: {
   line_items: readonly ReceiptLineItem[];
   receipt: Receipt;
   people: string[];
-  togglePersonAssignment: (itemId: string, person: string) => void;
 }) {
   const updateLineItemMutation = useLineItemUpdateMutation();
   const deleteLineItemMutation = useLineItemDeleteMutation();
+  const updateItemAssignmentsMutation = useItemAssignmentsUpdateMutation();
+
+  const togglePersonAssignment = async (itemId: string, person: string) => {
+    const item = receipt.lineItems.find((item) => item.id === itemId);
+
+    if (!item) {
+      console.error(`Item with id ${itemId} not found`);
+      return;
+    }
+
+    const currentAssignments = item.assignments;
+    const isPersonAssigned = currentAssignments.includes(person);
+
+    const newAssignments = isPersonAssigned
+      ? currentAssignments.filter((p) => p !== person)
+      : [...currentAssignments, person];
+
+    if (isPersonAssigned) {
+      console.info(`Removing person ${person} from item ${itemId}`);
+    } else {
+      console.info(`Adding person ${person} to item ${itemId}`);
+    }
+
+    // Persist to backend
+    updateItemAssignmentsMutation.mutate({
+      receiptId: String(receipt.id),
+      lineItemId: itemId,
+      assignments: newAssignments,
+    });
+  };
 
   // Wrap the update mutation with logging and error handling
   const handleUpdateLineItem = (data: {
@@ -85,4 +114,3 @@ export function LineItemsTableMobileAdapter({
     />
   );
 }
-

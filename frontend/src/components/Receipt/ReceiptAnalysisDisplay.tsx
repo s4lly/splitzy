@@ -14,7 +14,6 @@ import { Plus, Receipt as ReceiptIcon, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import SummaryCard from './SummaryCard';
 import LineItemCard from './components/LineItemCard';
-import { useItemAssignmentsUpdateMutation } from './hooks/useItemAssignmentsUpdateMutation';
 import { getPeopleFromLineItems } from './utils/line-item-utils';
 import { calculations } from './utils/receipt-calculation';
 import {
@@ -39,9 +38,8 @@ const ReceiptAnalysisDisplay = ({
     return getPeopleFromLineItems(receipt.lineItems);
   });
 
-  const [searchInputs, setSearchInputs] = useState<Record<string, string>>({});
+  // const [searchInputs, setSearchInputs] = useState<Record<string, string>>({});
   const [isAddingItem, setIsAddingItem] = useState(false);
-  const updateItemAssignmentsMutation = useItemAssignmentsUpdateMutation();
   const isMobile = useMobile();
 
   // Update people state when receipt changes (e.g., when line items are deleted)
@@ -90,88 +88,34 @@ const ReceiptAnalysisDisplay = ({
   const unassignedAmount = Decimal.max(0, receiptTotal.minus(personTotalsSum));
   const isFullyAssigned = areAllItemsAssigned(receipt);
 
-  // --
+  // ----
 
-  const handleAddPerson = (name: string) => {
-    if (name.trim() && !people.includes(name.trim())) {
-      // see TODO above
-      setPeople([...people, name.trim()]);
-    }
-  };
+  // TODO revisit "people manager" and work with server state instead
 
-  const handleRemovePerson = (personToRemove: string) => {
-    // see TODO above
-    setPeople(people.filter((person) => person !== personToRemove));
+  // const handleAddPerson = (name: string) => {
+  //   if (name.trim() && !people.includes(name.trim())) {
+  //     // see TODO above
+  //     setPeople([...people, name.trim()]);
+  //   }
+  // };
 
-    // Persist to backend - remove person from all items
-    receipt.lineItems.forEach((item) => {
-      if (item.assignments.includes(personToRemove)) {
-        updateItemAssignmentsMutation.mutate({
-          receiptId,
-          lineItemId: item.id,
-          assignments: item.assignments.filter((p) => p !== personToRemove),
-        });
-      }
-    });
-  };
+  // const handleRemovePerson = (personToRemove: string) => {
+  //   // see TODO above
+  //   setPeople(people.filter((person) => person !== personToRemove));
 
-  const togglePersonAssignment = async (itemId: string, person: string) => {
-    const item = receipt.lineItems.find((item) => item.id === itemId);
+  //   // Persist to backend - remove person from all items
+  //   receipt.lineItems.forEach((item) => {
+  //     if (item.assignments.includes(personToRemove)) {
+  //       updateItemAssignmentsMutation.mutate({
+  //         receiptId,
+  //         lineItemId: item.id,
+  //         assignments: item.assignments.filter((p) => p !== personToRemove),
+  //       });
+  //     }
+  //   });
+  // };
 
-    if (!item) {
-      console.error(`Item with id ${itemId} not found`);
-      return;
-    }
-
-    const currentAssignments = item.assignments;
-    const newAssignments = currentAssignments.includes(person)
-      ? currentAssignments.filter((p) => p !== person)
-      : [...currentAssignments, person];
-
-    if (currentAssignments.includes(person)) {
-      console.info(`Removing person ${person} from item ${itemId}`);
-    } else {
-      console.info(`Adding person ${person} to item ${itemId}`);
-    }
-
-    // Persist to backend
-    updateItemAssignmentsMutation.mutate({
-      receiptId,
-      lineItemId: itemId,
-      assignments: newAssignments,
-    });
-  };
-
-  // Add a function to handle search input change
-  const handleSearchInputChange = (itemId: string, value: string) => {
-    setSearchInputs({
-      ...searchInputs,
-      [itemId]: value,
-    });
-  };
-
-  // Add a function to handle searching and creating a new person
-  const handleSearchAndAssign = (itemId: string, searchValue: string) => {
-    // If no search value, do nothing
-    if (!searchValue.trim()) return;
-
-    const name = searchValue.trim();
-
-    // Check if person already exists
-    if (!people.includes(name)) {
-      // Add the new person to the list
-      setPeople([...people, name]);
-    }
-
-    // Assign the person to the item
-    togglePersonAssignment(itemId, name);
-
-    // Clear the search input for this item
-    setSearchInputs({
-      ...searchInputs,
-      [itemId]: '',
-    });
-  };
+  // ----
 
   return (
     <motion.div
@@ -225,14 +169,12 @@ const ReceiptAnalysisDisplay = ({
                   line_items={receipt.lineItems}
                   receipt={receipt}
                   people={people}
-                  togglePersonAssignment={togglePersonAssignment}
                 />
               ) : (
                 <LineItemsTableDesktopAdapter
                   line_items={receipt.lineItems}
                   people={people}
                   receipt={receipt}
-                  togglePersonAssignment={togglePersonAssignment}
                 />
               )}
             </>
@@ -258,8 +200,6 @@ const ReceiptAnalysisDisplay = ({
         isFullyAssigned={isFullyAssigned}
         useEqualSplit={useEqualSplit}
         receiptHasLineItems={receiptHasLineItems}
-        onAddPerson={handleAddPerson}
-        onRemovePerson={handleRemovePerson}
       />
     </motion.div>
   );

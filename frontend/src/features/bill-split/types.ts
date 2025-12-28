@@ -28,8 +28,4 @@ export interface BillSplitSectionProps {
   useEqualSplit: boolean;
   /** Whether the receipt contains detailed line items */
   receiptHasLineItems: boolean;
-  /** Callback to add a new person to the split */
-  onAddPerson: (name: string) => void;
-  /** Callback to remove a person from the split */
-  onRemovePerson: (name: string) => void;
 }

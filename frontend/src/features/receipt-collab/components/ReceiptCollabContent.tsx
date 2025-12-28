@@ -96,15 +96,9 @@ export const ReceiptCollabContent = () => {
               {receipt.lineItems && receipt.lineItems.length > 0 ? (
                 <>
                   {isMobile ? (
-                    <LineItemsTableMobileAdapter
-                      people={people}
-                      togglePersonAssignment={() => {}}
-                    />
+                    <LineItemsTableMobileAdapter people={people} />
                   ) : (
-                    <LineItemsTableDesktopAdapter
-                      people={people}
-                      togglePersonAssignment={() => {}}
-                    />
+                    <LineItemsTableDesktopAdapter people={people} />
                   )}
                 </>
               ) : (

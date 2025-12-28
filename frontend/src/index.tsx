@@ -13,6 +13,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
+import { mutators } from '@/zero/mutators';
 import { schema, Schema } from '@/zero/schema';
 import type { ZeroOptions } from '@rocicorp/zero';
 import { ZeroProvider } from '@rocicorp/zero/react';
@@ -43,6 +44,7 @@ const zeroOptions: ZeroOptions<Schema> = {
   queryURL: ZERO_QUERY_URL,
   mutateURL: ZERO_MUTATE_URL,
   schema,
+  mutators: mutators,
   userID: getUserID(),
 };
 

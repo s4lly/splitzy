@@ -7,7 +7,6 @@ import { useState } from 'react';
 import { AssignmentProgress } from './AssignmentProgress';
 import { BillBreakdown } from './BillBreakdown';
 import { EqualSplitBanner } from './EqualSplitBanner';
-import { PeopleManagerForm } from './PeopleManagerForm';
 
 interface ManualSplitTabProps {
   people: string[];
@@ -20,8 +19,6 @@ interface ManualSplitTabProps {
   isFullyAssigned: boolean;
   useEqualSplit: boolean;
   receiptHasLineItems: boolean;
-  onAddPerson: (name: string) => void;
-  onRemovePerson: (name: string) => void;
 }
 
 export const ManualSplitTab = ({
@@ -35,18 +32,16 @@ export const ManualSplitTab = ({
   isFullyAssigned,
   useEqualSplit,
   receiptHasLineItems,
-  onAddPerson,
-  onRemovePerson,
 }: ManualSplitTabProps) => {
   const [showPeopleManager, setShowPeopleManager] = useState(false);
-  const [newPersonName, setNewPersonName] = useState('');
+  // const [newPersonName, setNewPersonName] = useState('');
 
-  const handleAddPerson = () => {
-    if (newPersonName.trim() && !people.includes(newPersonName.trim())) {
-      onAddPerson(newPersonName.trim());
-      setNewPersonName('');
-    }
-  };
+  // const handleAddPerson = () => {
+  //   if (newPersonName.trim() && !people.includes(newPersonName.trim())) {
+  //     onAddPerson(newPersonName.trim());
+  //     setNewPersonName('');
+  //   }
+  // };
 
   return (
     <>
@@ -58,8 +53,9 @@ export const ManualSplitTab = ({
           </div>
           <Button
             variant="outline"
+            disabled
             size="sm"
-            onClick={() => setShowPeopleManager(!showPeopleManager)}
+            // onClick={() => setShowPeopleManager(!showPeopleManager)}
           >
             {showPeopleManager ? 'Hide' : 'Manage People'}
           </Button>
@@ -82,8 +78,9 @@ export const ManualSplitTab = ({
           <EqualSplitBanner receiptHasLineItems={receiptHasLineItems} />
         )}
 
+        {/* TODO revisit "people manager" and work with server state instead */}
         {/* People Manager Form */}
-        {showPeopleManager && (
+        {/* {showPeopleManager && (
           <PeopleManagerForm
             people={people}
             newPersonName={newPersonName}
@@ -91,7 +88,7 @@ export const ManualSplitTab = ({
             onAddPerson={handleAddPerson}
             onRemovePerson={onRemovePerson}
           />
-        )}
+        )} */}
 
         {/* Bill Breakdown */}
         <BillBreakdown

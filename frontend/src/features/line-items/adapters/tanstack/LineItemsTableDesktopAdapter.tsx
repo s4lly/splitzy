@@ -1,4 +1,5 @@
 import LineItemsTableDesktop from '@/components/Receipt/LineItemsTableDesktop';
+import { useItemAssignmentsUpdateMutation } from '@/components/Receipt/hooks/useItemAssignmentsUpdateMutation';
 import { useLineItemDeleteMutation } from '@/components/Receipt/hooks/useLineItemDeleteMutation';
 import { useLineItemUpdateMutation } from '@/components/Receipt/hooks/useLineItemUpdateMutation';
 import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
@@ -7,15 +8,43 @@ export function LineItemsTableDesktopAdapter({
   line_items,
   receipt,
   people,
-  togglePersonAssignment,
 }: {
   line_items: readonly ReceiptLineItem[];
   receipt: Receipt;
   people: string[];
-  togglePersonAssignment: (itemId: string, person: string) => void;
 }) {
   const updateLineItemMutation = useLineItemUpdateMutation();
   const deleteLineItemMutation = useLineItemDeleteMutation();
+  const updateItemAssignmentsMutation = useItemAssignmentsUpdateMutation();
+
+  const togglePersonAssignment = async (itemId: string, person: string) => {
+    const item = receipt.lineItems.find((item) => item.id === itemId);
+
+    if (!item) {
+      console.error(`Item with id ${itemId} not found`);
+      return;
+    }
+
+    const currentAssignments = item.assignments;
+    const isPersonAssigned = currentAssignments.includes(person);
+
+    const newAssignments = isPersonAssigned
+      ? currentAssignments.filter((p) => p !== person)
+      : [...currentAssignments, person];
+
+    if (isPersonAssigned) {
+      console.info(`Removing person ${person} from item ${itemId}`);
+    } else {
+      console.info(`Adding person ${person} to item ${itemId}`);
+    }
+
+    // Persist to backend
+    updateItemAssignmentsMutation.mutate({
+      receiptId: String(receipt.id),
+      lineItemId: itemId,
+      assignments: newAssignments,
+    });
+  };
 
   // Wrap the update mutation with logging and error handling
   const handleUpdateLineItem = (data: {
@@ -25,11 +54,14 @@ export function LineItemsTableDesktopAdapter({
     quantity?: number;
     price_per_item?: number;
   }) => {
-    console.info(`Updating line item ${data.itemId} in receipt ${data.receiptId}`, {
-      name: data.name,
-      quantity: data.quantity,
-      price_per_item: data.price_per_item,
-    });
+    console.info(
+      `Updating line item ${data.itemId} in receipt ${data.receiptId}`,
+      {
+        name: data.name,
+        quantity: data.quantity,
+        price_per_item: data.price_per_item,
+      }
+    );
 
     updateLineItemMutation.mutate(data, {
       onSuccess: () => {
@@ -53,7 +85,9 @@ export function LineItemsTableDesktopAdapter({
       onError?: (error: Error) => void;
     }
   ) => {
-    console.info(`Deleting line item ${data.itemId} from receipt ${data.receiptId}`);
+    console.info(
+      `Deleting line item ${data.itemId} from receipt ${data.receiptId}`
+    );
 
     deleteLineItemMutation.mutate(data, {
       onSuccess: () => {
@@ -80,4 +114,3 @@ export function LineItemsTableDesktopAdapter({
     />
   );
 }
-

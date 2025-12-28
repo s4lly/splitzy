@@ -15,8 +15,6 @@ export const BillSplitSection = ({
   isFullyAssigned,
   useEqualSplit,
   receiptHasLineItems,
-  onAddPerson,
-  onRemovePerson,
 }: BillSplitSectionProps) => {
   return (
     <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
@@ -37,8 +35,6 @@ export const BillSplitSection = ({
             isFullyAssigned={isFullyAssigned}
             useEqualSplit={useEqualSplit}
             receiptHasLineItems={receiptHasLineItems}
-            onAddPerson={onAddPerson}
-            onRemovePerson={onRemovePerson}
           />
         </TabsContent>
         <TabsContent value="evenly">
