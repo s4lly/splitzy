@@ -1,4 +1,5 @@
 import LineItemForm from '@/components/Receipt/LineItemForm';
+import type { AddLineItemData, UpdateLineItemData } from '@/features/line-items/types';
 import type { ReceiptLineItem } from '@/models/Receipt';
 import Decimal from 'decimal.js';
 import { useState } from 'react';
@@ -16,14 +17,7 @@ export default function LineItemAddForm({
 }: {
   receiptId: string;
   onAddCancel: () => void;
-  onAddLineItem: (data: {
-    receiptId: string;
-    lineItemData: {
-      name?: string;
-      quantity?: number;
-      price_per_item?: number;
-    };
-  }) => void;
+  onAddLineItem: (data: AddLineItemData) => void;
   isPending?: boolean;
 }) {
 
@@ -53,13 +47,7 @@ export default function LineItemAddForm({
   };
 
   // Create a mutate function that updates local state instead of calling the API
-  const mutate = (data: {
-    receiptId: string;
-    itemId: string;
-    name?: string;
-    quantity?: number;
-    price_per_item?: number;
-  }) => {
+  const mutate = (data: UpdateLineItemData) => {
     // Update local state based on what field changed
     if ('price_per_item' in data) {
       setFormData((prev) => ({

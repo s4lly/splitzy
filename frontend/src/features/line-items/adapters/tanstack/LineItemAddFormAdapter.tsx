@@ -1,5 +1,6 @@
 import LineItemAddForm from '@/components/Receipt/LineItemAddForm';
 import { useLineItemAddMutation } from '@/components/Receipt/hooks/useLineItemAddMutation';
+import type { AddLineItemData } from '@/features/line-items/types';
 
 export function LineItemAddFormAdapter({
   receiptId,
@@ -11,14 +12,7 @@ export function LineItemAddFormAdapter({
   const addLineItemMutation = useLineItemAddMutation();
 
   // Wrap the mutation with logging and error handling
-  const handleAddLineItem = (data: {
-    receiptId: string;
-    lineItemData: {
-      name?: string;
-      quantity?: number;
-      price_per_item?: number;
-    };
-  }) => {
+  const handleAddLineItem = (data: AddLineItemData) => {
     console.info(`Adding line item to receipt ${data.receiptId}`, {
       name: data.lineItemData.name,
       quantity: data.lineItemData.quantity,

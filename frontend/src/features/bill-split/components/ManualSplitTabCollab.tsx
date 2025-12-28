@@ -10,7 +10,6 @@ import { useState } from 'react';
 import { AssignmentProgressCollab } from './AssignmentProgressCollab';
 import { BillBreakdownCollab } from './BillBreakdownCollab';
 import { EqualSplitBannerCollab } from './EqualSplitBannerCollab';
-import { PeopleManagerFormCollab } from './PeopleManagerFormCollab';
 
 export const ManualSplitTabCollab = () => {
   const [showPeopleManager, setShowPeopleManager] = useState(false);
@@ -27,8 +26,9 @@ export const ManualSplitTabCollab = () => {
           </div>
           <Button
             variant="outline"
+            disabled
             size="sm"
-            onClick={() => setShowPeopleManager(!showPeopleManager)}
+            // onClick={() => setShowPeopleManager(!showPeopleManager)}
           >
             {showPeopleManager ? 'Hide' : 'Manage People'}
           </Button>
@@ -37,17 +37,14 @@ export const ManualSplitTabCollab = () => {
 
       <CardContent className="p-0">
         {/* Assignment Progress */}
-        {people.length > 0 && (
-          <AssignmentProgressCollab />
-        )}
+        {people.length > 0 && <AssignmentProgressCollab />}
 
         {/* Equal Split Banner */}
-        {useEqualSplit && people.length > 0 && (
-          <EqualSplitBannerCollab />
-        )}
+        {useEqualSplit && people.length > 0 && <EqualSplitBannerCollab />}
 
+        {/* TODO revisit "people manager" and work with server state instead */}
         {/* People Manager Form */}
-        {showPeopleManager && <PeopleManagerFormCollab />}
+        {/* {showPeopleManager && <PeopleManagerFormCollab />} */}
 
         {/* Bill Breakdown */}
         <BillBreakdownCollab />
@@ -55,4 +52,3 @@ export const ManualSplitTabCollab = () => {
     </>
   );
 };
-
