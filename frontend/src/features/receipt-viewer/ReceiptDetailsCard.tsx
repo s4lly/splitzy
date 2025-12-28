@@ -23,12 +23,25 @@ export const ReceiptDetailsCard = ({
   // Format date - handle both Date objects and timestamps (seconds or milliseconds)
   const formatDate = (): string => {
     if (!date) return 'Unknown';
+
     if (date instanceof Date) {
       return date.toLocaleDateString();
     }
-    // Handle numeric timestamp (check if seconds or milliseconds)
+
+    // Handle numeric timestamp
+    // Heuristic: If the timestamp is less than Jan 1, 2000 in milliseconds (946684800000),
+    // assume it's in seconds. This works for any reasonable receipt date.
     const timestamp = typeof date === 'number' ? date : 0;
-    const dateObj = new Date(timestamp < 1e12 ? timestamp * 1000 : timestamp);
+    const YEAR_2000_MS = 946684800000;
+    const dateObj = new Date(
+      timestamp < YEAR_2000_MS ? timestamp * 1000 : timestamp
+    );
+
+    // Validate the date
+    if (isNaN(dateObj.getTime())) {
+      return 'Invalid Date';
+    }
+
     return dateObj.toLocaleDateString();
   };
 
