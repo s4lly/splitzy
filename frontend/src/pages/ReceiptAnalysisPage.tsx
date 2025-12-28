@@ -13,6 +13,9 @@ import { useParams } from 'react-router-dom';
 const ReceiptAnalysisPage = () => {
   const { receiptId } = useParams();
 
+  const parsedId = receiptId ? parseInt(receiptId, 10) : NaN;
+  const isValidId = !Number.isNaN(parsedId);
+
   const {
     data: receiptData,
     status: receiptDataStatus,
@@ -20,8 +23,8 @@ const ReceiptAnalysisPage = () => {
     isLoading: receiptDataIsLoading,
   } = useQuery({
     queryKey: ['receipt', receiptId],
-    queryFn: () => receiptService.getSingleReceipt(parseInt(receiptId ?? '0')),
-    enabled: !!receiptId,
+    queryFn: () => receiptService.getSingleReceipt(isValidId ? parsedId : 0),
+    enabled: isValidId,
   });
 
   // Transform receipt data once and reuse throughout the component
@@ -54,7 +57,7 @@ const ReceiptAnalysisPage = () => {
         <div className="mx-auto max-w-4xl py-8">
           <div className="flex flex-col gap-6">
             <ReceiptImageViewer
-              imageUrl={receiptData?.receipt?.image_path ?? null}
+              imageUrl={receipt?.imagePath ?? null}
               fileName={imageFileName}
             />
 
