@@ -17,8 +17,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useMobile } from '@/hooks/use-mobile';
-import type { Receipt } from '@/models/Receipt';
 import { cn } from '@/lib/utils';
+import type { Receipt } from '@/models/Receipt';
 import Decimal from 'decimal.js';
 import { FileText, UserPlus } from 'lucide-react';
 
@@ -236,14 +236,11 @@ export const BillBreakdown = ({
                               </td>
                               <td className="whitespace-nowrap px-3 py-2.5 text-right align-top text-sm">
                                 <div className="font-medium">
-                                  {formatCurrency(new Decimal(item.price))}
+                                  {formatCurrency(item.price)}
                                 </div>
                                 {item.shared && (
                                   <div className="text-xs text-muted-foreground">
-                                    of{' '}
-                                    {formatCurrency(
-                                      new Decimal(item.originalPrice)
-                                    )}
+                                    of {formatCurrency(item.originalPrice)}
                                   </div>
                                 )}
                               </td>
@@ -280,13 +277,13 @@ export const BillBreakdown = ({
                               </td>
                               <td className="px-3 py-2 text-right text-sm">
                                 {(() => {
-                                  const totalTip =
-                                    (receipt.tip?.toNumber() ?? 0) +
-                                    (receipt.gratuity?.toNumber() ?? 0);
-                                  const tipPerPerson = totalTip / people.length;
-                                  return formatCurrency(
-                                    new Decimal(tipPerPerson)
+                                  const totalTip = (
+                                    receipt.tip ?? new Decimal(0)
+                                  ).plus(receipt.gratuity ?? new Decimal(0));
+                                  const tipPerPerson = totalTip.div(
+                                    people.length
                                   );
+                                  return formatCurrency(tipPerPerson);
                                 })()}
                               </td>
                             </tr>
