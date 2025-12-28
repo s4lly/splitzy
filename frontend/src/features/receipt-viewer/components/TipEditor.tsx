@@ -6,9 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EditableDetail from '@/features/summary-card/EditableDetail';
+import { useReceiptMutation } from '@/features/receipt-viewer/hooks/useReceiptMutation';
 import { cn } from '@/lib/utils';
-import { mutators } from '@/zero/mutators';
-import { useZero } from '@rocicorp/zero/react';
 import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -28,12 +27,14 @@ const TipEditor = ({
   itemsTotal,
   receiptId,
 }: TipEditorProps) => {
-  const zero = useZero();
   const [tip, setTip] = useState<Decimal>(receiptTip);
   const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
   const hasValueToDelete = !receiptTip.isZero();
+
+  const { mutate, isSaving } = useReceiptMutation({
+    onSuccess: () => setIsEditing(false),
+  });
 
   useEffect(() => {
     setTip(receiptTip);
@@ -45,33 +46,10 @@ const TipEditor = ({
   };
 
   const handleSaveTip = async () => {
-    if (!receiptId) {
-      console.error('Receipt ID is required to save tip');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const result = zero.mutate(
-        mutators.receipts.update({
-          id: receiptId,
-          tip: tip.toNumber(),
-        })
-      );
-
-      const clientResult = await result.client;
-
-      if (clientResult.type === 'error') {
-        console.error('Failed to update tip:', clientResult.error.message);
-      } else {
-        console.info('Successfully updated tip');
-        setIsEditing(false);
-      }
-    } catch (error) {
-      console.error('Error updating tip:', error);
-    } finally {
-      setIsSaving(false);
-    }
+    await mutate({
+      id: receiptId,
+      tip: tip.toNumber(),
+    });
   };
 
   const handleTipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,33 +79,10 @@ const TipEditor = ({
   };
 
   const handleDeleteTip = async () => {
-    if (!receiptId) {
-      console.error('Receipt ID is required to delete tip');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const result = zero.mutate(
-        mutators.receipts.update({
-          id: receiptId,
-          tip: 0,
-        })
-      );
-
-      const clientResult = await result.client;
-
-      if (clientResult.type === 'error') {
-        console.error('Failed to delete tip:', clientResult.error.message);
-      } else {
-        console.info('Successfully deleted tip');
-        setIsEditing(false);
-      }
-    } catch (error) {
-      console.error('Error deleting tip:', error);
-    } finally {
-      setIsSaving(false);
-    }
+    await mutate({
+      id: receiptId,
+      tip: 0,
+    });
   };
 
   const handleCancelTip = () => {

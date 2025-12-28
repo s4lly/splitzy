@@ -3,9 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import EditableDetail from '@/features/summary-card/EditableDetail';
+import { useReceiptMutation } from '@/features/receipt-viewer/hooks/useReceiptMutation';
 import { cn } from '@/lib/utils';
-import { mutators } from '@/zero/mutators';
-import { useZero } from '@rocicorp/zero/react';
 import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -23,16 +22,18 @@ const GratuityEditor = ({
   receiptGratuity = new Decimal(0),
   receiptId,
 }: GratuityEditorProps) => {
-  const zero = useZero();
   const [gratuity, setGratuity] = useState<Decimal>(receiptGratuity);
   const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
   const resetToInitialValue = () => {
     setGratuity(receiptGratuity);
   };
 
   const hasValueToDelete = !receiptGratuity.isZero();
+
+  const { mutate, isSaving } = useReceiptMutation({
+    onSuccess: () => setIsEditing(false),
+  });
 
   useEffect(() => {
     resetToInitialValue();
@@ -44,33 +45,10 @@ const GratuityEditor = ({
   };
 
   const handleSaveGratuity = async () => {
-    if (!receiptId) {
-      console.error('Receipt ID is required to save gratuity');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const result = zero.mutate(
-        mutators.receipts.update({
-          id: receiptId,
-          gratuity: gratuity.toNumber(),
-        })
-      );
-
-      const clientResult = await result.client;
-
-      if (clientResult.type === 'error') {
-        console.error('Failed to update gratuity:', clientResult.error.message);
-      } else {
-        console.info('Successfully updated gratuity');
-        setIsEditing(false);
-      }
-    } catch (error) {
-      console.error('Error updating gratuity:', error);
-    } finally {
-      setIsSaving(false);
-    }
+    await mutate({
+      id: receiptId,
+      gratuity: gratuity.toNumber(),
+    });
   };
 
   const handleGratuityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,33 +83,10 @@ const GratuityEditor = ({
   };
 
   const handleDeleteGratuity = async () => {
-    if (!receiptId) {
-      console.error('Receipt ID is required to delete gratuity');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const result = zero.mutate(
-        mutators.receipts.update({
-          id: receiptId,
-          gratuity: 0,
-        })
-      );
-
-      const clientResult = await result.client;
-
-      if (clientResult.type === 'error') {
-        console.error('Failed to delete gratuity:', clientResult.error.message);
-      } else {
-        console.info('Successfully deleted gratuity');
-        setIsEditing(false);
-      }
-    } catch (error) {
-      console.error('Error deleting gratuity:', error);
-    } finally {
-      setIsSaving(false);
-    }
+    await mutate({
+      id: receiptId,
+      gratuity: 0,
+    });
   };
 
   if (!hasValueToDelete && !isEditing) {
