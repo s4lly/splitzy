@@ -27,7 +27,7 @@ function parseReceiptAnalysisError(
   mutation: UseMutationResult<
     ReceiptAnalysisResult,
     Error,
-    { file: File; preview: string | null },
+    { file: File },
     unknown
   >
 ): string | null {
@@ -86,7 +86,7 @@ export const ReceiptUploader = ({
     if (!file) return;
 
     mutation.mutate(
-      { file, preview },
+      { file },
       {
         onSuccess: (result) => {
           if (result.success && result.is_receipt) {

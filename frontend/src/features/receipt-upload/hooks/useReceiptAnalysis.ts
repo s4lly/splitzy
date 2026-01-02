@@ -1,18 +1,19 @@
 import receiptService from '@/services/receiptService';
+import { useAuth } from '@clerk/clerk-react';
 import { useMutation } from '@tanstack/react-query';
 import type { ReceiptAnalysisResult } from '../types';
 
 export function useReceiptAnalysisMutation() {
+  const { getToken } = useAuth();
+
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       file,
-      preview,
     }: {
       file: File;
-      preview: string | null;
     }): Promise<ReceiptAnalysisResult> => {
-      // @ts-expect-error - receiptService.analyzeReceipt accepts string | null but TypeScript infers null | undefined from default parameter
-      return receiptService.analyzeReceipt(file, preview);
+      const token = await getToken();
+      return receiptService.analyzeReceipt(file, { token: token || undefined });
     },
     retry: false, // No retries for LLM calls
   });

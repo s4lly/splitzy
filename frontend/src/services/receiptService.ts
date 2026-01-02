@@ -82,21 +82,29 @@ const receiptService = {
   /**
    * Upload and analyze a receipt, invoice, or other payment document
    * @param {File} imageFile - The document image file
-   * @param {string} previewUrl - Optional URL of the image preview
+   * @param {Object} options - Optional configuration object
+   * @param {string} options.token - Optional authentication token
    * @returns {Promise} - A promise that resolves to the analysis result
    */
-  analyzeReceipt: async (imageFile, previewUrl = null) => {
+  analyzeReceipt: async (imageFile: File, options?: { token?: string }) => {
     try {
       const formData = new FormData();
       formData.append('file', imageFile);
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'multipart/form-data',
+      };
+
+      // Add Authorization header if token is provided
+      if (options?.token) {
+        headers['Authorization'] = `Bearer ${options.token}`;
+      }
 
       const response = await axios.post(
         `${API_URL}/analyze-receipt`,
         formData,
         {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers,
           withCredentials: !isDevelopment, // Only send credentials in production
         }
       );
