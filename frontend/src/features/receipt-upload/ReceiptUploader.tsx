@@ -1,13 +1,16 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { DropZone } from '@/features/receipt-upload/components/DropZone';
+import { ErrorMessage } from '@/features/receipt-upload/components/ErrorMessage';
+import { PreviewImage } from '@/features/receipt-upload/components/PreviewImage';
+import { useFileDropzone } from '@/features/receipt-upload/hooks/useFileDropzone';
+import { useReceiptAnalysisMutation } from '@/features/receipt-upload/hooks/useReceiptAnalysis';
+import type {
+  ReceiptAnalysisResult,
+  ReceiptUploaderProps,
+} from '@/features/receipt-upload/types';
 import type { UseMutationResult } from '@tanstack/react-query';
 import { FileText, Loader2 } from 'lucide-react';
-import { DropZone } from './components/DropZone';
-import { ErrorMessage } from './components/ErrorMessage';
-import { PreviewImage } from './components/PreviewImage';
-import { useFileDropzone } from './hooks/useFileDropzone';
-import { useReceiptAnalysisMutation } from './hooks/useReceiptAnalysis';
-import type { ReceiptAnalysisResult, ReceiptUploaderProps } from './types';
 
 /**
  * Parses the error state from the receipt analysis mutation and returns
