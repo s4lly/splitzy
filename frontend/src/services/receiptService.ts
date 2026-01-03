@@ -82,88 +82,29 @@ const receiptService = {
   /**
    * Upload and analyze a receipt, invoice, or other payment document
    * @param {File} imageFile - The document image file
-   * @param {string} previewUrl - Optional URL of the image preview
+   * @param {Object} options - Optional configuration object
+   * @param {string} options.token - Optional authentication token
    * @returns {Promise} - A promise that resolves to the analysis result
    */
-  analyzeReceipt: async (imageFile, previewUrl = null) => {
+  analyzeReceipt: async (imageFile: File, options?: { token?: string }) => {
     try {
       const formData = new FormData();
       formData.append('file', imageFile);
+
+      // Only include Authorization header when token is present
+      // Let axios set the proper Content-Type with boundary for FormData
+      const headers: Record<string, string> = options?.token
+        ? { Authorization: `Bearer ${options.token}` }
+        : {};
 
       const response = await axios.post(
         `${API_URL}/analyze-receipt`,
         formData,
         {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers,
           withCredentials: !isDevelopment, // Only send credentials in production
         }
       );
-
-      // If the API is available but doesn't save receipts yet,
-      // store the result in localStorage for our mock implementation
-      try {
-        const result = response.data.result;
-        // Add id and created_at if they don't exist (for mock implementation)
-        if (result && !result.id) {
-          const mockReceipts = getMockReceipts();
-          const newId =
-            mockReceipts.length > 0
-              ? Math.max(...mockReceipts.map((r) => r.id)) + 1
-              : 1;
-
-          // Make sure we have a Base64 version of the image for persistent storage
-          let imageDataUrl = previewUrl;
-          if (previewUrl && !previewUrl.startsWith('data:')) {
-            try {
-              // Convert blob URL to Base64 for storage
-              const response = await fetch(previewUrl);
-              const blob = await response.blob();
-
-              const reader = new FileReader();
-              imageDataUrl = await new Promise((resolve) => {
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(blob);
-              });
-
-              // Validate data URL to ensure it's valid
-              if (
-                !imageDataUrl ||
-                typeof imageDataUrl !== 'string' ||
-                !imageDataUrl.startsWith('data:')
-              ) {
-                console.warn(
-                  'Generated image data URL appears invalid, ignoring it'
-                );
-                imageDataUrl = null;
-              }
-            } catch (e) {
-              console.error('Failed to convert preview URL to Data URL:', e);
-              imageDataUrl = null;
-            }
-          }
-
-          const newReceipt = {
-            id: newId,
-            receipt_data: result,
-            created_at: new Date().toISOString(),
-            image_url: imageDataUrl, // Store the image URL for later retrieval
-          };
-
-          mockReceipts.unshift(newReceipt); // Add to beginning of array
-          saveMockReceipts(mockReceipts);
-
-          // Include the ID and image URL in the response for navigation and display
-          response.data.receipt_data = {
-            ...response.data.result,
-            id: newId,
-          };
-          response.data.image_url = imageDataUrl;
-        }
-      } catch (e) {
-        console.error('Error saving receipt to mock storage:', e);
-      }
 
       return response.data;
     } catch (error) {
