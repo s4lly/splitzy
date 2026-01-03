@@ -91,14 +91,11 @@ const receiptService = {
       const formData = new FormData();
       formData.append('file', imageFile);
 
-      const headers: Record<string, string> = {
-        'Content-Type': 'multipart/form-data',
-      };
-
-      // Add Authorization header if token is provided
-      if (options?.token) {
-        headers['Authorization'] = `Bearer ${options.token}`;
-      }
+      // Only include Authorization header when token is present
+      // Let axios set the proper Content-Type with boundary for FormData
+      const headers: Record<string, string> = options?.token
+        ? { Authorization: `Bearer ${options.token}` }
+        : {};
 
       const response = await axios.post(
         `${API_URL}/analyze-receipt`,
