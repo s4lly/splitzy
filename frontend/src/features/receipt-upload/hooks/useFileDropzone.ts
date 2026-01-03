@@ -11,32 +11,21 @@ export const useFileDropzone = (): UseFileDropzoneReturn => {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const selectedFile = acceptedFiles[0];
-      if (selectedFile) {
-        // Revoke previous preview URL if it exists
-        if (preview) {
-          URL.revokeObjectURL(preview);
-        }
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const selectedFile = acceptedFiles[0];
+    if (selectedFile) {
+      setFile(selectedFile);
 
-        setFile(selectedFile);
-
-        // Create a preview URL
-        const previewUrl = URL.createObjectURL(selectedFile);
-        setPreview(previewUrl);
-      }
-    },
-    [preview]
-  );
+      // Create a preview URL
+      const previewUrl = URL.createObjectURL(selectedFile);
+      setPreview(previewUrl);
+    }
+  }, []);
 
   const clearFile = useCallback(() => {
-    if (preview) {
-      URL.revokeObjectURL(preview);
-    }
     setFile(null);
     setPreview(null);
-  }, [preview]);
+  }, []);
 
   // Cleanup effect to revoke blob URL when preview changes or component unmounts
   useEffect(() => {
@@ -57,4 +46,3 @@ export const useFileDropzone = (): UseFileDropzoneReturn => {
     clearFile,
   };
 };
-
