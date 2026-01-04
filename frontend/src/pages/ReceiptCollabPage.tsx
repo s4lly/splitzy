@@ -58,21 +58,34 @@ const ReceiptCollabPage = () => {
     }
   }, [details.type, data, notFoundStartTime]);
 
-  // Handle retry logic - wait between retries before giving up
+  // Handle retry logic with interval timer
   useEffect(() => {
+    // Only start timer when conditions are met
     if (
-      notFoundStartTime !== null &&
-      details.type === 'complete' &&
-      !data?.[0] &&
-      retryCount < MAX_RETRIES
+      notFoundStartTime === null ||
+      details.type !== 'complete' ||
+      data?.[0] ||
+      retryCount >= MAX_RETRIES
     ) {
-      const elapsed = Date.now() - notFoundStartTime;
-      const retryNumber = Math.floor(elapsed / RETRY_DELAY_MS);
-
-      if (retryNumber > retryCount && retryNumber <= MAX_RETRIES) {
-        setRetryCount(retryNumber);
-      }
+      return;
     }
+
+    const intervalId = setInterval(() => {
+      const elapsed = Date.now() - notFoundStartTime;
+      const newRetryCount = Math.floor(elapsed / RETRY_DELAY_MS);
+
+      if (newRetryCount > retryCount && newRetryCount <= MAX_RETRIES) {
+        setRetryCount(newRetryCount);
+      }
+
+      // Stop interval once max retries reached
+      if (newRetryCount >= MAX_RETRIES) {
+        clearInterval(intervalId);
+      }
+    }, RETRY_DELAY_MS);
+
+    // Cleanup on dependency change or unmount
+    return () => clearInterval(intervalId);
   }, [notFoundStartTime, details.type, data, retryCount]);
 
   // Handle loading state
@@ -104,6 +117,7 @@ const ReceiptCollabPage = () => {
       retryCount > 0
         ? `Loading receipt details... (retry ${retryCount}/${MAX_RETRIES})`
         : 'Loading receipt details...';
+
     return <LoadingState message={retryMessage} />;
   }
 
