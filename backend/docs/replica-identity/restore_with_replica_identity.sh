@@ -40,7 +40,7 @@ fi
 
 echo "=========================================="
 echo "Restore Configuration:"
-echo "  Target Database: $TARGET_DB"
+echo "  Target Database: $(echo "$TARGET_DB" | sed -E 's|://[^:]+:[^@]+@|://***:***@|')"
 echo "  Dump File: $DUMP_FILE"
 echo ""
 echo "pg_restore options:"
