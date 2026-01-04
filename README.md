@@ -37,12 +37,14 @@ project-root/
 ## Technology Stack
 
 ### Backend
+
 - **Flask**: Python web framework for the API
 - **OpenAI API**: AI for receipt image analysis
 - **SQLite**: Database for storing user information and receipts
 - **Flask-CORS**: Cross-Origin Resource Sharing support
 
 ### Frontend
+
 - **React**: JavaScript library for building user interfaces
 - **Tailwind CSS**: Utility-first CSS framework
 - **Framer Motion**: Animation library
@@ -51,15 +53,84 @@ project-root/
 
 ## Setup Instructions
 
+### Prerequisites
+
+- Python 3.11+
+- Node.js 18+
+- Docker (optional, for full local development stack)
+
+### Environment Variables
+
+This project uses `.env.example` files as templates. Copy them to create your local configuration:
+
+```bash
+# Backend
+cp backend/.env.example backend/.env
+
+# Frontend
+cp frontend/.env.example frontend/.env
+```
+
+Then edit the `.env` files with your actual values. For local-only overrides, you can also create `.env.local` files which take priority.
+
+### Development Modes
+
+You can develop in two ways:
+
+#### Option A: Connect to Deployed Environment (Simpler)
+
+For simple changes or quick testing, connect directly to a deployed database:
+
+1. Get the `DATABASE_URL` from your dev/staging environment (e.g., Neon)
+2. Set it in `backend/.env`
+3. Start the backend and frontend as described below
+
+This approach doesn't require Docker.
+
+#### Option B: Full Local Development Stack (Recommended for Zero features)
+
+For working on Zero sync features or testing with a fresh database, run the complete stack locally using Docker:
+
+```bash
+# First-time setup (with database restore from a dump file)
+./scripts/setup-local-db.sh mydumpfile.bak
+
+# Or start fresh without restoring data
+./scripts/setup-local-db.sh
+```
+
+This starts:
+
+- **PostgreSQL** at `localhost:5432`
+- **Zero Query API** at `localhost:3000`
+- **Zero Cache** at `localhost:4848`
+
+Set this in `backend/.env`:
+
+```
+DATABASE_URL=postgresql://postgres:pass@localhost:5432/splitzy
+```
+
+**Docker commands:**
+
+```bash
+docker-compose up -d          # Start all services
+docker-compose down           # Stop all services
+docker-compose down -v        # Stop and delete all data
+docker-compose logs -f        # Follow logs
+```
+
 ### Backend Setup
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
    cd <repository-name>
    ```
 
 2. Navigate to the backend directory and create/activate a virtual environment:
+
    ```bash
    cd backend
    python -m venv venv
@@ -67,19 +138,25 @@ project-root/
    ```
 
 3. Install Python dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Create a `.env` file in the backend directory with the following variables:
-   ```
-   AZURE_OPENAI_KEY=your_azure_openai_key
-   AZURE_OPENAI_ENDPOINT=your_azure_openai_endpoint
-   AZURE_OPENAI_DEPLOYMENT=your_azure_openai_deployment
-   SECRET_KEY=your_flask_secret_key
+4. Set up environment variables (see [Environment Variables](#environment-variables) above):
+
+   ```bash
+   cp .env.example .env
+   # Edit .env with your DATABASE_URL and other values
    ```
 
-5. **Start the Flask application:**
+5. Run database migrations (if using a fresh database):
+
+   ```bash
+   flask db upgrade
+   ```
+
+6. **Start the Flask application:**
    ```bash
    python app.py
    ```
@@ -88,16 +165,25 @@ project-root/
 ### Frontend Setup
 
 1. Navigate to the frontend directory:
+
    ```bash
    cd frontend
    ```
 
 2. Install Node.js dependencies:
+
    ```bash
    npm install
    ```
 
-3. Start the development server:
+3. Set up environment variables:
+
+   ```bash
+   cp .env.example .env
+   # Edit .env with your actual values
+   ```
+
+4. Start the development server:
    ```bash
    npm run dev
    ```
@@ -106,12 +192,14 @@ project-root/
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/register`: Register a new user
 - `POST /api/login`: Login a user
 - `POST /api/logout`: Logout the current user
 - `GET /api/user`: Get the current user information
 
 ### Receipt Management
+
 - `POST /api/analyze-receipt`: Upload and analyze a receipt
 - `GET /api/user/receipts`: Get all receipts for the current user
 - `GET /api/user/receipts/<receipt_id>`: Get a specific receipt
@@ -119,6 +207,7 @@ project-root/
 - `GET /api/user/receipts/<receipt_id>/image`: Get the image for a specific receipt
 
 ### System
+
 - `GET /api/health`: Check if the API is healthy
 
 ## Usage
@@ -133,6 +222,7 @@ project-root/
 ## Development
 
 ### Running Tests
+
 ```bash
 # Backend tests
 pytest
@@ -149,4 +239,4 @@ npm test
 ## Acknowledgements
 
 - OpenAI for the vision API capabilities
-- All open-source libraries and frameworks used in this project 
+- All open-source libraries and frameworks used in this project
