@@ -56,7 +56,12 @@ pg_restore --no-owner -v -d "$TARGET_DB" "$DUMP_FILE" || {
 }
 
 echo "Step 2: Setting REPLICA IDENTITY on published tables..."
-psql "$TARGET_DB" -f "$SCRIPT_DIR/set_replica_identity_after_restore.sql"
+SQL_FILE="$SCRIPT_DIR/set_replica_identity_after_restore.sql"
+if [ ! -f "$SQL_FILE" ]; then
+    echo "Error: SQL file not found: $SQL_FILE"
+    exit 1
+fi
+psql "$TARGET_DB" -f "$SQL_FILE"
 
 echo "Done! Database restored and REPLICA IDENTITY configured."
 
