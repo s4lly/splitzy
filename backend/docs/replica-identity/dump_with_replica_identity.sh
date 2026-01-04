@@ -4,6 +4,7 @@
 
 set -e
 
+# Resolve paths relative to this script's location (works from any directory)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 OUTPUT_FILE="${1:-mydumpfile.bak}"
 DATABASE_URL="${DATABASE_URL:-${NEON_DATABASE_URL}}"

@@ -1,0 +1,68 @@
+# Splitzy Local Development Stack
+#
+# Quick Start:
+#   docker-compose up -d        # Start all services
+#   docker-compose up --build   # Rebuild and start
+#   docker-compose down         # Stop all services
+#   docker-compose down -v      # Stop and delete all data
+#   docker-compose logs -f      # Follow logs
+#
+# First-Time Setup (with database restore):
+#   ./scripts/setup-local-db.sh                 # Start without restore
+#   ./scripts/setup-local-db.sh mydumpfile.bak  # Restore dump, then start
+#
+# Services:
+#   - db-splitzy-local:    PostgreSQL database (localhost:5432)
+#   - zero-query-local:    Zero query/mutate API (localhost:3000)
+#   - zero-cache-local:    Zero cache server (localhost:4848)
+#
+# Connection string for backend/.env:
+#   DATABASE_URL=postgresql://postgres:pass@localhost:5432/splitzy
+
+services:
+  # PostgreSQL database with logical replication enabled (required for Zero)
+  db-splitzy-local:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: splitzy
+      POSTGRES_PASSWORD: pass
+    ports:
+      - 5432:5432
+    command: postgres -c wal_level=logical
+    healthcheck:
+      test: pg_isready
+      interval: 10s
+
+  # Zero query server - handles queries and mutations via Hono API
+  zero-query-local:
+    build: ./zero-query
+    ports:
+      - 3000:3000
+    environment:
+      ZERO_UPSTREAM_DB: postgres://postgres:pass@db-splitzy-local:5432/splitzy
+    depends_on:
+      db-splitzy-local:
+        condition: service_healthy
+
+  # Zero cache server - syncs data from PostgreSQL to SQLite replica
+  zero-cache-local:
+    image: rocicorp/zero:0.25.6
+    ports:
+      - 4848:4848
+    environment:
+      ZERO_UPSTREAM_DB: postgres://postgres:pass@db-splitzy-local:5432/splitzy
+      ZERO_REPLICA_FILE: /data/zero.db
+      ZERO_ADMIN_PASSWORD: pass
+      ZERO_QUERY_URL: http://zero-query-local:3000/api/query
+      ZERO_MUTATE_URL: http://zero-query-local:3000/api/mutate
+    volumes:
+      - zero-cache-local-data:/data
+    depends_on:
+      zero-query-local:
+        condition: service_started
+    healthcheck:
+      test: curl -f http://localhost:4848/keepalive
+      interval: 5s
+
+volumes:
+  zero-cache-local-data:
