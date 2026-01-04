@@ -13,6 +13,7 @@ ENV_FILE="$BACKEND_DIR/.env"
 if [ -f "$ENV_FILE" ]; then
     echo "Loading environment variables from $ENV_FILE..."
     set -a
+    # shellcheck source=/dev/null
     source "$ENV_FILE"
     set +a
 else
