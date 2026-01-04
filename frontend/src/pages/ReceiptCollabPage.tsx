@@ -8,6 +8,7 @@ import { ReceiptCollabContent } from '@/features/receipt-collab/components/Recei
 import { queries } from '@/zero/queries';
 import { useQuery } from '@rocicorp/zero/react';
 import { Provider as JotaiProvider } from 'jotai';
+import { useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 
 /**
@@ -21,6 +22,12 @@ import { Navigate, useParams } from 'react-router-dom';
  */
 const ReceiptCollabPage = () => {
   const { receiptId } = useParams();
+  const [retryCount, setRetryCount] = useState(0);
+  const [notFoundStartTime, setNotFoundStartTime] = useState<number | null>(
+    null
+  );
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY_MS = 1000; // 1 second between retries
 
   const parsedId = receiptId ? parseInt(receiptId, 10) : NaN;
   const isValidId = !Number.isNaN(parsedId);
@@ -35,9 +42,42 @@ const ReceiptCollabPage = () => {
     return <Navigate to="/404" replace />;
   }
 
+  // Track when we first detect receipt not found
+  useEffect(() => {
+    if (
+      details.type === 'complete' &&
+      !data?.[0] &&
+      notFoundStartTime === null
+    ) {
+      setNotFoundStartTime(Date.now());
+      setRetryCount(0);
+    } else if (data?.[0]) {
+      // Receipt found, reset tracking
+      setNotFoundStartTime(null);
+      setRetryCount(0);
+    }
+  }, [details.type, data, notFoundStartTime]);
+
+  // Handle retry logic - wait between retries before giving up
+  useEffect(() => {
+    if (
+      notFoundStartTime !== null &&
+      details.type === 'complete' &&
+      !data?.[0] &&
+      retryCount < MAX_RETRIES
+    ) {
+      const elapsed = Date.now() - notFoundStartTime;
+      const retryNumber = Math.floor(elapsed / RETRY_DELAY_MS);
+
+      if (retryNumber > retryCount && retryNumber <= MAX_RETRIES) {
+        setRetryCount(retryNumber);
+      }
+    }
+  }, [notFoundStartTime, details.type, data, retryCount]);
+
   // Handle loading state
   if (details.type === 'unknown') {
-    return <LoadingState />;
+    return <LoadingState message="Loading receipt details..." />;
   }
 
   // Handle error state
@@ -48,9 +88,23 @@ const ReceiptCollabPage = () => {
   // Extract receipt from data array
   const [receipt] = data;
 
-  // Handle not found
-  if (!receipt) {
+  // Handle not found after all retries exhausted
+  if (
+    !receipt &&
+    details.type === 'complete' &&
+    notFoundStartTime !== null &&
+    Date.now() - notFoundStartTime >= MAX_RETRIES * RETRY_DELAY_MS
+  ) {
     return <Navigate to="/404" replace />;
+  }
+
+  // Still loading/retrying if no receipt yet
+  if (!receipt) {
+    const retryMessage =
+      retryCount > 0
+        ? `Loading receipt details... (retry ${retryCount}/${MAX_RETRIES})`
+        : 'Loading receipt details...';
+    return <LoadingState message={retryMessage} />;
   }
 
   return (

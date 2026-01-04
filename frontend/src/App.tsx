@@ -46,7 +46,6 @@ function ReceiptRoute() {
     );
   }
 
-  // return <ReceiptAnalysisPage />;
   return isCollabEnabled ? <ReceiptCollabPage /> : <ReceiptAnalysisPage />;
 }
 
