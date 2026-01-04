@@ -27,6 +27,12 @@ BEGIN
         FROM pg_class
         WHERE relname = table_record.tablename
         AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = table_record.schemaname);
+
+        IF table_oid IS NULL THEN
+            RAISE NOTICE 'Table %.% not found, skipping', 
+                table_record.schemaname, table_record.tablename;
+            CONTINUE;
+        END IF;
         
         -- Check current REPLICA IDENTITY ('d' = DEFAULT, meaning not set)
         IF (SELECT relreplident FROM pg_class WHERE oid = table_oid) = 'd' THEN
