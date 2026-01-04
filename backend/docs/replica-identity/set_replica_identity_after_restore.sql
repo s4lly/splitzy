@@ -12,6 +12,7 @@ DECLARE
     has_pk BOOLEAN;
     pk_index TEXT;
     table_oid OID;
+    identity_type TEXT;
 BEGIN
     -- Loop through all tables that are in publications
     FOR table_record IN
@@ -49,18 +50,21 @@ BEGIN
                 IF pk_index IS NOT NULL THEN
                     EXECUTE format('ALTER TABLE %I.%I REPLICA IDENTITY USING INDEX %I',
                         table_record.schemaname, table_record.tablename, pk_index);
+                    identity_type := 'INDEX (' || pk_index || ')';
                 ELSE
                     EXECUTE format('ALTER TABLE %I.%I REPLICA IDENTITY FULL',
                         table_record.schemaname, table_record.tablename);
+                    identity_type := 'FULL';
                 END IF;
             ELSE
                 -- Use FULL if no primary key
                 EXECUTE format('ALTER TABLE %I.%I REPLICA IDENTITY FULL',
                     table_record.schemaname, table_record.tablename);
+                identity_type := 'FULL';
             END IF;
             
-            RAISE NOTICE 'Set REPLICA IDENTITY on %.%', 
-                table_record.schemaname, table_record.tablename;
+            RAISE NOTICE 'Set REPLICA IDENTITY % on %.%', 
+                identity_type, table_record.schemaname, table_record.tablename;
         END IF;
     END LOOP;
 END $$;
