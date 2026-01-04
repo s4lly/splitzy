@@ -56,8 +56,16 @@ def compare_table_schema(inspector, model_class, table_name):
             db_type = str(db_col['type'])
             
             # Normalize type strings for comparison
-            model_type_norm = model_type.replace('VARCHAR', 'VARCHAR').replace('TEXT', 'TEXT')
-            db_type_norm = db_type.replace('character varying', 'VARCHAR').replace('text', 'TEXT')
+            # Remove length specifiers and convert common PostgreSQL types to generic names
+            import re
+            model_type_norm = re.sub(r'\(\d+\)', '', model_type)  # Remove (N) length specifiers
+            model_type_norm = model_type_norm.replace('VARCHAR', 'TEXT')  # Treat VARCHAR as TEXT
+            
+            db_type_norm = re.sub(r'\(\d+\)', '', db_type)
+            db_type_norm = db_type_norm.replace('character varying', 'TEXT')
+            db_type_norm = db_type_norm.replace('text', 'TEXT')
+            db_type_norm = db_type_norm.replace('integer', 'INTEGER')
+            db_type_norm = db_type_norm.replace('bigint', 'BIGINT')
 
             # Compare normalized types
             if model_type_norm.upper() != db_type_norm.upper():
