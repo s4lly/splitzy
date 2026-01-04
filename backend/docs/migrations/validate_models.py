@@ -14,6 +14,7 @@ Usage:
 import sys
 import os
 from pathlib import Path
+import re
 
 # Add the backend directory to the path
 # Script is in docs/migrations/; .parent called 3x: file → migrations → docs → backend
@@ -23,7 +24,6 @@ sys.path.insert(0, str(backend_dir))
 from __init__ import create_app
 from models import db
 from sqlalchemy import inspect
-from sqlalchemy.schema import CreateTable
 
 # Import all models to ensure they're registered with SQLAlchemy
 from models.user import User
@@ -57,7 +57,6 @@ def compare_table_schema(inspector, model_class, table_name):
             
             # Normalize type strings for comparison
             # Remove length specifiers and convert common PostgreSQL types to generic names
-            import re
             model_type_norm = re.sub(r'\(\d+\)', '', model_type)  # Remove (N) length specifiers
             model_type_norm = model_type_norm.replace('VARCHAR', 'TEXT')  # Treat VARCHAR as TEXT
             
@@ -182,7 +181,6 @@ def check_migration_status():
         try:
             from alembic import script
             from alembic.runtime.migration import MigrationContext
-            from flask_migrate import Migrate
             
             # Get the migrate extension
             migrate = app.extensions.get('migrate')
@@ -235,7 +233,7 @@ def check_migration_status():
                     print("⚠️  No migrations found in codebase")
             elif not heads_list:
                 print("⚠️  No migration files found")
-            elif current_rev in heads_list or current_rev == heads_rev:
+            elif current_rev in heads_list:
                 print("✅ Database is up to date with migrations")
             else:
                 print("⚠️  Database is not at the latest migration")
