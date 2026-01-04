@@ -64,9 +64,14 @@ const ReceiptCollabPage = () => {
     if (
       notFoundStartTime === null ||
       details.type !== 'complete' ||
-      data?.[0] ||
-      retryCount >= MAX_RETRIES
+      data?.[0]
     ) {
+      return;
+    }
+
+    // Check if we've already exceeded max retry time
+    const initialElapsed = Date.now() - notFoundStartTime;
+    if (initialElapsed >= MAX_RETRIES * RETRY_DELAY_MS) {
       return;
     }
 
@@ -74,9 +79,7 @@ const ReceiptCollabPage = () => {
       const elapsed = Date.now() - notFoundStartTime;
       const newRetryCount = Math.floor(elapsed / RETRY_DELAY_MS);
 
-      if (newRetryCount > retryCount && newRetryCount <= MAX_RETRIES) {
-        setRetryCount(newRetryCount);
-      }
+      setRetryCount(Math.min(newRetryCount, MAX_RETRIES));
 
       // Stop interval once max retries reached
       if (newRetryCount >= MAX_RETRIES) {
@@ -86,7 +89,7 @@ const ReceiptCollabPage = () => {
 
     // Cleanup on dependency change or unmount
     return () => clearInterval(intervalId);
-  }, [notFoundStartTime, details.type, data, retryCount]);
+  }, [notFoundStartTime, details.type, data]);
 
   // Handle loading state
   if (details.type === 'unknown') {
