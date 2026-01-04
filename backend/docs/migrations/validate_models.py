@@ -242,9 +242,11 @@ def check_migration_status():
                 print("   Run 'flask db upgrade' to apply pending migrations")
             
             print()
-        except Exception as e:
+        except (ImportError, AttributeError) as e:
             print(f"\n⚠️  Could not check migration status: {e}")
             print("   This is normal if migrations haven't been initialized yet")
+        except Exception as e:
+            print(f"\n❌ Unexpected error checking migration status: {e}")
             import traceback
             traceback.print_exc()
             print()
