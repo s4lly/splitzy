@@ -43,6 +43,10 @@ services:
     depends_on:
       db-splitzy-local:
         condition: service_healthy
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://zero-query-local:3000/health || exit 1
+      interval: 10s
+      start_period: 10s
 
   # Zero cache server - syncs data from PostgreSQL to SQLite replica
   zero-cache-local:
@@ -61,7 +65,7 @@ services:
       zero-query-local:
         condition: service_started
     healthcheck:
-      test: curl -f http://localhost:4848/keepalive
+      test: curl -f http://zero-cache-local:4848/keepalive
       interval: 5s
 
 volumes:
