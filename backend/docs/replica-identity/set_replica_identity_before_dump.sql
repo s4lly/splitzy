@@ -60,5 +60,5 @@ BEGIN
 END $$;
 
 -- For alembic_version specifically (since it has no primary key):
-ALTER TABLE public.alembic_version REPLICA IDENTITY FULL;
+ALTER TABLE IF EXISTS public.alembic_version REPLICA IDENTITY FULL;
 
