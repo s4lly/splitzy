@@ -24,7 +24,7 @@ googleapis-common-protos==1.70.0
 greenlet==3.2.4
 grpcio==1.74.0
 grpcio-status==1.71.2
-gunicorn>=22.0.0
+gunicorn>=23.0.0
 h11==0.16.0
 httpcore==1.0.9
 httplib2==0.22.0
@@ -68,4 +68,4 @@ typing-inspection==0.4.1
 typing_extensions==4.14.1
 uritemplate==4.2.0
 urllib3>=2.6.0
-Werkzeug>=3.0.6
+Werkzeug>=3.1.0
