@@ -39,17 +39,20 @@ BEGIN
             ) INTO has_pk;
             
             IF has_pk THEN
-                -- Get the primary key index name
-                SELECT indexname INTO pk_index
-                FROM pg_indexes
-                WHERE schemaname = table_record.schemaname
-                AND tablename = table_record.tablename
-                AND indexname LIKE '%_pkey'
-                LIMIT 1;
+                -- Get the primary key index name from the constraint
+                SELECT i.relname INTO pk_index
+                FROM pg_constraint c
+                JOIN pg_class i ON i.oid = c.conindid
+                WHERE c.conrelid = table_oid
+                AND c.contype = 'p';
                 
-                -- Use PRIMARY KEY if available (more efficient)
-                EXECUTE format('ALTER TABLE %I.%I REPLICA IDENTITY USING INDEX %I',
-                    table_record.schemaname, table_record.tablename, pk_index);
+                IF pk_index IS NOT NULL THEN
+                    EXECUTE format('ALTER TABLE %I.%I REPLICA IDENTITY USING INDEX %I',
+                        table_record.schemaname, table_record.tablename, pk_index);
+                ELSE
+                    EXECUTE format('ALTER TABLE %I.%I REPLICA IDENTITY FULL',
+                        table_record.schemaname, table_record.tablename);
+                END IF;
             ELSE
                 -- Use FULL if no primary key
                 EXECUTE format('ALTER TABLE %I.%I REPLICA IDENTITY FULL',

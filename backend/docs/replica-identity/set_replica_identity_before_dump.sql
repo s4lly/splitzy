@@ -37,13 +37,12 @@ BEGIN
         -- Check current REPLICA IDENTITY ('d' = DEFAULT, meaning not set)
         IF (SELECT relreplident FROM pg_class WHERE oid = table_oid) = 'd' THEN
             IF has_pk THEN
-                -- Get the primary key index name
-                SELECT indexname INTO pk_index
-                FROM pg_indexes
-                WHERE schemaname = table_record.schemaname
-                AND tablename = table_record.tablename
-                AND indexname LIKE '%_pkey'
-                LIMIT 1;
+                -- Get the primary key index name from pg_constraint
+                SELECT ci.relname INTO pk_index
+                FROM pg_constraint c
+                JOIN pg_class ci ON ci.oid = c.conindid
+                WHERE c.conrelid = (table_record.schemaname||'.'||table_record.tablename)::regclass
+                AND c.contype = 'p';
                 
                 -- Use PRIMARY KEY if available (more efficient)
                 EXECUTE format('ALTER TABLE %I.%I REPLICA IDENTITY USING INDEX %I',
