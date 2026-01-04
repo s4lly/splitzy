@@ -58,6 +58,13 @@ def compare_table_schema(inspector, model_class, table_name):
             # Normalize type strings for comparison
             model_type_norm = model_type.replace('VARCHAR', 'VARCHAR').replace('TEXT', 'TEXT')
             db_type_norm = db_type.replace('character varying', 'VARCHAR').replace('text', 'TEXT')
+
+            # Compare normalized types
+            if model_type_norm.upper() != db_type_norm.upper():
+                differences.append(
+                    f"  ⚠️  Column '{col_name}': type mismatch "
+                    f"(model: {model_type}, db: {db_type})"
+                )
             
             # Check nullable
             if model_col.nullable != db_col['nullable']:
