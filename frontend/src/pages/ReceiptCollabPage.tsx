@@ -37,35 +37,25 @@ const ReceiptCollabPage = () => {
     { enabled: isValidId }
   );
 
-  // Redirect to 404 if receiptId is missing or not a valid number
-  if (!receiptId || !isValidId) {
-    return <Navigate to="/404" replace />;
-  }
+  // Extract receipt from data array
+  const [receipt] = data;
 
   // Track when we first detect receipt not found
   useEffect(() => {
-    if (
-      details.type === 'complete' &&
-      !data?.[0] &&
-      notFoundStartTime === null
-    ) {
+    if (details.type === 'complete' && !receipt && notFoundStartTime === null) {
       setNotFoundStartTime(Date.now());
       setRetryCount(0);
-    } else if (data?.[0]) {
+    } else if (receipt) {
       // Receipt found, reset tracking
       setNotFoundStartTime(null);
       setRetryCount(0);
     }
-  }, [details.type, data, notFoundStartTime]);
+  }, [details.type, receipt, notFoundStartTime]);
 
   // Handle retry logic with interval timer
   useEffect(() => {
     // Only start timer when conditions are met
-    if (
-      notFoundStartTime === null ||
-      details.type !== 'complete' ||
-      data?.[0]
-    ) {
+    if (notFoundStartTime === null || details.type !== 'complete' || receipt) {
       return;
     }
 
@@ -89,7 +79,12 @@ const ReceiptCollabPage = () => {
 
     // Cleanup on dependency change or unmount
     return () => clearInterval(intervalId);
-  }, [notFoundStartTime, details.type, data]);
+  }, [notFoundStartTime, details.type, receipt]);
+
+  // Redirect to 404 if receiptId is missing or not a valid number
+  if (!receiptId || !isValidId) {
+    return <Navigate to="/404" replace />;
+  }
 
   // Handle loading state
   if (details.type === 'unknown') {
@@ -100,9 +95,6 @@ const ReceiptCollabPage = () => {
   if (details.type === 'error') {
     return <ErrorState message={details.error.message} />;
   }
-
-  // Extract receipt from data array
-  const [receipt] = data;
 
   // Handle not found after all retries exhausted
   if (
