@@ -1,11 +1,14 @@
-import os
-import logging
-from pathlib import Path
-from dotenv import load_dotenv
-import google.generativeai as genai
 import json
+import logging
+import os
 import re
-from schemas.receipt import TransportationTicket, RegularReceipt, NotAReceipt
+from pathlib import Path
+
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+from schemas.receipt import NotAReceipt, RegularReceipt, TransportationTicket
+
 
 # Set up module-level logger
 logger = logging.getLogger(__name__)
@@ -13,16 +16,19 @@ logger = logging.getLogger(__name__)
 
 class ImageAnalysisError(Exception):
     """Domain-specific exception for image analysis failures"""
+
     pass
 
 
 class ImageAnalyzerConfigError(Exception):
     """Exception raised when ImageAnalyzer configuration is invalid"""
+
     pass
+
 
 # Load environment variables from backend .env file
 backend_dir = Path(__file__).resolve().parent
-env_path = backend_dir / '.env'
+env_path = backend_dir / ".env"
 load_dotenv(env_path)
 
 # Module-level flag to track if configuration has been done
@@ -33,27 +39,31 @@ def configure_image_analyzer():
     """
     Configure the image analyzer with Google API key.
     Must be called before using ImageAnalyzer.
-    
+
     Raises:
         ImageAnalyzerConfigError: If API key is missing or invalid
     """
     global _configured
-    
+
     if _configured:
         return  # Already configured
-    
+
     google_api_key = os.getenv("GOOGLE_API_KEY")
     if not google_api_key:
         logger.error("GOOGLE_API_KEY environment variable is missing or empty")
-        raise ImageAnalyzerConfigError("GOOGLE_API_KEY environment variable is required but not found")
-    
+        raise ImageAnalyzerConfigError(
+            "GOOGLE_API_KEY environment variable is required but not found"
+        )
+
     try:
         logger.info("Configuring Google Generative AI with provided API key")
         genai.configure(api_key=google_api_key)
         _configured = True
     except Exception as e:
         logger.error(f"Failed to configure Google Generative AI: {str(e)}")
-        raise ImageAnalyzerConfigError(f"Failed to configure Google Generative AI: {str(e)}") from e
+        raise ImageAnalyzerConfigError(
+            f"Failed to configure Google Generative AI: {str(e)}"
+        ) from e
 
 
 class ImageAnalyzer:
@@ -80,7 +90,9 @@ class ImageAnalyzer:
         except Exception as e:
             # Handle unexpected exceptions
             logger.error(f"Unexpected error during image analysis: {str(e)}")
-            raise ImageAnalysisError(f"Analysis failed due to unexpected error: {str(e)}") from e
+            raise ImageAnalysisError(
+                f"Analysis failed due to unexpected error: {str(e)}"
+            ) from e
 
     def _analyze_image_with_gemini(self, image_data_or_path):
         """Analyze image using Google Gemini"""
@@ -93,20 +105,20 @@ class ImageAnalyzer:
                 raise FileNotFoundError("Image not found")
             with open(image_data_or_path, "rb") as image_file:
                 image_data = image_file.read()
-        
+
         # Create the model
-        model = genai.GenerativeModel('models/gemini-2.5-flash-lite')
-        
+        model = genai.GenerativeModel("models/gemini-2.5-flash-lite")
+
         # Create the content parts
         content_parts = [
             self._get_system_prompt(),
             "Analyze this image and extract all relevant payment information. This might be a receipt, invoice, or transportation ticket. Pay special attention to any monetary amounts shown.",
-            {"mime_type": "image/jpeg", "data": image_data}
+            {"mime_type": "image/jpeg", "data": image_data},
         ]
-        
+
         # Generate content
         response = model.generate_content(content_parts)
-        
+
         return self._process_response(response.text)
 
     def _with_structured_output(self, analysis_text: str):
@@ -117,85 +129,102 @@ class ImageAnalyzer:
         try:
             # Try to parse the JSON response
             json_response = json.loads(analysis_text)
-            
+
             # Determine the document type and validate with appropriate schema
-            if json_response.get('is_receipt', False) == False:
+            if json_response.get("is_receipt", False) == False:
                 # Not a receipt
                 return NotAReceipt(**json_response)
-            elif json_response.get('document_type') == 'transportation_ticket':
+            elif json_response.get("document_type") == "transportation_ticket":
                 # Transportation ticket - add processing logic
-                if 'fare' not in json_response or json_response['fare'] is None:
-                    json_response['fare'] = json_response.get('total', 0)
-                if 'total' not in json_response or json_response['total'] is None:
-                    json_response['total'] = json_response.get('fare', 0)
-                
+                if "fare" not in json_response or json_response["fare"] is None:
+                    json_response["fare"] = json_response.get("total", 0)
+                if "total" not in json_response or json_response["total"] is None:
+                    json_response["total"] = json_response.get("fare", 0)
+
                 return TransportationTicket(**json_response)
             else:
                 # Regular receipt - add processing logic
-                if 'items' in json_response and 'line_items' not in json_response:
-                    json_response['line_items'] = json_response.pop('items')
-                
+                if "items" in json_response and "line_items" not in json_response:
+                    json_response["line_items"] = json_response.pop("items")
+
                 # Clean up line items to ensure required fields are never None
                 cleaned_line_items = []
-                for idx, item in enumerate(json_response.get('line_items', [])):
+                for idx, item in enumerate(json_response.get("line_items", [])):
                     cleaned_item = item.copy()
-                    
+
                     # Handle name field (required, no default in schema)
-                    if cleaned_item.get('name') is None:
-                        cleaned_item['name'] = f'Item {idx}'
-                        logger.warning(f"Line item at index {idx} has None name, defaulting to 'Item {idx}'")
-                    
-                    item_name = cleaned_item.get('name', f'Item {idx}')
-                    
+                    if cleaned_item.get("name") is None:
+                        cleaned_item["name"] = f"Item {idx}"
+                        logger.warning(
+                            f"Line item at index {idx} has None name, defaulting to 'Item {idx}'"
+                        )
+
+                    item_name = cleaned_item.get("name", f"Item {idx}")
+
                     # Handle quantity field (default is 1.0 in schema)
-                    if cleaned_item.get('quantity') is None:
-                        logger.warning(f"Line item '{item_name}' has None quantity, defaulting to 1.0")
-                        cleaned_item['quantity'] = 1.0
-                    
+                    if cleaned_item.get("quantity") is None:
+                        logger.warning(
+                            f"Line item '{item_name}' has None quantity, defaulting to 1.0"
+                        )
+                        cleaned_item["quantity"] = 1.0
+
                     # Convert None values to 0.00 for price fields
-                    if cleaned_item.get('price_per_item') is None:
-                        logger.warning(f"Line item '{item_name}' has None price_per_item, defaulting to 0.00")
-                        cleaned_item['price_per_item'] = 0.00
-                    if cleaned_item.get('total_price') is None:
-                        logger.warning(f"Line item '{item_name}' has None total_price, defaulting to 0.00")
-                        cleaned_item['total_price'] = 0.00
-                    
+                    if cleaned_item.get("price_per_item") is None:
+                        logger.warning(
+                            f"Line item '{item_name}' has None price_per_item, defaulting to 0.00"
+                        )
+                        cleaned_item["price_per_item"] = 0.00
+                    if cleaned_item.get("total_price") is None:
+                        logger.warning(
+                            f"Line item '{item_name}' has None total_price, defaulting to 0.00"
+                        )
+                        cleaned_item["total_price"] = 0.00
+
                     cleaned_line_items.append(cleaned_item)
-                json_response['line_items'] = cleaned_line_items
-                
+                json_response["line_items"] = cleaned_line_items
+
                 # Calculate totals
                 items_total = sum(
-                    item.get('total_price', 0) or 0 
-                    for item in json_response.get('line_items', [])
+                    item.get("total_price", 0) or 0
+                    for item in json_response.get("line_items", [])
                 )
-                
+
                 # Set calculated values (these override defaults)
-                json_response['items_total'] = items_total
-                json_response['display_subtotal'] = json_response.get('subtotal', items_total)
-                json_response['pretax_total'] = json_response.get('subtotal', items_total)
-                
+                json_response["items_total"] = items_total
+                json_response["display_subtotal"] = json_response.get(
+                    "subtotal", items_total
+                )
+                json_response["pretax_total"] = json_response.get(
+                    "subtotal", items_total
+                )
+
                 # Calculate post-tax total
-                tax = json_response.get('tax', 0) or 0
-                pretax = json_response.get('pretax_total', json_response.get('subtotal', 0)) or 0
-                json_response['posttax_total'] = pretax + tax
-                
+                tax = json_response.get("tax", 0) or 0
+                pretax = (
+                    json_response.get("pretax_total", json_response.get("subtotal", 0))
+                    or 0
+                )
+                json_response["posttax_total"] = pretax + tax
+
                 # Set final total
-                json_response['final_total'] = json_response.get('total', 0) or 0
-                if 'total' not in json_response:
-                    json_response['total'] = json_response.get('final_total', 0) or 0
-                
+                json_response["final_total"] = json_response.get("total", 0) or 0
+                if "total" not in json_response:
+                    json_response["total"] = json_response.get("final_total", 0) or 0
+
                 return RegularReceipt(**json_response)
-                
+
         except json.JSONDecodeError as e:
             # If initial parsing fails, try to extract JSON from the response
-            json_match = re.search(r'\{.*\}', analysis_text, re.DOTALL)
+            json_match = re.search(r"\{.*\}", analysis_text, re.DOTALL)
             if json_match:
                 try:
                     return self._with_structured_output(json_match.group())
                 except (json.JSONDecodeError, Exception):
                     pass
-            
-            raise ImageAnalysisError(f"Could not parse structured output: {str(e)}") from e
+
+            raise ImageAnalysisError(
+                f"Could not parse structured output: {str(e)}"
+            ) from e
         except Exception as e:
             raise ImageAnalysisError(f"Schema validation failed: {str(e)}") from e
 
@@ -312,17 +341,15 @@ class ImageAnalyzer:
                         potential_json = potential_json.split("\n", 1)[1]
                     analysis_text = potential_json.strip()
                 else:
-                    match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', analysis_text)
+                    match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", analysis_text)
                     if match:
                         analysis_text = match.group(1).strip()
-            
+
             print(f"JSON response: {analysis_text}")
-            
+
             # Use structured output validation
             return self._with_structured_output(analysis_text)
-                
+
         except Exception as e:
             logger.error(f"Error processing response: {str(e)}")
             raise ImageAnalysisError(f"Error processing response: {str(e)}") from e
-
- 

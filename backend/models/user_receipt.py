@@ -1,15 +1,22 @@
-from models import db
 from sqlalchemy import Numeric, text
 from sqlalchemy.dialects.postgresql import JSONB
 
+from models import db
+
 
 class UserReceipt(db.Model):
-    __tablename__ = 'user_receipts'
+    __tablename__ = "user_receipts"
 
-    id = db.Column(db.BigInteger, primary_key=True)  # Using BigInteger for better scalability
-    user_id = db.Column(db.BigInteger, db.ForeignKey('users.id'), nullable=True)
-    image_path = db.Column(db.Text, nullable=True)  # Using Text for unlimited length URLs
-    created_at = db.Column(db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
+    id = db.Column(
+        db.BigInteger, primary_key=True
+    )  # Using BigInteger for better scalability
+    user_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=True)
+    image_path = db.Column(
+        db.Text, nullable=True
+    )  # Using Text for unlimited length URLs
+    created_at = db.Column(
+        db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP")
+    )
 
     # Denormalized fields extracted from receipt_data (RegularReceipt / TransportationTicket)
     is_receipt = db.Column(db.Boolean, nullable=True, default=True)
@@ -37,24 +44,26 @@ class UserReceipt(db.Model):
     origin = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
     destination = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
     passenger = db.Column(db.Text, nullable=True)  # Using Text for unlimited length
-    class_ = db.Column('class', db.Text, nullable=True)
+    class_ = db.Column("class", db.Text, nullable=True)
     fare = db.Column(Numeric(12, 2), nullable=True, default=0)
     currency = db.Column(db.Text, nullable=True)
     taxes = db.Column(Numeric(12, 2), nullable=True, default=0)
 
     # Additional metadata field for flexible data storage
-    receipt_metadata = db.Column(JSONB, nullable=True, default=dict)  # Using JSONB for better performance and querying
+    receipt_metadata = db.Column(
+        JSONB, nullable=True, default=dict
+    )  # Using JSONB for better performance and querying
 
-    user = db.relationship('User', backref=db.backref('receipts', lazy=True))
+    user = db.relationship("User", backref=db.backref("receipts", lazy=True))
 
     # Relationship to normalized line items
     line_items = db.relationship(
-        'ReceiptLineItem',
-        backref='receipt',
+        "ReceiptLineItem",
+        backref="receipt",
         lazy=True,
-        cascade='all, delete-orphan',
-        order_by='ReceiptLineItem.id'
+        cascade="all, delete-orphan",
+        order_by="ReceiptLineItem.id",
     )
 
     def __repr__(self):
-        return f'<UserReceipt {self.id}>'
+        return f"<UserReceipt {self.id}>"
