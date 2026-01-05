@@ -1,0 +1,27 @@
+[tool.ruff]
+# Target Python version
+target-version = "py311"
+
+# Exclude common directories
+exclude = [
+    "venv",
+    "__pycache__",
+    "migrations/versions",
+]
+
+[tool.ruff.lint]
+# E = pycodestyle errors
+# F = Pyflakes (includes F401 for unused imports)
+# I = isort (import sorting)
+select = ["E", "F", "I"]
+
+# Allow unused imports in __init__.py files (common pattern for re-exports)
+per-file-ignores = { "__init__.py" = ["F401"] }
+
+[tool.ruff.lint.isort]
+# Add a blank line after imports
+lines-after-imports = 2
+
+[tool.ruff.format]
+# Use double quotes for strings (consistent with Black)
+quote-style = "double"
