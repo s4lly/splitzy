@@ -92,6 +92,16 @@ def create_app():
         )
     app.config["CLERK_SECRET_KEY"] = clerk_secret_key
 
+    clerk_webhook_secret = os.environ.get("CLERK_WEBHOOK_SECRET")
+    if not clerk_webhook_secret:
+        raise ValueError(
+            "CLERK_WEBHOOK_SECRET environment variable is required for Clerk webhook verification"
+        )
+    app.config["CLERK_WEBHOOK_SECRET"] = clerk_webhook_secret
+
+    frontend_origins = os.environ.get("FRONTEND_ORIGINS", "http://localhost:5173")
+    app.config["FRONTEND_ORIGINS"] = frontend_origins
+
     vercel_function_url = os.environ.get("VERCEL_FUNCTION_URL")
     if not vercel_function_url:
         raise ValueError(
@@ -166,9 +176,9 @@ def create_app():
     # ============================================================================
     # Blueprints Registration
     # ============================================================================
-    from blueprints import auth, receipts
+    from blueprints import receipts, webhooks
 
-    app.register_blueprint(auth.auth_bp)
+    app.register_blueprint(webhooks.webhooks_bp)
     app.register_blueprint(receipts.receipts_bp)
 
     return app
