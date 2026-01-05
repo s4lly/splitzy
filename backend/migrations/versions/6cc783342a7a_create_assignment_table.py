@@ -1,4 +1,4 @@
-"""create assignment table
+"""alter receipt and user_receipts column types
 
 Revision ID: 6cc783342a7a
 Revises: 2ff8dc210cb7
