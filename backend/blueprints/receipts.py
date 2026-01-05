@@ -33,6 +33,8 @@ def upload_to_blob_storage(image_data, filename, content_type):
         content_type (str): MIME type (e.g., 'image/jpeg')
     Returns the blob URL on success, None on failure
     """
+    safe_filename = 'unknown_file'  # Default for error logging
+
     try:
         # Get the Vercel function URL from environment - this is validated at app startup
         vercel_function_url = os.environ.get('VERCEL_FUNCTION_URL')
