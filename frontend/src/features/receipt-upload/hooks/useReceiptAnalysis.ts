@@ -13,6 +13,7 @@ export function useReceiptAnalysisMutation() {
       file: File;
     }): Promise<ReceiptAnalysisResult> => {
       const token = await getToken();
+
       return receiptService.analyzeReceipt(file, { token: token || undefined });
     },
     retry: false, // No retries for LLM calls
