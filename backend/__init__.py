@@ -92,6 +92,13 @@ def create_app():
         )
     app.config["CLERK_SECRET_KEY"] = clerk_secret_key
 
+    clerk_webhook_secret = os.environ.get("CLERK_WEBHOOK_SECRET")
+    if not clerk_webhook_secret:
+        raise ValueError(
+            "CLERK_WEBHOOK_SECRET environment variable is required for Clerk webhook verification"
+        )
+    app.config["CLERK_WEBHOOK_SECRET"] = clerk_webhook_secret
+
     vercel_function_url = os.environ.get("VERCEL_FUNCTION_URL")
     if not vercel_function_url:
         raise ValueError(

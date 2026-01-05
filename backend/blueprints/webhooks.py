@@ -1,5 +1,3 @@
-import os
-
 from flask import Blueprint, current_app, jsonify, request
 from sqlalchemy.exc import IntegrityError
 from svix.webhooks import Webhook, WebhookVerificationError
@@ -17,13 +15,8 @@ def clerk_webhook():
     Handle Clerk webhook events, specifically user.created events.
     Creates a new user record in the database with the Clerk user ID.
     """
-    # Get webhook secret from environment
-    webhook_secret = os.environ.get("CLERK_WEBHOOK_SECRET")
-    if not webhook_secret:
-        current_app.logger.error(
-            "CLERK_WEBHOOK_SECRET environment variable is not configured"
-        )
-        return jsonify({"error": "Webhook secret not configured"}), 500
+    # Get webhook secret from app config (validated at startup)
+    webhook_secret = current_app.config.get("CLERK_WEBHOOK_SECRET")
 
     # Get webhook headers
     svix_id = request.headers.get("svix-id")
@@ -54,12 +47,8 @@ def clerk_webhook():
         return jsonify({"error": "Verification error"}), 500
 
     # Parse the verified payload
-    try:
-        event_data = msg
-        event_type = event_data.get("type")
-    except Exception as e:
-        current_app.logger.error(f"Failed to parse webhook payload: {str(e)}")
-        return jsonify({"error": "Invalid payload format"}), 400
+    event_data = msg.data
+    event_type = event_data.get("type")
 
     # Only handle user.created events
     if event_type != "user.created":
