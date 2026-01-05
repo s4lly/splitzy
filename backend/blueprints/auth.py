@@ -16,13 +16,16 @@ def get_current_user():
         # Get Clerk secret key from app config
         clerk_secret_key = current_app.config["CLERK_SECRET_KEY"]
 
-        # Get frontend origin from environment or default to Vite default port
-        frontend_origin = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
+        # Get frontend origins from environment (comma-separated) or default to Vite default port
+        frontend_origins = current_app.config.get(
+            "FRONTEND_ORIGINS", "http://localhost:5173"
+        )
+        authorized_parties = [origin.strip() for origin in frontend_origins.split(",")]
 
         # Authenticate the request using Clerk
         sdk = Clerk(bearer_auth=clerk_secret_key)
         request_state = sdk.authenticate_request(
-            request, AuthenticateRequestOptions(authorized_parties=[frontend_origin])
+            request, AuthenticateRequestOptions(authorized_parties=authorized_parties)
         )
 
         # Extract the user ID from the authenticated request
