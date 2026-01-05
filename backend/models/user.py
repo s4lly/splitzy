@@ -9,7 +9,7 @@ class User(db.Model):
     id = db.Column(
         db.BigInteger, primary_key=True
     )  # Using BigInteger for better scalability
-    auth_user_id = db.Column(db.Text, unique=True, nullable=False)
+    auth_user_id = db.Column(db.Text, unique=True, nullable=False, index=True)
     username = db.Column(db.Text, unique=False, nullable=True)
     email = db.Column(
         db.Text, unique=False, nullable=True
@@ -17,7 +17,7 @@ class User(db.Model):
     created_at = db.Column(
         db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     )
-    deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
 
     def __repr__(self):
         return f"<User {self.username}>"
