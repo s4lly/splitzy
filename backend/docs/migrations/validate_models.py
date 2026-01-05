@@ -59,26 +59,54 @@ def compare_table_schema(inspector, model_class, table_name):
             db_type = str(db_col["type"])
 
             # Normalize type strings for comparison
-            # Remove length specifiers and convert common PostgreSQL types to generic names
-            model_type_norm = re.sub(
-                r"\(\d+\)", "", model_type
-            )  # Remove (N) length specifiers
-            model_type_norm = model_type_norm.replace(
-                "VARCHAR", "TEXT"
-            )  # Treat VARCHAR as TEXT
+            def normalize_type(type_str):
+                """Normalize a type string for comparison by removing length/precision
+                and converting equivalent types to a common representation."""
+                # Strip whitespace and convert to uppercase for comparison
+                normalized = type_str.strip().upper()
 
-            db_type_norm = re.sub(r"\(\d+\)", "", db_type)
-            db_type_norm = db_type_norm.replace("character varying", "TEXT")
-            db_type_norm = db_type_norm.replace("text", "TEXT")
-            db_type_norm = db_type_norm.replace("integer", "INTEGER")
-            db_type_norm = db_type_norm.replace("bigint", "BIGINT")
+                # Remove length/precision specifiers like (80), (12,2), etc.
+                normalized = re.sub(r"\(\d+(?:,\s*\d+)?\)", "", normalized)
 
-            # Compare normalized types
-            if model_type_norm.upper() != db_type_norm.upper():
-                differences.append(
-                    f"  ⚠️  Column '{col_name}': type mismatch "
-                    f"(model: {model_type}, db: {db_type})"
-                )
+                # Normalize PostgreSQL type names to common SQLAlchemy equivalents
+                # VARCHAR and CHARACTER VARYING are equivalent (both variable-length strings)
+                if normalized.startswith("CHARACTER VARYING") or normalized.startswith(
+                    "CHARACTERVARYING"
+                ):
+                    normalized = "VARCHAR"
+                elif normalized.startswith("VARCHAR"):
+                    normalized = "VARCHAR"
+                elif normalized.startswith("TEXT"):
+                    normalized = "TEXT"
+
+                # Normalize integer types
+                if normalized == "INTEGER" or normalized == "INT":
+                    normalized = "INTEGER"
+                elif normalized == "BIGINT":
+                    normalized = "BIGINT"
+                elif normalized == "SMALLINT":
+                    normalized = "SMALLINT"
+
+                # Remove any remaining whitespace
+                normalized = normalized.strip()
+
+                return normalized
+
+            # First check if types match exactly (case-insensitive, ignoring whitespace)
+            model_type_upper = model_type.strip().upper()
+            db_type_upper = db_type.strip().upper()
+
+            # Only compare normalized types if they don't match exactly
+            if model_type_upper != db_type_upper:
+                model_type_norm = normalize_type(model_type)
+                db_type_norm = normalize_type(db_type)
+
+                # Compare normalized types - only report mismatch if actually different
+                if model_type_norm != db_type_norm:
+                    differences.append(
+                        f"  ⚠️  Column '{col_name}': type mismatch "
+                        f"(model: {model_type}, db: {db_type})"
+                    )
 
             # Check nullable
             if model_col.nullable != db_col["nullable"]:
