@@ -1,16 +1,26 @@
 import os
-import requests
 import tempfile
 import warnings
-from flask import Blueprint, request, jsonify, current_app, send_from_directory
-from models import db
-from models.user_receipt import UserReceipt
-from models.receipt_line_item import ReceiptLineItem
-from image_analyzer import ImageAnalyzer, ImageAnalysisError, ImageAnalyzerConfigError
-from schemas.receipt import LineItem, LineItemResponse, RegularReceiptResponse, UserReceiptCreate, ReceiptLineItemCreate
-from werkzeug.utils import secure_filename
+
+import requests
 from blueprints.auth import get_current_user
+from clerk_backend_api import Clerk
+from clerk_backend_api.security import authenticate_request
+from clerk_backend_api.security.types import AuthenticateRequestOptions
+from flask import Blueprint, current_app, jsonify, request, send_from_directory
+from image_analyzer import ImageAnalysisError, ImageAnalyzer, ImageAnalyzerConfigError
+from models import db
+from models.receipt_line_item import ReceiptLineItem
+from models.user_receipt import UserReceipt
 from pydantic import ValidationError
+from schemas.receipt import (
+    LineItem,
+    LineItemResponse,
+    ReceiptLineItemCreate,
+    RegularReceiptResponse,
+    UserReceiptCreate,
+)
+from werkzeug.utils import secure_filename
 
 receipts_bp = Blueprint('receipts', __name__)
 
@@ -23,6 +33,8 @@ def upload_to_blob_storage(image_data, filename, content_type):
         content_type (str): MIME type (e.g., 'image/jpeg')
     Returns the blob URL on success, None on failure
     """
+    safe_filename = 'unknown_file'  # Default for error logging
+
     try:
         # Get the Vercel function URL from environment - this is validated at app startup
         vercel_function_url = os.environ.get('VERCEL_FUNCTION_URL')
@@ -110,9 +122,26 @@ def resolve_image_path(image_path):
 
 @receipts_bp.route('/api/analyze-receipt', methods=['POST'])
 def analyze_receipt():
-    # Check if user is authenticated
-    current_user = get_current_user()
+    # ============================================================================
+    # Authentication & Authorization Setup
+    # ============================================================================
+    # Get Clerk secret key from app config (validated at startup)
+    clerk_secret_key = current_app.config['CLERK_SECRET_KEY']
 
+    # Get frontend origin from environment or default to Vite default port
+    frontend_origin = os.environ.get('FRONTEND_ORIGIN', 'http://localhost:5173')
+
+    sdk = Clerk(bearer_auth=clerk_secret_key)
+    request_state = sdk.authenticate_request(
+        request,
+        AuthenticateRequestOptions(
+            authorized_parties=[frontend_origin]
+        )
+    )
+
+    # ============================================================================
+    # File Processing & Validation
+    # ============================================================================
     if 'file' not in request.files:
         return jsonify({'success': False, 'error': 'No file provided'}), 400
 
@@ -132,8 +161,12 @@ def analyze_receipt():
             'error': 'Failed to upload image to blob storage'
         }), 500
 
+    # ============================================================================
+    # Image Analysis
+    # ============================================================================
     try:
         analyzer = ImageAnalyzer()
+
         try:
             receipt_model = analyzer.analyze_image(image_data)
         except ImageAnalyzerConfigError as config_error:
@@ -149,6 +182,9 @@ def analyze_receipt():
                 'error': f"Image analysis failed: {str(analyzer_error)}"
             }), 500
 
+        # ========================================================================
+        # Receipt Model Validation
+        # ========================================================================
         # receipt_model should always be a Pydantic model (RegularReceipt, TransportationTicket, or NotAReceipt)
         # If there was an error in processing, ImageAnalysisError would have been raised above
         if not hasattr(receipt_model, 'model_dump'):
@@ -159,11 +195,14 @@ def analyze_receipt():
                 'error': 'Invalid response format from image analyzer'
             }), 500
 
+        # ========================================================================
+        # Receipt Processing
+        # ========================================================================
         if hasattr(receipt_model, 'is_receipt') and receipt_model.is_receipt:
             receipt_create_data = UserReceiptCreate.model_validate(receipt_model)
             
             # Add the additional fields that aren't in the Pydantic model
-            receipt_create_data.user_id = current_user.id if current_user else None
+            # receipt_create_data.user_id = current_user.id if current_user else None
             receipt_create_data.image_path = blob_url
             
             # Create the SQLAlchemy model instance
@@ -189,6 +228,9 @@ def analyze_receipt():
                 'receipt_data': RegularReceiptResponse.model_validate(new_receipt).model_dump()
             })
         else:
+            # ====================================================================
+            # Non-Receipt Handling
+            # ====================================================================
             # Not a receipt
             # Check if receipt_model has model_dump method (Pydantic model) or is a dict
             if hasattr(receipt_model, 'model_dump'):
@@ -203,6 +245,9 @@ def analyze_receipt():
                 'receipt_data': receipt_data
             })
     except Exception as e:
+        # ============================================================================
+        # Exception Handling
+        # ============================================================================
         db.session.rollback()
         current_app.logger.error(f"Error analyzing receipt: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
