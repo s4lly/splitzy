@@ -20,4 +20,4 @@ class User(db.Model):
     deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
 
     def __repr__(self):
-        return f"<User {self.username}>"
+        return f"<User {self.username or self.auth_user_id}>"
