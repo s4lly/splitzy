@@ -87,6 +87,30 @@ def compare_table_schema(inspector, model_class, table_name):
                 elif normalized == "SMALLINT":
                     normalized = "SMALLINT"
 
+                # # Normalize timestamp types
+                if "TIMESTAMP" in normalized:
+                    # TIMESTAMP WITH TIME ZONE, TIMESTAMP WITHOUT TIME ZONE, TIMESTAMPTZ all map to TIMESTAMP
+                    if "WITH TIME ZONE" in normalized or "TIMESTAMPTZ" in normalized:
+                        normalized = "TIMESTAMP WITH TIME ZONE"
+                    else:
+                        normalized = "TIMESTAMP"
+
+                # Normalize boolean
+                if normalized == "BOOLEAN" or normalized == "BOOL":
+                    normalized = "BOOLEAN"
+
+                # Normalize numeric/decimal types (both are equivalent)
+                if normalized.startswith("NUMERIC") or normalized.startswith("DECIMAL"):
+                    normalized = "NUMERIC"
+
+                # Normalize floating point types
+                if normalized == "REAL" or normalized == "FLOAT":
+                    normalized = "REAL"
+                elif (
+                    normalized == "DOUBLE PRECISION" or normalized == "DOUBLEPRECISION"
+                ):
+                    normalized = "DOUBLE PRECISION"
+
                 # Remove any remaining whitespace
                 normalized = normalized.strip()
 
