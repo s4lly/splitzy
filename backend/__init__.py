@@ -61,7 +61,10 @@ def create_app():
     # ============================================================================
     # Secret Keys & Configuration
     # ============================================================================
-    app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
+    secret_key = os.environ.get('SECRET_KEY')
+    if not secret_key and vercel_env == 'production':
+        raise ValueError("SECRET_KEY environment variable is required for production")
+    app.secret_key = secret_key or 'supersecretkey'
     
     # Validate required environment variables and store in app config
     clerk_secret_key = os.environ.get('CLERK_SECRET_KEY')
