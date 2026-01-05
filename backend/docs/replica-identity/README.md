@@ -142,13 +142,21 @@ This script:
 
 ## Files in This Directory
 
-| File                                     | Purpose                                                      |
-| ---------------------------------------- | ------------------------------------------------------------ |
-| `fix_replica_identity.sql`               | Quick fix for `alembic_version` table only                   |
-| `set_replica_identity_before_dump.sql`   | Set REPLICA IDENTITY on all published tables before dumping  |
-| `set_replica_identity_after_restore.sql` | Set REPLICA IDENTITY on all published tables after restoring |
-| `dump_with_replica_identity.sh`          | Automated script to set REPLICA IDENTITY and create dump     |
-| `restore_with_replica_identity.sh`       | Automated script to restore dump and set REPLICA IDENTITY    |
+| File                                     | Purpose                                                               |
+| ---------------------------------------- | --------------------------------------------------------------------- |
+| `fix_replica_identity.sql`               | Quick fix for `alembic_version` table only (REPLICA IDENTITY)         |
+| `fix_zero_alembic_version.sql`           | Fix Zero replication error by adding primary key to `alembic_version` |
+| `drop_zero_replication_slots.sql`        | Drop all Zero replication slots (for production use)                  |
+| `check_publication_tables.sql`           | Diagnostic script to check which tables have primary keys             |
+| `check_replication_slots.sql`            | Check current replication slots                                       |
+| `verify_alembic_pk.sql`                  | Verify that `alembic_version` has a primary key                       |
+| `set_replica_identity_before_dump.sql`   | Set REPLICA IDENTITY on all published tables before dumping           |
+| `set_replica_identity_after_restore.sql` | Set REPLICA IDENTITY on all published tables after restoring          |
+| `dump_with_replica_identity.sh`          | Automated script to set REPLICA IDENTITY and create dump              |
+| `restore_with_replica_identity.sh`       | Automated script to restore dump and set REPLICA IDENTITY             |
+| `restart_zero_cache.sh`                  | Restart zero-cache with cleared cache (local development)             |
+| `reset_zero_replication.sh`              | Reset Zero replication slots (local development)                      |
+| `PRODUCTION_RESET_GUIDE.md`              | Guide for resetting replication slots in production                   |
 
 ## Best Practices
 
@@ -180,13 +188,71 @@ This script:
    WHERE pt.schemaname = 'public';
    ```
 
+## Zero-Specific Issue: PRIMARY KEY Requirement
+
+### Problem: Zero Replication Error
+
+When running Flask migrations with Zero-cache active, you may encounter this error:
+
+```
+Error: Cannot replicate table "alembic_version" without a PRIMARY KEY or UNIQUE INDEX
+```
+
+This is a **different issue** from the REPLICA IDENTITY problem above.
+
+### Key Distinction
+
+- **REPLICA IDENTITY**: PostgreSQL's logical replication requires this to identify which rows changed. Setting `REPLICA IDENTITY FULL` satisfies PostgreSQL's requirement.
+
+- **Zero's PRIMARY KEY Requirement**: Zero-cache has an **additional requirement** beyond REPLICA IDENTITY - it explicitly requires a **PRIMARY KEY or UNIQUE INDEX** on every table it replicates. `REPLICA IDENTITY FULL` is **not sufficient** for Zero.
+
+### Solution for Zero
+
+The publication `_zero_public_0` is configured to include ALL tables in the `public` schema:
+
+```sql
+ALTER PUBLICATION _zero_public_0 ADD TABLES IN SCHEMA public;
+```
+
+This automatically includes `alembic_version`, which Zero then tries to replicate. Since Zero requires a PK/unique index and `alembic_version` has neither, replication fails.
+
+**Recommended Fix**: Add a primary key to `alembic_version`:
+
+```sql
+ALTER TABLE alembic_version ADD PRIMARY KEY (version_num);
+```
+
+**File**: `fix_zero_alembic_version.sql`
+
+**To apply the fix:**
+
+```bash
+psql $DATABASE_URL -f backend/docs/replica-identity/fix_zero_alembic_version.sql
+```
+
+**Why add a PK instead of excluding from publication?**
+
+When a publication uses `ADD TABLES IN SCHEMA public`, it automatically includes all tables in that schema. You cannot easily exclude individual tables from schema-level publications using `DROP TABLE` (you'll get an error: "relation is not part of the publication"). Adding a primary key is the simplest and most reliable solution.
+
+**Alternative**: If you want to exclude the table, you would need to reconfigure the publication to explicitly list tables instead of using schema-level inclusion, which is more complex and error-prone.
+
+**Important Notes**:
+
+- **`flask db upgrade` will NOT undo the primary key**: Alembic migrations do not modify the structure of the `alembic_version` table. They only update the `version_num` value. Once you add the primary key, it will persist across all future migrations.
+
+- **After adding the primary key**: You may need to reset Zero replication slots so it re-discovers the schema. See the [Production Reset Guide](./PRODUCTION_RESET_GUIDE.md) for details.
+
 ## Related Documentation
+
+- [Production Reset Guide](./PRODUCTION_RESET_GUIDE.md) - How to reset replication slots in production
 
 - [PostgreSQL Logical Replication Documentation](https://www.postgresql.org/docs/current/logical-replication.html)
 - [REPLICA IDENTITY Documentation](https://www.postgresql.org/docs/current/sql-altertable.html#SQL-ALTERTABLE-REPLICA-IDENTITY)
 - [pg_dump Documentation](https://www.postgresql.org/docs/current/app-pgdump.html)
 
 ## Summary
+
+### REPLICA IDENTITY Issue
 
 The issue occurs because:
 
@@ -195,3 +261,7 @@ The issue occurs because:
 3. The `alembic_version` table has no primary key and needs `REPLICA IDENTITY FULL`
 
 The fix is to set REPLICA IDENTITY before dumping (preferred) or after restoring (fallback).
+
+### Zero PRIMARY KEY Issue
+
+Zero-cache requires a PRIMARY KEY or UNIQUE INDEX on all replicated tables, regardless of REPLICA IDENTITY settings. For `alembic_version`, the recommended fix is to add a primary key (since excluding it from schema-level publications is not practical). After adding the primary key, reset Zero replication slots to force schema re-discovery.
