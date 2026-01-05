@@ -99,6 +99,9 @@ def create_app():
         )
     app.config["CLERK_WEBHOOK_SECRET"] = clerk_webhook_secret
 
+    frontend_origins = os.environ.get("FRONTEND_ORIGINS", "http://localhost:5173")
+    app.config["FRONTEND_ORIGINS"] = frontend_origins
+
     vercel_function_url = os.environ.get("VERCEL_FUNCTION_URL")
     if not vercel_function_url:
         raise ValueError(
