@@ -166,9 +166,9 @@ def create_app():
     # ============================================================================
     # Blueprints Registration
     # ============================================================================
-    from blueprints import auth, receipts
+    from blueprints import receipts, webhooks
 
-    app.register_blueprint(auth.auth_bp)
+    app.register_blueprint(webhooks.webhooks_bp)
     app.register_blueprint(receipts.receipts_bp)
 
     return app
