@@ -1,5 +1,4 @@
 from sqlalchemy import text
-from sqlalchemy.dialects.postgresql import JSONB
 
 from models import db
 
@@ -11,18 +10,14 @@ class User(db.Model):
         db.BigInteger, primary_key=True
     )  # Using BigInteger for better scalability
     auth_user_id = db.Column(db.Text, unique=True, nullable=False)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    username = db.Column(db.Text, unique=False, nullable=True)
     email = db.Column(
-        db.Text, unique=True, nullable=False
+        db.Text, unique=False, nullable=True
     )  # Using Text for unlimited length emails
-    password = db.Column(db.Text, nullable=False)  # Using Text for hashed passwords
     created_at = db.Column(
         db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     )
     deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
-    settings = db.Column(
-        JSONB, nullable=True, default=dict
-    )  # Using JSONB for user settings/preferences
 
     def __repr__(self):
         return f"<User {self.username}>"
