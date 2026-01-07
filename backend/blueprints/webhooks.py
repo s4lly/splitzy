@@ -47,7 +47,8 @@ def clerk_webhook():
         return jsonify({"error": "Verification error"}), 500
 
     # Parse the verified payload
-    event_data = msg.data
+    # webhook.verify() returns a dict directly
+    event_data = msg
     event_type = event_data.get("type")
 
     # Only handle user.created events
