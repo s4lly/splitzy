@@ -101,6 +101,10 @@ def create_app():
 
     frontend_origins = os.environ.get("FRONTEND_ORIGINS", "http://localhost:5173")
     app.config["FRONTEND_ORIGINS"] = frontend_origins
+    # Pre-compute authorized parties list for Clerk and store in config
+    app.config["AUTHORIZED_PARTIES"] = [
+        origin.strip() for origin in frontend_origins.split(",") if origin.strip()
+    ]
 
     vercel_function_url = os.environ.get("VERCEL_FUNCTION_URL")
     if not vercel_function_url:
