@@ -4,12 +4,6 @@ import { ReceiptResponseSchema } from '../lib/receiptSchemas';
 const API_URL =
   import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Check if we're in development/preview mode
-const isDevelopment =
-  import.meta.env.VITE_VERCEL_ENV !== 'production' ||
-  import.meta.env.DEV ||
-  window.location.hostname === 'localhost';
-
 // Local storage key for mock receipt history
 const MOCK_RECEIPTS_KEY = 'mock_receipt_history';
 
@@ -102,7 +96,6 @@ const receiptService = {
         formData,
         {
           headers,
-          withCredentials: !isDevelopment, // Only send credentials in production
         }
       );
 
@@ -121,9 +114,7 @@ const receiptService = {
     try {
       // Try to fetch from the server first
       try {
-        const response = await axios.get(`${API_URL}/user/receipts`, {
-          withCredentials: !isDevelopment,
-        });
+        const response = await axios.get(`${API_URL}/user/receipts`);
         return response.data;
       } catch (serverError) {
         console.log('Server endpoint not available, using mock data');
@@ -150,10 +141,7 @@ const receiptService = {
       // Try server endpoint first
       try {
         const response = await axios.delete(
-          `${API_URL}/user/receipts/${receiptId}`,
-          {
-            withCredentials: !isDevelopment,
-          }
+          `${API_URL}/user/receipts/${receiptId}`
         );
         return response.data;
       } catch (serverError) {
@@ -187,10 +175,7 @@ const receiptService = {
       // Try server endpoint first
       try {
         const response = await axios.get(
-          `${API_URL}/user/receipts/${receiptId}`,
-          {
-            withCredentials: !isDevelopment,
-          }
+          `${API_URL}/user/receipts/${receiptId}`
         );
         // Zod validation
         const parsed = ReceiptResponseSchema.safeParse(response.data);
@@ -231,10 +216,7 @@ const receiptService = {
     try {
       // Try to get the image from the backend API
       const response = await axios.get(
-        `${API_URL}/user/receipts/${receiptId}/image`,
-        {
-          withCredentials: !isDevelopment,
-        }
+        `${API_URL}/user/receipts/${receiptId}/image`
       );
 
       // Check if the response contains a blob URL
@@ -286,8 +268,7 @@ const receiptService = {
   updateAssignments: async (receiptId, lineItemId, assignments) => {
     const response = await axios.put(
       `${API_URL}/user/receipts/${receiptId}/assignments`,
-      { line_item_id: lineItemId, assignments: assignments },
-      { withCredentials: !isDevelopment }
+      { line_item_id: lineItemId, assignments: assignments }
     );
     return response.data;
   },
@@ -302,8 +283,7 @@ const receiptService = {
   updateLineItem: async (receiptId, itemId, updateObj) => {
     const response = await axios.put(
       `${API_URL}/user/receipts/${receiptId}/line-items/${itemId}`,
-      updateObj,
-      { withCredentials: !isDevelopment }
+      updateObj
     );
     return response.data;
   },
@@ -316,8 +296,7 @@ const receiptService = {
    */
   deleteLineItem: async (receiptId, itemId) => {
     const response = await axios.delete(
-      `${API_URL}/user/receipts/${receiptId}/line-items/${itemId}`,
-      { withCredentials: !isDevelopment }
+      `${API_URL}/user/receipts/${receiptId}/line-items/${itemId}`
     );
     return response.data;
   },
@@ -331,8 +310,7 @@ const receiptService = {
   addLineItem: async (receiptId, lineItemData) => {
     const response = await axios.post(
       `${API_URL}/user/receipts/${receiptId}/line-items`,
-      lineItemData,
-      { withCredentials: !isDevelopment }
+      lineItemData
     );
     return response.data;
   },
@@ -346,8 +324,7 @@ const receiptService = {
   updateReceiptData: async (receiptId, updateObj) => {
     const response = await axios.put(
       `${API_URL}/user/receipts/${receiptId}/receipt-data`,
-      updateObj,
-      { withCredentials: !isDevelopment }
+      updateObj
     );
     return response.data;
   },

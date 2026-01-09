@@ -9,13 +9,6 @@ def get_current_user():
     Authenticate the current request using Clerk and return the associated User.
     Returns the User object if authenticated, None otherwise.
     """
-    # Skip authentication for OPTIONS preflight requests (they don't have auth headers)
-    if request.method == "OPTIONS":
-        current_app.logger.warning(
-            "[auth.get_current_user] OPTIONS preflight request, skipping auth"
-        )
-        return None
-
     current_app.logger.warning(
         f"[auth.get_current_user] Starting authentication for {request.method} request"
     )
