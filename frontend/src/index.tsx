@@ -1,52 +1,19 @@
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthProvider } from '@/context/AuthContext';
 import { FeatureFlagProvider } from '@/context/FeatureFlagProvider';
+import { AuthenticatedZeroProvider } from '@/context/ZeroProvider';
 import '@/index.css';
 import { POSTHOG_HOST } from '@/utils/constants';
 import { isLocalDevelopment } from '@/utils/env';
 import { ClerkProvider } from '@clerk/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { PostHog, PostHogConfig } from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-
-import { mutators } from '@/zero/mutators';
-import { schema, Schema } from '@/zero/schema';
-import type { ZeroOptions } from '@rocicorp/zero';
-import { ZeroProvider } from '@rocicorp/zero/react';
-import { PostHog, PostHogConfig } from 'posthog-js';
-import { v4 as uuidv4 } from 'uuid';
-
-// ---- Zero ----
-
-const ZERO_CACHE_URL = import.meta.env.VITE_ZERO_CACHE_URL;
-const ZERO_QUERY_URL = import.meta.env.VITE_ZERO_QUERY_URL;
-const ZERO_MUTATE_URL = import.meta.env.VITE_ZERO_MUTATE_URL;
-
-if (!ZERO_CACHE_URL || !ZERO_QUERY_URL || !ZERO_MUTATE_URL) {
-  throw new Error('Add your Zero URLs to the .env file');
-}
-
-const getUserID = () => {
-  let userID = localStorage.getItem('zero-user-id');
-  if (!userID) {
-    userID = uuidv4();
-    localStorage.setItem('zero-user-id', userID);
-  }
-  return userID;
-};
-
-const zeroOptions: ZeroOptions<Schema> = {
-  cacheURL: ZERO_CACHE_URL,
-  queryURL: ZERO_QUERY_URL,
-  mutateURL: ZERO_MUTATE_URL,
-  schema,
-  mutators: mutators,
-  userID: getUserID(),
-};
 
 // ---- Clerk ----
 
@@ -88,23 +55,23 @@ if (!container) {
 const root = ReactDOM.createRoot(container);
 root.render(
   <React.StrictMode>
-    <ZeroProvider {...zeroOptions}>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider attribute="class" defaultTheme="system">
-          <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
-            <FeatureFlagProvider>
-              <BrowserRouter>
-                <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="system">
+        <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
+          <FeatureFlagProvider>
+            <BrowserRouter>
+              <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+                <AuthenticatedZeroProvider>
                   <AuthProvider>
                     <App />
                   </AuthProvider>
-                </ClerkProvider>
-              </BrowserRouter>
-            </FeatureFlagProvider>
-          </PostHogProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
-        </ThemeProvider>
-      </QueryClientProvider>
-    </ZeroProvider>
+                </AuthenticatedZeroProvider>
+              </ClerkProvider>
+            </BrowserRouter>
+          </FeatureFlagProvider>
+        </PostHogProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </ThemeProvider>
+    </QueryClientProvider>
   </React.StrictMode>
 );
