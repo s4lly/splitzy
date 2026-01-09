@@ -10,15 +10,30 @@ set -e
 # Resolve paths relative to this script's location
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-ENV_FILE="$PROJECT_ROOT/backend/.env"
+BACKEND_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Try multiple locations for .env file
+ENV_FILE=""
+for candidate in "$BACKEND_DIR/.env" "$PROJECT_ROOT/backend/.env" "$PROJECT_ROOT/.env"; do
+    if [ -f "$candidate" ]; then
+        ENV_FILE="$candidate"
+        break
+    fi
+done
 
 # Source .env file if it exists
-if [ -f "$ENV_FILE" ]; then
+if [ -n "$ENV_FILE" ]; then
     echo "Loading environment variables from $ENV_FILE..."
     set -a
     # shellcheck source=/dev/null
     source "$ENV_FILE"
     set +a
+else
+    echo "Warning: No .env file found. Checked:"
+    echo "  - $BACKEND_DIR/.env"
+    echo "  - $PROJECT_ROOT/backend/.env"
+    echo "  - $PROJECT_ROOT/.env"
+    echo ""
 fi
 
 DATABASE_URL="${DATABASE_URL:-${NEON_DATABASE_URL}}"

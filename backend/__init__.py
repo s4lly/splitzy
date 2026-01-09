@@ -103,12 +103,25 @@ def create_app():
         )
     app.config["CLERK_WEBHOOK_SECRET"] = clerk_webhook_secret
 
-    frontend_origins = os.environ.get("FRONTEND_ORIGINS", "http://localhost:5173")
-    app.config["FRONTEND_ORIGINS"] = frontend_origins
+    # Require FRONTEND_ORIGINS to be set (no default) for Clerk authentication
+    frontend_origins = os.environ.get("FRONTEND_ORIGINS")
+    if not frontend_origins:
+        raise ValueError(
+            "FRONTEND_ORIGINS environment variable is required. "
+            "Used to configure AUTHORIZED_PARTIES for Clerk authentication."
+        )
+
     # Pre-compute authorized parties list for Clerk and store in config
-    app.config["AUTHORIZED_PARTIES"] = [
+    authorized_parties = [
         origin.strip() for origin in frontend_origins.split(",") if origin.strip()
     ]
+    if not authorized_parties:
+        raise ValueError(
+            "FRONTEND_ORIGINS must contain at least one valid origin. "
+            "AUTHORIZED_PARTIES cannot be empty."
+        )
+    app.config["AUTHORIZED_PARTIES"] = authorized_parties
+    app.logger.info(f"Configured AUTHORIZED_PARTIES: {authorized_parties}")
 
     vercel_function_url = os.environ.get("VERCEL_FUNCTION_URL")
     if not vercel_function_url:
