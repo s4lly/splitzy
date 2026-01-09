@@ -3,6 +3,7 @@ import os
 import sqlite3
 from pathlib import Path
 
+from clerk_backend_api import Clerk
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
@@ -92,6 +93,9 @@ def create_app():
         )
     app.config["CLERK_SECRET_KEY"] = clerk_secret_key
 
+    # Initialize Clerk SDK instance and cache it in app config
+    app.config["CLERK_SDK"] = Clerk(bearer_auth=clerk_secret_key)
+
     clerk_webhook_secret = os.environ.get("CLERK_WEBHOOK_SECRET")
     if not clerk_webhook_secret:
         raise ValueError(
@@ -101,6 +105,10 @@ def create_app():
 
     frontend_origins = os.environ.get("FRONTEND_ORIGINS", "http://localhost:5173")
     app.config["FRONTEND_ORIGINS"] = frontend_origins
+    # Pre-compute authorized parties list for Clerk and store in config
+    app.config["AUTHORIZED_PARTIES"] = [
+        origin.strip() for origin in frontend_origins.split(",") if origin.strip()
+    ]
 
     vercel_function_url = os.environ.get("VERCEL_FUNCTION_URL")
     if not vercel_function_url:

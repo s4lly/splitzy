@@ -2,8 +2,6 @@ import os
 import warnings
 
 import requests
-from clerk_backend_api import Clerk
-from clerk_backend_api.security.types import AuthenticateRequestOptions
 from flask import Blueprint, current_app, jsonify, request, send_from_directory
 from pydantic import ValidationError
 from werkzeug.utils import secure_filename
@@ -142,16 +140,12 @@ def analyze_receipt():
     # ============================================================================
     # Authentication & Authorization Setup
     # ============================================================================
-    # Get Clerk secret key from app config (validated at startup)
-    clerk_secret_key = current_app.config["CLERK_SECRET_KEY"]
-
-    # Get frontend origin from environment or default to Vite default port
-    frontend_origin = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
-
-    sdk = Clerk(bearer_auth=clerk_secret_key)
-    request_state = sdk.authenticate_request(
-        request, AuthenticateRequestOptions(authorized_parties=[frontend_origin])
-    )
+    current_user = get_current_user()
+    if not current_user:
+        current_app.logger.warning(
+            "[analyze_receipt] Authentication failed or user not found"
+        )
+        return jsonify({"success": False, "error": "Authentication required"}), 401
 
     # ============================================================================
     # File Processing & Validation
@@ -227,7 +221,7 @@ def analyze_receipt():
             receipt_create_data = UserReceiptCreate.model_validate(receipt_model)
 
             # Add the additional fields that aren't in the Pydantic model
-            # receipt_create_data.user_id = current_user.id if current_user else None
+            receipt_create_data.user_id = current_user.id
             receipt_create_data.image_path = blob_url
 
             # Create the SQLAlchemy model instance

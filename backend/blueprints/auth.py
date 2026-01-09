@@ -1,5 +1,3 @@
-
-from clerk_backend_api import Clerk
 from clerk_backend_api.security.types import AuthenticateRequestOptions
 from flask import current_app, request
 
@@ -12,30 +10,41 @@ def get_current_user():
     Returns the User object if authenticated, None otherwise.
     """
     try:
-        # Get Clerk secret key from app config
-        clerk_secret_key = current_app.config["CLERK_SECRET_KEY"]
+        # Get authorized parties precomputed at app startup
+        authorized_parties = current_app.config["AUTHORIZED_PARTIES"]
 
-        # Get frontend origins from environment (comma-separated) or default to Vite default port
-        frontend_origins = current_app.config.get(
-            "FRONTEND_ORIGINS", "http://localhost:5173"
-        )
-        authorized_parties = [origin.strip() for origin in frontend_origins.split(",")]
-
-        # Authenticate the request using Clerk
-        sdk = Clerk(bearer_auth=clerk_secret_key)
-        request_state = sdk.authenticate_request(
-            request, AuthenticateRequestOptions(authorized_parties=authorized_parties)
-        )
+        # Get cached Clerk SDK instance from app config
+        sdk = current_app.config["CLERK_SDK"]
+        try:
+            request_state = sdk.authenticate_request(
+                request,
+                AuthenticateRequestOptions(authorized_parties=authorized_parties),
+            )
+        except Exception as clerk_error:
+            current_app.logger.warning(
+                f"[auth.get_current_user] Clerk authentication error: {clerk_error}"
+            )
+            return None
 
         # Extract the user ID from the authenticated request
-        clerk_user_id = request_state.user_id
+        payload = getattr(request_state, "payload", None) or {}
+        clerk_user_id = payload.get("sub")
         if not clerk_user_id:
+            current_app.logger.warning(
+                "[auth.get_current_user] Clerk authentication failed: no sub in payload"
+            )
             return None
 
         # Look up the user in the database by auth_user_id
         user = User.query.filter_by(auth_user_id=clerk_user_id, deleted_at=None).first()
+        if not user:
+            current_app.logger.warning(
+                f"[auth.get_current_user] No user found in DB for auth_user_id '{clerk_user_id}'"
+            )
+            return None
+
         return user
 
     except Exception as e:
-        current_app.logger.error(f"Error authenticating user: {str(e)}")
+        current_app.logger.error(f"[auth.get_current_user] Unexpected error: {str(e)}")
         return None
