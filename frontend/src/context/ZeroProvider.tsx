@@ -5,6 +5,7 @@ import type { ZeroOptions } from '@rocicorp/zero';
 import { ZeroProvider } from '@rocicorp/zero/react';
 import React, { useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { Spinner } from '@/components/ui/spinner';
 
 // Zero environment variables
 const ZERO_CACHE_URL = import.meta.env.VITE_ZERO_CACHE_URL;
@@ -56,7 +57,11 @@ export function AuthenticatedZeroProvider({
   // Don't render Zero until Clerk has loaded to avoid creating a Zero instance
   // with an anonymous ID that immediately switches to an authenticated ID
   if (!isLoaded) {
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner className="size-8" />
+      </div>
+    );
   }
 
   return <ZeroProvider {...zeroOptions}>{children}</ZeroProvider>;
