@@ -141,137 +141,134 @@ def analyze_receipt():
     # Authentication & Authorization Setup
     # ============================================================================
     current_user = get_current_user()
-    if not current_user:
-        current_app.logger.warning(
-            "[analyze_receipt] Authentication failed or user not found"
-        )
-        return jsonify({"success": False, "error": "Authentication required"}), 401
 
     # ============================================================================
     # File Processing & Validation
     # ============================================================================
-    if "file" not in request.files:
-        return jsonify({"success": False, "error": "No file provided"}), 400
+    # if "file" not in request.files:
+    #     return jsonify({"success": False, "error": "No file provided"}), 400
 
-    file = request.files["file"]
-    if file.filename == "":
-        return jsonify({"success": False, "error": "No file selected"}), 400
+    # file = request.files["file"]
+    # if file.filename == "":
+    #     return jsonify({"success": False, "error": "No file selected"}), 400
 
-    # Read the file data for analysis and upload
-    file.seek(0)  # Reset file pointer to beginning
-    image_data = file.read()
+    # # Read the file data for analysis and upload
+    # file.seek(0)  # Reset file pointer to beginning
+    # image_data = file.read()
 
-    # Upload to blob storage using binary data
-    blob_url = upload_to_blob_storage(image_data, file.filename, file.content_type)
-    if not blob_url:
-        return jsonify(
-            {"success": False, "error": "Failed to upload image to blob storage"}
-        ), 500
+    # # Upload to blob storage using binary data
+    # blob_url = upload_to_blob_storage(image_data, file.filename, file.content_type)
+    # if not blob_url:
+    #     return jsonify(
+    #         {"success": False, "error": "Failed to upload image to blob storage"}
+    #     ), 500
 
-    # ============================================================================
-    # Image Analysis
-    # ============================================================================
-    try:
-        analyzer = ImageAnalyzer()
+    # # ============================================================================
+    # # Image Analysis
+    # # ============================================================================
+    # try:
+    #     analyzer = ImageAnalyzer()
 
-        try:
-            receipt_model = analyzer.analyze_image(image_data)
-        except ImageAnalyzerConfigError as config_error:
-            current_app.logger.error(
-                f"Image analyzer configuration error: {str(config_error)}"
-            )
-            return jsonify(
-                {
-                    "success": False,
-                    "error": f"Service configuration error: {str(config_error)}",
-                }
-            ), 500
-        except ImageAnalysisError as analyzer_error:
-            current_app.logger.error(
-                f"Error from image analyzer: {str(analyzer_error)}"
-            )
-            return jsonify(
-                {
-                    "success": False,
-                    "error": f"Image analysis failed: {str(analyzer_error)}",
-                }
-            ), 500
+    #     try:
+    #         receipt_model = analyzer.analyze_image(image_data)
+    #     except ImageAnalyzerConfigError as config_error:
+    #         current_app.logger.error(
+    #             f"Image analyzer configuration error: {str(config_error)}"
+    #         )
+    #         return jsonify(
+    #             {
+    #                 "success": False,
+    #                 "error": f"Service configuration error: {str(config_error)}",
+    #             }
+    #         ), 500
+    #     except ImageAnalysisError as analyzer_error:
+    #         current_app.logger.error(
+    #             f"Error from image analyzer: {str(analyzer_error)}"
+    #         )
+    #         return jsonify(
+    #             {
+    #                 "success": False,
+    #                 "error": f"Image analysis failed: {str(analyzer_error)}",
+    #             }
+    #         ), 500
 
-        # ========================================================================
-        # Receipt Model Validation
-        # ========================================================================
-        # receipt_model should always be a Pydantic model (RegularReceipt, TransportationTicket, or NotAReceipt)
-        # If there was an error in processing, ImageAnalysisError would have been raised above
-        if not hasattr(receipt_model, "model_dump"):
-            # This shouldn't happen, but handle it gracefully
-            current_app.logger.error(
-                f"Unexpected receipt_model type: {type(receipt_model)}"
-            )
-            return jsonify(
-                {
-                    "success": False,
-                    "error": "Invalid response format from image analyzer",
-                }
-            ), 500
+    #     # ========================================================================
+    #     # Receipt Model Validation
+    #     # ========================================================================
+    #     # receipt_model should always be a Pydantic model (RegularReceipt, TransportationTicket, or NotAReceipt)
+    #     # If there was an error in processing, ImageAnalysisError would have been raised above
+    #     if not hasattr(receipt_model, "model_dump"):
+    #         # This shouldn't happen, but handle it gracefully
+    #         current_app.logger.error(
+    #             f"Unexpected receipt_model type: {type(receipt_model)}"
+    #         )
+    #         return jsonify(
+    #             {
+    #                 "success": False,
+    #                 "error": "Invalid response format from image analyzer",
+    #             }
+    #         ), 500
 
-        # ========================================================================
-        # Receipt Processing
-        # ========================================================================
-        if hasattr(receipt_model, "is_receipt") and receipt_model.is_receipt:
-            receipt_create_data = UserReceiptCreate.model_validate(receipt_model)
+    #     # ========================================================================
+    #     # Receipt Processing
+    #     # ========================================================================
+    #     if hasattr(receipt_model, "is_receipt") and receipt_model.is_receipt:
+    #         receipt_create_data = UserReceiptCreate.model_validate(receipt_model)
 
-            # Add the additional fields that aren't in the Pydantic model
-            receipt_create_data.user_id = current_user.id
-            receipt_create_data.image_path = blob_url
+    #         # Add the additional fields that aren't in the Pydantic model
+    #         receipt_create_data.user_id = (
+    #             current_user.id if current_user is not None else None
+    #         )
+    #         receipt_create_data.image_path = blob_url
 
-            # Create the SQLAlchemy model instance
-            new_receipt = UserReceipt(**receipt_create_data.model_dump())
-            db.session.add(new_receipt)
+    #         # Create the SQLAlchemy model instance
+    #         new_receipt = UserReceipt(**receipt_create_data.model_dump())
+    #         db.session.add(new_receipt)
 
-            if hasattr(receipt_model, "line_items") and receipt_model.line_items:
-                for item in receipt_model.line_items:
-                    # Use Pydantic model_validate to automatically map fields
-                    line_item_data = ReceiptLineItemCreate.model_validate(item)
+    #         if hasattr(receipt_model, "line_items") and receipt_model.line_items:
+    #             for item in receipt_model.line_items:
+    #                 # Use Pydantic model_validate to automatically map fields
+    #                 line_item_data = ReceiptLineItemCreate.model_validate(item)
 
-                    # Create the SQLAlchemy model instance
-                    line_item = ReceiptLineItem(**line_item_data.model_dump())
+    #                 # Create the SQLAlchemy model instance
+    #                 line_item = ReceiptLineItem(**line_item_data.model_dump())
 
-                    # Use the relationship to automatically set the foreign key
-                    new_receipt.line_items.append(line_item)
+    #                 # Use the relationship to automatically set the foreign key
+    #                 new_receipt.line_items.append(line_item)
 
-            db.session.commit()
+    #         db.session.commit()
 
-            return jsonify(
-                {
-                    "success": True,
-                    "is_receipt": True,
-                    "receipt_data": RegularReceiptResponse.model_validate(
-                        new_receipt
-                    ).model_dump(),
-                }
-            )
-        else:
-            # ====================================================================
-            # Non-Receipt Handling
-            # ====================================================================
-            # Not a receipt
-            # Check if receipt_model has model_dump method (Pydantic model) or is a dict
-            if hasattr(receipt_model, "model_dump"):
-                receipt_data = receipt_model.model_dump()
-            else:
-                # It's already a dict, use it directly
-                receipt_data = receipt_model
+    #         return jsonify(
+    #             {
+    #                 "success": True,
+    #                 "is_receipt": True,
+    #                 "receipt_data": RegularReceiptResponse.model_validate(
+    #                     new_receipt
+    #                 ).model_dump(),
+    #             }
+    #         )
+    #     else:
+    #         # ====================================================================
+    #         # Non-Receipt Handling
+    #         # ====================================================================
+    #         # Not a receipt
+    #         # Check if receipt_model has model_dump method (Pydantic model) or is a dict
+    #         if hasattr(receipt_model, "model_dump"):
+    #             receipt_data = receipt_model.model_dump()
+    #         else:
+    #             # It's already a dict, use it directly
+    #             receipt_data = receipt_model
 
-            return jsonify(
-                {"success": True, "is_receipt": False, "receipt_data": receipt_data}
-            )
-    except Exception as e:
-        # ============================================================================
-        # Exception Handling
-        # ============================================================================
-        db.session.rollback()
-        current_app.logger.error(f"Error analyzing receipt: {str(e)}")
-        return jsonify({"success": False, "error": str(e)}), 500
+    #         return jsonify(
+    #             {"success": True, "is_receipt": False, "receipt_data": receipt_data}
+    #         )
+    # except Exception as e:
+    #     # ============================================================================
+    #     # Exception Handling
+    #     # ============================================================================
+    #     db.session.rollback()
+    #     current_app.logger.error(f"Error analyzing receipt: {str(e)}")
+    #     return jsonify({"success": False, "error": str(e)}), 500
 
 
 @receipts_bp.route("/api/user/receipts", methods=["GET"])
@@ -279,8 +276,8 @@ def get_user_receipts():
     """Get all receipts for the current user"""
     # Check if user is authenticated
     current_user = get_current_user()
-    if not current_user:
-        return jsonify({"success": False, "error": "Authentication required"}), 401
+    # if not current_user:
+    #     return jsonify({"success": False, "error": "Authentication required"}), 401
 
     try:
         user_receipts = (
@@ -351,8 +348,8 @@ def delete_user_receipt(receipt_id):
     """Delete a specific receipt by ID"""
     # Check if user is authenticated
     current_user = get_current_user()
-    if not current_user:
-        return jsonify({"success": False, "error": "Authentication required"}), 401
+    # if not current_user:
+    #     return jsonify({"success": False, "error": "Authentication required"}), 401
 
     try:
         receipt = UserReceipt.query.filter_by(

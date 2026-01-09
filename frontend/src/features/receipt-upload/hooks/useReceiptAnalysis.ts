@@ -12,9 +12,40 @@ export function useReceiptAnalysisMutation() {
     }: {
       file: File;
     }): Promise<ReceiptAnalysisResult> => {
-      const token = await getToken();
+      console.log('[useReceiptAnalysis] Attempting to retrieve Clerk token...');
 
-      return receiptService.analyzeReceipt(file, { token: token || undefined });
+      let token: string | null = null;
+      try {
+        token = await getToken();
+
+        if (token) {
+          console.log('[useReceiptAnalysis] Token retrieved successfully', {
+            tokenLength: token.length,
+            tokenPrefix: token.substring(0, 20) + '...',
+          });
+        } else {
+          console.warn(
+            '[useReceiptAnalysis] getToken() returned null or undefined'
+          );
+        }
+      } catch (error) {
+        console.error('[useReceiptAnalysis] Error retrieving token:', error);
+        if (error instanceof Error) {
+          console.error('[useReceiptAnalysis] Error details:', {
+            message: error.message,
+            stack: error.stack,
+          });
+        }
+        // Continue without token - let the backend handle authentication
+      }
+
+      const tokenToUse = token || undefined;
+      console.log('[useReceiptAnalysis] Calling analyzeReceipt with token:', {
+        hasToken: !!tokenToUse,
+        tokenLength: tokenToUse?.length || 0,
+      });
+
+      return receiptService.analyzeReceipt(file, { token: tokenToUse });
     },
     retry: false, // No retries for LLM calls
   });
