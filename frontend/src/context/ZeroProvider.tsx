@@ -1,3 +1,4 @@
+import { Spinner } from '@/components/ui/spinner';
 import { mutators } from '@/zero/mutators';
 import { schema, Schema } from '@/zero/schema';
 import { useUser } from '@clerk/react-router';
@@ -5,7 +6,6 @@ import type { ZeroOptions } from '@rocicorp/zero';
 import { ZeroProvider } from '@rocicorp/zero/react';
 import React, { useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Spinner } from '@/components/ui/spinner';
 
 // Zero environment variables
 const ZERO_CACHE_URL = import.meta.env.VITE_ZERO_CACHE_URL;
@@ -16,15 +16,17 @@ if (!ZERO_CACHE_URL || !ZERO_QUERY_URL || !ZERO_MUTATE_URL) {
   throw new Error('Add your Zero URLs to the .env file');
 }
 
+const ZERO_ANONYMOUS_USER_ID_KEY = 'zero-anonymous-user-id';
+
 /**
  * Get or create an anonymous user ID for unauthenticated users.
  * This is stored in localStorage to persist across page loads.
  */
 function getAnonymousUserID(): string {
-  let userID = localStorage.getItem('zero-anonymous-user-id');
+  let userID = localStorage.getItem(ZERO_ANONYMOUS_USER_ID_KEY);
   if (!userID) {
     userID = uuidv4();
-    localStorage.setItem('zero-anonymous-user-id', userID);
+    localStorage.setItem(ZERO_ANONYMOUS_USER_ID_KEY, userID);
   }
   return userID;
 }
