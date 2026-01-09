@@ -1,5 +1,4 @@
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { AuthProvider } from '@/context/AuthContext';
 import { FeatureFlagProvider } from '@/context/FeatureFlagProvider';
 import { AuthenticatedZeroProvider } from '@/context/ZeroProvider';
 import '@/index.css';
@@ -62,9 +61,7 @@ root.render(
             <BrowserRouter>
               <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
                 <AuthenticatedZeroProvider>
-                  <AuthProvider>
-                    <App />
-                  </AuthProvider>
+                  <App />
                 </AuthenticatedZeroProvider>
               </ClerkProvider>
             </BrowserRouter>

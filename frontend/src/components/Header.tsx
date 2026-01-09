@@ -1,5 +1,4 @@
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useAuth } from '@/context/AuthContext';
 import receiptService from '@/services/receiptService';
 import {
   SignInButton,
@@ -15,7 +14,6 @@ export default function Header() {
   const [apiStatus, setApiStatus] = useState<
     'checking' | 'healthy' | 'unhealthy'
   >('checking');
-  // const { isAuthenticated, loading } = useAuth();
 
   // Check API health on component mount
   useEffect(() => {
