@@ -3,6 +3,7 @@ import os
 import sqlite3
 from pathlib import Path
 
+from clerk_backend_api import Clerk
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
@@ -91,6 +92,9 @@ def create_app():
             "CLERK_SECRET_KEY environment variable is required for Clerk authentication"
         )
     app.config["CLERK_SECRET_KEY"] = clerk_secret_key
+
+    # Initialize Clerk SDK instance and cache it in app config
+    app.config["CLERK_SDK"] = Clerk(bearer_auth=clerk_secret_key)
 
     clerk_webhook_secret = os.environ.get("CLERK_WEBHOOK_SECRET")
     if not clerk_webhook_secret:

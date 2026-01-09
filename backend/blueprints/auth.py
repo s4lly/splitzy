@@ -1,4 +1,3 @@
-from clerk_backend_api import Clerk
 from clerk_backend_api.security.types import AuthenticateRequestOptions
 from flask import current_app, request
 
@@ -11,14 +10,11 @@ def get_current_user():
     Returns the User object if authenticated, None otherwise.
     """
     try:
-        # Get Clerk secret key from app config (validated at startup)
-        clerk_secret_key = current_app.config["CLERK_SECRET_KEY"]
-
         # Get authorized parties precomputed at app startup
         authorized_parties = current_app.config["AUTHORIZED_PARTIES"]
 
-        # Authenticate the request using Clerk
-        sdk = Clerk(bearer_auth=clerk_secret_key)
+        # Get cached Clerk SDK instance from app config
+        sdk = current_app.config["CLERK_SDK"]
         try:
             request_state = sdk.authenticate_request(
                 request,
