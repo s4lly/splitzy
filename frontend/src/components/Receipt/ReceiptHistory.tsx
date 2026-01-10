@@ -6,12 +6,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import type { ReceiptHistoryItem } from '@/lib/receiptTypes';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Clock, Eye, Receipt, Store } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ReceiptHistorySkeleton from './ReceiptHistorySkeleton';
 
 interface ReceiptHistoryProps {
   receipts: ReceiptHistoryItem[];
@@ -26,28 +26,7 @@ const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
   };
 
   if (loading) {
-    return (
-      <Card className="w-full shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Receipt className="h-5 w-5" />
-            Receipt History
-          </CardTitle>
-          <CardDescription>Your previously analyzed receipts</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="mb-4">
-              <Skeleton className="mb-2 h-24 w-full rounded-md" />
-              <div className="flex justify-between">
-                <Skeleton className="h-8 w-24 rounded-md" />
-                <Skeleton className="h-8 w-16 rounded-md" />
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    );
+    return <ReceiptHistorySkeleton />;
   }
 
   return (

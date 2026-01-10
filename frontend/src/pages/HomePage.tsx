@@ -1,19 +1,12 @@
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
 import { SignInPromptCard } from '@/features/auth/SignInPromptCard';
 import { ReceiptUploader } from '@/features/receipt-upload';
 import { useUserReceiptsQuery } from '@/hooks/useUserReceiptsQuery';
 import receiptService from '@/services/receiptService';
 import { SignedIn, SignedOut } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
-import { AlertCircle, Receipt } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import React, { Suspense, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,34 +17,6 @@ import { useNavigate } from 'react-router-dom';
 const ReceiptHistorySection = () => {
   const { receipts } = useUserReceiptsQuery();
   return <ReceiptHistory receipts={receipts} loading={false} />;
-};
-
-/**
- * Loading fallback for Suspense boundary
- */
-const ReceiptHistoryLoadingFallback = () => {
-  return (
-    <Card className="w-full shadow-sm">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Receipt className="h-5 w-5" />
-          Receipt History
-        </CardTitle>
-        <CardDescription>Your previously analyzed receipts</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="mb-4">
-            <Skeleton className="mb-2 h-24 w-full rounded-md" />
-            <div className="flex justify-between">
-              <Skeleton className="h-8 w-24 rounded-md" />
-              <Skeleton className="h-8 w-16 rounded-md" />
-            </div>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
-  );
 };
 
 const HomePage = () => {
@@ -109,7 +74,7 @@ const HomePage = () => {
         </motion.div>
 
         <SignedIn>
-          <Suspense fallback={<ReceiptHistoryLoadingFallback />}>
+          <Suspense fallback={<ReceiptHistorySkeleton />}>
             <ReceiptHistorySection />
           </Suspense>
         </SignedIn>
