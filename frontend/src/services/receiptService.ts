@@ -1,8 +1,8 @@
-import axios from 'axios';
 import {
   ReceiptResponseSchema,
   UserReceiptsResponseSchema,
-} from '../lib/receiptSchemas';
+} from '@/lib/receiptSchemas';
+import axios from 'axios';
 
 const API_URL =
   import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';

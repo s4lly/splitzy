@@ -1,17 +1,17 @@
-import type { ReceiptHistoryItem } from '@/lib/receiptTypes';
-import { formatDistanceToNow } from 'date-fns';
-import { motion } from 'framer-motion';
-import { Clock, Eye, Receipt, Store } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../ui/card';
-import { Skeleton } from '../ui/skeleton';
+} from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { ReceiptHistoryItem } from '@/lib/receiptTypes';
+import { formatDistanceToNow } from 'date-fns';
+import { motion } from 'framer-motion';
+import { Clock, Eye, Receipt, Store } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ReceiptHistoryProps {
   receipts: ReceiptHistoryItem[];
