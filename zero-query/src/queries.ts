@@ -11,7 +11,6 @@ export const queries = defineQueries({
           zql.users
             .where("auth_user_id", authUserId)
             .related("receipts", (q) => q.orderBy("created_at", "desc"))
-            .related("receipts")
             .one()
       ),
     },
