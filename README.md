@@ -120,6 +120,27 @@ docker-compose down -v        # Stop and delete all data
 docker-compose logs -f        # Follow logs
 ```
 
+**Updating a single service:**
+
+To update one service without restarting the others (e.g., after making changes to `zero-query`):
+
+```bash
+# Rebuild and restart a single service
+docker-compose up -d --build zero-query-local
+
+# Just restart without rebuilding
+docker-compose up -d zero-query-local
+
+# Force recreate even if nothing changed
+docker-compose up -d --force-recreate zero-query-local
+
+# Clean rebuild (no cache)
+docker-compose build --no-cache zero-query-local
+docker-compose up -d zero-query-local
+```
+
+This works for any service: `db-splitzy-local`, `zero-query-local`, or `zero-cache-local`. Dependent services will automatically reconnect after the updated service becomes healthy.
+
 ### Backend Setup
 
 1. Clone the repository:
@@ -188,27 +209,6 @@ docker-compose logs -f        # Follow logs
    npm run dev
    ```
    The frontend will start at http://localhost:5173
-
-## API Endpoints
-
-### Authentication
-
-- `POST /api/register`: Register a new user
-- `POST /api/login`: Login a user
-- `POST /api/logout`: Logout the current user
-- `GET /api/user`: Get the current user information
-
-### Receipt Management
-
-- `POST /api/analyze-receipt`: Upload and analyze a receipt
-- `GET /api/user/receipts`: Get all receipts for the current user
-- `GET /api/user/receipts/<receipt_id>`: Get a specific receipt
-- `DELETE /api/user/receipts/<receipt_id>`: Delete a specific receipt
-- `GET /api/user/receipts/<receipt_id>/image`: Get the image for a specific receipt
-
-### System
-
-- `GET /api/health`: Check if the API is healthy
 
 ## Usage
 

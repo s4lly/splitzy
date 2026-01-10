@@ -39,3 +39,16 @@ export const ReceiptResponseSchema = z.object({
   receipt: ReceiptSchema,
   success: z.boolean(),
 });
+
+// Schema for receipt items in the history list endpoint
+export const ReceiptHistoryItemAPISchema = z.object({
+  id: z.number(),
+  receipt_data: ReceiptDataSchema.partial().nullable(), // Allow partial fields and null
+  image_path: z.string().nullable(),
+  created_at: z.string(),
+});
+
+export const UserReceiptsResponseSchema = z.object({
+  success: z.boolean(),
+  receipts: z.array(ReceiptHistoryItemAPISchema),
+});

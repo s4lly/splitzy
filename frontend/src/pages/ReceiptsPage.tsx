@@ -1,15 +1,35 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { SignInButton, SignedIn, SignedOut } from '@clerk/clerk-react';
+import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
+import { SignInPromptCard } from '@/features/auth/SignInPromptCard';
+import { fromZeroReceipt } from '@/lib/receiptTypes';
+import { queries } from '@/zero/queries';
+import { SignedIn, SignedOut, useAuth } from '@clerk/clerk-react';
+import { useQuery } from '@rocicorp/zero/react';
 import { motion } from 'framer-motion';
-import { LogIn } from 'lucide-react';
+import { useMemo } from 'react';
 
 const ReceiptsPage = () => {
+  const { userId } = useAuth();
+
+  const isValidUserId = userId != null && userId.trim().length > 0;
+
+  const [user, details] = useQuery(
+    queries.users.receipts.byAuthUserId({
+      authUserId: isValidUserId ? userId : '',
+    }),
+    { enabled: isValidUserId }
+  );
+
+  // Transform Zero Query receipts to ReceiptHistoryItem format
+  const transformedReceipts = useMemo(() => {
+    if (!user?.receipts) {
+      return [];
+    }
+
+    return user.receipts.map(fromZeroReceipt);
+  }, [user]);
+
+  const isLoading = details.type === 'unknown';
+
   return (
     <div className="px-1 py-8 sm:container">
       <SignedIn>
@@ -18,7 +38,7 @@ const ReceiptsPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          TODO
+          <ReceiptHistory receipts={transformedReceipts} loading={isLoading} />
         </motion.div>
       </SignedIn>
 
@@ -26,26 +46,9 @@ const ReceiptsPage = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="flex min-h-[60vh] items-center justify-center"
+          transition={{ duration: 0.3, delay: 0.3 }}
         >
-          <Card className="w-full max-w-md border-2 border-dashed border-muted-foreground/30">
-            <CardHeader className="text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                <LogIn className="h-6 w-6 text-primary" />
-              </div>
-              <CardTitle className="text-xl">
-                Sign in to view receipts
-              </CardTitle>
-              <CardDescription>
-                Create an account or sign in to see your receipt analysis
-                history and manage your documents.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center">
-              <SignInButton />
-            </CardContent>
-          </Card>
+          <SignInPromptCard />
         </motion.div>
       </SignedOut>
     </div>
