@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 import HomePage from '@/pages/HomePage';
 import ReceiptAnalysisPage from '@/pages/ReceiptAnalysisPage';
 import ReceiptCollabPage from '@/pages/ReceiptCollabPage';
+import ReceiptsPage from '@/pages/ReceiptsPage';
 import SettingsPage from '@/pages/SettingsPage';
 import { Loader2 } from 'lucide-react';
 import { useFeatureFlagEnabled } from 'posthog-js/react';
@@ -66,7 +67,12 @@ function App() {
           {/* Home */}
           <Route path="/" element={<HomePage />} />
 
-          {/* Receipt */}
+          {/* Receipts list */}
+          <Route path="/receipts" element={<ReceiptsPage />} />
+
+          {/* Receipt - RESTful plural form */}
+          <Route path="/receipts/:receiptId" element={<ReceiptRoute />} />
+          {/* Receipt - legacy singular form (backward compatibility) */}
           <Route path="/receipt/:receiptId" element={<ReceiptRoute />} />
 
           {/* Settings (protected) */}
