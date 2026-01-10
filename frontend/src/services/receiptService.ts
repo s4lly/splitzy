@@ -1,5 +1,8 @@
+import {
+  ReceiptResponseSchema,
+  UserReceiptsResponseSchema,
+} from '@/lib/receiptSchemas';
 import axios from 'axios';
-import { ReceiptResponseSchema } from '../lib/receiptSchemas';
 
 const API_URL =
   import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -108,18 +111,44 @@ const receiptService = {
 
   /**
    * Get the receipt history for the current user
+   * @param {Object} options - Optional configuration object
+   * @param {string} options.token - Optional authentication token
    * @returns {Promise} - A promise that resolves to the user's receipt history
    */
-  getUserReceiptHistory: async () => {
+  getUserReceiptHistory: async (options?: { token?: string }) => {
     try {
       // Try to fetch from the server first
       try {
-        const response = await axios.get(`${API_URL}/user/receipts`);
-        return response.data;
+        // Only include Authorization header when token is present
+        const headers: Record<string, string> = options?.token
+          ? { Authorization: `Bearer ${options.token}` }
+          : {};
+
+        const response = await axios.get(`${API_URL}/user/receipts`, {
+          headers,
+        });
+
+        // Zod validation
+        const parsed = UserReceiptsResponseSchema.safeParse(response.data);
+
+        if (!parsed.success) {
+          console.error('Invalid receipt history response:', parsed.error);
+          throw new Error('Invalid receipt history response from server');
+        }
+
+        return parsed.data;
       } catch (serverError) {
+        // If it's a validation error, re-throw it
+        if (
+          serverError instanceof Error &&
+          serverError.message.includes('Invalid')
+        ) {
+          throw serverError;
+        }
         console.log('Server endpoint not available, using mock data');
 
         // If server endpoint is not available, return mock data
+        // Note: Mock data should also be validated, but for now we'll return as-is
         return {
           success: true,
           receipts: getMockReceipts(),

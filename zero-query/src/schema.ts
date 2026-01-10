@@ -10,6 +10,17 @@ import {
   type Row,
 } from "@rocicorp/zero";
 
+const user = table("users")
+  .columns({
+    id: number(),
+    auth_user_id: string(),
+    username: string().optional(),
+    email: string().optional(),
+    created_at: number(),
+    deleted_at: number().optional(),
+  })
+  .primaryKey("id");
+
 const userReceipt = table("user_receipts")
   .columns({
     id: number(),
@@ -60,13 +71,29 @@ const receiptLineItem = table("receipt_line_items")
 
 // ----
 
-const userReceiptRelationships = relationships(userReceipt, ({ many }) => ({
-  line_items: many({
+const userRelationships = relationships(user, ({ many }) => ({
+  receipts: many({
     sourceField: ["id"],
-    destSchema: receiptLineItem,
-    destField: ["receipt_id"],
+    destSchema: userReceipt,
+    destField: ["user_id"],
   }),
 }));
+
+const userReceiptRelationships = relationships(
+  userReceipt,
+  ({ one, many }) => ({
+    user: one({
+      sourceField: ["user_id"],
+      destField: ["id"],
+      destSchema: user,
+    }),
+    line_items: many({
+      sourceField: ["id"],
+      destSchema: receiptLineItem,
+      destField: ["receipt_id"],
+    }),
+  })
+);
 
 const receiptLineItemRelationships = relationships(
   receiptLineItem,
@@ -82,14 +109,19 @@ const receiptLineItemRelationships = relationships(
 // ----
 
 export const schema = createSchema({
-  tables: [userReceipt, receiptLineItem],
-  relationships: [userReceiptRelationships, receiptLineItemRelationships],
+  tables: [user, userReceipt, receiptLineItem],
+  relationships: [
+    userRelationships,
+    userReceiptRelationships,
+    receiptLineItemRelationships,
+  ],
 });
 
 export const zql = createBuilder(schema);
 
 // ----
 
+export type User = Row<typeof schema.tables.users>;
 export type UserReceipt = Row<typeof schema.tables.user_receipts>;
 export type ReceiptLineItem = Row<typeof schema.tables.receipt_line_items>;
 

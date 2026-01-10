@@ -1,21 +1,23 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
+import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
+import { SignInPromptCard } from '@/features/auth/SignInPromptCard';
 import { ReceiptUploader } from '@/features/receipt-upload';
+import { useUserReceiptsQuery } from '@/hooks/useUserReceiptsQuery';
 import receiptService from '@/services/receiptService';
-import { SignInButton, SignedIn, SignedOut } from '@clerk/clerk-react';
+import { SignedIn, SignedOut } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
-import { AlertCircle, LogIn } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import React, { Suspense, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const ReceiptHistory = React.lazy(
-  () => import('@/components/Receipt/ReceiptHistory')
-);
+/**
+ * Wrapper component that uses the receipt query hook
+ * Must be inside a Suspense boundary when using useSuspenseQuery
+ */
+const ReceiptHistorySection = () => {
+  const { receipts } = useUserReceiptsQuery();
+  return <ReceiptHistory receipts={receipts} loading={false} />;
+};
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -71,36 +73,19 @@ const HomePage = () => {
           )}
         </motion.div>
 
-        <Suspense fallback={null}>
-          <SignedIn>
-            <ReceiptHistory />
-          </SignedIn>
-        </Suspense>
+        <SignedIn>
+          <Suspense fallback={<ReceiptHistorySkeleton />}>
+            <ReceiptHistorySection />
+          </Suspense>
+        </SignedIn>
 
         <SignedOut>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-            className="space-y-8"
+            transition={{ duration: 0.3, delay: 0.3 }}
           >
-            <Card className="border-2 border-dashed border-muted-foreground/30">
-              <CardHeader className="text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                  <LogIn className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="text-xl">
-                  Sign in to view history
-                </CardTitle>
-                <CardDescription>
-                  Create an account or sign in to see your receipt analysis
-                  history and manage your documents.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <SignInButton />
-              </CardContent>
-            </Card>
+            <SignInPromptCard className="space-y-8" />
           </motion.div>
         </SignedOut>
       </div>

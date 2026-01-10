@@ -66,7 +66,15 @@ export default function Header() {
             <SignInButton />
           </SignedOut>
           <SignedIn>
-            <UserButton />
+            <UserButton>
+              <UserButton.MenuItems>
+                <UserButton.Link
+                  href="/receipts"
+                  label="My Receipts"
+                  labelIcon={<Receipt className="h-4 w-4" />}
+                />
+              </UserButton.MenuItems>
+            </UserButton>
           </SignedIn>
 
           {/* ---- Theme Toggle ---- */}
