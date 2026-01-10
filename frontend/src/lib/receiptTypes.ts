@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import type { UserReceipt } from '@/zero/schema';
+import { z } from 'zod';
 
 /**
  * Shared schema for receipt history items displayed in the UI
@@ -9,8 +9,8 @@ export const ReceiptHistoryItemSchema = z.object({
   id: z.number(),
   merchant: z.string().nullable(),
   total: z.number().nullable(),
-  date: z.string().nullable(),
-  created_at: z.string(), // ISO date string
+  date: z.date().nullable(),
+  created_at: z.date(),
 });
 
 export type ReceiptHistoryItem = z.infer<typeof ReceiptHistoryItemSchema>;
@@ -24,8 +24,8 @@ export function fromZeroReceipt(receipt: UserReceipt): ReceiptHistoryItem {
     id: receipt.id,
     merchant: receipt.merchant ?? null,
     total: receipt.total ?? null,
-    date: receipt.date ? new Date(receipt.date).toISOString().split('T')[0] : null,
-    created_at: new Date(receipt.created_at).toISOString(),
+    date: receipt.date ? new Date(receipt.date) : null,
+    created_at: new Date(receipt.created_at),
   };
 }
 
@@ -46,7 +46,9 @@ export function fromLegacyReceipt(receipt: {
     id: receipt.id,
     merchant: receipt.receipt_data?.merchant ?? null,
     total: receipt.receipt_data?.total ?? null,
-    date: receipt.receipt_data?.date ?? null,
-    created_at: receipt.created_at,
+    date: receipt.receipt_data?.date
+      ? new Date(receipt.receipt_data.date)
+      : null,
+    created_at: new Date(receipt.created_at),
   };
 }

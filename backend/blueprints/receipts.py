@@ -276,8 +276,8 @@ def get_user_receipts():
     """Get all receipts for the current user"""
     # Check if user is authenticated
     current_user = get_current_user()
-    # if not current_user:
-    #     return jsonify({"success": False, "error": "Authentication required"}), 401
+    if not current_user:
+        return jsonify({"success": False, "error": "Authentication required"}), 401
 
     try:
         user_receipts = (

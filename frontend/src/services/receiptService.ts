@@ -111,13 +111,22 @@ const receiptService = {
 
   /**
    * Get the receipt history for the current user
+   * @param {Object} options - Optional configuration object
+   * @param {string} options.token - Optional authentication token
    * @returns {Promise} - A promise that resolves to the user's receipt history
    */
-  getUserReceiptHistory: async () => {
+  getUserReceiptHistory: async (options?: { token?: string }) => {
     try {
       // Try to fetch from the server first
       try {
-        const response = await axios.get(`${API_URL}/user/receipts`);
+        // Only include Authorization header when token is present
+        const headers: Record<string, string> = options?.token
+          ? { Authorization: `Bearer ${options.token}` }
+          : {};
+
+        const response = await axios.get(`${API_URL}/user/receipts`, {
+          headers,
+        });
 
         // Zod validation
         const parsed = UserReceiptsResponseSchema.safeParse(response.data);

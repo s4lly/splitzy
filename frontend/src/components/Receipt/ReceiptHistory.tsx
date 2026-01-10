@@ -84,13 +84,17 @@ const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
                     </h3>
                     <p className="text-sm text-muted-foreground">
                       ${receipt.total?.toFixed(2) || '0.00'} •{' '}
-                      {receipt.date || 'Unknown date'}
+                      {receipt.date
+                        ? new Intl.DateTimeFormat('en-US', {
+                            dateStyle: 'medium',
+                          }).format(receipt.date)
+                        : 'Unknown date'}
                     </p>
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Clock className="mr-1 h-3 w-3" />
                     {receipt.created_at
-                      ? formatDistanceToNow(new Date(receipt.created_at), {
+                      ? formatDistanceToNow(receipt.created_at, {
                           addSuffix: true,
                         })
                       : 'Unknown'}
