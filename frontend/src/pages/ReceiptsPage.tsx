@@ -26,7 +26,7 @@ const ReceiptsPage = () => {
     }
 
     return user.receipts.map(fromZeroReceipt);
-  }, [user]);
+  }, [user?.receipts]);
 
   const isLoading = details.type === 'unknown';
 
