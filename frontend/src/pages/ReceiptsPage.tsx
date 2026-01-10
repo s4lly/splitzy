@@ -19,6 +19,20 @@ const ReceiptsPage = () => {
     { enabled: isValidUserId }
   );
 
+  // Handle query errors (e.g., user not found)
+  if (details.type === 'error') {
+    return (
+      <div className="px-1 py-8 sm:container">
+        <Card className="p-6">
+          <p className="text-destructive">Unable to load receipt history. Please try again later.</p>
+        </Card>
+      </div>
+    );
+  }
+
+  // Transform Zero Query receipts to ReceiptHistoryItem format
+  const transformedReceipts = useMemo(() => {
+
   // Transform Zero Query receipts to ReceiptHistoryItem format
   const transformedReceipts = useMemo(() => {
     if (!user?.receipts) {
