@@ -1,4 +1,5 @@
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
+import { Card } from '@/components/ui/card';
 import { SignInPromptCard } from '@/features/auth/SignInPromptCard';
 import { fromZeroReceipt } from '@/lib/receiptTypes';
 import { queries } from '@/zero/queries';
@@ -24,14 +25,13 @@ const ReceiptsPage = () => {
     return (
       <div className="px-1 py-8 sm:container">
         <Card className="p-6">
-          <p className="text-destructive">Unable to load receipt history. Please try again later.</p>
+          <p className="text-destructive">
+            Unable to load receipt history. Please try again later.
+          </p>
         </Card>
       </div>
     );
   }
-
-  // Transform Zero Query receipts to ReceiptHistoryItem format
-  const transformedReceipts = useMemo(() => {
 
   // Transform Zero Query receipts to ReceiptHistoryItem format
   const transformedReceipts = useMemo(() => {
