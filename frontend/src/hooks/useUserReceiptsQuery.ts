@@ -5,19 +5,22 @@ import { useAuth } from '@clerk/clerk-react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
 /**
- * Query key for user receipts
+ * Query key factory for user receipts
+ * @param userId - The user identifier to include in the query key
+ * @returns The query key array with user identifier
  */
-export const userReceiptsQueryKey = ['user-receipts'] as const;
+export const getUserReceiptsQueryKey = (userId?: string) =>
+  ['user-receipts', userId] as const;
 
 /**
  * Hook to fetch user receipt history using TanStack Query with Suspense
  * This hook should only be used inside a Suspense boundary
  */
 export function useUserReceiptsQuery() {
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
 
   const { data } = useSuspenseQuery({
-    queryKey: userReceiptsQueryKey,
+    queryKey: getUserReceiptsQueryKey(userId ?? undefined),
     queryFn: async () => {
       let token: string | null = null;
       try {
