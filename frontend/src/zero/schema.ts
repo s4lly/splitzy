@@ -26,6 +26,7 @@ const userReceipt = table('user_receipts')
     id: number(),
     user_id: number().optional(),
     image_path: string().optional(),
+    image_visibility: string().optional(), // 'public' | 'owner_only'
     created_at: number(),
     is_receipt: boolean().optional(),
     document_type: string().optional(),

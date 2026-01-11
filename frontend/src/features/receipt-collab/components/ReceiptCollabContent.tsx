@@ -7,6 +7,7 @@ import { LineItemAddFormAdapter } from '@/features/line-items/adapters/zero/Line
 import { LineItemsTableDesktopAdapter } from '@/features/line-items/adapters/zero/LineItemsTableDesktopAdapter';
 import { LineItemsTableMobileAdapter } from '@/features/line-items/adapters/zero/LineItemsTableMobileAdapter';
 import { NoLineItemsMessage } from '@/features/line-items/components/NoLineItemsMessage';
+import { useReceiptContext } from '@/context/ReceiptContext';
 import {
   peopleAtom,
   receiptAtom,
@@ -32,6 +33,7 @@ export const ReceiptCollabContent = () => {
   // Sync receipt from Context into Jotai atoms
   useReceiptSync();
 
+  const { receipt: receiptRaw } = useReceiptContext();
   const isMobile = useMobile();
   const [isAddingItem, setIsAddingItem] = useState(false);
   const receipt = useAtomValue(receiptAtom);
@@ -59,6 +61,9 @@ export const ReceiptCollabContent = () => {
           <ReceiptImageViewer
             imageUrl={receipt.imagePath}
             fileName={generateImageFileName(receipt)}
+            receiptId={receipt.id}
+            imageVisibility={receiptRaw?.image_visibility}
+            ownerAuthUserId={receiptRaw?.user?.auth_user_id ?? null}
           />
 
           <ReceiptDetailsCard merchant={receipt.merchant} date={receipt.date} />

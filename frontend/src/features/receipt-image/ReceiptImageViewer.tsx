@@ -1,23 +1,50 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { useAuth } from '@clerk/clerk-react';
 import { animated, useSpring } from '@react-spring/web';
-import { Download, Image as ImageIcon, Undo } from 'lucide-react';
+import { Download, Image as ImageIcon, Settings, Undo } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { ImageSettingsDialog } from './components/ImageSettingsDialog';
 import { useImageGestures } from './hooks/useImageGestures';
 import { downloadImage } from './utils/downloadImage';
 
 interface ReceiptImageViewerProps {
   imageUrl: string | null;
   fileName?: string;
+  receiptId?: number;
+  imageVisibility?: string | null;
+  ownerAuthUserId?: string | null;
 }
 
 export const ReceiptImageViewer = ({
   imageUrl,
   fileName = 'receipt',
+  receiptId,
+  imageVisibility,
+  ownerAuthUserId,
 }: ReceiptImageViewerProps) => {
   const { ref, style, resetImage } = useImageGestures();
   const [imageError, setImageError] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { userId } = useAuth();
+
+  // Check if current user is the owner
+  const isOwner =
+    ownerAuthUserId !== null &&
+    ownerAuthUserId !== undefined &&
+    userId === ownerAuthUserId;
+
+  // Determine if image should be shown
+  const shouldShowImage = imageVisibility !== 'owner_only' || isOwner;
+
+  // debugger;
 
   // Mount animation using react-spring
   const mountAnimation = useSpring({
@@ -57,20 +84,41 @@ export const ReceiptImageViewer = ({
             <ImageIcon className="h-5 w-5 text-primary" />
             Receipt Image
           </CardTitle>
-          {imageUrl && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={handleDownloadImage}
-            >
-              <Download className="mr-1 h-4 w-4" />
-              Download
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {isOwner && receiptId && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => setSettingsOpen(true)}
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Image Settings</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            {imageUrl && shouldShowImage && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8"
+                onClick={handleDownloadImage}
+              >
+                <Download className="mr-1 h-4 w-4" />
+                Download
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="p-0">
-          {imageUrl ? (
+          {imageUrl && shouldShowImage ? (
             <div className="relative overflow-hidden bg-muted/40">
               {imageError ? (
                 <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
@@ -119,6 +167,14 @@ export const ReceiptImageViewer = ({
                 </div>
               )}
             </div>
+          ) : imageUrl && !shouldShowImage ? (
+            <div className="flex flex-col items-center justify-center bg-muted/30 px-4 py-16 text-center">
+              <ImageIcon className="mb-4 h-16 w-16 text-muted-foreground/40" />
+              <p className="text-muted-foreground">Image hidden by owner</p>
+              <p className="mt-2 text-sm text-muted-foreground/70">
+                The receipt image is only visible to the owner
+              </p>
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center bg-muted/30 px-4 py-16 text-center">
               <ImageIcon className="mb-4 h-16 w-16 text-muted-foreground/40" />
@@ -133,6 +189,14 @@ export const ReceiptImageViewer = ({
           )}
         </CardContent>
       </Card>
+      {isOwner && receiptId && (
+        <ImageSettingsDialog
+          open={settingsOpen}
+          onOpenChange={setSettingsOpen}
+          receiptId={receiptId}
+          imageVisibility={imageVisibility}
+        />
+      )}
     </animated.div>
   );
 };

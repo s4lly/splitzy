@@ -17,7 +17,10 @@ export const queries = defineQueries({
   },
   receipts: {
     byId: defineQuery(z.object({ id: z.number() }), ({ args: { id } }) =>
-      zql.user_receipts.where("id", id).related("line_items")
+      zql.user_receipts
+        .where("id", id)
+        .related("line_items")
+        .related("user")
     ),
   },
 });
