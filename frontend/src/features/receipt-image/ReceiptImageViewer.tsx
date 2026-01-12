@@ -85,6 +85,17 @@ export const ReceiptImageViewer = ({
             Receipt Image
           </CardTitle>
           <div className="flex items-center gap-2">
+            {imageUrl && shouldShowImage && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8"
+                onClick={handleDownloadImage}
+              >
+                <Download className="mr-1 h-4 w-4" />
+                Download
+              </Button>
+            )}
             {isOwner && receiptId && (
               <TooltipProvider>
                 <Tooltip>
@@ -103,17 +114,6 @@ export const ReceiptImageViewer = ({
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            )}
-            {imageUrl && shouldShowImage && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8"
-                onClick={handleDownloadImage}
-              >
-                <Download className="mr-1 h-4 w-4" />
-                Download
-              </Button>
             )}
           </div>
         </CardHeader>

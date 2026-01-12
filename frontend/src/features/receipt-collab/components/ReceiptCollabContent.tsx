@@ -2,12 +2,12 @@ import LineItemCard from '@/components/Receipt/components/LineItemCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useReceiptContext } from '@/context/ReceiptContext';
 import { BillSplitSectionCollab } from '@/features/bill-split/BillSplitSectionCollab';
 import { LineItemAddFormAdapter } from '@/features/line-items/adapters/zero/LineItemAddFormAdapter';
 import { LineItemsTableDesktopAdapter } from '@/features/line-items/adapters/zero/LineItemsTableDesktopAdapter';
 import { LineItemsTableMobileAdapter } from '@/features/line-items/adapters/zero/LineItemsTableMobileAdapter';
 import { NoLineItemsMessage } from '@/features/line-items/components/NoLineItemsMessage';
-import { useReceiptContext } from '@/context/ReceiptContext';
 import {
   peopleAtom,
   receiptAtom,
