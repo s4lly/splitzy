@@ -124,6 +124,53 @@ The script will:
 2. Ask for confirmation before proceeding
 3. Only execute if you confirm with "yes"
 
+#### `setup-local-db.sh`
+
+Sets up the local development environment with PostgreSQL and Zero services. Optionally restores the database from a dump file.
+
+**What it does:**
+
+- Starts the PostgreSQL container
+- Waits for PostgreSQL to be ready
+- Optionally restores the database from a dump file (if provided)
+- Starts zero-query and zero-cache services
+
+**Usage:**
+
+From project root:
+
+```bash
+./backend/scripts/setup-local-db.sh
+# or
+backend/scripts/setup-local-db.sh
+
+# With database restore:
+./backend/scripts/setup-local-db.sh mydumpfile.bak
+# or
+backend/scripts/setup-local-db.sh mydumpfile.bak
+```
+
+From backend directory:
+
+```bash
+./scripts/setup-local-db.sh
+# or
+scripts/setup-local-db.sh
+
+# With database restore:
+./scripts/setup-local-db.sh mydumpfile.bak
+# or
+scripts/setup-local-db.sh mydumpfile.bak
+```
+
+The script will:
+
+1. Display what actions will be performed
+2. Ask for confirmation before proceeding
+3. Only execute if you confirm with "yes"
+
+**Note:** If you provide a dump file path, it can be relative to the project root or an absolute path.
+
 ## Testing
 
 ```bash

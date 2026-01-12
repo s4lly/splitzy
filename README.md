@@ -93,10 +93,10 @@ For working on Zero sync features or testing with a fresh database, run the comp
 
 ```bash
 # First-time setup (with database restore from a dump file)
-./scripts/setup-local-db.sh mydumpfile.bak
+./backend/scripts/setup-local-db.sh mydumpfile.bak
 
 # Or start fresh without restoring data
-./scripts/setup-local-db.sh
+./backend/scripts/setup-local-db.sh
 ```
 
 This starts:

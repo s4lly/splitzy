@@ -8,8 +8,8 @@
 #   docker-compose logs -f      # Follow logs
 #
 # First-Time Setup (with database restore):
-#   ./scripts/setup-local-db.sh                 # Start without restore
-#   ./scripts/setup-local-db.sh mydumpfile.bak  # Restore dump, then start
+#   ./backend/scripts/setup-local-db.sh                 # Start without restore
+#   ./backend/scripts/setup-local-db.sh mydumpfile.bak  # Restore dump, then start
 #
 # Services:
 #   - db-splitzy-local:    PostgreSQL database (localhost:5432)
