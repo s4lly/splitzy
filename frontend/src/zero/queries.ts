@@ -15,12 +15,14 @@ export const queries = defineQueries({
       ),
     },
   },
+  user: {
+    byId: defineQuery(z.object({ id: z.number() }), ({ args: { id } }) =>
+      zql.users.where('id', id).one()
+    ),
+  },
   receipts: {
     byId: defineQuery(z.object({ id: z.number() }), ({ args: { id } }) =>
-      zql.user_receipts
-        .where('id', id)
-        .related('line_items')
-        .related('user')
+      zql.user_receipts.where('id', id).related('line_items').related('user')
     ),
   },
 });
