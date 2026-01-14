@@ -3,22 +3,13 @@ import { Card } from '@/components/ui/card';
 import { SignInPromptCard } from '@/features/auth/SignInPromptCard';
 import { fromZeroReceipt } from '@/lib/receiptTypes';
 import { queries } from '@/zero/queries';
-import { SignedIn, SignedOut, useAuth } from '@clerk/clerk-react';
+import { SignedIn, SignedOut } from '@clerk/clerk-react';
 import { useQuery } from '@rocicorp/zero/react';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 
 const ReceiptsPage = () => {
-  const { userId } = useAuth();
-
-  const isValidUserId = userId != null && userId.trim().length > 0;
-
-  const [user, details] = useQuery(
-    queries.users.receipts.byAuthUserId({
-      authUserId: isValidUserId ? userId : '',
-    }),
-    { enabled: isValidUserId }
-  );
+  const [user, details] = useQuery(queries.users.receipts.byAuthUserId({}));
 
   // Handle query errors (e.g., user not found)
   if (details.type === 'error') {

@@ -6,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import type { Receipt } from '@/models/Receipt';
 import { useAuth } from '@clerk/clerk-react';
 import { animated, useSpring } from '@react-spring/web';
 import { Download, Image as ImageIcon, Settings, Undo } from 'lucide-react';
@@ -14,32 +15,28 @@ import { toast } from 'sonner';
 import { ImageSettingsDialog } from './components/ImageSettingsDialog';
 import { useImageGestures } from './hooks/useImageGestures';
 import { downloadImage } from './utils/downloadImage';
+import { generateImageFileName } from './utils/generateImageFileName';
 
 interface ReceiptImageViewerProps {
-  imageUrl: string | null;
-  fileName?: string;
-  receiptId?: number;
-  imageVisibility?: string | null;
-  ownerAuthUserId?: string | null;
+  receipt: Receipt;
 }
 
-export const ReceiptImageViewer = ({
-  imageUrl,
-  fileName = 'receipt',
-  receiptId,
-  imageVisibility,
-  ownerAuthUserId,
-}: ReceiptImageViewerProps) => {
+export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
   const { ref, style, resetImage } = useImageGestures();
   const [imageError, setImageError] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { userId } = useAuth();
 
+  const imageUrl = receipt.imagePath;
+  const fileName = generateImageFileName(receipt);
+  const receiptId = receipt.id;
+  const imageVisibility = receipt.imageVisibility;
+
   // Check if current user is the owner
   const isOwner =
-    ownerAuthUserId !== null &&
-    ownerAuthUserId !== undefined &&
-    userId === ownerAuthUserId;
+    receipt.authUserId !== null &&
+    receipt.authUserId !== undefined &&
+    userId === receipt.authUserId;
 
   // Determine if image should be shown
   const shouldShowImage = imageVisibility !== 'owner_only' || isOwner;

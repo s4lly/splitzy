@@ -137,6 +137,6 @@ export type AuthData = {
 declare module '@rocicorp/zero' {
   interface DefaultTypes {
     schema: Schema;
-    authData: AuthData;
+    context: AuthData;
   }
 }

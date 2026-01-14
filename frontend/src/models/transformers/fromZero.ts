@@ -34,6 +34,10 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
     id: zeroReceipt.id,
     createdAt,
     imagePath: zeroReceipt.image_path ?? null,
+    imageVisibility: (zeroReceipt.image_visibility ?? 'public') as
+      | 'public'
+      | 'owner_only',
+    authUserId: zeroReceipt.user?.auth_user_id ?? null,
 
     // Core receipt data
     merchant: zeroReceipt.merchant ?? null,

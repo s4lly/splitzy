@@ -2,7 +2,6 @@ import ReceiptAnalysisDisplay from '@/components/Receipt/ReceiptAnalysisDisplay'
 import { ErrorState } from '@/components/shared/ErrorState';
 import { LoadingState } from '@/components/shared/LoadingState';
 import { ReceiptImageViewer } from '@/features/receipt-image/ReceiptImageViewer';
-import { generateImageFileName } from '@/features/receipt-image/utils/generateImageFileName';
 import { fromTanStackResponse } from '@/models/transformers/fromTanStack';
 import receiptService from '@/services/receiptService';
 import { useQuery } from '@tanstack/react-query';
@@ -33,9 +32,6 @@ const ReceiptAnalysisPage = () => {
     return fromTanStackResponse(receiptData);
   }, [receiptData]);
 
-  // Generate filename for download from receipt data
-  const imageFileName = generateImageFileName(receipt);
-
   // Extract error message for ErrorState component
   const errorMessage =
     receiptDataError instanceof Error
@@ -53,23 +49,18 @@ const ReceiptAnalysisPage = () => {
         <LoadingState message="Loading receipt details..." />
       ) : receiptDataStatus === 'error' ? (
         <ErrorState message={errorMessage} />
-      ) : (
+      ) : receipt ? (
         <div className="mx-auto max-w-4xl py-8">
           <div className="flex flex-col gap-6">
-            <ReceiptImageViewer
-              imageUrl={receipt?.imagePath ?? null}
-              fileName={imageFileName}
-            />
+            <ReceiptImageViewer receipt={receipt} />
 
-            {receipt && (
-              <ReceiptAnalysisDisplay
-                receipt={receipt}
-                receiptId={receiptId ?? ''}
-              />
-            )}
+            <ReceiptAnalysisDisplay
+              receipt={receipt}
+              receiptId={receiptId ?? ''}
+            />
           </div>
         </div>
-      )}
+      ) : null}
     </motion.div>
   );
 };

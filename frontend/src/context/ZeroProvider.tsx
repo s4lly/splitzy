@@ -1,10 +1,10 @@
 import { Spinner } from '@/components/ui/spinner';
 import { mutators } from '@/zero/mutators';
 import { schema, Schema } from '@/zero/schema';
-import { useUser } from '@clerk/react-router';
+import { useAuth } from '@clerk/react-router';
 import type { ZeroOptions } from '@rocicorp/zero';
 import { ZeroProvider } from '@rocicorp/zero/react';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 // Zero environment variables
@@ -24,10 +24,12 @@ const ZERO_ANONYMOUS_USER_ID_KEY = 'zero-anonymous-user-id';
  */
 function getAnonymousUserID(): string {
   let userID = localStorage.getItem(ZERO_ANONYMOUS_USER_ID_KEY);
+
   if (!userID) {
     userID = uuidv4();
     localStorage.setItem(ZERO_ANONYMOUS_USER_ID_KEY, userID);
   }
+
   return userID;
 }
 
@@ -41,7 +43,22 @@ export function AuthenticatedZeroProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoaded } = useUser();
+  const [token, setToken] = useState<string | null>(null);
+  const [tokenError, setTokenError] = useState<Error | null>(null);
+  const { userId, isLoaded, getToken } = useAuth();
+
+  useEffect(() => {
+    getToken()
+      .then((token) => {
+        setToken(token);
+        setTokenError(null);
+      })
+      .catch((error) => {
+        setTokenError(error);
+        // For anonymous users, null token is expected, so set it explicitly
+        setToken(null);
+      });
+  }, [getToken, userId, isLoaded]);
 
   const zeroOptions: ZeroOptions<Schema> = useMemo(
     () => ({
@@ -51,14 +68,28 @@ export function AuthenticatedZeroProvider({
       schema,
       mutators: mutators,
       // Use Clerk user ID when authenticated, otherwise use persistent anonymous ID
-      userID: user?.id ?? getAnonymousUserID(),
+      userID: userId ?? getAnonymousUserID(),
+      auth: token,
+      context: {
+        userID: userId ?? null,
+      },
     }),
-    [user?.id]
+    [userId, token]
   );
 
   // Don't render Zero until Clerk has loaded to avoid creating a Zero instance
   // with an anonymous ID that immediately switches to an authenticated ID
+  // For anonymous users, token will be null which is expected - only wait for token if authenticated
   if (!isLoaded) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner className="size-8" />
+      </div>
+    );
+  }
+
+  // If user is authenticated, we need a token. If anonymous, null token is fine.
+  if (userId && !token && !tokenError) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Spinner className="size-8" />

@@ -1,3 +1,4 @@
+import { createClerkClient } from "@clerk/backend";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 
@@ -65,6 +66,18 @@ type AppContext = {
 
 const app = new Hono<AppContext>();
 
+// Initialize Clerk client
+const clerkClient = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY,
+  publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+});
+
+// Parse authorized parties from FRONTEND_ORIGINS
+const authorizedParties =
+  process.env.FRONTEND_ORIGINS?.split(",")
+    .map((o) => o.trim())
+    .filter(Boolean) || [];
+
 // Request logging middleware
 app.use("*", async (c, next) => {
   const requestId = generateRequestId();
@@ -105,19 +118,27 @@ app.post("/api/query", async (c) => {
   const requestId = c.get("requestId");
   const startTime = c.get("startTime");
   let queryName: string | undefined;
+  let userID = "anon";
 
   try {
+    const { toAuth } = await clerkClient.authenticateRequest(c.req.raw, {
+      authorizedParties,
+    });
+
+    const auth = toAuth();
+    userID = auth?.userId ?? "anon";
+
     const result = await handleQueryRequest(
       (name, args) => {
         queryName = name;
         log("debug", "Executing query", {
           requestId,
           queryName,
-          userID: "anon",
+          userID,
         });
 
         const query = mustGetQuery(queries, name);
-        return query.fn({ args, ctx: { userID: "anon" } });
+        return query.fn({ args, ctx: { userID } });
       },
       schema,
       c.req.raw
@@ -129,7 +150,7 @@ app.post("/api/query", async (c) => {
       requestId,
       queryName,
       duration,
-      userID: "anon",
+      userID,
     });
 
     return c.json(result);
@@ -142,7 +163,7 @@ app.post("/api/query", async (c) => {
       requestId,
       queryName,
       duration,
-      userID: "anon",
+      userID,
       error: errorMessage,
       stack: errorStack,
     });

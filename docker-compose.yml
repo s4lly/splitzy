@@ -38,6 +38,8 @@ services:
     build: ./zero-query
     ports:
       - 3000:3000
+    env_file:
+      - ./zero-query/.env
     environment:
       ZERO_UPSTREAM_DB: postgres://postgres:pass@db-splitzy-local:5432/splitzy
     depends_on:
