@@ -66,6 +66,10 @@ export function AuthenticatedZeroProvider({
   };
 
   useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+
     fetchToken();
   }, [getToken, userId, isLoaded]);
 
