@@ -66,10 +66,28 @@ type AppContext = {
 
 const app = new Hono<AppContext>();
 
+// Validate Clerk environment variables
+const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY;
+const CLERK_PUBLISHABLE_KEY = process.env.CLERK_PUBLISHABLE_KEY;
+
+if (!CLERK_SECRET_KEY) {
+  const errorMessage =
+    "Missing required Clerk environment variable: CLERK_SECRET_KEY. Add it to your .env file (see .env.example for reference).";
+  log("error", errorMessage);
+  throw new Error(errorMessage);
+}
+
+if (!CLERK_PUBLISHABLE_KEY) {
+  const errorMessage =
+    "Missing required Clerk environment variable: CLERK_PUBLISHABLE_KEY. Add it to your .env file (see .env.example for reference).";
+  log("error", errorMessage);
+  throw new Error(errorMessage);
+}
+
 // Initialize Clerk client
 const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
-  publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+  secretKey: CLERK_SECRET_KEY,
+  publishableKey: CLERK_PUBLISHABLE_KEY,
 });
 
 // Parse authorized parties from FRONTEND_ORIGINS
