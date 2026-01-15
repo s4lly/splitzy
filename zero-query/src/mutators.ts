@@ -8,7 +8,10 @@ export const mutators = defineMutators({
         id: z.number(),
         tip: z.number().optional(),
         gratuity: z.number().optional(),
-        image_visibility: z.string().optional(),
+        image_visibility: z
+          .enum(["public", "owner_only"])
+          .optional()
+          .default("public"),
       }),
       async ({ tx, args }) => {
         await tx.mutate.user_receipts.update(args);
