@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { mutators } from '@/zero/mutators';
 import { useZero } from '@rocicorp/zero/react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface ImageSettingsDialogProps {
   open: boolean;
@@ -48,11 +49,14 @@ export function ImageSettingsDialog({
           'Failed to update image visibility:',
           clientResult.error.message
         );
+        toast.error('Failed to update image visibility');
       } else {
         console.info('Successfully updated image visibility');
+        toast.success('Image visibility updated');
       }
     } catch (error) {
       console.error('Error updating image visibility:', error);
+      toast.error('Failed to update image visibility');
     } finally {
       setIsSaving(false);
     }
