@@ -38,6 +38,10 @@ export function fromTanStackResponse(
     id: receipt.id,
     createdAt,
     imagePath: receipt.image_path ?? null,
+    imageVisibility: (receipt.image_visibility ?? 'public') as
+      | 'public'
+      | 'owner_only',
+    authUserId: null, // Backend API doesn't provide user info
 
     // Core receipt data
     merchant: receipt_data.merchant,

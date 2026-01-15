@@ -13,7 +13,6 @@ import {
 } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useReceiptSync } from '@/features/receipt-collab/hooks/useReceiptSync';
 import { ReceiptImageViewer } from '@/features/receipt-image/ReceiptImageViewer';
-import { generateImageFileName } from '@/features/receipt-image/utils/generateImageFileName';
 import { ReceiptDetailsCard } from '@/features/receipt-viewer/ReceiptDetailsCard';
 import { ReceiptSummaryCard } from '@/features/receipt-viewer/ReceiptSummaryCard';
 import { ReceiptViewer } from '@/features/receipt-viewer/ReceiptViewer';
@@ -33,9 +32,9 @@ export const ReceiptCollabContent = () => {
   useReceiptSync();
 
   const isMobile = useMobile();
-  const [isAddingItem, setIsAddingItem] = useState(false);
   const receipt = useAtomValue(receiptAtom);
   const people = useAtomValue(peopleAtom);
+  const [isAddingItem, setIsAddingItem] = useState(false);
 
   if (!receipt) {
     return null;
@@ -56,10 +55,7 @@ export const ReceiptCollabContent = () => {
               - useAtom(personTotalsAtom) for modifiable derived values
           */}
 
-          <ReceiptImageViewer
-            imageUrl={receipt.imagePath}
-            fileName={generateImageFileName(receipt)}
-          />
+          <ReceiptImageViewer receipt={receipt} />
 
           <ReceiptDetailsCard merchant={receipt.merchant} date={receipt.date} />
 

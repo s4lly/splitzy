@@ -8,22 +8,70 @@
 #   4. Starts the remaining services (zero-query, zero-cache)
 #
 # Usage:
-#   ./scripts/setup-local-db.sh                    # Start services without restore
-#   ./scripts/setup-local-db.sh mydumpfile.bak     # Restore from dump, then start services
+#   ./backend/scripts/setup-local-db.sh                    # Start services without restore
+#   ./backend/scripts/setup-local-db.sh mydumpfile.bak     # Restore from dump, then start services
 #
-# Note: This script can be run from any directory.
+# Note: This script can be run from any directory within the project.
 
 set -e
 
-# Resolve paths relative to this script's location
+# Find project root by searching upward for docker-compose.yml
+# This allows the script to work from any directory within the project
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-DUMP_FILE="$1"
+CURRENT_DIR="$SCRIPT_DIR"
+
+# Search upward for docker-compose.yml
+PROJECT_ROOT=""
+while [ "$CURRENT_DIR" != "/" ]; do
+    if [ -f "$CURRENT_DIR/docker-compose.yml" ]; then
+        PROJECT_ROOT="$CURRENT_DIR"
+        break
+    fi
+    CURRENT_DIR="$(dirname "$CURRENT_DIR")"
+done
+
+if [ -z "$PROJECT_ROOT" ]; then
+    echo "Error: Could not find docker-compose.yml. Please run this script from within the project directory."
+    exit 1
+fi
 
 cd "$PROJECT_ROOT"
 
+# Handle dump file path - resolve relative paths relative to PROJECT_ROOT
+DUMP_FILE="$1"
+if [ -n "$DUMP_FILE" ] && [ ! -f "$DUMP_FILE" ]; then
+    # Try resolving relative to PROJECT_ROOT
+    if [ -f "$PROJECT_ROOT/$DUMP_FILE" ]; then
+        DUMP_FILE="$PROJECT_ROOT/$DUMP_FILE"
+    fi
+fi
+
 echo "=========================================="
 echo "Splitzy Local Development Setup"
+echo "=========================================="
+echo ""
+echo "This script will perform the following actions:"
+echo ""
+echo "  1. Start PostgreSQL container"
+echo "  2. Wait for PostgreSQL to be ready"
+if [ -n "$DUMP_FILE" ]; then
+    echo "  3. Restore database from: $DUMP_FILE"
+    echo "  4. Start zero-query and zero-cache services"
+else
+    echo "  3. Start zero-query and zero-cache services (no database restore)"
+fi
+echo ""
+echo "Project root: $PROJECT_ROOT"
+echo ""
+
+read -p "Do you want to continue? (yes/no): " confirm
+
+if [ "$confirm" != "yes" ]; then
+    echo "Aborted."
+    exit 0
+fi
+
+echo ""
 echo "=========================================="
 echo ""
 
@@ -57,7 +105,7 @@ if [ -n "$DUMP_FILE" ]; then
     fi
 else
     echo "Step 3: Skipping database restore (no dump file specified)"
-    echo "  To restore, run: ./scripts/setup-local-db.sh <dump_file>"
+    echo "  To restore, run: ./backend/scripts/setup-local-db.sh <dump_file>"
     echo ""
 fi
 
@@ -77,4 +125,3 @@ echo ""
 echo "View logs: docker-compose logs -f"
 echo "Stop all:  docker-compose down"
 echo "=========================================="
-

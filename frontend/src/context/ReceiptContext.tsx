@@ -1,11 +1,12 @@
-import { createContext, useContext, ReactNode } from 'react';
-import { UserReceipt, ReceiptLineItem } from '@/zero/schema';
+import { ReceiptLineItem, User, UserReceipt } from '@/zero/schema';
+import { ReactNode, createContext, useContext } from 'react';
 
 /**
- * Receipt with related line items from Zero query
+ * Receipt with related line items and user from Zero query
  */
 export type ReceiptWithLineItems = UserReceipt & {
   line_items: readonly ReceiptLineItem[];
+  user?: User | null;
 };
 
 /**
@@ -84,4 +85,3 @@ export function useReceipt(): ReceiptWithLineItems {
 
   return receipt;
 }
-

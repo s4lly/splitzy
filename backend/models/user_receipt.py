@@ -14,6 +14,9 @@ class UserReceipt(db.Model):
     image_path = db.Column(
         db.Text, nullable=True
     )  # Using Text for unlimited length URLs
+    image_visibility = db.Column(
+        db.Text, nullable=False, default="public"
+    )  # 'public' | 'owner_only'
     created_at = db.Column(
         db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     )

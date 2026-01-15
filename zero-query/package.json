@@ -7,6 +7,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
+    "@clerk/backend": "^2.29.2",
     "@hono/node-server": "^1.19.6",
     "@rocicorp/zero": "^0.25.5",
     "hono": "^4.11.2",

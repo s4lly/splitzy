@@ -32,6 +32,7 @@ export const ReceiptSchema = z.object({
   created_at: z.string(),
   id: z.number(),
   image_path: z.string(),
+  image_visibility: z.enum(['public', 'owner_only']).default('public'),
   receipt_data: ReceiptDataSchema,
 });
 

@@ -22,6 +22,8 @@ export interface Receipt {
   readonly id: number;
   readonly createdAt: Date;
   readonly imagePath: string | null;
+  readonly imageVisibility: 'public' | 'owner_only';
+  readonly authUserId: string | null;
 
   // Core receipt data
   readonly merchant: string | null;
@@ -47,4 +49,3 @@ export interface Receipt {
   // Line items
   readonly lineItems: readonly ReceiptLineItem[];
 }
-
