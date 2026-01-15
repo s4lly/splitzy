@@ -1,7 +1,10 @@
-import { QueryDetails } from '@rocicorp/zero/react';
+import { useQuery } from '@rocicorp/zero/react';
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useReceiptNotFoundRetry } from './useReceiptNotFoundRetry';
+
+// Infer QueryDetails type from useQuery return type
+type QueryDetails = ReturnType<typeof useQuery>[1];
 
 describe('useReceiptNotFoundRetry', () => {
   beforeEach(() => {
@@ -20,11 +23,11 @@ describe('useReceiptNotFoundRetry', () => {
       return {
         type: 'error',
         error: error || new Error('Test error'),
-      } as QueryDetails;
+      } as unknown as QueryDetails;
     }
     return {
       type,
-    } as QueryDetails;
+    } as unknown as QueryDetails;
   };
 
   describe('Initial state', () => {
@@ -169,7 +172,7 @@ describe('useReceiptNotFoundRetry', () => {
       const details = createQueryDetails('complete');
 
       const { result, rerender } = renderHook(
-        ({ receipt }) =>
+        ({ receipt }: { receipt: unknown }) =>
           useReceiptNotFoundRetry({
             receipt,
             details,
@@ -177,7 +180,7 @@ describe('useReceiptNotFoundRetry', () => {
             retryDelayMs: 1000,
           }),
         {
-          initialProps: { receipt: null },
+          initialProps: { receipt: null as unknown },
         }
       );
 
@@ -189,7 +192,7 @@ describe('useReceiptNotFoundRetry', () => {
 
       // Receipt is found
       act(() => {
-        rerender({ receipt: { id: 1 } });
+        rerender({ receipt: { id: 1 } as unknown });
       });
 
       expect(result.current.shouldNavigateTo404).toBe(false);
@@ -289,7 +292,7 @@ describe('useReceiptNotFoundRetry', () => {
     it('does not start tracking when query transitions from unknown to complete with receipt', () => {
       const receipt = { id: 1 };
 
-      const { rerender } = renderHook(
+      const { result, rerender } = renderHook(
         ({ details }) =>
           useReceiptNotFoundRetry({
             receipt,
@@ -300,10 +303,27 @@ describe('useReceiptNotFoundRetry', () => {
         }
       );
 
-      rerender({ details: createQueryDetails('complete') });
+      // Initial state should not navigate
+      expect(result.current.shouldNavigateTo404).toBe(false);
+      expect(result.current.retryMessage).toBe('Loading receipt details...');
+
+      // Transition to complete with receipt present
+      act(() => {
+        rerender({ details: createQueryDetails('complete') });
+      });
 
       // Should not navigate to 404 since receipt exists
-      expect(true).toBe(true); // Just verify no errors
+      expect(result.current.shouldNavigateTo404).toBe(false);
+      expect(result.current.retryMessage).toBe('Loading receipt details...');
+
+      // Advance time to ensure no retry tracking started
+      act(() => {
+        vi.advanceTimersByTime(5000);
+      });
+
+      // Still should not navigate after time passes
+      expect(result.current.shouldNavigateTo404).toBe(false);
+      expect(result.current.retryMessage).toBe('Loading receipt details...');
     });
 
     it('starts tracking when query transitions from unknown to complete without receipt', () => {
@@ -360,7 +380,7 @@ describe('useReceiptNotFoundRetry', () => {
       const details = createQueryDetails('complete');
 
       const { result, rerender } = renderHook(
-        ({ receipt }) =>
+        ({ receipt }: { receipt: unknown }) =>
           useReceiptNotFoundRetry({
             receipt,
             details,
@@ -368,7 +388,7 @@ describe('useReceiptNotFoundRetry', () => {
             retryDelayMs: 1000,
           }),
         {
-          initialProps: { receipt: { id: 1 } },
+          initialProps: { receipt: { id: 1 } as unknown },
         }
       );
 
@@ -377,7 +397,7 @@ describe('useReceiptNotFoundRetry', () => {
 
       // Receipt becomes null
       act(() => {
-        rerender({ receipt: null });
+        rerender({ receipt: null as unknown });
       });
 
       // Advance time to exceed retries
@@ -392,7 +412,7 @@ describe('useReceiptNotFoundRetry', () => {
       const details = createQueryDetails('complete');
 
       const { result, rerender } = renderHook(
-        ({ receipt }) =>
+        ({ receipt }: { receipt: unknown }) =>
           useReceiptNotFoundRetry({
             receipt,
             details,
@@ -400,7 +420,7 @@ describe('useReceiptNotFoundRetry', () => {
             retryDelayMs: 1000,
           }),
         {
-          initialProps: { receipt: null },
+          initialProps: { receipt: null as unknown },
         }
       );
 
@@ -412,14 +432,14 @@ describe('useReceiptNotFoundRetry', () => {
 
       // Receipt found
       act(() => {
-        rerender({ receipt: { id: 1 } });
+        rerender({ receipt: { id: 1 } as unknown });
       });
       expect(result.current.shouldNavigateTo404).toBe(false);
       expect(result.current.retryMessage).toBe('Loading receipt details...');
 
       // Receipt lost again - need to let the effect run first
       act(() => {
-        rerender({ receipt: null });
+        rerender({ receipt: null as unknown });
       });
 
       // Then advance timers

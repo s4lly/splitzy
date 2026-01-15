@@ -1,5 +1,8 @@
+import { useQuery } from '@rocicorp/zero/react';
 import { useEffect, useState } from 'react';
-import { QueryDetails } from '@rocicorp/zero/react';
+
+// Infer QueryDetails type from useQuery return type
+type QueryDetails = ReturnType<typeof useQuery>[1];
 
 interface UseReceiptNotFoundRetryOptions {
   receipt: unknown;
