@@ -41,8 +41,6 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
   // Determine if image should be shown
   const shouldShowImage = imageVisibility !== 'owner_only' || isOwner;
 
-  // debugger;
-
   // Mount animation using react-spring
   const mountAnimation = useSpring({
     from: { opacity: 0, y: 10 },
