@@ -69,9 +69,14 @@ cp backend/.env.example backend/.env
 
 # Frontend
 cp frontend/.env.example frontend/.env
+
+# Zero-Query (required for Docker Compose)
+cp zero-query/.env.example zero-query/.env
 ```
 
 Then edit the `.env` files with your actual values. For local-only overrides, you can also create `.env.local` files which take priority.
+
+**Note:** The `zero-query/.env` file is required when using Docker Compose (Option B setup). The `docker-compose.yml` will use `zero-query/.env.example` as a fallback, but you should create `zero-query/.env` with your actual Clerk API keys and other configuration values.
 
 ### Development Modes
 
@@ -90,6 +95,16 @@ This approach doesn't require Docker.
 #### Option B: Full Local Development Stack (Recommended for Zero features)
 
 For working on Zero sync features or testing with a fresh database, run the complete stack locally using Docker:
+
+**Before starting Docker services, set up environment files:**
+
+```bash
+# Copy zero-query environment file (required for docker-compose)
+cp zero-query/.env.example zero-query/.env
+# Edit zero-query/.env with your actual Clerk keys and other values
+```
+
+Then start the services:
 
 ```bash
 # First-time setup (with database restore from a dump file)

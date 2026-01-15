@@ -39,7 +39,8 @@ services:
     ports:
       - 3000:3000
     env_file:
-      - ./zero-query/.env
+      - ./zero-query/.env.example  # Fallback if .env doesn't exist
+      - ./zero-query/.env           # Takes precedence if it exists
     environment:
       ZERO_UPSTREAM_DB: postgres://postgres:pass@db-splitzy-local:5432/splitzy
     depends_on:
