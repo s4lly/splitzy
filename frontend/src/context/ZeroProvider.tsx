@@ -1,9 +1,12 @@
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { mutators } from '@/zero/mutators';
-import { schema, Schema } from '@/zero/schema';
+import { Schema, schema } from '@/zero/schema';
 import { useAuth } from '@clerk/react-router';
 import type { ZeroOptions } from '@rocicorp/zero';
 import { ZeroProvider } from '@rocicorp/zero/react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -45,20 +48,31 @@ export function AuthenticatedZeroProvider({
 }) {
   const [token, setToken] = useState<string | null>(null);
   const [tokenError, setTokenError] = useState<Error | null>(null);
+  const [isRetrying, setIsRetrying] = useState(false);
   const { userId, isLoaded, getToken } = useAuth();
 
+  const fetchToken = async () => {
+    try {
+      setIsRetrying(false);
+      const fetchedToken = await getToken();
+      setToken(fetchedToken);
+      setTokenError(null);
+    } catch (error) {
+      setTokenError(error as Error);
+      // For anonymous users, null token is expected, so set it explicitly
+      // For authenticated users, this is an error state
+      setToken(null);
+    }
+  };
+
   useEffect(() => {
-    getToken()
-      .then((token) => {
-        setToken(token);
-        setTokenError(null);
-      })
-      .catch((error) => {
-        setTokenError(error);
-        // For anonymous users, null token is expected, so set it explicitly
-        setToken(null);
-      });
+    fetchToken();
   }, [getToken, userId, isLoaded]);
+
+  const handleRetry = async () => {
+    setIsRetrying(true);
+    await fetchToken();
+  };
 
   const zeroOptions: ZeroOptions<Schema> = useMemo(
     () => ({
@@ -93,6 +107,47 @@ export function AuthenticatedZeroProvider({
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Spinner className="size-8" />
+      </div>
+    );
+  }
+
+  // Show error state for authenticated users who encountered a token fetch error
+  // Anonymous users can proceed with null token (expected behavior)
+  if (userId && tokenError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Authentication Error</AlertTitle>
+          <AlertDescription>
+            <p className="mb-4">
+              Failed to fetch authentication token. Your requests may not be
+              properly authenticated.
+            </p>
+            {tokenError.message && (
+              <p className="mb-4 text-xs opacity-80">{tokenError.message}</p>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRetry}
+              disabled={isRetrying}
+              className="w-full"
+            >
+              {isRetrying ? (
+                <>
+                  <Spinner className="mr-2 size-4" />
+                  Retrying...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 size-4" />
+                  Retry
+                </>
+              )}
+            </Button>
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
