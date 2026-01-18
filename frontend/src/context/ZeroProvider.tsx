@@ -96,18 +96,9 @@ export function AuthenticatedZeroProvider({
   );
 
   // Don't render Zero until Clerk has loaded to avoid creating a Zero instance
-  // with an anonymous ID that immediately switches to an authenticated ID
-  // For anonymous users, token will be null which is expected - only wait for token if authenticated
-  if (!isLoaded) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Spinner className="size-8" />
-      </div>
-    );
-  }
-
-  // If user is authenticated, we need a token. If anonymous, null token is fine.
-  if (userId && !token && !tokenError) {
+  // with an anonymous ID that immediately switches to an authenticated ID.
+  // For authenticated users, also wait for token. Anonymous users can proceed with null token.
+  if (!isLoaded || (userId && !token && !tokenError)) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Spinner className="size-8" />
