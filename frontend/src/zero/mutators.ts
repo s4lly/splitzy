@@ -11,7 +11,6 @@ export const mutators = defineMutators({
         image_visibility: z
           .enum(['public', 'owner_only'])
           .optional()
-          .default('public'),
       }),
       async ({ tx, args }) => {
         await tx.mutate.user_receipts.update(args);
