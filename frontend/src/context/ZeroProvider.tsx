@@ -53,17 +53,24 @@ export function AuthenticatedZeroProvider({
 
   const fetchToken = useCallback(async () => {
     try {
-      setIsRetrying(false);
       const fetchedToken = await getToken();
-      setToken(fetchedToken);
-      setTokenError(null);
+      if (fetchedToken === null && userId) {
+        // Clerk session pending/initializing - treat as error
+        setTokenError(new Error('Session initializing, please retry'));
+        setToken(null);
+      } else {
+        setToken(fetchedToken);
+        setTokenError(null);
+      }
     } catch (error) {
       setTokenError(error as Error);
       // For anonymous users, null token is expected, so set it explicitly
       // For authenticated users, this is an error state
       setToken(null);
+    } finally {
+      setIsRetrying(false);
     }
-  }, [getToken]);
+  }, [getToken, userId]);
 
   useEffect(() => {
     if (!isLoaded) {
