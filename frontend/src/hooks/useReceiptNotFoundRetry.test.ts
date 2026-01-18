@@ -1,7 +1,7 @@
+import { useReceiptNotFoundRetry } from '@/hooks/useReceiptNotFoundRetry';
 import { useQuery } from '@rocicorp/zero/react';
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useReceiptNotFoundRetry } from './useReceiptNotFoundRetry';
 
 // Infer QueryDetails type from useQuery return type
 type QueryDetails = ReturnType<typeof useQuery>[1];
