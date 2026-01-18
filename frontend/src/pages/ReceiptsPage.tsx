@@ -11,6 +11,17 @@ import { useMemo } from 'react';
 const ReceiptsPage = () => {
   const [user, details] = useQuery(queries.users.receipts.byAuthUserId({}));
 
+  // Transform Zero Query receipts to ReceiptHistoryItem format
+  const transformedReceipts = useMemo(() => {
+    if (!user?.receipts) {
+      return [];
+    }
+
+    return user.receipts.map(fromZeroReceipt);
+  }, [user?.receipts]);
+
+  const isLoading = details.type === 'unknown';
+
   // Handle query errors (e.g., user not found)
   if (details.type === 'error') {
     return (
@@ -23,17 +34,6 @@ const ReceiptsPage = () => {
       </div>
     );
   }
-
-  // Transform Zero Query receipts to ReceiptHistoryItem format
-  const transformedReceipts = useMemo(() => {
-    if (!user?.receipts) {
-      return [];
-    }
-
-    return user.receipts.map(fromZeroReceipt);
-  }, [user?.receipts]);
-
-  const isLoading = details.type === 'unknown';
 
   return (
     <div className="px-1 py-8 sm:container">
