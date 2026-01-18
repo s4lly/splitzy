@@ -7,7 +7,7 @@ import { useAuth } from '@clerk/react-router';
 import type { ZeroOptions } from '@rocicorp/zero';
 import { ZeroProvider } from '@rocicorp/zero/react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 // Zero environment variables
@@ -51,7 +51,7 @@ export function AuthenticatedZeroProvider({
   const [isRetrying, setIsRetrying] = useState(false);
   const { userId, isLoaded, getToken } = useAuth();
 
-  const fetchToken = async () => {
+  const fetchToken = useCallback(async () => {
     try {
       setIsRetrying(false);
       const fetchedToken = await getToken();
@@ -63,7 +63,7 @@ export function AuthenticatedZeroProvider({
       // For authenticated users, this is an error state
       setToken(null);
     }
-  };
+  }, [getToken]);
 
   useEffect(() => {
     if (!isLoaded) {
@@ -71,7 +71,7 @@ export function AuthenticatedZeroProvider({
     }
 
     fetchToken();
-  }, [getToken, userId, isLoaded]);
+  }, [fetchToken, userId, isLoaded]);
 
   const handleRetry = async () => {
     setIsRetrying(true);
