@@ -91,10 +91,26 @@ const clerkClient = createClerkClient({
 });
 
 // Parse authorized parties from FRONTEND_ORIGINS
-const authorizedParties =
-  process.env.FRONTEND_ORIGINS?.split(",")
-    .map((o) => o.trim())
-    .filter(Boolean) || [];
+// This must be non-empty to ensure azp validation is always enforced
+const FRONTEND_ORIGINS = process.env.FRONTEND_ORIGINS;
+
+if (!FRONTEND_ORIGINS) {
+  const errorMessage =
+    "Missing required environment variable: FRONTEND_ORIGINS. This must be set to a comma-separated list of allowed origins for Clerk azp validation. Add it to your .env file.";
+  log("error", errorMessage);
+  throw new Error(errorMessage);
+}
+
+const authorizedParties = FRONTEND_ORIGINS.split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+if (authorizedParties.length === 0) {
+  const errorMessage =
+    "FRONTEND_ORIGINS must contain at least one valid origin. The current value results in an empty allowlist, which would disable Clerk azp validation. Please provide a comma-separated list of allowed origins.";
+  log("error", errorMessage);
+  throw new Error(errorMessage);
+}
 
 // Request logging middleware
 app.use("*", async (c, next) => {
