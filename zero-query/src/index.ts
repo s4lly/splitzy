@@ -1,3 +1,4 @@
+import { createClerkClient } from "@clerk/backend";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 
@@ -65,6 +66,52 @@ type AppContext = {
 
 const app = new Hono<AppContext>();
 
+// Validate Clerk environment variables
+const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY;
+const CLERK_PUBLISHABLE_KEY = process.env.CLERK_PUBLISHABLE_KEY;
+
+if (!CLERK_SECRET_KEY) {
+  const errorMessage =
+    "Missing required Clerk environment variable: CLERK_SECRET_KEY. Add it to your .env file (see .env.example for reference).";
+  log("error", errorMessage);
+  throw new Error(errorMessage);
+}
+
+if (!CLERK_PUBLISHABLE_KEY) {
+  const errorMessage =
+    "Missing required Clerk environment variable: CLERK_PUBLISHABLE_KEY. Add it to your .env file (see .env.example for reference).";
+  log("error", errorMessage);
+  throw new Error(errorMessage);
+}
+
+// Initialize Clerk client
+const clerkClient = createClerkClient({
+  secretKey: CLERK_SECRET_KEY,
+  publishableKey: CLERK_PUBLISHABLE_KEY,
+});
+
+// Parse authorized parties from FRONTEND_ORIGINS
+// This must be non-empty to ensure azp validation is always enforced
+const FRONTEND_ORIGINS = process.env.FRONTEND_ORIGINS;
+
+if (!FRONTEND_ORIGINS) {
+  const errorMessage =
+    "Missing required environment variable: FRONTEND_ORIGINS. This must be set to a comma-separated list of allowed origins for Clerk azp validation. Add it to your .env file.";
+  log("error", errorMessage);
+  throw new Error(errorMessage);
+}
+
+const authorizedParties = FRONTEND_ORIGINS.split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+if (authorizedParties.length === 0) {
+  const errorMessage =
+    "FRONTEND_ORIGINS must contain at least one valid origin. The current value results in an empty allowlist, which would disable Clerk azp validation. Please provide a comma-separated list of allowed origins.";
+  log("error", errorMessage);
+  throw new Error(errorMessage);
+}
+
 // Request logging middleware
 app.use("*", async (c, next) => {
   const requestId = generateRequestId();
@@ -105,19 +152,27 @@ app.post("/api/query", async (c) => {
   const requestId = c.get("requestId");
   const startTime = c.get("startTime");
   let queryName: string | undefined;
+  let userID = "anon";
 
   try {
+    const { toAuth } = await clerkClient.authenticateRequest(c.req.raw, {
+      authorizedParties,
+    });
+
+    const auth = toAuth();
+    userID = auth?.userId ?? "anon";
+
     const result = await handleQueryRequest(
       (name, args) => {
         queryName = name;
         log("debug", "Executing query", {
           requestId,
           queryName,
-          userID: "anon",
+          userID,
         });
 
         const query = mustGetQuery(queries, name);
-        return query.fn({ args, ctx: { userID: "anon" } });
+        return query.fn({ args, ctx: { userID } });
       },
       schema,
       c.req.raw
@@ -129,7 +184,7 @@ app.post("/api/query", async (c) => {
       requestId,
       queryName,
       duration,
-      userID: "anon",
+      userID,
     });
 
     return c.json(result);
@@ -142,7 +197,7 @@ app.post("/api/query", async (c) => {
       requestId,
       queryName,
       duration,
-      userID: "anon",
+      userID,
       error: errorMessage,
       stack: errorStack,
     });

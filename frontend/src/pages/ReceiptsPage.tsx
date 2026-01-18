@@ -3,22 +3,24 @@ import { Card } from '@/components/ui/card';
 import { SignInPromptCard } from '@/features/auth/SignInPromptCard';
 import { fromZeroReceipt } from '@/lib/receiptTypes';
 import { queries } from '@/zero/queries';
-import { SignedIn, SignedOut, useAuth } from '@clerk/clerk-react';
+import { SignedIn, SignedOut } from '@clerk/clerk-react';
 import { useQuery } from '@rocicorp/zero/react';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 
 const ReceiptsPage = () => {
-  const { userId } = useAuth();
+  const [user, details] = useQuery(queries.users.receipts.byAuthUserId({}));
 
-  const isValidUserId = userId != null && userId.trim().length > 0;
+  // Transform Zero Query receipts to ReceiptHistoryItem format
+  const transformedReceipts = useMemo(() => {
+    if (!user?.receipts) {
+      return [];
+    }
 
-  const [user, details] = useQuery(
-    queries.users.receipts.byAuthUserId({
-      authUserId: isValidUserId ? userId : '',
-    }),
-    { enabled: isValidUserId }
-  );
+    return user.receipts.map(fromZeroReceipt);
+  }, [user?.receipts]);
+
+  const isLoading = details.type === 'unknown';
 
   // Handle query errors (e.g., user not found)
   if (details.type === 'error') {
@@ -32,17 +34,6 @@ const ReceiptsPage = () => {
       </div>
     );
   }
-
-  // Transform Zero Query receipts to ReceiptHistoryItem format
-  const transformedReceipts = useMemo(() => {
-    if (!user?.receipts) {
-      return [];
-    }
-
-    return user.receipts.map(fromZeroReceipt);
-  }, [user?.receipts]);
-
-  const isLoading = details.type === 'unknown';
 
   return (
     <div className="px-1 py-8 sm:container">

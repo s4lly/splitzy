@@ -5,19 +5,21 @@ import { zql } from "./schema.js";
 export const queries = defineQueries({
   users: {
     receipts: {
-      byAuthUserId: defineQuery(
-        z.object({ authUserId: z.string() }),
-        ({ args: { authUserId } }) =>
-          zql.users
-            .where("auth_user_id", authUserId)
-            .related("receipts", (q) => q.orderBy("created_at", "desc"))
-            .one()
+      byAuthUserId: defineQuery(z.object({}), ({ ctx }) =>
+        zql.users
+          .where("auth_user_id", ctx.userID ?? "")
+          .related("receipts", (q) => q.orderBy("created_at", "desc"))
+          .one()
       ),
     },
   },
-  receipts: {
+  receipt: {
     byId: defineQuery(z.object({ id: z.number() }), ({ args: { id } }) =>
-      zql.user_receipts.where("id", id).related("line_items")
+      zql.user_receipts
+        .where("id", id)
+        .related("line_items")
+        .related("user")
+        .one()
     ),
   },
 });

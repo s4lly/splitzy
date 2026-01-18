@@ -240,6 +240,7 @@ class RegularReceiptResponse(RegularReceipt):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    image_visibility: Literal["public", "owner_only"] = "public"
     line_items: List[LineItemResponse]
 
 
