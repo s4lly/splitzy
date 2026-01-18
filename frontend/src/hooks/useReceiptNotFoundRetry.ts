@@ -40,6 +40,9 @@ export const useReceiptNotFoundRetry = ({
       // Receipt found, reset tracking
       setNotFoundStartTime(null);
       setRetryCount(0);
+    } else if (details.type !== 'complete' && notFoundStartTime !== null) {
+      setNotFoundStartTime(null);
+      setRetryCount(0);
     }
   }, [details.type, receipt, notFoundStartTime]);
 
