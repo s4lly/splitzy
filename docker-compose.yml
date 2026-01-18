@@ -1,5 +1,8 @@
 # Splitzy Local Development Stack
 #
+# Requirements:
+#   Docker Compose v2.24.0+ (required for optional env_file with required: false)
+#
 # Quick Start:
 #   docker-compose up -d        # Start all services
 #   docker-compose up --build   # Rebuild and start
@@ -39,8 +42,9 @@ services:
     ports:
       - 3000:3000
     env_file:
-      - ./zero-query/.env.example  # Fallback if .env doesn't exist
-      - ./zero-query/.env           # Takes precedence if it exists
+      - path: ./zero-query/.env.example
+      - path: ./zero-query/.env
+        required: false
     environment:
       ZERO_UPSTREAM_DB: postgres://postgres:pass@db-splitzy-local:5432/splitzy
     depends_on:
