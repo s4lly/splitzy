@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useMobile } from './use-mobile';
+import { useMobile } from './useMobile';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock matchMedia
