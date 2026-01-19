@@ -16,7 +16,7 @@ import { ReceiptImageViewer } from '@/features/receipt-image/ReceiptImageViewer'
 import { ReceiptDetailsCard } from '@/features/receipt-viewer/ReceiptDetailsCard';
 import { ReceiptSummaryCard } from '@/features/receipt-viewer/ReceiptSummaryCard';
 import { ReceiptViewer } from '@/features/receipt-viewer/ReceiptViewer';
-import { useMobile } from '@/hooks/use-mobile';
+import { useMobile } from '@/hooks/useMobile';
 import { isLocalDevelopment } from '@/utils/env';
 import { motion } from 'framer-motion';
 import { useAtomValue } from 'jotai';

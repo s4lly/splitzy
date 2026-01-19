@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Plus, X } from 'lucide-react';
-import { useMobile } from '@/hooks/use-mobile';
+import { useMobile } from '@/hooks/useMobile';
 
 interface PeopleManagerFormProps {
   people: string[];

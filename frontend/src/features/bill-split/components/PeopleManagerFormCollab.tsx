@@ -6,7 +6,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { peopleAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
-import { useMobile } from '@/hooks/use-mobile';
+import { useMobile } from '@/hooks/useMobile';
 import { cn } from '@/lib/utils';
 import { useAtomValue } from 'jotai';
 import { Plus, X } from 'lucide-react';

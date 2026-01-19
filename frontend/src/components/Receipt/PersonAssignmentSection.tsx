@@ -1,4 +1,4 @@
-import { useMobile } from '@/hooks/use-mobile';
+import { useMobile } from '@/hooks/useMobile';
 import type { ReceiptLineItem } from '@/models/Receipt';
 import { cn } from '@/lib/utils';
 import React from 'react';

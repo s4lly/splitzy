@@ -6,7 +6,7 @@ import { LineItemsTableDesktopAdapter } from '@/features/line-items/adapters/tan
 import { LineItemsTableMobileAdapter } from '@/features/line-items/adapters/tanstack/LineItemsTableMobileAdapter';
 import { NoLineItemsMessage } from '@/features/line-items/components/NoLineItemsMessage';
 import { ReceiptDetailsCard } from '@/features/receipt-viewer/ReceiptDetailsCard';
-import { useMobile } from '@/hooks/use-mobile';
+import { useMobile } from '@/hooks/useMobile';
 import type { Receipt } from '@/models/Receipt';
 import Decimal from 'decimal.js';
 import { motion } from 'framer-motion';

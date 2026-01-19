@@ -7,7 +7,7 @@ import {
   useFeatureFlag,
   useFeatureFlagDispatch,
 } from '@/context/FeatureFlagProvider';
-import { useMobile } from '@/hooks/use-mobile';
+import { useMobile } from '@/hooks/useMobile';
 import { ArrowLeft, ChevronRight, TriangleAlert } from 'lucide-react';
 import { useContext, useState } from 'react';
 
