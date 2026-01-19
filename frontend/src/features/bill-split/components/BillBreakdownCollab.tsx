@@ -24,7 +24,7 @@ import {
   receiptTotalAtom,
   useEqualSplitAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
-import { useMobile } from '@/hooks/use-mobile';
+import { useMobile } from '@/hooks/useMobile';
 import { cn } from '@/lib/utils';
 import Decimal from 'decimal.js';
 import { useAtomValue } from 'jotai';

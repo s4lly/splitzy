@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
  *
  * @example
  * ```tsx
- * import { useMobile } from './use-mobile';
+ * import { useMobile } from './useMobile';
  *
  * function MyComponent() {
  *   const isMobile = useMobile();

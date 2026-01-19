@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { useMobile } from '@/hooks/use-mobile';
+import { useMobile } from '@/hooks/useMobile';
 import { cn } from '@/lib/utils';
 import type { Receipt } from '@/models/Receipt';
 import Decimal from 'decimal.js';

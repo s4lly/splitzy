@@ -1,4 +1,4 @@
-import { useMobile } from '@/hooks/use-mobile';
+import { useMobile } from '@/hooks/useMobile';
 import { cn } from '@/lib/utils';
 
 export const AssignmentsContainer = ({
