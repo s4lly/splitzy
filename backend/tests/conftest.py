@@ -31,8 +31,6 @@ def test_app():
             "TESTING": True,
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
             "WTF_CSRF_ENABLED": False,
-            "SESSION_COOKIE_SAMESITE": "None",
-            "SESSION_COOKIE_SECURE": True,
             "SQLALCHEMY_ENGINE_OPTIONS": {"connect_args": {"check_same_thread": False}},
         }
     )
