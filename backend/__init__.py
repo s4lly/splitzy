@@ -1,4 +1,3 @@
-import datetime
 import os
 import sqlite3
 from pathlib import Path
@@ -80,11 +79,6 @@ def create_app():
     # ============================================================================
     # Secret Keys & Configuration
     # ============================================================================
-    secret_key = os.environ.get("SECRET_KEY")
-    if not secret_key and vercel_env == "production":
-        raise ValueError("SECRET_KEY environment variable is required for production")
-    app.secret_key = secret_key or "supersecretkey"
-
     # Validate required environment variables and store in app config
     clerk_secret_key = os.environ.get("CLERK_SECRET_KEY")
     if not clerk_secret_key:
@@ -128,27 +122,6 @@ def create_app():
         raise ValueError(
             "VERCEL_FUNCTION_URL environment variable is required for blob storage functionality"
         )
-
-    # ============================================================================
-    # Session Cookie Configuration
-    # ============================================================================
-    # Configure session cookies based on environment
-    if vercel_env != "production":
-        # In non-production, minimize session cookie usage since we use JWT tokens
-        app.config["SESSION_COOKIE_HTTPONLY"] = False  # Override default True
-        app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  # Override default None
-        app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(
-            minutes=1
-        )  # Override default 31 days
-    else:
-        # In production, use secure session cookies for cross-origin
-        app.config["SESSION_COOKIE_SAMESITE"] = (
-            "None"  # Override default None for cross-origin
-        )
-        app.config["SESSION_COOKIE_SECURE"] = True  # Override default False for HTTPS
-        app.config["PERMANENT_SESSION_LIFETIME"] = datetime.timedelta(
-            days=7
-        )  # Override default 31 days
 
     # ============================================================================
     # Paths & Directories
