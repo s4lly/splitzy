@@ -24,3 +24,10 @@ class ReceiptLineItem(db.Model):
     created_at = db.Column(
         db.DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     )
+
+    assignments = db.relationship(
+        "Assignment", backref=db.backref("line_item", lazy=True)
+    )
+
+    def __repr__(self):
+        return f"<ReceiptLineItem {self.id} {self.receipt_id} {self.name}>"
