@@ -31,8 +31,8 @@ export default function LineItemsTableMobile({
 }: {
   line_items: readonly ReceiptLineItem[];
   receipt: Receipt;
-  people: string[];
-  togglePersonAssignment: (itemId: string, person: string) => void;
+  people: number[];
+  togglePersonAssignment: (itemId: string, userId: number) => void;
   onUpdateLineItem: (data: UpdateLineItemData) => void;
   onDeleteLineItem: (
     data: DeleteLineItemData,
@@ -144,12 +144,14 @@ export default function LineItemsTableMobile({
                 <AssignmentsHeader onAssignmentCancel={handleEditClose} />
                 <AssignmentsList
                   possiblePeople={people}
-                  onAddAssignment={(person) =>
-                    togglePersonAssignment(item.id, person)
-                  }
-                  onRemoveAssignment={(person) =>
-                    togglePersonAssignment(item.id, person)
-                  }
+                  onAddAssignment={(person) => {
+                    // TODO
+                    // return togglePersonAssignment(item.id, person)
+                  }}
+                  onRemoveAssignment={(person) => {
+                    // TODO
+                    // return togglePersonAssignment(item.id, person)
+                  }}
                   item={item}
                   formPricePerItem={item.pricePerItem}
                   formQuantity={item.quantity}

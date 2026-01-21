@@ -1,7 +1,7 @@
 import LineItemsTableMobile from '@/components/Receipt/LineItemsTableMobile';
 import { useZeroLineItemMutations } from './useZeroLineItemMutations';
 
-export function LineItemsTableMobileAdapter({ people }: { people: string[] }) {
+export function LineItemsTableMobileAdapter({ people }: { people: number[] }) {
   const {
     togglePersonAssignment,
     handleUpdateLineItem,

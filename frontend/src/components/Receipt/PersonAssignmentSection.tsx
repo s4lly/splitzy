@@ -11,7 +11,7 @@ import {
 
 interface PersonAssignmentSectionProps {
   item: ReceiptLineItem;
-  people: string[];
+  people: number[];
   className?: string;
 }
 
@@ -23,24 +23,26 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
   const MAX_VISIBLE_ASSIGNED_PEOPLE = isMobile
     ? Infinity
     : MAX_VISIBLE_ASSIGNED_PEOPLE_DESKTOP;
-  const visibleAssignedPeople = item.assignments.slice(
+  const visibleAssignments = item.assignments.slice(
     0,
     MAX_VISIBLE_ASSIGNED_PEOPLE
   );
 
-  if (visibleAssignedPeople.length > 0) {
+  if (visibleAssignments.length > 0) {
     return (
       <>
-        {visibleAssignedPeople.map((person, personIdx) => {
-          // Use the person's index in the overall people array for consistent colors
-          const personIndex = people.indexOf(person);
+        {visibleAssignments.map((assignment, personIdx) => {
+          const userId = assignment.userId;
+          const userIdString = String(userId);
+          // Use the userId's index in the overall people array for consistent colors
+          const personIndex = people.indexOf(userId);
           const normalizedIndex =
             people.length > 0
               ? (personIndex >= 0 ? personIndex : personIdx) % people.length
               : 0;
 
           const colorPair = getColorForName(
-            person,
+            userIdString,
             normalizedIndex,
             people.length
           );
@@ -48,8 +50,8 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
 
           return (
             <PersonBadge
-              key={personIdx}
-              name={person}
+              key={assignment.id}
+              name={userIdString}
               size={isMobile ? 'sm' : 'md'}
               colorStyle={colorStyle}
               className={cn(

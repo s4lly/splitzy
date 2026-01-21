@@ -1,7 +1,7 @@
 import LineItemsTableDesktop from '@/components/Receipt/LineItemsTableDesktop';
 import { useZeroLineItemMutations } from './useZeroLineItemMutations';
 
-export function LineItemsTableDesktopAdapter({ people }: { people: string[] }) {
+export function LineItemsTableDesktopAdapter({ people }: { people: number[] }) {
   const {
     togglePersonAssignment,
     handleUpdateLineItem,

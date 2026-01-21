@@ -3,16 +3,17 @@ import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import Decimal from 'decimal.js';
 
 /**
- * Extracts unique person names from line item assignments
- * @param lineItems Array of line items to extract people from
- * @returns Array of unique person names
+ * Extracts unique user IDs from line item assignments
+ * @param lineItems Array of line items to extract user IDs from
+ * @returns Array of unique user IDs
  */
 export const getPeopleFromLineItems = (
   lineItems: readonly ReceiptLineItem[]
-): string[] => {
+): number[] => {
   const allAssignments = lineItems.flatMap((item) => item.assignments);
+  const userIds = allAssignments.map((assignment) => assignment.userId);
 
-  return Array.from(new Set(allAssignments));
+  return Array.from(new Set(userIds));
 };
 
 /**
@@ -29,28 +30,35 @@ export type PersonItem = {
 
 /**
  * Finds all items assigned to a person and calculates their costs
- * @param person The person to find items for
+ * @param personId The user ID of the person to find items for
  * @param receipt The receipt containing line items
  * @returns Array of person items with calculated costs
  */
 export const getPersonItems = (
-  person: string,
+  personId: number,
   receipt: Receipt
 ): PersonItem[] => {
   const personItems: PersonItem[] = [];
   receipt.lineItems.forEach((item) => {
-    const assignedPeople = item.assignments;
+    const assignedUserIds = item.assignments.map((a) => a.userId);
+    const isAssigned = assignedUserIds.includes(personId);
 
-    if (assignedPeople.includes(person)) {
+    if (isAssigned) {
       const totalPrice = item.pricePerItem.mul(item.quantity);
-      const pricePerPerson = totalPrice.div(new Decimal(assignedPeople.length));
+      const pricePerPerson = totalPrice.div(
+        new Decimal(assignedUserIds.length)
+      );
       personItems.push({
         name: item.name,
         quantity: item.quantity,
         originalPrice: totalPrice,
         price: pricePerPerson,
-        shared: assignedPeople.length > 1,
-        sharedWith: assignedPeople.filter((p) => p !== person),
+        shared: assignedUserIds.length > 1,
+        // TODO: used person display name before
+        // with user id, maybe don't need to transform to string
+        sharedWith: assignedUserIds
+          .filter((id) => id !== personId)
+          .map((id) => String(id)),
       });
     }
   });

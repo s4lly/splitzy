@@ -36,9 +36,9 @@ export default function LineItemsTableDesktop({
   isDeleting,
 }: {
   line_items: readonly ReceiptLineItem[];
-  people: string[];
+  people: number[];
   receipt: Receipt;
-  togglePersonAssignment: (itemId: string, person: string) => void;
+  togglePersonAssignment: (itemId: string, userId: number) => void;
   onUpdateLineItem: (data: UpdateLineItemData) => void;
   onDeleteLineItem: (
     data: DeleteLineItemData,
@@ -187,10 +187,12 @@ export default function LineItemsTableDesktop({
                       <AssignmentsList
                         possiblePeople={people}
                         onAddAssignment={(person) => {
-                          togglePersonAssignment(item.id, person);
+                          // TODO
+                          // togglePersonAssignment(item.id, person);
                         }}
                         onRemoveAssignment={(person) => {
-                          togglePersonAssignment(item.id, person);
+                          // TODO
+                          // togglePersonAssignment(item.id, person);
                         }}
                         item={item}
                         formPricePerItem={item.pricePerItem}
