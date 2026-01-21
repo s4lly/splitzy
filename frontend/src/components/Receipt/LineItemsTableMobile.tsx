@@ -7,7 +7,8 @@ import type {
   UpdateLineItemData,
 } from '@/features/line-items/types';
 import { cn } from '@/lib/utils';
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import type { Receipt } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { ChevronUp, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../ui/button';

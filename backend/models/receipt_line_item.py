@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy import Numeric, text
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import UUID
 
 from models import db
 
@@ -20,7 +20,6 @@ class ReceiptLineItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=1)
     price_per_item = db.Column(Numeric(12, 2), nullable=False, default=0)
     total_price = db.Column(Numeric(12, 2), nullable=False, default=0)
-    assignments = db.Column(JSONB, nullable=True, default=list)
     created_at = db.Column(
         db.DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     )

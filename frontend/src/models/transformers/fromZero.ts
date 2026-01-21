@@ -1,5 +1,7 @@
 import type { ReceiptWithLineItems } from '@/context/ReceiptContext';
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import type { Assignment } from '@/models/Assignment';
+import type { Receipt } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import Decimal from 'decimal.js';
 
 /**
@@ -24,8 +26,15 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
       quantity: new Decimal(item.quantity),
       pricePerItem: new Decimal(item.price_per_item),
       totalPrice: new Decimal(item.total_price),
-      assignments:
-        (item.assignments as string[] | undefined) ?? ([] as readonly string[]),
+      assignments: (item.assignments ?? []).map(
+        (a): Assignment => ({
+          id: a.id,
+          userId: a.user_id,
+          receiptLineItemId: a.receipt_line_item_id,
+          createdAt: new Date(a.created_at),
+          deletedAt: a.deleted_at ? new Date(a.deleted_at) : null,
+        })
+      ),
     })
   );
 

@@ -1,5 +1,6 @@
 import LineItemsTableMobile from '@/components/Receipt/LineItemsTableMobile';
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import type { Receipt } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { useTanstackLineItemMutations } from './useTanstackLineItemMutations';
 
 export function LineItemsTableMobileAdapter({

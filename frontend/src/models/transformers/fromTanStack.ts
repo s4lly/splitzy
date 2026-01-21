@@ -1,7 +1,8 @@
 import Decimal from 'decimal.js';
 import { z } from 'zod';
 import { ReceiptResponseSchema } from '@/lib/receiptSchemas';
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import type { Receipt } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 
 /**
  * Transforms a TanStack Query response to the canonical Receipt interface.
@@ -29,7 +30,7 @@ export function fromTanStackResponse(
       quantity: new Decimal(item.quantity),
       pricePerItem: new Decimal(item.price_per_item),
       totalPrice: new Decimal(item.total_price),
-      assignments: item.assignments as readonly string[],
+      assignments: [], // Assignments are only available via Zero queries
     })
   );
 

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
-import type { ReceiptLineItem } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import Decimal from 'decimal.js';
 import { Plus, X } from 'lucide-react';
 import React, { useState } from 'react';

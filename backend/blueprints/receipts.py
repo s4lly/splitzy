@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from blueprints.auth import get_current_user
 from image_analyzer import ImageAnalysisError, ImageAnalyzer, ImageAnalyzerConfigError
 from models import db
+from models.assignment import Assignment
 from models.receipt_line_item import ReceiptLineItem
 from models.user_receipt import UserReceipt
 from schemas.receipt import (

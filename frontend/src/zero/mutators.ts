@@ -47,7 +47,6 @@ export const mutators = defineMutators({
         quantity: z.number().optional(),
         price_per_item: z.number().optional(),
         total_price: z.number().optional(),
-        assignments: z.array(z.string()).optional(),
         created_at: z.number().optional(),
       }),
       async ({ tx, args }) => {
@@ -58,7 +57,6 @@ export const mutators = defineMutators({
           quantity: args.quantity ?? 1,
           price_per_item: args.price_per_item ?? 0,
           total_price: args.total_price ?? 0,
-          assignments: args.assignments,
           created_at: args.created_at ?? Date.now(),
         });
       }

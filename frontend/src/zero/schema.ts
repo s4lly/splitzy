@@ -65,7 +65,6 @@ const receiptLineItem = table('receipt_line_items')
     quantity: number(),
     price_per_item: number(),
     total_price: number(),
-    assignments: json().optional(),
     created_at: number(),
   })
   .primaryKey('id');

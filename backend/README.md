@@ -84,6 +84,52 @@ backend/
 └── docs/               # Documentation
 ```
 
+## Database Migrations
+
+This project uses [Flask-Migrate](https://flask-migrate.readthedocs.io/) (Alembic) for database schema migrations.
+
+### Creating Migrations
+
+To create a new migration after modifying models:
+
+```bash
+cd backend
+source venv/bin/activate
+flask db migrate -m "description of changes"
+```
+
+### Applying Migrations
+
+To apply pending migrations:
+
+```bash
+cd backend
+source venv/bin/activate
+flask db upgrade
+```
+
+### Important: Model Discovery Pattern
+
+**Always import new models in `migrations/env.py`** to ensure Alembic can discover them during autogenerate.
+
+When you create a new model in `backend/models/`, you must add an import for it in `backend/migrations/env.py`. This is a common pattern to ensure all models are registered with SQLAlchemy's metadata, even if they're not imported elsewhere in the application code.
+
+**Example:** After creating `backend/models/assignment.py`, add this import to `migrations/env.py`:
+
+```python
+from models.assignment import Assignment
+```
+
+**Why this is needed:**
+
+- Models that are imported in blueprints (like `User`, `UserReceipt`, `ReceiptLineItem`) are automatically discovered because they're imported when the Flask app initializes
+- New models that aren't used in blueprints yet won't be discovered unless explicitly imported in `env.py`
+- Importing all models in `env.py` serves as a catch-all to ensure Alembic always sees all models
+
+**What happens if you forget:**
+
+If you create a new model but forget to import it in `env.py`, running `flask db migrate` may not detect the new table, and you'll need to manually create the migration or add the import and regenerate.
+
 ## Scripts
 
 The `backend/scripts/` directory contains utility scripts for managing backend operations and infrastructure. These scripts can be run from any directory within the project, as they automatically detect the project root.

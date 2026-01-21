@@ -1,5 +1,5 @@
 import { useMobile } from '@/hooks/useMobile';
-import type { ReceiptLineItem } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { cn } from '@/lib/utils';
 import React from 'react';
 import PersonBadge from './PersonBadge';

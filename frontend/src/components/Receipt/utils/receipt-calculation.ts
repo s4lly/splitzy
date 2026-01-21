@@ -1,4 +1,5 @@
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import type { Receipt } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import Decimal from 'decimal.js';
 import { receiptHasLineItems } from './receipt-conditions';
 

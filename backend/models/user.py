@@ -11,6 +11,7 @@ class User(db.Model):
     )  # Using BigInteger for better scalability
     auth_user_id = db.Column(db.Text, unique=True, nullable=False, index=True)
     username = db.Column(db.Text, unique=False, nullable=True)
+    display_name = db.Column(db.Text, unique=False, nullable=True)
     email = db.Column(
         db.Text, unique=False, nullable=True
     )  # Using Text for unlimited length emails
