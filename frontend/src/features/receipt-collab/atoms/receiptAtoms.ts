@@ -8,6 +8,7 @@ import {
   shouldUseEqualSplit,
 } from '@/components/Receipt/utils/receipt-conditions';
 import { ReceiptWithLineItems } from '@/context/ReceiptContext';
+import type { Assignment } from '@/models/Assignment';
 import { fromZeroReceipt } from '@/models/transformers/fromZero';
 import Decimal from 'decimal.js';
 import { atom } from 'jotai';
@@ -206,36 +207,38 @@ export const unassignedAmountAtom = atom((get) => {
 });
 
 // =============================================================================
-// People Management Atoms
+// Assignments Management Atoms
 // =============================================================================
 
 /**
- * Base atom for the list of all people (including unassigned)
+ * Base atom for the list of all assignments (including unassigned)
  */
-const peopleOverrideAtom = atom<string[] | null>(null);
+const assignmentsOverrideAtom = atom<Assignment[] | null>(null);
 
 /**
- * List of all people involved in the receipt split.
- * Defaults to extracting from line item assignments.
+ * List of all unique assignments involved in the receipt split.
+ * Defaults to extracting unique assignments by userId from line item assignments.
  */
-export const peopleAtom = atom(
+export const assignmentsAtom = atom(
   (get) => {
-    const override = get(peopleOverrideAtom);
+    const override = get(assignmentsOverrideAtom);
     if (override) return override;
 
     const receipt = get(receiptAtom);
     if (!receipt) return [];
 
-    // Extract unique people from line item assignments
-    const people = new Set<string>();
+    // Extract unique assignments by userId from line item assignments
+    const assignments = new Map<number, Assignment>();
     for (const item of receipt.lineItems) {
-      for (const person of item.assignments) {
-        people.add(person);
+      for (const assignment of item.assignments) {
+        if (!assignments.has(assignment.userId)) {
+          assignments.set(assignment.userId, assignment);
+        }
       }
     }
-    return Array.from(people);
+    return Array.from(assignments.values());
   },
-  (_get, set, newValue: string[] | null) => {
-    set(peopleOverrideAtom, newValue);
+  (_get, set, newValue: Assignment[] | null) => {
+    set(assignmentsOverrideAtom, newValue);
   }
 );
