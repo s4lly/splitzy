@@ -107,7 +107,7 @@ const userReceiptRelationships = relationships(
       destSchema: receiptLineItem,
       destField: ["receipt_id"],
     }),
-  })
+  }),
 );
 
 const receiptLineItemRelationships = relationships(
@@ -123,7 +123,7 @@ const receiptLineItemRelationships = relationships(
       destSchema: assignment,
       destField: ["receipt_line_item_id"],
     }),
-  })
+  }),
 );
 
 const assignmentRelationships = relationships(assignment, ({ one }) => ({

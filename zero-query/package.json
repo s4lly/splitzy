@@ -4,7 +4,10 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write --ignore-unknown ."
   },
   "dependencies": {
     "@clerk/backend": "^2.29.2",
@@ -16,6 +19,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
+    "prettier": "^3.8.1",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3"
   }

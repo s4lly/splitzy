@@ -25,7 +25,7 @@ interface LogContext {
 function log(
   level: "info" | "error" | "warn" | "debug",
   message: string,
-  context: LogContext = {}
+  context: LogContext = {},
 ) {
   const logEntry = {
     timestamp: new Date().toISOString(),
@@ -175,7 +175,7 @@ app.post("/api/query", async (c) => {
         return query.fn({ args, ctx: { userID } });
       },
       schema,
-      c.req.raw
+      c.req.raw,
     );
 
     const duration = Date.now() - startTime;
@@ -227,7 +227,7 @@ app.post("/api/mutate", async (c) => {
           const mutator = mustGetMutator(mutators, name);
           return mutator.fn({ args, tx, ctx: { userID: "anon" } });
         }),
-      c.req.raw
+      c.req.raw,
     );
 
     const duration = Date.now() - startTime;
@@ -272,5 +272,5 @@ serve(
       address: info.address,
       env: process.env.NODE_ENV || "development",
     });
-  }
+  },
 );
