@@ -16,7 +16,13 @@ from pydantic import (
 )
 
 
-# Base class for common decimal validation logic
+# ============================================================================
+# MIXINS: Shared Base Classes for Serialization and Validation
+# ============================================================================
+# These mixins provide common functionality for decimal handling and
+# serialization across different model types.
+
+
 class DecimalValidatorMixin:
     """Mixin for models that need safe decimal validation"""
 
@@ -27,18 +33,22 @@ class DecimalValidatorMixin:
         return Decimal(value)
 
 
-# Mixin for line item decimal serialization
 class LineItemDecimalSerializerMixin:
-    """Mixin for models that need to serialize line item Decimal fields to float for frontend"""
+    """
+    Mixin for models that need to serialize line item Decimal fields
+    to float for frontend.
+    """
 
     @field_serializer("price_per_item", "total_price")
     def _serialize_line_item_decimals(self, v: Decimal) -> float:
         return float(v)
 
 
-# Mixin for receipt decimal serialization
 class ReceiptDecimalSerializerMixin:
-    """Mixin for models that need to serialize receipt Decimal fields to float for frontend"""
+    """
+    Mixin for models that need to serialize receipt Decimal fields
+    to float for frontend.
+    """
 
     @field_serializer(
         "subtotal",
@@ -58,9 +68,11 @@ class ReceiptDecimalSerializerMixin:
         return float(v)
 
 
-# Mixin for transportation decimal serialization
 class TransportationDecimalSerializerMixin:
-    """Mixin for models that need to serialize transportation Decimal fields to float for frontend"""
+    """
+    Mixin for models that need to serialize transportation Decimal fields
+    to float for frontend.
+    """
 
     @field_serializer("fare", "taxes", "total")
     def _serialize_transportation_decimals(self, v: Optional[Decimal]) -> float:
@@ -69,10 +81,17 @@ class TransportationDecimalSerializerMixin:
         return float(v)
 
 
-# ----
+# ============================================================================
+# LINE ITEM MODELS: Core schemas for receipt line items
+# ============================================================================
 
 
 class LineItem(BaseModel, LineItemDecimalSerializerMixin):
+    """
+    Base line item model for regular receipts.
+    Represents a single product or service on a receipt.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     name: str
@@ -98,17 +117,37 @@ class LineItem(BaseModel, LineItemDecimalSerializerMixin):
 
 
 class LineItemResponse(LineItem):
+    """
+    Line item response model with database fields (id, created_at).
+    Used in API responses for line items.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
     created_at: Optional[datetime] = None
 
 
-# ----
-# Response schemas for assignments and users
+class LineItemWithAssignmentsResponse(LineItemResponse):
+    """
+    Line item response model that includes full assignment details with users.
+    Used when assignments need to be included in API responses.
+    """
+
+    assignments: List["AssignmentResponse"] = Field(default_factory=list)
+
+
+# ============================================================================
+# USER AND ASSIGNMENT MODELS: Related entity schemas
+# ============================================================================
 
 
 class UserResponse(BaseModel):
+    """
+    User response model for API responses.
+    Includes user profile information and authentication details.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -121,6 +160,11 @@ class UserResponse(BaseModel):
 
 
 class AssignmentResponse(BaseModel):
+    """
+    Assignment response model linking users to receipt line items.
+    Includes the related user information for bill splitting.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -131,59 +175,19 @@ class AssignmentResponse(BaseModel):
     user: Optional[UserResponse] = None
 
 
-class LineItemWithAssignmentsResponse(LineItemResponse):
-    assignments: List[AssignmentResponse] = Field(default_factory=list)
+# ============================================================================
+# REGULAR RECEIPT MODELS: Main receipt schemas for standard receipts
+# ============================================================================
 
 
-# ----
-
-
-# Base class for transportation ticket fields
-class TransportationTicketBase(
-    BaseModel, TransportationDecimalSerializerMixin, DecimalValidatorMixin
-):
-    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
-
-    document_type: Literal["transportation_ticket"] = "transportation_ticket"
-    is_receipt: bool = True
-    carrier: Optional[str] = None
-    ticket_number: Optional[str] = None
-    date: Optional[date_type] = None
-    origin: Optional[str] = None
-    destination: Optional[str] = None
-    passenger: Optional[str] = None
-    class_: Optional[str] = Field(
-        None, alias="class", validation_alias=AliasChoices("class_", "class")
-    )
-    fare: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    currency: Optional[str] = None
-    taxes: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
-    total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
-
-    @model_validator(mode="after")
-    def _reconcile_totals(self):
-        # Normalize components to cents
-        self.fare = self.safe_decimal(self.fare).quantize(Decimal("0.01"))
-        self.taxes = self.safe_decimal(self.taxes).quantize(Decimal("0.01"))
-        # Prefer explicit total; else compute
-        if not self.total or self.total == 0:
-            self.total = (self.fare + self.taxes).quantize(Decimal("0.01"))
-        else:
-            self.total = self.safe_decimal(self.total).quantize(Decimal("0.01"))
-        return self
-
-
-class TransportationTicket(TransportationTicketBase):
-    pass
-
-
-# ----
-
-
-# Base class for regular receipt fields
 class RegularReceiptBase(
     BaseModel, ReceiptDecimalSerializerMixin, DecimalValidatorMixin
 ):
+    """
+    Base class for regular receipt fields.
+    Contains all receipt data fields and validation logic for computing totals.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     is_receipt: bool = True
@@ -263,11 +267,21 @@ class RegularReceiptBase(
 
 
 class RegularReceipt(RegularReceiptBase):
+    """
+    Regular receipt model for API responses.
+    Overrides line_items to include them in responses (not excluded).
+    """
+
     # Override line_items to include them in API responses
     line_items: List[LineItem] = Field(default_factory=list)
 
 
 class RegularReceiptResponse(RegularReceipt):
+    """
+    Complete regular receipt response model with database fields.
+    Used as the main response type for receipt API endpoints.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -275,20 +289,86 @@ class RegularReceiptResponse(RegularReceipt):
     line_items: List[LineItemResponse]
 
 
-# ----
+# ============================================================================
+# TRANSPORTATION TICKET MODELS: Alternative receipt type
+# ============================================================================
+
+
+class TransportationTicketBase(
+    BaseModel, TransportationDecimalSerializerMixin, DecimalValidatorMixin
+):
+    """
+    Base class for transportation ticket fields.
+    Represents flight, train, or other transportation tickets.
+    """
+
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+    document_type: Literal["transportation_ticket"] = "transportation_ticket"
+    is_receipt: bool = True
+    carrier: Optional[str] = None
+    ticket_number: Optional[str] = None
+    date: Optional[date_type] = None
+    origin: Optional[str] = None
+    destination: Optional[str] = None
+    passenger: Optional[str] = None
+    class_: Optional[str] = Field(
+        None, alias="class", validation_alias=AliasChoices("class_", "class")
+    )
+    fare: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    currency: Optional[str] = None
+    taxes: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+
+    @model_validator(mode="after")
+    def _reconcile_totals(self):
+        # Normalize components to cents
+        self.fare = self.safe_decimal(self.fare).quantize(Decimal("0.01"))
+        self.taxes = self.safe_decimal(self.taxes).quantize(Decimal("0.01"))
+        # Prefer explicit total; else compute
+        if not self.total or self.total == 0:
+            self.total = (self.fare + self.taxes).quantize(Decimal("0.01"))
+        else:
+            self.total = self.safe_decimal(self.total).quantize(Decimal("0.01"))
+        return self
+
+
+class TransportationTicket(TransportationTicketBase):
+    """
+    Transportation ticket model.
+    Used for flight, train, and other transportation receipts.
+    """
+
+    pass
+
+
+# ============================================================================
+# OTHER DOCUMENT TYPES: Non-receipt documents
+# ============================================================================
 
 
 class NotAReceipt(BaseModel):
+    """
+    Model for documents that are not receipts.
+    Used when image analysis determines the document is not a receipt.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     is_receipt: bool = False
 
 
-# ----
+# ============================================================================
+# DATABASE CREATION MODELS: Schemas for creating database records
+# ============================================================================
 
 
-# Base class for database creation models
 class DatabaseCreateBase(BaseModel, DecimalValidatorMixin):
+    """
+    Base class for database creation models.
+    Contains common fields needed when creating records in the database.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     # Common fields for database creation
@@ -297,8 +377,12 @@ class DatabaseCreateBase(BaseModel, DecimalValidatorMixin):
     document_type: Optional[str] = None
 
 
-# Model for creating UserReceipt instances from Pydantic models
 class UserReceiptCreate(DatabaseCreateBase, RegularReceiptBase):
+    """
+    Model for creating UserReceipt instances from Pydantic models.
+    Used when creating new receipts from analyzed images or API requests.
+    """
+
     # Add fields that are set programmatically but needed for database creation
     user_id: Optional[int] = None
     image_path: Optional[str] = None
@@ -307,8 +391,12 @@ class UserReceiptCreate(DatabaseCreateBase, RegularReceiptBase):
     # consider adding fields for transportation ticket
 
 
-# Model for creating ReceiptLineItem instances from Pydantic models
 class ReceiptLineItemCreate(BaseModel, LineItemDecimalSerializerMixin):
+    """
+    Model for creating ReceiptLineItem instances from Pydantic models.
+    Used when creating new line items for receipts.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     # Line item fields (receipt_id is set by SQLAlchemy relationship)
