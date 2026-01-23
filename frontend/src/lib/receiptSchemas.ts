@@ -1,7 +1,26 @@
 import { z } from 'zod';
 
+export const UserSchema = z.object({
+  id: z.number(),
+  auth_user_id: z.string(),
+  username: z.string().nullable(),
+  display_name: z.string().nullable(),
+  email: z.string().nullable(),
+  created_at: z.string(),
+  deleted_at: z.string().nullable(),
+});
+
+export const AssignmentSchema = z.object({
+  id: z.number(),
+  user_id: z.number(),
+  receipt_line_item_id: z.string().uuid(),
+  created_at: z.string(),
+  deleted_at: z.string().nullable(),
+  user: UserSchema.nullable(),
+});
+
 export const LineItemSchema = z.object({
-  assignments: z.array(z.string()),
+  assignments: z.array(AssignmentSchema).default([]),
   id: z.string().uuid(),
   name: z.string(),
   price_per_item: z.number(),

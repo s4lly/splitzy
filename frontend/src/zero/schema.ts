@@ -1,8 +1,8 @@
 import {
-  createBuilder,
-  createSchema,
-  relationships,
-  type Row,
+    createBuilder,
+    createSchema,
+    relationships,
+    type Row,
 } from '@rocicorp/zero';
 import { assignment } from './schemas/assignment';
 import { receiptLineItem } from './schemas/receipt-line-item';

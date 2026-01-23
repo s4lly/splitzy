@@ -1,4 +1,7 @@
-import type { ReceiptWithLineItems } from '@/context/ReceiptContext';
+import type {
+  AssignmentWithUser,
+  ReceiptWithLineItems,
+} from '@/context/ReceiptContext';
 import type { Assignment } from '@/models/Assignment';
 import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
@@ -10,6 +13,7 @@ import Decimal from 'decimal.js';
  * Zero stores dates as Unix timestamps (numbers), which are converted to Date objects.
  */
 export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
+  console.log("=".repeat(100), "fromZeroReceipt", zeroReceipt);
   // Convert Unix timestamps to Date objects
   const createdAt = new Date(zeroReceipt.created_at);
   const date = zeroReceipt.date ? new Date(zeroReceipt.date) : null;
@@ -27,12 +31,21 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
       pricePerItem: new Decimal(item.price_per_item),
       totalPrice: new Decimal(item.total_price),
       assignments: (item.assignments ?? []).map(
-        (a): Assignment => ({
+        (a: AssignmentWithUser): Assignment => ({
           id: a.id,
           userId: a.user_id,
           receiptLineItemId: a.receipt_line_item_id,
           createdAt: new Date(a.created_at),
           deletedAt: a.deleted_at ? new Date(a.deleted_at) : null,
+          user: a.user ? {
+            id: a.user.id,
+            authUserId: a.user.auth_user_id,
+            username: a.user.username ?? null,
+            displayName: a.user.display_name ?? null,
+            email: a.user.email ?? null,
+            createdAt: new Date(a.user.created_at),
+            deletedAt: a.user.deleted_at ? new Date(a.user.deleted_at) : null,
+          } : null,
         })
       ),
     })

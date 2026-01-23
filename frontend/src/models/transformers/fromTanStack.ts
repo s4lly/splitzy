@@ -1,8 +1,10 @@
 import Decimal from 'decimal.js';
 import { z } from 'zod';
 import { ReceiptResponseSchema } from '@/lib/receiptSchemas';
+import type { Assignment } from '@/models/Assignment';
 import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
+import type { User } from '@/models/User';
 
 /**
  * Transforms a TanStack Query response to the canonical Receipt interface.
@@ -22,7 +24,7 @@ export function fromTanStackResponse(
   const toDecimal = (value: number | null): Decimal | null =>
     value !== null ? new Decimal(value) : null;
 
-  // Transform line items
+  // Transform line items with assignments
   const lineItems: readonly ReceiptLineItem[] = receipt_data.line_items.map(
     (item): ReceiptLineItem => ({
       id: item.id,
@@ -30,7 +32,24 @@ export function fromTanStackResponse(
       quantity: new Decimal(item.quantity),
       pricePerItem: new Decimal(item.price_per_item),
       totalPrice: new Decimal(item.total_price),
-      assignments: [], // Assignments are only available via Zero queries
+      assignments: (item.assignments ?? []).map(
+        (a): Assignment => ({
+          id: a.id,
+          userId: a.user_id,
+          receiptLineItemId: a.receipt_line_item_id,
+          createdAt: new Date(a.created_at),
+          deletedAt: a.deleted_at ? new Date(a.deleted_at) : null,
+          user: a.user ? {
+            id: a.user.id,
+            authUserId: a.user.auth_user_id,
+            username: a.user.username ?? null,
+            displayName: a.user.display_name ?? null,
+            email: a.user.email ?? null,
+            createdAt: new Date(a.user.created_at),
+            deletedAt: a.user.deleted_at ? new Date(a.user.deleted_at) : null,
+          } : null,
+        })
+      ),
     })
   );
 

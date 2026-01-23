@@ -2,10 +2,17 @@ import { Assignment, ReceiptLineItem, User, UserReceipt } from '@/zero/schema';
 import { ReactNode, createContext, useContext } from 'react';
 
 /**
+ * Assignment with related user from Zero query
+ */
+export type AssignmentWithUser = Assignment & {
+  user?: User | null;
+};
+
+/**
  * Line item with related assignments from Zero query
  */
 export type LineItemWithAssignments = ReceiptLineItem & {
-  assignments: readonly Assignment[];
+  assignments: readonly AssignmentWithUser[];
 };
 
 /**

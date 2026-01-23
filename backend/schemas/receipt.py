@@ -105,6 +105,37 @@ class LineItemResponse(LineItem):
 
 
 # ----
+# Response schemas for assignments and users
+
+
+class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    auth_user_id: str
+    username: Optional[str] = None
+    display_name: Optional[str] = None
+    email: Optional[str] = None
+    created_at: datetime
+    deleted_at: Optional[datetime] = None
+
+
+class AssignmentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    user_id: int
+    receipt_line_item_id: UUID
+    created_at: datetime
+    deleted_at: Optional[datetime] = None
+    user: Optional[UserResponse] = None
+
+
+class LineItemWithAssignmentsResponse(LineItemResponse):
+    assignments: List[AssignmentResponse] = Field(default_factory=list)
+
+
+# ----
 
 
 # Base class for transportation ticket fields
