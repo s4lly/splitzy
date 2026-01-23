@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
+import { getUserDisplayName } from '@/utils/user-display';
 import Decimal from 'decimal.js';
 import { Plus, X } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 interface AssignmentsListProps {
   possiblePeople: number[];
@@ -37,6 +38,20 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
     newPersonSanitized
   );
 
+  // Create a lookup map from userId to displayName using existing assignments
+  const userIdToDisplayNameMap = useMemo(() => {
+    const map = new Map<number, string>();
+    item.assignments.forEach((assignment) => {
+      map.set(assignment.userId, getUserDisplayName(assignment));
+    });
+    return map;
+  }, [item.assignments]);
+
+  // Helper to get display name for a userId, with fallback
+  const getDisplayNameForUserId = (userId: number): string => {
+    return userIdToDisplayNameMap.get(userId) ?? `User ${userId}`;
+  };
+
   const handleAdd = (userId: number) => {
     onAddAssignment(userId);
     setNewPerson('');
@@ -65,14 +80,14 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
           <ul className="flex flex-col gap-2">
             {item.assignments.map((assignment) => {
               const userId = assignment.userId;
-              const userIdString = String(userId);
+              const displayName = getUserDisplayName(assignment);
               return (
                 <li
                   key={assignment.id}
                   className="flex items-center justify-between rounded bg-muted/30 px-3 py-2"
                 >
                   <div className="flex items-center">
-                    <span>User {userId}</span>
+                    <span>{displayName}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span>
@@ -94,8 +109,8 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                       size="icon"
                       variant="secondary"
                       onClick={() => onRemoveAssignment(userId)}
-                      aria-label={`Remove User ${userId}`}
-                      title={`Remove User ${userId}`}
+                      aria-label={`Remove ${displayName}`}
+                      title={`Remove ${displayName}`}
                     >
                       <X />
                     </Button>
@@ -172,23 +187,26 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
               )}
             </div>
           ) : (
-            filteredUserIds.map((userId) => (
-              <li
-                key={userId}
-                className="flex items-center justify-between gap-2 rounded border-b bg-muted/10 pb-2 last-of-type:border-b-0"
-              >
-                <span>User {userId}</span>
-                <Button
-                  variant="outline"
-                  onClick={() => handleAdd(userId)}
-                  className="size-8 rounded-full"
-                  aria-label={`Assign User ${userId}`}
-                  title={`Assign User ${userId}`}
+            filteredUserIds.map((userId) => {
+              const displayName = getDisplayNameForUserId(userId);
+              return (
+                <li
+                  key={userId}
+                  className="flex items-center justify-between gap-2 rounded border-b bg-muted/10 pb-2 last-of-type:border-b-0"
                 >
-                  <Plus />
-                </Button>
-              </li>
-            ))
+                  <span>{displayName}</span>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleAdd(userId)}
+                    className="size-8 rounded-full"
+                    aria-label={`Assign ${displayName}`}
+                    title={`Assign ${displayName}`}
+                  >
+                    <Plus />
+                  </Button>
+                </li>
+              );
+            })
           )}
         </ul>
       </div>

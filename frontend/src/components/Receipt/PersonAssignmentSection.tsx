@@ -1,5 +1,6 @@
 import { useMobile } from '@/hooks/useMobile';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
+import { getUserDisplayName } from '@/utils/user-display';
 import { cn } from '@/lib/utils';
 import React from 'react';
 import PersonBadge from './PersonBadge';
@@ -33,6 +34,7 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
       <>
         {visibleAssignments.map((assignment, personIdx) => {
           const userId = assignment.userId;
+          const displayName = getUserDisplayName(assignment);
           const userIdString = String(userId);
           // Use the userId's index in the overall people array for consistent colors
           const personIndex = people.indexOf(userId);
@@ -51,7 +53,7 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
           return (
             <PersonBadge
               key={assignment.id}
-              name={userIdString}
+              name={displayName}
               size={isMobile ? 'sm' : 'md'}
               colorStyle={colorStyle}
               className={cn(

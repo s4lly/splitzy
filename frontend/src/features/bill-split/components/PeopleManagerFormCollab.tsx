@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { assignmentsAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useMobile } from '@/hooks/useMobile';
 import { cn } from '@/lib/utils';
+import { getUserDisplayName } from '@/utils/user-display';
 import { useAtomValue } from 'jotai';
 import { Plus, X } from 'lucide-react';
 import { useState } from 'react';
@@ -53,9 +54,11 @@ export const PeopleManagerFormCollab = () => {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {userIds.map((userId, index) => {
+        {assignments.map((assignment, index) => {
+          const userId = assignment.userId;
+          const displayName = getUserDisplayName(assignment);
           const userIdString = String(userId);
-          const colorPair = getColorForName(userIdString, index, userIds.length);
+          const colorPair = getColorForName(userIdString, index, assignments.length);
           const colorStyle = getColorStyle(colorPair);
           return (
             <div
@@ -64,13 +67,13 @@ export const PeopleManagerFormCollab = () => {
               style={colorStyle}
             >
               <PersonBadge
-                name={userIdString}
+                name={displayName}
                 size="sm"
                 colorStyle={colorStyle}
                 className={cn(!isMobile && 'border-2 border-white')}
               />
               <span className="ml-1 text-sm [color:var(--text-light)] dark:[color:var(--text-dark)]">
-                User {userId}
+                {displayName}
               </span>
               <Button
                 variant="ghost"

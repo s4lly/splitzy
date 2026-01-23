@@ -26,6 +26,7 @@ import {
 } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useMobile } from '@/hooks/useMobile';
 import { cn } from '@/lib/utils';
+import { getUserDisplayName } from '@/utils/user-display';
 import Decimal from 'decimal.js';
 import { useAtomValue } from 'jotai';
 import { FileText, UserPlus } from 'lucide-react';
@@ -76,9 +77,11 @@ export const BillBreakdownCollab = () => {
     <div className="space-y-2">
       <h3 className="mb-1 font-medium">Bill Breakdown</h3>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {userIds.map((userId, idx) => {
+        {assignments.map((assignment, idx) => {
+          const userId = assignment.userId;
+          const displayName = getUserDisplayName(assignment);
           const userIdString = String(userId);
-          const colorPair = getColorForName(userIdString, idx, userIds.length);
+          const colorPair = getColorForName(userIdString, idx, assignments.length);
           const colorStyle = getColorStyle(colorPair);
 
           const personFairTotal: Decimal =
@@ -102,12 +105,12 @@ export const BillBreakdownCollab = () => {
                 >
                   <div className="mb-2 flex items-center gap-2">
                     <PersonBadge
-                      name={userIdString}
+                      name={displayName}
                       size={isMobile ? 'sm' : 'md'}
                       colorStyle={colorStyle}
                       className={cn(!isMobile && 'border-2 border-white')}
                     />
-                    <span className="truncate font-medium">User {userId}</span>
+                    <span className="truncate font-medium">{displayName}</span>
                   </div>
 
                   {useEqualSplit ? (
@@ -188,15 +191,15 @@ export const BillBreakdownCollab = () => {
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
                     <PersonBadge
-                      name={userIdString}
+                      name={displayName}
                       size="md"
                       colorStyle={colorStyle}
                       className={cn(!isMobile && 'border-2 border-white')}
                     />
-                    <span>User {userId}'s Items</span>
+                    <span>{displayName}'s Items</span>
                   </DialogTitle>
                   <DialogDescription>
-                    Detailed breakdown of items assigned to User {userId}.
+                    Detailed breakdown of items assigned to {displayName}.
                   </DialogDescription>
                 </DialogHeader>
 
