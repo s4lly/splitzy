@@ -14,13 +14,12 @@ class Assignment(db.Model):
         nullable=False,
         index=True,
     )
-    user_id = db.Column(
+    receipt_user_id = db.Column(
         db.BigInteger,
-        db.ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=True,
+        db.ForeignKey("receipt_users.id", ondelete="CASCADE"),
+        nullable=False,
         index=True,
     )
-    display_name = db.Column(db.Text, unique=False, nullable=True)
     created_at = db.Column(
         db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     )

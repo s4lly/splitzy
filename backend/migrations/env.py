@@ -10,6 +10,7 @@ from flask import current_app
 # This is a common pattern to ensure new models are always discovered.
 from models.assignment import Assignment
 from models.receipt_line_item import ReceiptLineItem
+from models.receipt_user import ReceiptUser
 from models.user import User
 from models.user_receipt import UserReceipt
 
