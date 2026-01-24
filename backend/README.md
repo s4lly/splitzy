@@ -344,6 +344,99 @@ The temporary Docker container is automatically removed when the script exits, e
 
 **Note:** The verification uses a temporary container on port 5433 to avoid conflicts with your main database on port 5432.
 
+#### `restore-dump.sh`
+
+Restores a database dump file created with `create-dump.sh` to your database. Provides clear information about what will happen during the restore process, including whether existing data will be preserved or deleted.
+
+**What it does:**
+
+- Restores a dump file to the target database specified by `DATABASE_URL`
+- Provides two restore modes: safe (preserves existing data) or clean (drops existing objects)
+- Includes extensive comments explaining restore behavior
+- Asks for confirmation before proceeding
+- Shows verbose progress during restore
+
+**Prerequisites:**
+
+- `pg_restore` command must be available
+- `DATABASE_URL` environment variable (optional - uses local dev default if not set)
+- Dump file must exist and be readable
+- Access to the target database
+
+**Usage:**
+
+From project root:
+
+```bash
+# Safe restore (preserves existing data)
+./backend/scripts/restore-dump.sh backend/mydumpfile-2026-01-24-0830.bak
+
+# Clean restore (drops existing objects - WIPES DATA!)
+./backend/scripts/restore-dump.sh backend/mydumpfile-2026-01-24-0830.bak --clean
+```
+
+From backend directory:
+
+```bash
+# Safe restore
+./scripts/restore-dump.sh mydumpfile-2026-01-24-0830.bak
+
+# Clean restore
+./scripts/restore-dump.sh mydumpfile-2026-01-24-0830.bak --clean
+```
+
+**Restore Modes:**
+
+**Safe Mode (default - without `--clean`):**
+- Does NOT drop existing database objects
+- If tables already exist, restore will fail with errors
+- Your existing data is NOT touched or deleted
+- Use this if you want to preserve existing data
+- Best for: Adding data to an empty database or when you're sure objects don't exist
+
+**Clean Mode (with `--clean` flag):**
+- DROPS all existing database objects BEFORE restoring
+- **WILL DELETE ALL EXISTING DATA** in those tables
+- Tables, sequences, and other objects will be dropped and recreated
+- Requires explicit confirmation (you must type "yes")
+- Use this if you want to completely replace the database
+- Best for: Restoring to a fresh database or completely replacing existing data
+
+**What Gets Restored:**
+
+- All tables and their data
+- Sequences (auto-increment counters)
+- Indexes
+- Constraints (foreign keys, unique constraints, etc.)
+- **NOT restored:** Ownership and privileges (prevents permission errors)
+
+**Environment Variables:**
+
+- `DATABASE_URL`: PostgreSQL connection string for the target database
+  - Format: `postgresql://user:password@host:port/database`
+  - If not set, defaults to: `postgresql://postgres:pass@localhost:5432/splitzy`
+
+**Important Notes:**
+
+- The script uses `-O` (no owner) and `-x` (no privileges) flags to prevent permission errors
+- Custom format dumps (created with `create-dump.sh`) are required
+- Plain SQL dumps cannot be restored with this script (use `psql` instead)
+- Some warnings/errors may be normal (e.g., "already exists" in safe mode)
+- Always verify your restore using `verify-dump.sh` or by checking your application
+
+**Example Workflow:**
+
+```bash
+# 1. Create a dump
+./backend/scripts/create-dump.sh
+
+# 2. Verify the dump (optional but recommended)
+./backend/scripts/verify-dump.sh backend/mydumpfile-2026-01-24-0830.bak
+
+# 3. Restore the dump
+./backend/scripts/restore-dump.sh backend/mydumpfile-2026-01-24-0830.bak --clean
+```
+
 ## Testing
 
 ```bash
