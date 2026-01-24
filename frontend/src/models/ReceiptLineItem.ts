@@ -17,6 +17,7 @@ import type { Assignment } from './Assignment';
  *   quantity: new Decimal(2),
  *   pricePerItem: new Decimal(4.50),
  *   totalPrice: new Decimal(9.00),
+ *   deletedAt: null,
  *   assignments: []
  * };
  * ```
@@ -36,6 +37,9 @@ export interface ReceiptLineItem {
 
   /** The total price for this line item (quantity × pricePerItem), using Decimal.js for precision */
   readonly totalPrice: Decimal;
+
+  /** The date and time when this line item was soft-deleted, or null if active */
+  readonly deletedAt: Date | null;
 
   /** Array of assignments linking users to this line item */
   readonly assignments: readonly Assignment[];

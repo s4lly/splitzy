@@ -20,9 +20,7 @@ export const user = table('users')
   .columns({
     id: number(),
     auth_user_id: string(),
-    username: string().optional(),
     display_name: string().optional(),
-    email: string().optional(),
     created_at: number(),
     deleted_at: number().optional(),
   })

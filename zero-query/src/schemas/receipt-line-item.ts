@@ -25,5 +25,6 @@ export const receiptLineItem = table("receipt_line_items")
     price_per_item: number(),
     total_price: number(),
     created_at: number(),
+    deleted_at: number().optional(),
   })
   .primaryKey("id");

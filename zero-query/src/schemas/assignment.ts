@@ -19,7 +19,8 @@ import { number, string, table } from "@rocicorp/zero";
 export const assignment = table("assignments")
   .columns({
     id: number(),
-    user_id: number(),
+    user_id: number().optional(),
+    display_name: string().optional(),
     receipt_line_item_id: string(), // FK to receipt_line_items.id (UUID)
     created_at: number(),
     deleted_at: number().optional(),

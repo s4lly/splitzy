@@ -10,9 +10,7 @@
  * const user: User = {
  *   id: 1,
  *   authUserId: "user_2abc123",
- *   username: "jane",
  *   displayName: "Jane Doe",
- *   email: "jane@example.com",
  *   createdAt: new Date("2024-01-15"),
  *   deletedAt: null
  * };
@@ -25,14 +23,8 @@ export interface User {
   /** The Clerk authentication user ID */
   readonly authUserId: string;
 
-  /** The username, or null if not set */
-  readonly username: string | null;
-
   /** The display name, or null if not set */
   readonly displayName: string | null;
-
-  /** The email address, or null if not set */
-  readonly email: string | null;
 
   /** The date and time when this user was created */
   readonly createdAt: Date;

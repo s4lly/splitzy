@@ -32,19 +32,19 @@ export function fromTanStackResponse(
       quantity: new Decimal(item.quantity),
       pricePerItem: new Decimal(item.price_per_item),
       totalPrice: new Decimal(item.total_price),
+      deletedAt: null, // API doesn't return deleted_at for line items yet
       assignments: (item.assignments ?? []).map(
         (a): Assignment => ({
           id: a.id,
-          userId: a.user_id,
+          userId: a.user_id ?? null,
+          displayName: a.display_name ?? null,
           receiptLineItemId: a.receipt_line_item_id,
           createdAt: new Date(a.created_at),
           deletedAt: a.deleted_at ? new Date(a.deleted_at) : null,
           user: a.user ? {
             id: a.user.id,
             authUserId: a.user.auth_user_id,
-            username: a.user.username ?? null,
             displayName: a.user.display_name ?? null,
-            email: a.user.email ?? null,
             createdAt: new Date(a.user.created_at),
             deletedAt: a.user.deleted_at ? new Date(a.user.deleted_at) : null,
           } : null,

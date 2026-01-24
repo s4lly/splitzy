@@ -152,9 +152,7 @@ class UserResponse(BaseModel):
 
     id: int
     auth_user_id: str
-    username: Optional[str] = None
     display_name: Optional[str] = None
-    email: Optional[str] = None
     created_at: datetime
     deleted_at: Optional[datetime] = None
 
@@ -168,7 +166,8 @@ class AssignmentResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    user_id: int
+    user_id: Optional[int] = None
+    display_name: Optional[str] = None
     receipt_line_item_id: UUID
     created_at: datetime
     deleted_at: Optional[datetime] = None
