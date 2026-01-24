@@ -16,13 +16,14 @@ class ReceiptLineItem(db.Model):
         nullable=False,
         index=True,
     )
-    name = db.Column(db.String(255), nullable=True)
+    name = db.Column(db.Text, nullable=True)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     price_per_item = db.Column(Numeric(12, 2), nullable=False, default=0)
     total_price = db.Column(Numeric(12, 2), nullable=False, default=0)
     created_at = db.Column(
         db.DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     )
+    deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
 
     assignments = db.relationship(
         "Assignment", backref=db.backref("line_item", lazy=True)

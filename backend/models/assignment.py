@@ -8,18 +8,19 @@ class Assignment(db.Model):
     __tablename__ = "assignments"
 
     id = db.Column(db.BigInteger, primary_key=True)
-    user_id = db.Column(
-        db.BigInteger,
-        db.ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
     receipt_line_item_id = db.Column(
         UUID(as_uuid=True),
         db.ForeignKey("receipt_line_items.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
+    user_id = db.Column(
+        db.BigInteger,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
+    display_name = db.Column(db.Text, unique=False, nullable=True)
     created_at = db.Column(
         db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     )
