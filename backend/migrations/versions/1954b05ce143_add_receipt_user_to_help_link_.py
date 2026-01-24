@@ -39,13 +39,15 @@ def upgrade():
     conn = op.get_bind()
     
     # 3a. Create receipt_users for assignments with user_id
-    # Use DISTINCT ON to get one receipt_user per user_id, preferring non-null display_name
+    # Use DISTINCT ON to get one receipt_user per user_id, preferring assignment display_name
+    # but falling back to user's display_name from users table
     conn.execute(sa.text("""
         INSERT INTO receipt_users (user_id, display_name)
-        SELECT DISTINCT ON (user_id) user_id, display_name
-        FROM assignments 
-        WHERE user_id IS NOT NULL
-        ORDER BY user_id, display_name NULLS LAST
+        SELECT DISTINCT ON (a.user_id) a.user_id, COALESCE(a.display_name, u.display_name)
+        FROM assignments a
+        LEFT JOIN users u ON a.user_id = u.id
+        WHERE a.user_id IS NOT NULL
+        ORDER BY a.user_id, a.display_name NULLS LAST
     """))
     
     # 3b. Create receipt_users for anonymous assignments (display_name only)
