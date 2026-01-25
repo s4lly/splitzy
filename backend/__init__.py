@@ -156,6 +156,13 @@ def create_app():
 
     db.init_app(app)
 
+    # Import all models to ensure SQLAlchemy can resolve string references in relationships
+    # This must happen after db.init_app() but before blueprints are registered
+    from models.assignment import Assignment  # noqa: F401
+    from models.receipt_line_item import ReceiptLineItem  # noqa: F401
+    from models.user import User  # noqa: F401
+    from models.user_receipt import UserReceipt  # noqa: F401
+
     @event.listens_for(Engine, "connect")
     def set_sqlite_pragma(dbapi_connection, connection_record):
         if isinstance(dbapi_connection, sqlite3.Connection):

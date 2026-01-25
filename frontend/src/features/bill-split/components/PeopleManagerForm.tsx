@@ -1,10 +1,13 @@
 import PersonBadge from '@/components/Receipt/PersonBadge';
-import { getColorForName, getColorStyle } from '@/components/Receipt/utils/get-color-for-name';
+import {
+  getColorForName,
+  getColorStyle,
+} from '@/components/Receipt/utils/get-color-for-name';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useMobile } from '@/hooks/useMobile';
 import { cn } from '@/lib/utils';
 import { Plus, X } from 'lucide-react';
-import { useMobile } from '@/hooks/useMobile';
 
 interface PeopleManagerFormProps {
   people: string[];
@@ -79,4 +82,3 @@ export const PeopleManagerForm = ({
     </div>
   );
 };
-

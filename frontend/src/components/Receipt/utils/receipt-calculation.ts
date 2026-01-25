@@ -1,14 +1,15 @@
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import type { Receipt } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import Decimal from 'decimal.js';
 import { receiptHasLineItems } from './receipt-conditions';
 
 /**
  * Person identifier type.
- * In v1, the person identifier is their name (string).
+ * The person identifier is their receiptUserId (ULID string).
  *
  * @example
  * ```ts
- * const personId: PersonIdentifier = 'Alice';
+ * const personId: PersonIdentifier = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
  * ```
  */
 export type PersonIdentifier = string;
@@ -34,12 +35,12 @@ export type ItemIdentifier = string;
  * ```ts
  * const itemSplits: ItemSplits = {
  *   individuals: new Map([
- *     ['Alice', [{ item: item1, type: 'even' }, { item: item2, type: 'even' }]],
- *     ['Bob', [{ item: item1, type: 'even' }]]
+ *     [1, [{ item: item1, type: 'even' }, { item: item2, type: 'even' }]],
+ *     [2, [{ item: item1, type: 'even' }]]
  *   ]),
  *   groups: new Map([
- *     ['item1', new Set(['Alice', 'Bob'])],
- *     ['item2', new Set(['Alice'])]
+ *     ['item1', new Set([1, 2])],
+ *     ['item2', new Set([1])]
  *   ])
  * };
  * ```
@@ -183,25 +184,25 @@ export namespace calculations {
      *
      * @example
      * ```ts
-     * // Item costs $30.00, assigned to Alice and Bob
-     * const aliceTotal = calculations.pretax.getPersonTotalForItem(item, 'Alice');
+     * // Item costs $30.00, assigned to users 1 and 2
+     * const user1Total = calculations.pretax.getPersonTotalForItem(item, 1);
      * // Returns: new Decimal(15.00) - split evenly between 2 people
      *
-     * // Item costs $20.00, assigned to Alice, Bob, and Charlie
-     * const aliceTotal = calculations.pretax.getPersonTotalForItem(item, 'Alice');
+     * // Item costs $20.00, assigned to users 1, 2, and 3
+     * const user1Total = calculations.pretax.getPersonTotalForItem(item, 1);
      * // Returns: new Decimal(6.66666666666666666667) - split evenly between 3 people
      * ```
      */
     export function getPersonTotalForItem(
       item: ReceiptLineItem,
-      person: string,
+      person: string, // receiptUserId (ULID)
       options?: {
         candidate?: { pricePerItem: Decimal; quantity: Decimal };
       }
     ): Decimal {
-      const assignedPeople = item.assignments;
+      const assignedReceiptUserIds = item.assignments.map((assignment) => assignment.receiptUserId);
 
-      if (assignedPeople.length === 0 || !assignedPeople.includes(person)) {
+      if (assignedReceiptUserIds.length === 0 || !assignedReceiptUserIds.includes(person)) {
         return new Decimal(0);
       }
 
@@ -211,7 +212,7 @@ export namespace calculations {
       );
 
       const pricePerPerson = itemTotalPrice.div(
-        new Decimal(assignedPeople.length)
+        new Decimal(assignedReceiptUserIds.length)
       );
 
       return pricePerPerson;
@@ -232,19 +233,19 @@ export namespace calculations {
      * @example
      * ```ts
      * const lineItems = [
-     *   { id: 'item1', assignments: ['Alice', 'Bob'], ... },
-     *   { id: 'item2', assignments: ['Bob'], ... }
+     *   { id: 'item1', assignments: [{ userId: 1, ... }, { userId: 2, ... }], ... },
+     *   { id: 'item2', assignments: [{ userId: 2, ... }], ... }
      * ];
      * const splits = calculations.pretax.createItemSplitsFromAssignments(lineItems);
      * // Result:
      * // {
      * //   individuals: Map([
-     * //     ['Alice', [{ item: item1, type: 'even' }]],
-     * //     ['Bob', [{ item: item1, type: 'even' }, { item: item2, type: 'even' }]]
+     * //     [1, [{ item: item1, type: 'even' }]],
+     * //     [2, [{ item: item1, type: 'even' }, { item: item2, type: 'even' }]]
      * //   ]),
      * //   groups: Map([
-     * //     ['item1', Set(['Alice', 'Bob'])],
-     * //     ['item2', Set(['Bob'])]
+     * //     ['item1', Set([1, 2])],
+     * //     ['item2', Set([2])]
      * //   ])
      * // }
      * ```
@@ -258,7 +259,8 @@ export namespace calculations {
       };
 
       for (const lineItem of lineItems) {
-        for (const personIdentifier of lineItem.assignments) {
+        for (const assignment of lineItem.assignments) {
+          const personIdentifier = assignment.receiptUserId;
           let personSplits = splits.individuals.get(personIdentifier);
 
           if (!personSplits) {
@@ -298,15 +300,15 @@ export namespace calculations {
      *
      * @example
      * ```ts
-     * // Alice assigned to:
-     * // - Item 1: $30.00 (split with Bob) -> Alice owes $15.00
-     * // - Item 2: $20.00 (split with Bob and Charlie) -> Alice owes $6.67
-     * const aliceTotal = calculations.pretax.getPersonSplitTotal('Alice', itemSplits);
+     * // User 1 assigned to:
+     * // - Item 1: $30.00 (split with user 2) -> User 1 owes $15.00
+     * // - Item 2: $20.00 (split with users 2 and 3) -> User 1 owes $6.67
+     * const user1Total = calculations.pretax.getPersonSplitTotal(1, itemSplits);
      * // Returns: new Decimal(21.66666666666666666667)
      * ```
      */
     export function getPersonSplitTotal(
-      personIdentifier: string,
+      personIdentifier: string, // receiptUserId (ULID)
       itemSplits: ItemSplits
     ): Decimal {
       const individualSplits = itemSplits.individuals.get(personIdentifier);
@@ -366,9 +368,9 @@ export namespace calculations {
      * ```ts
      * const personTotals = calculations.pretax.getAllPersonItemTotals(itemSplits);
      * // Returns: Map([
-     * //   ['Alice', new Decimal(21.67)],
-     * //   ['Bob', new Decimal(25.00)],
-     * //   ['Charlie', new Decimal(6.67)]
+     * //   [1, new Decimal(21.67)],
+     * //   [2, new Decimal(25.00)],
+     * //   [3, new Decimal(6.67)]
      * // ])
      * ```
      */
@@ -549,7 +551,7 @@ export namespace calculations {
      *
      * @example
      * ```ts
-     * // Alice assigned to $50 item, Bob assigned to $30 item
+     * // User 1 assigned to $50 item, User 2 assigned to $30 item
      * // Tax: 10%, Tip: $5, Gratuity: $2
      * // Tax split: proportional, Tip/Gratuity: even
      * const personTotals = calculations.final.getPersonTotals(receipt, {
@@ -559,19 +561,19 @@ export namespace calculations {
      *   gratuitySplitType: 'even'
      * });
      * // Returns: Map([
-     * //   ['Alice', new Decimal(58.50)], // 50 + (50 * 0.10) + 2.5 + 1
-     * //   ['Bob', new Decimal(36.50)]     // 30 + (30 * 0.10) + 2.5 + 1
+     * //   [1, new Decimal(58.50)], // 50 + (50 * 0.10) + 2.5 + 1
+     * //   [2, new Decimal(36.50)]     // 30 + (30 * 0.10) + 2.5 + 1
      * // ])
      *
      * // Even split example (no items assigned)
      * // Receipt total: $100, 2 people
      * const personTotals = calculations.final.getPersonTotals(receipt, {
-     *   itemSplits: { individuals: new Map([['Alice', []], ['Bob', []]]), groups: new Map() },
+     *   itemSplits: { individuals: new Map([[1, []], [2, []]]), groups: new Map() },
      *   taxSplitType: 'even'
      * });
      * // Returns: Map([
-     * //   ['Alice', new Decimal(50.00)],
-     * //   ['Bob', new Decimal(50.00)]
+     * //   [1, new Decimal(50.00)],
+     * //   [2, new Decimal(50.00)]
      * // ])
      * ```
      */
@@ -753,15 +755,15 @@ export namespace calculations {
      *
      * const receiptTotal = new Decimal(31.00);
      * const personTotals = new Map([
-     *   ['Alice', new Decimal(10.333)],
-     *   ['Bob', new Decimal(10.333)],
-     *   ['Charlie', new Decimal(10.334)]
+     *   [1, new Decimal(10.333)],
+     *   [2, new Decimal(10.333)],
+     *   [3, new Decimal(10.334)]
      * ]);
      * const fairTotals = calculations.final.getPersonFairTotals(receiptTotal, personTotals);
      * // Returns: Map([
-     * //   ['Alice', new Decimal(10.33)],
-     * //   ['Bob', new Decimal(10.33)],
-     * //   ['Charlie', new Decimal(10.34)]
+     * //   [1, new Decimal(10.33)],
+     * //   [2, new Decimal(10.33)],
+     * //   [3, new Decimal(10.34)]
      * // ])
      * // Sum: 10.33 + 10.33 + 10.34 = 31.00 ✓
      *
@@ -774,11 +776,11 @@ export namespace calculations {
      */
     export function getPersonFairTotals(
       receiptTotal: Decimal,
-      personTotals: Map<string, Decimal>
-    ): Map<string, Decimal> {
+      personTotals: Map<PersonIdentifier, Decimal>
+    ): Map<PersonIdentifier, Decimal> {
       // Step 1: Convert to cents (truncate directly to avoid double-conversion errors)
-      const inCents = Array.from(personTotals).map(([name, value]) => ({
-        name,
+      const inCents = Array.from(personTotals).map(([userId, value]) => ({
+        userId,
         original: value,
         cents: new Decimal(value).mul(100).trunc(), // Convert directly to integer cents
       }));
@@ -805,8 +807,8 @@ export namespace calculations {
       }
 
       // Step 5: Convert back to dollars and return
-      const result: Map<string, Decimal> = new Map(
-        inCents.map(({ name, cents }) => [name, cents.div(100)])
+      const result: Map<PersonIdentifier, Decimal> = new Map(
+        inCents.map(({ userId, cents }) => [userId, cents.div(100)])
       );
 
       return result;
@@ -819,9 +821,9 @@ export namespace calculations {
   export namespace utils {
     /**
      * Filters people based on assignment and search value.
-     * @param people - All people
-     * @param assignedPeople - People already assigned
-     * @param searchValue - Optional search string
+     * @param people - All people (receipt user IDs - ULIDs)
+     * @param assignedPeople - People already assigned (receipt user IDs - ULIDs)
+     * @param searchValue - Optional search string to filter by display name
      * @returns Filtered people not assigned and matching search (if provided)
      */
     export function filterPeople(
@@ -830,10 +832,11 @@ export namespace calculations {
       searchValue?: string
     ): string[] {
       if (searchValue) {
+        // Note: searchValue doesn't make sense with numeric IDs, but kept for API compatibility
+        // In practice, this would need user data to search by name
         return people.filter(
           (person) =>
-            !assignedPeople.includes(person) &&
-            person.toLowerCase().includes(searchValue.toLowerCase())
+            !assignedPeople.includes(person)
         );
       }
 

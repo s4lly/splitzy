@@ -4,6 +4,16 @@ from logging.config import fileConfig
 from alembic import context
 from flask import current_app
 
+# Import all models so Alembic can discover them during autogenerate.
+# This ensures all models are registered with SQLAlchemy's metadata,
+# even if they're not imported elsewhere in the application code.
+# This is a common pattern to ensure new models are always discovered.
+from models.assignment import Assignment
+from models.receipt_line_item import ReceiptLineItem
+from models.receipt_user import ReceiptUser
+from models.user import User
+from models.user_receipt import UserReceipt
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -50,6 +60,26 @@ def get_metadata():
     return target_db.metadata
 
 
+def include_object(object, name, type_, reflected, compare_to):
+    """
+    Filter objects during autogenerate to exclude specific columns/tables.
+
+    TEMPORARY: This function currently ignores the 'assignments' column on
+    'receipt_line_items' table to prevent Alembic from dropping it during
+    autogenerate. The column exists in the database but is not defined in
+    the ReceiptLineItem model because we're using a relationship with the
+    same name instead.
+
+    TODO: Once you're ready to drop the old 'assignments' column from the
+    database, remove the check below and create a migration to drop it.
+    """
+    # Ignore the 'assignments' column on receipt_line_items table
+    if type_ == "column" and name == "assignments":
+        if hasattr(object, "table") and object.table.name == "receipt_line_items":
+            return False
+    return True
+
+
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -63,7 +93,12 @@ def run_migrations_offline():
 
     """
     url = config.get_main_option("sqlalchemy.url")
-    context.configure(url=url, target_metadata=get_metadata(), literal_binds=True)
+    context.configure(
+        url=url,
+        target_metadata=get_metadata(),
+        literal_binds=True,
+        include_object=include_object,
+    )
 
     with context.begin_transaction():
         context.run_migrations()
@@ -95,7 +130,10 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=get_metadata(), **conf_args
+            connection=connection,
+            target_metadata=get_metadata(),
+            include_object=include_object,
+            **conf_args,
         )
 
         with context.begin_transaction():

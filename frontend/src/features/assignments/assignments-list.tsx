@@ -4,46 +4,77 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
-import type { ReceiptLineItem } from '@/models/Receipt';
+import type { Assignment } from '@/models/Assignment';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
+import { getReceiptUserDisplayName, getUserDisplayName } from '@/utils/user-display';
 import Decimal from 'decimal.js';
 import { Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
 
 interface AssignmentsListProps {
-  possiblePeople: string[];
-  onAddAssignment: (person: string) => void;
-  onRemoveAssignment: (person: string) => void;
+  possiblePeople: string[]; // ULID receipt user IDs
+  onAddExistingPerson: (receiptUserId: string) => void;
+  onAddNewPerson: (displayName: string) => void;
+  onRemoveAssignment: (assignmentId: string) => void;
   item: ReceiptLineItem;
   formPricePerItem: Decimal;
   formQuantity: Decimal;
+  allAssignments?: readonly Assignment[]; // All assignments across the receipt (optional)
 }
 
 const AssignmentsList: React.FC<AssignmentsListProps> = ({
   possiblePeople,
-  onAddAssignment,
+  onAddExistingPerson,
+  onAddNewPerson,
   onRemoveAssignment,
   item,
   formPricePerItem,
   formQuantity,
+  allAssignments,
 }) => {
   const [newPerson, setNewPerson] = useState('');
   const newPersonSanitized = newPerson.trim();
   const assignmentsAddAllEnabled = useFeatureFlag('assignments-add-all');
 
-  const filteredPeople = calculations.utils.filterPeople(
+  const assignedReceiptUserIds = item.assignments.map((a) => a.receiptUserId);
+  const filteredReceiptUserIds = calculations.utils.filterPeople(
     possiblePeople,
-    item.assignments,
+    assignedReceiptUserIds,
     newPersonSanitized
   );
 
-  const handleAdd = (person: string) => {
-    onAddAssignment(person);
+  // Helper to get display name for a receiptUserId
+  // Uses all assignments across receipt if available, otherwise falls back to item's assignments
+  const getDisplayNameForReceiptUserId = (receiptUserId: string): string => {
+    const assignmentsToUse = allAssignments ?? item.assignments;
+    const assignment = assignmentsToUse.find(
+      (a) => a.receiptUserId === receiptUserId
+    );
+    return getReceiptUserDisplayName(
+      assignment?.receiptUser ?? null,
+      receiptUserId
+    );
+  };
+
+  const handleAddExisting = (receiptUserId: string) => {
+    onAddExistingPerson(receiptUserId);
+    setNewPerson('');
+  };
+
+  const handleAddNew = (displayName: string) => {
+    onAddNewPerson(displayName);
     setNewPerson('');
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && newPersonSanitized) {
-      handleAdd(newPersonSanitized);
+      // Check if input matches an existing receiptUserId (ULID)
+      if (possiblePeople.includes(newPersonSanitized)) {
+        handleAddExisting(newPersonSanitized);
+      } else {
+        // Create new receipt user with the entered name
+        handleAddNew(newPersonSanitized);
+      }
     }
   };
 
@@ -57,38 +88,46 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
           </div>
         ) : (
           <ul className="flex flex-col gap-2">
-            {item.assignments.map((person) => (
-              <li
-                key={person}
-                className="flex items-center justify-between rounded bg-muted/30 px-3 py-2"
-              >
-                <div className="flex items-center">
-                  <span>{person}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span>
-                    {formatCurrency(
-                      calculations.pretax.getPersonTotalForItem(item, person, {
-                        candidate: {
-                          pricePerItem: formPricePerItem,
-                          quantity: formQuantity,
-                        },
-                      })
-                    )}
-                  </span>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="secondary"
-                    onClick={() => onRemoveAssignment(person)}
-                    aria-label={`Remove ${person}`}
-                    title={`Remove ${person}`}
-                  >
-                    <X />
-                  </Button>
-                </div>
-              </li>
-            ))}
+            {item.assignments.map((assignment) => {
+              const receiptUserId = assignment.receiptUserId;
+              const displayName = getUserDisplayName(assignment);
+              return (
+                <li
+                  key={assignment.id}
+                  className="flex items-center justify-between rounded bg-muted/30 px-3 py-2"
+                >
+                  <div className="flex items-center">
+                    <span>{displayName}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>
+                      {formatCurrency(
+                        calculations.pretax.getPersonTotalForItem(
+                          item,
+                          receiptUserId,
+                          {
+                            candidate: {
+                              pricePerItem: formPricePerItem,
+                              quantity: formQuantity,
+                            },
+                          }
+                        )
+                      )}
+                    </span>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="secondary"
+                      onClick={() => onRemoveAssignment(assignment.id)}
+                      aria-label={`Remove ${displayName}`}
+                      title={`Remove ${displayName}`}
+                    >
+                      <X />
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
@@ -112,9 +151,16 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
             <Button
               type="button"
               size="sm"
-              onClick={() =>
-                newPersonSanitized && handleAdd(newPersonSanitized)
-              }
+              onClick={() => {
+                if (newPersonSanitized) {
+                  // Check if input matches an existing receiptUserId (ULID)
+                  if (possiblePeople.includes(newPersonSanitized)) {
+                    handleAddExisting(newPersonSanitized);
+                  } else {
+                    handleAddNew(newPersonSanitized);
+                  }
+                }
+              }}
               disabled={!newPersonSanitized}
             >
               Create
@@ -123,7 +169,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
         </div>
         <ul className="flex max-h-40 flex-col gap-2 overflow-y-auto">
           {assignmentsAddAllEnabled &&
-            filteredPeople.length > 0 &&
+            filteredReceiptUserIds.length > 0 &&
             newPersonSanitized === '' && (
               <div className="mb-2">
                 <Button
@@ -131,16 +177,18 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                   size="sm"
                   variant="outline"
                   onClick={() =>
-                    filteredPeople.forEach((person) => handleAdd(person))
+                    filteredReceiptUserIds.forEach((receiptUserId) =>
+                      handleAddExisting(receiptUserId)
+                    )
                   }
-                  disabled={filteredPeople.length === 0}
+                  disabled={filteredReceiptUserIds.length === 0}
                   className="w-full"
                 >
                   Assign All
                 </Button>
               </div>
             )}
-          {filteredPeople.length === 0 ? (
+          {filteredReceiptUserIds.length === 0 ? (
             <div className="text-center">
               {newPersonSanitized ? (
                 <li className="text-sm text-muted-foreground">
@@ -153,23 +201,26 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
               )}
             </div>
           ) : (
-            filteredPeople.map((person) => (
-              <li
-                key={person}
-                className="flex items-center justify-between gap-2 rounded border-b bg-muted/10 pb-2 last-of-type:border-b-0"
-              >
-                <span>{person}</span>
-                <Button
-                  variant="outline"
-                  onClick={() => handleAdd(person)}
-                  className="size-8 rounded-full"
-                  aria-label={`Assign ${person}`}
-                  title={`Assign ${person}`}
+            filteredReceiptUserIds.map((receiptUserId) => {
+              const displayName = getDisplayNameForReceiptUserId(receiptUserId);
+              return (
+                <li
+                  key={receiptUserId}
+                  className="flex items-center justify-between gap-2 rounded border-b bg-muted/10 pb-2 last-of-type:border-b-0"
                 >
-                  <Plus />
-                </Button>
-              </li>
-            ))
+                  <span>{displayName}</span>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleAddExisting(receiptUserId)}
+                    className="size-8 rounded-full"
+                    aria-label={`Assign ${displayName}`}
+                    title={`Assign ${displayName}`}
+                  >
+                    <Plus />
+                  </Button>
+                </li>
+              );
+            })
           )}
         </ul>
       </div>
