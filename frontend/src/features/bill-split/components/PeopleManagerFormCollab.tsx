@@ -16,7 +16,7 @@ import { useState } from 'react';
 export const PeopleManagerFormCollab = () => {
   const isMobile = useMobile();
   const assignments = useAtomValue(assignmentsAtom);
-  const userIds = assignments.map((a) => a.userId);
+  const receiptUserIds = assignments.map((a) => a.receiptUserId);
   const [newPersonName, setNewPersonName] = useState('');
 
   const handleAddPerson = () => {
@@ -27,7 +27,7 @@ export const PeopleManagerFormCollab = () => {
     }
   };
 
-  const handleRemovePerson = (_userId: number) => {
+  const handleRemovePerson = (_receiptUserId: number) => {
     // Blank implementation - no operation
     // Note: Removing people would require deleting Assignment objects
   };
@@ -55,14 +55,14 @@ export const PeopleManagerFormCollab = () => {
 
       <div className="flex flex-wrap gap-2">
         {assignments.map((assignment, index) => {
-          const userId = assignment.userId;
+          const receiptUserId = assignment.receiptUserId;
           const displayName = getUserDisplayName(assignment);
-          const userIdString = String(userId);
-          const colorPair = getColorForName(userIdString, index, assignments.length);
+          const receiptUserIdString = String(receiptUserId);
+          const colorPair = getColorForName(receiptUserIdString, index, assignments.length);
           const colorStyle = getColorStyle(colorPair);
           return (
             <div
-              key={userId}
+              key={receiptUserId}
               className="flex items-center rounded-full px-3 py-1"
               style={colorStyle}
             >
@@ -79,14 +79,14 @@ export const PeopleManagerFormCollab = () => {
                 variant="ghost"
                 size="sm"
                 className="ml-1 h-5 w-5 rounded-full p-0 hover:bg-destructive/20"
-                onClick={() => handleRemovePerson(userId)}
+                onClick={() => handleRemovePerson(receiptUserId)}
               >
                 <X className="h-3 w-3" />
               </Button>
             </div>
           );
         })}
-        {userIds.length === 0 && (
+        {receiptUserIds.length === 0 && (
           <p className="text-sm text-muted-foreground">
             No people added yet. Add people to split the bill.
           </p>

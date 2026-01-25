@@ -1,10 +1,12 @@
 import type {
-  AssignmentWithUser,
+  AssignmentWithReceiptUser,
   ReceiptWithLineItems,
 } from '@/context/ReceiptContext';
 import type { Assignment } from '@/models/Assignment';
 import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
+import type { ReceiptUser } from '@/models/ReceiptUser';
+import type { User } from '@/models/User';
 import Decimal from 'decimal.js';
 
 /**
@@ -32,19 +34,25 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
       totalPrice: new Decimal(item.total_price),
       deletedAt: item.deleted_at ? new Date(item.deleted_at) : null,
       assignments: (item.assignments ?? []).map(
-        (a: AssignmentWithUser): Assignment => ({
+        (a: AssignmentWithReceiptUser): Assignment => ({
           id: a.id,
-          userId: a.user_id ?? null,
-          displayName: a.display_name ?? null,
+          receiptUserId: a.receipt_user_id,
           receiptLineItemId: a.receipt_line_item_id,
           createdAt: new Date(a.created_at),
           deletedAt: a.deleted_at ? new Date(a.deleted_at) : null,
-          user: a.user ? {
-            id: a.user.id,
-            authUserId: a.user.auth_user_id,
-            displayName: a.user.display_name ?? null,
-            createdAt: new Date(a.user.created_at),
-            deletedAt: a.user.deleted_at ? new Date(a.user.deleted_at) : null,
+          receiptUser: a.receipt_user ? {
+            id: a.receipt_user.id,
+            userId: a.receipt_user.user_id ?? null,
+            displayName: a.receipt_user.display_name ?? null,
+            createdAt: new Date(a.receipt_user.created_at),
+            deletedAt: a.receipt_user.deleted_at ? new Date(a.receipt_user.deleted_at) : null,
+            user: a.receipt_user.user ? {
+              id: a.receipt_user.user.id,
+              authUserId: a.receipt_user.user.auth_user_id,
+              displayName: a.receipt_user.user.display_name ?? null,
+              createdAt: new Date(a.receipt_user.user.created_at),
+              deletedAt: a.receipt_user.user.deleted_at ? new Date(a.receipt_user.user.deleted_at) : null,
+            } : null,
           } : null,
         })
       ),

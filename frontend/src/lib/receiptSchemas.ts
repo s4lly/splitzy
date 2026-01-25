@@ -8,14 +8,22 @@ export const UserSchema = z.object({
   deleted_at: z.string().nullable(),
 });
 
-export const AssignmentSchema = z.object({
+export const ReceiptUserSchema = z.object({
   id: z.number(),
   user_id: z.number().nullable(),
   display_name: z.string().nullable(),
+  created_at: z.string(),
+  deleted_at: z.string().nullable(),
+  user: UserSchema.nullable().optional(),
+});
+
+export const AssignmentSchema = z.object({
+  id: z.number(),
+  receipt_user_id: z.number(),
   receipt_line_item_id: z.string().uuid(),
   created_at: z.string(),
   deleted_at: z.string().nullable(),
-  user: UserSchema.nullable(),
+  receipt_user: ReceiptUserSchema.nullable(),
 });
 
 export const LineItemSchema = z.object({

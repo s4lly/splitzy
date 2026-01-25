@@ -18,7 +18,7 @@ export function useZeroLineItemMutations() {
   const receiptId = useAtomValue(receiptIdAtom);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const togglePersonAssignment = async (itemId: string, userId: number) => {
+  const togglePersonAssignment = async (itemId: string, receiptUserId: number) => {
     if (!receipt) {
       return;
     }

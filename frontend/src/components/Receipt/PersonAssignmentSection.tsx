@@ -33,18 +33,18 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
     return (
       <>
         {visibleAssignments.map((assignment, personIdx) => {
-          const userId = assignment.userId;
+          const receiptUserId = assignment.receiptUserId;
           const displayName = getUserDisplayName(assignment);
-          const userIdString = String(userId);
-          // Use the userId's index in the overall people array for consistent colors
-          const personIndex = people.indexOf(userId);
+          const receiptUserIdString = String(receiptUserId);
+          // Use the receiptUserId's index in the overall people array for consistent colors
+          const personIndex = people.indexOf(receiptUserId);
           const normalizedIndex =
             people.length > 0
               ? (personIndex >= 0 ? personIndex : personIdx) % people.length
               : 0;
 
           const colorPair = getColorForName(
-            userIdString,
+            receiptUserIdString,
             normalizedIndex,
             people.length
           );

@@ -227,12 +227,12 @@ export const assignmentsAtom = atom(
     const receipt = get(receiptAtom);
     if (!receipt) return [];
 
-    // Extract unique assignments by userId from line item assignments
+    // Extract unique assignments by receiptUserId from line item assignments
     const assignments = new Map<number, Assignment>();
     for (const item of receipt.lineItems) {
       for (const assignment of item.assignments) {
-        if (!assignments.has(assignment.userId)) {
-          assignments.set(assignment.userId, assignment);
+        if (!assignments.has(assignment.receiptUserId)) {
+          assignments.set(assignment.receiptUserId, assignment);
         }
       }
     }

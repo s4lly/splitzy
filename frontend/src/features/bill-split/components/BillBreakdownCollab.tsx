@@ -34,7 +34,7 @@ import { FileText, UserPlus } from 'lucide-react';
 export const BillBreakdownCollab = () => {
   const isMobile = useMobile();
   const assignments = useAtomValue(assignmentsAtom);
-  const userIds = assignments.map((a) => a.userId);
+  const receiptUserIds = assignments.map((a) => a.receiptUserId);
   const receipt = useAtomValue(receiptAtom);
   const personFairTotals = useAtomValue(personFairTotalsAtom);
   const personPretaxTotals = useAtomValue(personPretaxTotalsAtom);
@@ -49,7 +49,7 @@ export const BillBreakdownCollab = () => {
     return null;
   }
 
-  if (userIds.length === 0) {
+  if (receiptUserIds.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg bg-muted/30 p-6 text-center">
         <UserPlus className="mb-2 h-10 w-10 text-muted-foreground" />
@@ -78,26 +78,26 @@ export const BillBreakdownCollab = () => {
       <h3 className="mb-1 font-medium">Bill Breakdown</h3>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {assignments.map((assignment, idx) => {
-          const userId = assignment.userId;
+          const receiptUserId = assignment.receiptUserId;
           const displayName = getUserDisplayName(assignment);
-          const userIdString = String(userId);
-          const colorPair = getColorForName(userIdString, idx, assignments.length);
+          const receiptUserIdString = String(receiptUserId);
+          const colorPair = getColorForName(receiptUserIdString, idx, assignments.length);
           const colorStyle = getColorStyle(colorPair);
 
           const personFairTotal: Decimal =
-            personFairTotals.get(userId) ?? new Decimal(0);
+            personFairTotals.get(receiptUserId) ?? new Decimal(0);
 
           const personPretaxTotal: Decimal =
-            personPretaxTotals.get(userId) ?? new Decimal(0);
+            personPretaxTotals.get(receiptUserId) ?? new Decimal(0);
 
           const taxAmount: Decimal = personPretaxTotal.mul(
             calculations.tax.getRate(receipt)
           );
 
-          const personItems = getPersonItems(userId, receipt);
+          const personItems = getPersonItems(receiptUserId, receipt);
 
           return (
-            <Dialog key={userId}>
+            <Dialog key={receiptUserId}>
               <DialogTrigger asChild>
                 <div
                   className="cursor-pointer rounded-lg border p-4 transition-shadow [background-color:color-mix(in_srgb,var(--bg-light)_5%,transparent)] hover:shadow-md dark:[background-color:color-mix(in_srgb,var(--bg-dark)_20%,transparent)]"
@@ -118,7 +118,7 @@ export const BillBreakdownCollab = () => {
                       <div className="flex items-end justify-between">
                         <div className="text-lg font-semibold">
                           {formatCurrency(
-                            personFairTotals.get(userId) ?? new Decimal(0)
+                            personFairTotals.get(receiptUserId) ?? new Decimal(0)
                           )}
                         </div>
                         <div className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-800/30 dark:text-blue-300">
@@ -126,7 +126,7 @@ export const BillBreakdownCollab = () => {
                         </div>
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        {`1/${userIds.length} of the total`}
+                        {`1/${receiptUserIds.length} of the total`}
                       </div>
                     </>
                   ) : !receipt.taxIncludedInItems &&
@@ -138,7 +138,7 @@ export const BillBreakdownCollab = () => {
                         </div>
                         <div className="text-sm font-medium">
                           {formatCurrency(
-                            personPretaxTotals.get(userId) ?? new Decimal(0)
+                            personPretaxTotals.get(receiptUserId) ?? new Decimal(0)
                           )}
                         </div>
                       </div>
@@ -261,7 +261,7 @@ export const BillBreakdownCollab = () => {
                             </td>
                             <td className="px-3 py-2 text-right text-sm">
                               {formatCurrency(
-                                personPretaxTotals.get(userId) ?? new Decimal(0)
+                                personPretaxTotals.get(receiptUserId) ?? new Decimal(0)
                               )}
                             </td>
                           </tr>
@@ -288,7 +288,7 @@ export const BillBreakdownCollab = () => {
                                     receipt.tip ?? new Decimal(0)
                                   ).plus(receipt.gratuity ?? new Decimal(0));
                                   const tipPerPerson = totalTip.div(
-                                    userIds.length
+                                    receiptUserIds.length
                                   );
                                   return formatCurrency(tipPerPerson);
                                 })()}

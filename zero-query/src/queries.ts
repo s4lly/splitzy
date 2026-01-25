@@ -18,7 +18,9 @@ export const queries = defineQueries({
       zql.user_receipts
         .where("id", id)
         .related("line_items", (q) =>
-          q.related("assignments", (q) => q.related("user")),
+          q.related("assignments", (q) =>
+            q.related("receipt_user", (q) => q.related("user"))
+          ),
         )
         .related("user")
         .one(),

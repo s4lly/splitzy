@@ -12,8 +12,8 @@ import React, { useMemo, useState } from 'react';
 
 interface AssignmentsListProps {
   possiblePeople: number[];
-  onAddAssignment: (userId: number) => void;
-  onRemoveAssignment: (userId: number) => void;
+  onAddAssignment: (receiptUserId: number) => void;
+  onRemoveAssignment: (receiptUserId: number) => void;
   item: ReceiptLineItem;
   formPricePerItem: Decimal;
   formQuantity: Decimal;
@@ -31,40 +31,40 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
   const newPersonSanitized = newPerson.trim();
   const assignmentsAddAllEnabled = useFeatureFlag('assignments-add-all');
 
-  const assignedUserIds = item.assignments.map((a) => a.userId);
-  const filteredUserIds = calculations.utils.filterPeople(
+  const assignedReceiptUserIds = item.assignments.map((a) => a.receiptUserId);
+  const filteredReceiptUserIds = calculations.utils.filterPeople(
     possiblePeople,
-    assignedUserIds,
+    assignedReceiptUserIds,
     newPersonSanitized
   );
 
-  // Create a lookup map from userId to displayName using existing assignments
-  const userIdToDisplayNameMap = useMemo(() => {
+  // Create a lookup map from receiptUserId to displayName using existing assignments
+  const receiptUserIdToDisplayNameMap = useMemo(() => {
     const map = new Map<number, string>();
     item.assignments.forEach((assignment) => {
-      map.set(assignment.userId, getUserDisplayName(assignment));
+      map.set(assignment.receiptUserId, getUserDisplayName(assignment));
     });
     return map;
   }, [item.assignments]);
 
-  // Helper to get display name for a userId, with fallback
-  const getDisplayNameForUserId = (userId: number): string => {
-    return userIdToDisplayNameMap.get(userId) ?? `User ${userId}`;
+  // Helper to get display name for a receiptUserId, with fallback
+  const getDisplayNameForReceiptUserId = (receiptUserId: number): string => {
+    return receiptUserIdToDisplayNameMap.get(receiptUserId) ?? `User ${receiptUserId}`;
   };
 
-  const handleAdd = (userId: number) => {
-    onAddAssignment(userId);
+  const handleAdd = (receiptUserId: number) => {
+    onAddAssignment(receiptUserId);
     setNewPerson('');
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && newPersonSanitized) {
-      // Try to parse as userId, or create new user (would need backend support)
-      const userId = parseInt(newPersonSanitized, 10);
-      if (!isNaN(userId)) {
-        handleAdd(userId);
+      // Try to parse as receiptUserId, or create new receipt user (would need backend support)
+      const receiptUserId = parseInt(newPersonSanitized, 10);
+      if (!isNaN(receiptUserId)) {
+        handleAdd(receiptUserId);
       }
-      // Note: Creating new users by name would require backend API
+      // Note: Creating new receipt users by name would require backend API
     }
   };
 
@@ -79,7 +79,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
         ) : (
           <ul className="flex flex-col gap-2">
             {item.assignments.map((assignment) => {
-              const userId = assignment.userId;
+              const receiptUserId = assignment.receiptUserId;
               const displayName = getUserDisplayName(assignment);
               return (
                 <li
@@ -94,7 +94,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                       {formatCurrency(
                         calculations.pretax.getPersonTotalForItem(
                           item,
-                          userId,
+                          receiptUserId,
                           {
                             candidate: {
                               pricePerItem: formPricePerItem,
@@ -108,7 +108,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                       type="button"
                       size="icon"
                       variant="secondary"
-                      onClick={() => onRemoveAssignment(userId)}
+                      onClick={() => onRemoveAssignment(receiptUserId)}
                       aria-label={`Remove ${displayName}`}
                       title={`Remove ${displayName}`}
                     >
@@ -143,9 +143,9 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
               size="sm"
               onClick={() => {
                 if (newPersonSanitized) {
-                  const userId = parseInt(newPersonSanitized, 10);
-                  if (!isNaN(userId)) {
-                    handleAdd(userId);
+                  const receiptUserId = parseInt(newPersonSanitized, 10);
+                  if (!isNaN(receiptUserId)) {
+                    handleAdd(receiptUserId);
                   }
                 }
               }}
@@ -157,7 +157,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
         </div>
         <ul className="flex max-h-40 flex-col gap-2 overflow-y-auto">
           {assignmentsAddAllEnabled &&
-            filteredUserIds.length > 0 &&
+            filteredReceiptUserIds.length > 0 &&
             newPersonSanitized === '' && (
               <div className="mb-2">
                 <Button
@@ -165,16 +165,16 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                   size="sm"
                   variant="outline"
                   onClick={() =>
-                    filteredUserIds.forEach((userId) => handleAdd(userId))
+                    filteredReceiptUserIds.forEach((receiptUserId) => handleAdd(receiptUserId))
                   }
-                  disabled={filteredUserIds.length === 0}
+                  disabled={filteredReceiptUserIds.length === 0}
                   className="w-full"
                 >
                   Assign All
                 </Button>
               </div>
             )}
-          {filteredUserIds.length === 0 ? (
+          {filteredReceiptUserIds.length === 0 ? (
             <div className="text-center">
               {newPersonSanitized ? (
                 <li className="text-sm text-muted-foreground">
@@ -187,17 +187,17 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
               )}
             </div>
           ) : (
-            filteredUserIds.map((userId) => {
-              const displayName = getDisplayNameForUserId(userId);
+            filteredReceiptUserIds.map((receiptUserId) => {
+              const displayName = getDisplayNameForReceiptUserId(receiptUserId);
               return (
                 <li
-                  key={userId}
+                  key={receiptUserId}
                   className="flex items-center justify-between gap-2 rounded border-b bg-muted/10 pb-2 last-of-type:border-b-0"
                 >
                   <span>{displayName}</span>
                   <Button
                     variant="outline"
-                    onClick={() => handleAdd(userId)}
+                    onClick={() => handleAdd(receiptUserId)}
                     className="size-8 rounded-full"
                     aria-label={`Assign ${displayName}`}
                     title={`Assign ${displayName}`}

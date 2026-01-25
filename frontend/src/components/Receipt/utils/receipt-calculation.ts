@@ -200,9 +200,9 @@ export namespace calculations {
         candidate?: { pricePerItem: Decimal; quantity: Decimal };
       }
     ): Decimal {
-      const assignedUserIds = item.assignments.map((assignment) => assignment.userId);
+      const assignedReceiptUserIds = item.assignments.map((assignment) => assignment.receiptUserId);
 
-      if (assignedUserIds.length === 0 || !assignedUserIds.includes(person)) {
+      if (assignedReceiptUserIds.length === 0 || !assignedReceiptUserIds.includes(person)) {
         return new Decimal(0);
       }
 
@@ -212,7 +212,7 @@ export namespace calculations {
       );
 
       const pricePerPerson = itemTotalPrice.div(
-        new Decimal(assignedUserIds.length)
+        new Decimal(assignedReceiptUserIds.length)
       );
 
       return pricePerPerson;
@@ -260,7 +260,7 @@ export namespace calculations {
 
       for (const lineItem of lineItems) {
         for (const assignment of lineItem.assignments) {
-          const personIdentifier = assignment.userId;
+          const personIdentifier = assignment.receiptUserId;
           let personSplits = splits.individuals.get(personIdentifier);
 
           if (!personSplits) {

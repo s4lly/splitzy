@@ -3,12 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { calculations } from './receipt-calculation';
 import type { Assignment } from '@/models/Assignment';
 
-const makeAssignment = (userId: number, lineItemId: string, overrides: Partial<Assignment> = {}): Assignment => ({
+const makeAssignment = (receiptUserId: number, lineItemId: string, overrides: Partial<Assignment> = {}): Assignment => ({
   id: Math.floor(Math.random() * 10000),
-  userId,
+  receiptUserId,
   receiptLineItemId: lineItemId,
   createdAt: new Date('2024-01-01'),
   deletedAt: null,
+  receiptUser: null,
   ...overrides,
 });
 
