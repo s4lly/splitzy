@@ -9,13 +9,13 @@ import type { ReceiptUser } from './ReceiptUser';
  * @example
  * ```typescript
  * const assignment: Assignment = {
- *   id: 1,
- *   receiptUserId: 42,
+ *   id: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+ *   receiptUserId: "01ARZ3NDEKTSV4RRFFQ69G5FBV",
  *   receiptLineItemId: "item-123",
  *   createdAt: new Date("2024-01-15"),
  *   deletedAt: null,
  *   receiptUser: {
- *     id: 42,
+ *     id: "01ARZ3NDEKTSV4RRFFQ69G5FBV",
  *     userId: 1,
  *     displayName: "Jane Doe",
  *     createdAt: new Date("2024-01-10"),
@@ -25,11 +25,11 @@ import type { ReceiptUser } from './ReceiptUser';
  * ```
  */
 export interface Assignment {
-  /** The unique identifier for this assignment */
-  readonly id: number;
+  /** The unique identifier for this assignment (ULID) */
+  readonly id: string;
 
-  /** The ID of the receipt user assigned to this line item */
-  readonly receiptUserId: number;
+  /** The ID of the receipt user assigned to this line item (ULID) */
+  readonly receiptUserId: string;
 
   /** The ID of the receipt line item this assignment refers to */
   readonly receiptLineItemId: string;

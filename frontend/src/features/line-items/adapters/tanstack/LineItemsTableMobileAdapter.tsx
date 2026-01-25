@@ -13,21 +13,29 @@ export function LineItemsTableMobileAdapter({
   people: string[];
 }) {
   const {
-    togglePersonAssignment,
+    addExistingPersonAssignment,
+    addNewPersonAssignment,
+    removePersonAssignment,
     handleUpdateLineItem,
     handleDeleteLineItem,
     isDeleting,
   } = useTanstackLineItemMutations(receipt);
+
+  // Collect all assignments from line_items
+  const allAssignments = line_items.flatMap((item) => item.assignments);
 
   return (
     <LineItemsTableMobile
       line_items={line_items}
       receipt={receipt}
       people={people}
-      togglePersonAssignment={togglePersonAssignment}
+      addExistingPersonAssignment={addExistingPersonAssignment}
+      addNewPersonAssignment={addNewPersonAssignment}
+      removePersonAssignment={removePersonAssignment}
       onUpdateLineItem={handleUpdateLineItem}
       onDeleteLineItem={handleDeleteLineItem}
       isDeleting={isDeleting}
+      allAssignments={allAssignments}
     />
   );
 }

@@ -11,7 +11,7 @@ import type { User } from './User';
  * @example
  * ```typescript
  * const receiptUser: ReceiptUser = {
- *   id: 1,
+ *   id: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
  *   userId: 42,
  *   displayName: "Jane Doe",
  *   createdAt: new Date("2024-01-15"),
@@ -27,8 +27,8 @@ import type { User } from './User';
  * ```
  */
 export interface ReceiptUser {
-  /** The unique identifier for this receipt user */
-  readonly id: number;
+  /** The unique identifier for this receipt user (ULID) */
+  readonly id: string;
 
   /** The ID of the linked User, or null if this is an anonymous receipt user */
   readonly userId: number | null;

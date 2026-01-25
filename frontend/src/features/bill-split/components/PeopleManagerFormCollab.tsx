@@ -27,7 +27,7 @@ export const PeopleManagerFormCollab = () => {
     }
   };
 
-  const handleRemovePerson = (_receiptUserId: number) => {
+  const handleRemovePerson = (_receiptUserId: string) => {
     // Blank implementation - no operation
     // Note: Removing people would require deleting Assignment objects
   };
@@ -58,7 +58,11 @@ export const PeopleManagerFormCollab = () => {
           const receiptUserId = assignment.receiptUserId;
           const displayName = getUserDisplayName(assignment);
           const receiptUserIdString = String(receiptUserId);
-          const colorPair = getColorForName(receiptUserIdString, index, assignments.length);
+          const colorPair = getColorForName(
+            receiptUserIdString,
+            index,
+            assignments.length
+          );
           const colorStyle = getColorStyle(colorPair);
           return (
             <div

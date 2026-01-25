@@ -18,8 +18,8 @@ import { number, string, table } from "@rocicorp/zero";
 
 export const assignment = table("assignments")
   .columns({
-    id: number(),
-    receipt_user_id: number(), // FK to receipt_users.id
+    id: string(), // ULID, client-generated
+    receipt_user_id: string(), // FK to receipt_users.id (ULID)
     receipt_line_item_id: string(), // FK to receipt_line_items.id (UUID)
     created_at: number(),
     deleted_at: number().optional(),

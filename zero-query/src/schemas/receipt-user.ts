@@ -18,7 +18,7 @@ import { number, string, table } from "@rocicorp/zero";
 
 export const receiptUser = table("receipt_users")
   .columns({
-    id: number(),
+    id: string(), // ULID, client-generated
     user_id: number().optional(),
     display_name: string().optional(),
     created_at: number(),

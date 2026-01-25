@@ -12,7 +12,7 @@ import {
 
 interface PersonAssignmentSectionProps {
   item: ReceiptLineItem;
-  people: number[];
+  people: string[]; // ULID receipt user IDs
   className?: string;
 }
 
@@ -35,7 +35,6 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
         {visibleAssignments.map((assignment, personIdx) => {
           const receiptUserId = assignment.receiptUserId;
           const displayName = getUserDisplayName(assignment);
-          const receiptUserIdString = String(receiptUserId);
           // Use the receiptUserId's index in the overall people array for consistent colors
           const personIndex = people.indexOf(receiptUserId);
           const normalizedIndex =
@@ -44,7 +43,7 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
               : 0;
 
           const colorPair = getColorForName(
-            receiptUserIdString,
+            receiptUserId,
             normalizedIndex,
             people.length
           );

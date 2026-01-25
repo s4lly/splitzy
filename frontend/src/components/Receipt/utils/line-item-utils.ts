@@ -9,7 +9,7 @@ import Decimal from 'decimal.js';
  */
 export const getPeopleFromLineItems = (
   lineItems: readonly ReceiptLineItem[]
-): number[] => {
+): string[] => {
   const allAssignments = lineItems.flatMap((item) => item.assignments);
   const receiptUserIds = allAssignments.map((assignment) => assignment.receiptUserId);
 
@@ -35,7 +35,7 @@ export type PersonItem = {
  * @returns Array of person items with calculated costs
  */
 export const getPersonItems = (
-  receiptUserId: number,
+  receiptUserId: string, // ULID
   receipt: Receipt
 ): PersonItem[] => {
   const personItems: PersonItem[] = [];
@@ -57,8 +57,7 @@ export const getPersonItems = (
         // TODO: used person display name before
         // with receipt user id, maybe don't need to transform to string
         sharedWith: assignedReceiptUserIds
-          .filter((id) => id !== receiptUserId)
-          .map((id) => String(id)),
+          .filter((id) => id !== receiptUserId),
       });
     }
   });

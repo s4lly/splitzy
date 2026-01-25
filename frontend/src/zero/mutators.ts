@@ -60,4 +60,47 @@ export const mutators = defineMutators({
       }
     ),
   },
+  receiptUsers: {
+    insert: defineMutator(
+      z.object({
+        id: z.string(), // ULID
+        display_name: z.string(),
+        created_at: z.number().optional(),
+      }),
+      async ({ tx, args }) => {
+        await tx.mutate.receipt_users.insert({
+          id: args.id,
+          display_name: args.display_name,
+          created_at: args.created_at ?? Date.now(),
+        });
+      }
+    ),
+  },
+  assignments: {
+    insert: defineMutator(
+      z.object({
+        id: z.string(), // ULID
+        receipt_user_id: z.string(), // ULID
+        receipt_line_item_id: z.string(),
+        created_at: z.number().optional(),
+      }),
+      async ({ tx, args }) => {
+        await tx.mutate.assignments.insert({
+          id: args.id,
+          receipt_user_id: args.receipt_user_id,
+          receipt_line_item_id: args.receipt_line_item_id,
+          created_at: args.created_at ?? Date.now(),
+        });
+      }
+    ),
+    delete: defineMutator(
+      z.object({ id: z.string() }), // ULID
+      async ({ tx, args }) => {
+        await tx.mutate.assignments.update({
+          id: args.id,
+          deleted_at: Date.now(),
+        });
+      }
+    ),
+  },
 });

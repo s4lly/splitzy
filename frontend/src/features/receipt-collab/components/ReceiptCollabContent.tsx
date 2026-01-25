@@ -34,7 +34,7 @@ export const ReceiptCollabContent = () => {
   const isMobile = useMobile();
   const receipt = useAtomValue(receiptAtom);
   const assignments = useAtomValue(assignmentsAtom);
-  const userIds = assignments.map((a) => a.userId);
+  const receiptUserIds = assignments.map((a) => a.receiptUserId);
   const [isAddingItem, setIsAddingItem] = useState(false);
 
   if (!receipt) {
@@ -94,9 +94,9 @@ export const ReceiptCollabContent = () => {
               {receipt.lineItems && receipt.lineItems.length > 0 ? (
                 <>
                   {isMobile ? (
-                    <LineItemsTableMobileAdapter people={userIds} />
+                    <LineItemsTableMobileAdapter people={receiptUserIds} />
                   ) : (
-                    <LineItemsTableDesktopAdapter people={userIds} />
+                    <LineItemsTableDesktopAdapter people={receiptUserIds} />
                   )}
                 </>
               ) : (

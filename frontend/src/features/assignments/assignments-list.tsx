@@ -4,28 +4,33 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
+import type { Assignment } from '@/models/Assignment';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-import { getUserDisplayName } from '@/utils/user-display';
+import { getReceiptUserDisplayName, getUserDisplayName } from '@/utils/user-display';
 import Decimal from 'decimal.js';
 import { Plus, X } from 'lucide-react';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 interface AssignmentsListProps {
-  possiblePeople: number[];
-  onAddAssignment: (receiptUserId: number) => void;
-  onRemoveAssignment: (receiptUserId: number) => void;
+  possiblePeople: string[]; // ULID receipt user IDs
+  onAddExistingPerson: (receiptUserId: string) => void;
+  onAddNewPerson: (displayName: string) => void;
+  onRemoveAssignment: (assignmentId: string) => void;
   item: ReceiptLineItem;
   formPricePerItem: Decimal;
   formQuantity: Decimal;
+  allAssignments?: readonly Assignment[]; // All assignments across the receipt (optional)
 }
 
 const AssignmentsList: React.FC<AssignmentsListProps> = ({
   possiblePeople,
-  onAddAssignment,
+  onAddExistingPerson,
+  onAddNewPerson,
   onRemoveAssignment,
   item,
   formPricePerItem,
   formQuantity,
+  allAssignments,
 }) => {
   const [newPerson, setNewPerson] = useState('');
   const newPersonSanitized = newPerson.trim();
@@ -38,33 +43,38 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
     newPersonSanitized
   );
 
-  // Create a lookup map from receiptUserId to displayName using existing assignments
-  const receiptUserIdToDisplayNameMap = useMemo(() => {
-    const map = new Map<number, string>();
-    item.assignments.forEach((assignment) => {
-      map.set(assignment.receiptUserId, getUserDisplayName(assignment));
-    });
-    return map;
-  }, [item.assignments]);
-
-  // Helper to get display name for a receiptUserId, with fallback
-  const getDisplayNameForReceiptUserId = (receiptUserId: number): string => {
-    return receiptUserIdToDisplayNameMap.get(receiptUserId) ?? `User ${receiptUserId}`;
+  // Helper to get display name for a receiptUserId
+  // Uses all assignments across receipt if available, otherwise falls back to item's assignments
+  const getDisplayNameForReceiptUserId = (receiptUserId: string): string => {
+    const assignmentsToUse = allAssignments ?? item.assignments;
+    const assignment = assignmentsToUse.find(
+      (a) => a.receiptUserId === receiptUserId
+    );
+    return getReceiptUserDisplayName(
+      assignment?.receiptUser ?? null,
+      receiptUserId
+    );
   };
 
-  const handleAdd = (receiptUserId: number) => {
-    onAddAssignment(receiptUserId);
+  const handleAddExisting = (receiptUserId: string) => {
+    onAddExistingPerson(receiptUserId);
+    setNewPerson('');
+  };
+
+  const handleAddNew = (displayName: string) => {
+    onAddNewPerson(displayName);
     setNewPerson('');
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && newPersonSanitized) {
-      // Try to parse as receiptUserId, or create new receipt user (would need backend support)
-      const receiptUserId = parseInt(newPersonSanitized, 10);
-      if (!isNaN(receiptUserId)) {
-        handleAdd(receiptUserId);
+      // Check if input matches an existing receiptUserId (ULID)
+      if (possiblePeople.includes(newPersonSanitized)) {
+        handleAddExisting(newPersonSanitized);
+      } else {
+        // Create new receipt user with the entered name
+        handleAddNew(newPersonSanitized);
       }
-      // Note: Creating new receipt users by name would require backend API
     }
   };
 
@@ -108,7 +118,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                       type="button"
                       size="icon"
                       variant="secondary"
-                      onClick={() => onRemoveAssignment(receiptUserId)}
+                      onClick={() => onRemoveAssignment(assignment.id)}
                       aria-label={`Remove ${displayName}`}
                       title={`Remove ${displayName}`}
                     >
@@ -143,9 +153,11 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
               size="sm"
               onClick={() => {
                 if (newPersonSanitized) {
-                  const receiptUserId = parseInt(newPersonSanitized, 10);
-                  if (!isNaN(receiptUserId)) {
-                    handleAdd(receiptUserId);
+                  // Check if input matches an existing receiptUserId (ULID)
+                  if (possiblePeople.includes(newPersonSanitized)) {
+                    handleAddExisting(newPersonSanitized);
+                  } else {
+                    handleAddNew(newPersonSanitized);
                   }
                 }
               }}
@@ -165,7 +177,9 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                   size="sm"
                   variant="outline"
                   onClick={() =>
-                    filteredReceiptUserIds.forEach((receiptUserId) => handleAdd(receiptUserId))
+                    filteredReceiptUserIds.forEach((receiptUserId) =>
+                      handleAddExisting(receiptUserId)
+                    )
                   }
                   disabled={filteredReceiptUserIds.length === 0}
                   className="w-full"
@@ -197,7 +211,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                   <span>{displayName}</span>
                   <Button
                     variant="outline"
-                    onClick={() => handleAdd(receiptUserId)}
+                    onClick={() => handleAddExisting(receiptUserId)}
                     className="size-8 rounded-full"
                     aria-label={`Assign ${displayName}`}
                     title={`Assign ${displayName}`}

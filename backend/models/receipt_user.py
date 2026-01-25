@@ -6,7 +6,8 @@ from models import db
 class ReceiptUser(db.Model):
     __tablename__ = "receipt_users"
 
-    id = db.Column(db.BigInteger, primary_key=True)
+    # ID is client-generated ULID via Zero mutators, not auto-incremented
+    id = db.Column(db.Text, primary_key=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=True)
     display_name = db.Column(db.Text, nullable=True)
     created_at = db.Column(

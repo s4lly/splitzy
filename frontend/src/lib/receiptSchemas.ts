@@ -9,7 +9,7 @@ export const UserSchema = z.object({
 });
 
 export const ReceiptUserSchema = z.object({
-  id: z.number(),
+  id: z.string(), // ULID
   user_id: z.number().nullable(),
   display_name: z.string().nullable(),
   created_at: z.string(),
@@ -18,8 +18,8 @@ export const ReceiptUserSchema = z.object({
 });
 
 export const AssignmentSchema = z.object({
-  id: z.number(),
-  receipt_user_id: z.number(),
+  id: z.string(), // ULID
+  receipt_user_id: z.string(), // ULID
   receipt_line_item_id: z.string().uuid(),
   created_at: z.string(),
   deleted_at: z.string().nullable(),

@@ -5,14 +5,14 @@ import { receiptHasLineItems } from './receipt-conditions';
 
 /**
  * Person identifier type.
- * The person identifier is their userId (number).
+ * The person identifier is their receiptUserId (ULID string).
  *
  * @example
  * ```ts
- * const personId: PersonIdentifier = 42;
+ * const personId: PersonIdentifier = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
  * ```
  */
-export type PersonIdentifier = number;
+export type PersonIdentifier = string;
 
 /**
  * Item identifier type.
@@ -195,7 +195,7 @@ export namespace calculations {
      */
     export function getPersonTotalForItem(
       item: ReceiptLineItem,
-      person: number,
+      person: string, // receiptUserId (ULID)
       options?: {
         candidate?: { pricePerItem: Decimal; quantity: Decimal };
       }
@@ -308,7 +308,7 @@ export namespace calculations {
      * ```
      */
     export function getPersonSplitTotal(
-      personIdentifier: number,
+      personIdentifier: string, // receiptUserId (ULID)
       itemSplits: ItemSplits
     ): Decimal {
       const individualSplits = itemSplits.individuals.get(personIdentifier);
@@ -821,16 +821,16 @@ export namespace calculations {
   export namespace utils {
     /**
      * Filters people based on assignment and search value.
-     * @param people - All people (user IDs)
-     * @param assignedPeople - People already assigned (user IDs)
-     * @param searchValue - Optional search string (not used with numeric IDs, kept for compatibility)
+     * @param people - All people (receipt user IDs - ULIDs)
+     * @param assignedPeople - People already assigned (receipt user IDs - ULIDs)
+     * @param searchValue - Optional search string to filter by display name
      * @returns Filtered people not assigned and matching search (if provided)
      */
     export function filterPeople(
-      people: readonly number[],
-      assignedPeople: readonly number[],
+      people: readonly string[],
+      assignedPeople: readonly string[],
       searchValue?: string
-    ): number[] {
+    ): string[] {
       if (searchValue) {
         // Note: searchValue doesn't make sense with numeric IDs, but kept for API compatibility
         // In practice, this would need user data to search by name

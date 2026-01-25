@@ -1,14 +1,20 @@
 import LineItemsTableMobile from '@/components/Receipt/LineItemsTableMobile';
+import { assignmentsAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useZeroLineItemMutations } from './useZeroLineItemMutations';
+import { useAtomValue } from 'jotai';
 
-export function LineItemsTableMobileAdapter({ people }: { people: number[] }) {
+export function LineItemsTableMobileAdapter({ people }: { people: string[] }) {
   const {
-    togglePersonAssignment,
+    addExistingPersonAssignment,
+    addNewPersonAssignment,
+    removePersonAssignment,
     handleUpdateLineItem,
     handleDeleteLineItem,
     receipt,
     isReady,
   } = useZeroLineItemMutations();
+
+  const assignments = useAtomValue(assignmentsAtom);
 
   if (!isReady || !receipt) {
     return null;
@@ -19,10 +25,13 @@ export function LineItemsTableMobileAdapter({ people }: { people: number[] }) {
       line_items={receipt.lineItems}
       receipt={receipt}
       people={people}
-      togglePersonAssignment={togglePersonAssignment}
+      addExistingPersonAssignment={addExistingPersonAssignment}
+      addNewPersonAssignment={addNewPersonAssignment}
+      removePersonAssignment={removePersonAssignment}
       onUpdateLineItem={handleUpdateLineItem}
       onDeleteLineItem={handleDeleteLineItem}
       isDeleting={false}
+      allAssignments={assignments}
     />
   );
 }
