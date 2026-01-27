@@ -12,6 +12,7 @@ from image_analyzer import ImageAnalysisError, ImageAnalyzer, ImageAnalyzerConfi
 from models import db
 from models.assignment import Assignment
 from models.receipt_line_item import ReceiptLineItem
+from models.receipt_user import ReceiptUser
 from models.user_receipt import UserReceipt
 from schemas.receipt import (
     AssignmentResponse,
@@ -328,14 +329,15 @@ def get_user_receipts():
 def get_user_receipt(receipt_id):
     """Get a specific receipt by ID with assignments and users"""
     try:
-        # Eager load relationships: line_items -> assignments -> user
+        # Eager load relationships: line_items -> assignments -> receipt_user -> user
         receipt = db.session.get(
             UserReceipt,
             receipt_id,
             options=[
                 joinedload(UserReceipt.line_items)
                 .joinedload(ReceiptLineItem.assignments)
-                .joinedload(Assignment.user)
+                .joinedload(Assignment.receipt_user)
+                .joinedload(ReceiptUser.user)
             ],
         )
 

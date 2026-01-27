@@ -15,5 +15,7 @@ class ReceiptUser(db.Model):
     )
     deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
 
+    user = db.relationship("User", backref=db.backref("receipt_users", lazy=True))
+
     def __repr__(self):
         return f"<ReceiptUser {self.id}>"
