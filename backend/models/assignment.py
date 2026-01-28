@@ -29,6 +29,11 @@ class Assignment(db.Model):
     receipt_user = db.relationship(
         "ReceiptUser", backref=db.backref("assignments", lazy=True)
     )
+    user = db.relationship(
+        "ReceiptUser",
+        foreign_keys=[receipt_user_id],
+        lazy="joined",
+    )
 
     def __repr__(self):
         return f"<Assignment {self.receipt_user_id} {self.receipt_line_item_id}>"
