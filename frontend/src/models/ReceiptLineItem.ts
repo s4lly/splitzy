@@ -3,12 +3,12 @@ import type { Assignment } from './Assignment';
 
 /**
  * Represents a single line item on a receipt.
- * 
+ *
  * Line items are immutable and created from server state. They represent
  * individual products or services listed on a receipt, with pricing information
  * and user assignments. Use mutation functions to update line items rather than
  * modifying them directly.
- * 
+ *
  * @example
  * ```typescript
  * const lineItem: ReceiptLineItem = {
@@ -27,7 +27,7 @@ export interface ReceiptLineItem {
   readonly id: string;
 
   /** The name or description of the item */
-  readonly name: string;
+  readonly name: string | null;
 
   /** The quantity of this item, using Decimal.js for precision */
   readonly quantity: Decimal;

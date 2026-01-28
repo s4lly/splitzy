@@ -31,7 +31,7 @@ export default function LineItemForm({
   }) => void;
   onEditCancel?: () => void;
 }) {
-  const [formName, setFormName] = useState(item.name);
+  const [formName, setFormName] = useState(item.name ?? '');
   const [formQuantity, setFormQuantity] = useState<number>(
     item.quantity.toNumber()
   );

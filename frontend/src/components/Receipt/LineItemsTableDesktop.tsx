@@ -107,7 +107,9 @@ export default function LineItemsTableDesktop({
                 )}
               >
                 <TableCell>
-                  <span className="text-base font-medium">{item.name}</span>
+                  <span className="text-base font-medium">
+                    {item.name ?? '(Unnamed item)'}
+                  </span>
                 </TableCell>
                 <TableCell>
                   <span className="text-base font-medium">

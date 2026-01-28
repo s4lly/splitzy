@@ -111,7 +111,9 @@ export default function LineItemsTableMobile({
               // view
               <>
                 <div className="flex items-center justify-between border-b border-border/40 bg-muted/10 p-2">
-                  <span className="text-base font-medium">{item.name}</span>
+                  <span className="text-base font-medium">
+                    {item.name ?? '(Unnamed item)'}
+                  </span>
                   <div className="flex items-center gap-2">
                     <div className="text-right font-semibold">
                       {formatCurrency(

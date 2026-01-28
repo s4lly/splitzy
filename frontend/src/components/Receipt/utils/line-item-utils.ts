@@ -10,9 +10,12 @@ import Decimal from 'decimal.js';
 export const getPeopleFromLineItems = (
   lineItems: readonly ReceiptLineItem[]
 ): string[] => {
-  const allAssignments = lineItems.flatMap((item) => item.assignments)
+  const allAssignments = lineItems
+    .flatMap((item) => item.assignments)
     .filter((assignment) => !assignment.deletedAt);
-  const receiptUserIds = allAssignments.map((assignment) => assignment.receiptUserId);
+  const receiptUserIds = allAssignments.map(
+    (assignment) => assignment.receiptUserId
+  );
 
   return Array.from(new Set(receiptUserIds));
 };
@@ -52,15 +55,14 @@ export const getPersonItems = (
         new Decimal(assignedReceiptUserIds.length)
       );
       personItems.push({
-        name: item.name,
+        name: item.name ?? '(Unnamed item)',
         quantity: item.quantity,
         originalPrice: totalPrice,
         price: pricePerPerson,
         shared: assignedReceiptUserIds.length > 1,
         // TODO: used person display name before
         // with receipt user id, maybe don't need to transform to string
-        sharedWith: assignedReceiptUserIds
-          .filter((id) => id !== receiptUserId),
+        sharedWith: assignedReceiptUserIds.filter((id) => id !== receiptUserId),
       });
     }
   });
