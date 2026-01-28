@@ -285,7 +285,7 @@ class RegularReceiptResponse(RegularReceipt):
 
     id: int
     image_visibility: Literal["public", "owner_only"] = "public"
-    line_items: List[LineItemResponse]
+    line_items: List[LineItemWithAssignmentsResponse]
 
 
 # ============================================================================
