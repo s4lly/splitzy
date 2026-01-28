@@ -1,5 +1,5 @@
-import { defineMutator, defineMutators } from "@rocicorp/zero";
-import { z } from "zod";
+import { defineMutator, defineMutators } from '@rocicorp/zero';
+import { z } from 'zod';
 
 export const mutators = defineMutators({
   receipts: {
@@ -8,11 +8,11 @@ export const mutators = defineMutators({
         id: z.number(),
         tip: z.number().optional(),
         gratuity: z.number().optional(),
-        image_visibility: z.enum(["public", "owner_only"]).optional(),
+        image_visibility: z.enum(['public', 'owner_only']).optional(),
       }),
       async ({ tx, args }) => {
         await tx.mutate.user_receipts.update(args);
-      },
+      }
     ),
   },
   lineItems: {
@@ -23,11 +23,10 @@ export const mutators = defineMutators({
         quantity: z.number().optional(),
         price_per_item: z.number().optional(),
         total_price: z.number().optional(),
-        assignments: z.array(z.string()).optional(),
       }),
       async ({ tx, args }) => {
         await tx.mutate.receipt_line_items.update(args);
-      },
+      }
     ),
     delete: defineMutator(
       z.object({
@@ -35,7 +34,7 @@ export const mutators = defineMutators({
       }),
       async ({ tx, args }) => {
         await tx.mutate.receipt_line_items.delete({ id: args.id });
-      },
+      }
     ),
     insert: defineMutator(
       z.object({
@@ -57,7 +56,7 @@ export const mutators = defineMutators({
           total_price: args.total_price ?? 0,
           created_at: args.created_at ?? Date.now(),
         });
-      },
+      }
     ),
   },
   receiptUsers: {
@@ -73,7 +72,7 @@ export const mutators = defineMutators({
           display_name: args.display_name,
           created_at: args.created_at ?? Date.now(),
         });
-      },
+      }
     ),
   },
   assignments: {
@@ -91,7 +90,7 @@ export const mutators = defineMutators({
           receipt_line_item_id: args.receipt_line_item_id,
           created_at: args.created_at ?? Date.now(),
         });
-      },
+      }
     ),
     delete: defineMutator(
       z.object({ id: z.string() }), // ULID
@@ -100,7 +99,7 @@ export const mutators = defineMutators({
           id: args.id,
           deleted_at: Date.now(),
         });
-      },
+      }
     ),
   },
 });
