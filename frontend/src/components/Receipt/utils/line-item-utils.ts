@@ -10,7 +10,8 @@ import Decimal from 'decimal.js';
 export const getPeopleFromLineItems = (
   lineItems: readonly ReceiptLineItem[]
 ): string[] => {
-  const allAssignments = lineItems.flatMap((item) => item.assignments);
+  const allAssignments = lineItems.flatMap((item) => item.assignments)
+    .filter((assignment) => !assignment.deletedAt);
   const receiptUserIds = allAssignments.map((assignment) => assignment.receiptUserId);
 
   return Array.from(new Set(receiptUserIds));
@@ -40,7 +41,9 @@ export const getPersonItems = (
 ): PersonItem[] => {
   const personItems: PersonItem[] = [];
   receipt.lineItems.forEach((item) => {
-    const assignedReceiptUserIds = item.assignments.map((a) => a.receiptUserId);
+    const assignedReceiptUserIds = item.assignments
+      .filter((a) => !a.deletedAt)
+      .map((a) => a.receiptUserId);
     const isAssigned = assignedReceiptUserIds.includes(receiptUserId);
 
     if (isAssigned) {
