@@ -180,9 +180,12 @@ VERIFY_DB_URL="postgresql://postgres:pass@localhost:$VERIFY_DB_PORT/$VERIFY_DB_N
 #   -x              No privileges - skip ACL commands
 #   -d <url>        Target database connection string
 #   <dump_file>     Source dump file to restore
+set +e
 pg_restore -v -O -x -d "$VERIFY_DB_URL" "$DUMP_FILE" > /dev/null 2>&1
+RESTORE_EXIT_CODE=$?
+set -e
 
-if [ $? -ne 0 ]; then
+if [ $RESTORE_EXIT_CODE -ne 0 ]; then
     echo "  Warning: Some errors occurred during restore (this may be normal for schema-only dumps)"
 fi
 
