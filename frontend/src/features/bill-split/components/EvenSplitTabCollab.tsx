@@ -13,16 +13,16 @@ import { useEffect, useState } from 'react';
 
 export const EvenSplitTabCollab = () => {
   const assignments = useAtomValue(assignmentsAtom);
-  const userIds = assignments.map((a) => a.userId);
+  const receiptUserIds = assignments.map((a) => a.receiptUserId);
   const receipt = useAtomValue(receiptAtom);
   const [numberOfPeople, setNumberOfPeople] = useState(
-    userIds.length > 0 ? userIds.length : 1
+    receiptUserIds.length > 0 ? receiptUserIds.length : 1
   );
 
   // Sync numberOfPeople when assignments array changes
   useEffect(() => {
-    setNumberOfPeople(userIds.length > 0 ? userIds.length : 1);
-  }, [userIds.length]);
+    setNumberOfPeople(receiptUserIds.length > 0 ? receiptUserIds.length : 1);
+  }, [receiptUserIds.length]);
 
   if (!receipt) {
     return null;
