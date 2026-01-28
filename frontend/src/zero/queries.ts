@@ -19,8 +19,11 @@ export const queries = defineQueries({
         .where('id', id)
         .related('line_items', (q) =>
           q.related('assignments', (q) =>
-            q.where('deleted_at', 'IS', null)
-              .related('receipt_user', (q) => q.related('user'))
+            q
+              .where('deleted_at', 'IS', null)
+              .related('receipt_user', (q) =>
+                q.where('deleted_at', 'IS', null).related('user')
+              )
           )
         )
         .related('user')
