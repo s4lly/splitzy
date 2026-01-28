@@ -350,13 +350,20 @@ def get_user_receipt(receipt_id):
             assignments = []
             for assignment in line_item.assignments:
                 user_response = None
-                if assignment.user:
+                if assignment.receipt_user and assignment.receipt_user.user:
                     user_response = UserResponse.model_validate(
-                        assignment.user
+                        assignment.receipt_user.user
                     ).model_dump()
+                
+                # AssignmentResponse now matches Assignment model structure
                 assignment_response = AssignmentResponse.model_validate(
                     assignment
                 ).model_dump()
+                # Add display_name from receipt_user relationship
+                if assignment.receipt_user:
+                    assignment_response["display_name"] = (
+                        assignment.receipt_user.display_name
+                    )
                 assignment_response["user"] = user_response
                 assignments.append(assignment_response)
 

@@ -165,13 +165,13 @@ class AssignmentResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
-    user_id: Optional[int] = None
-    display_name: Optional[str] = None
+    id: str  # ULID string
+    receipt_user_id: str  # ULID string, FK to receipt_users.id
+    display_name: Optional[str] = None  # From receipt_user relationship
     receipt_line_item_id: UUID
     created_at: datetime
     deleted_at: Optional[datetime] = None
-    user: Optional[UserResponse] = None
+    user: Optional[UserResponse] = None  # From receipt_user.user relationship
 
 
 # ============================================================================
