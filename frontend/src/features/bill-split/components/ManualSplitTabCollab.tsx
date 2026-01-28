@@ -14,7 +14,7 @@ import { EqualSplitBannerCollab } from './EqualSplitBannerCollab';
 export const ManualSplitTabCollab = () => {
   const [showPeopleManager, setShowPeopleManager] = useState(false);
   const assignments = useAtomValue(assignmentsAtom);
-  const userIds = assignments.map((a) => a.userId);
+  const userIds = assignments.map((a) => a.receiptUserId);
   const useEqualSplit = useAtomValue(useEqualSplitAtom);
 
   return (
