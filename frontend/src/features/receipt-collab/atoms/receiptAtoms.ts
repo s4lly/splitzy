@@ -207,38 +207,34 @@ export const unassignedAmountAtom = atom((get) => {
 });
 
 // =============================================================================
-// Assignments Management Atoms
+// Assigned Users (unique receipt users involved in the receipt)
 // =============================================================================
 
 /**
- * Base atom for the list of all assignments (including unassigned)
+ * Unique receipt users involved in the receipt split.
+ *
+ * Derived from the receipt: one Assignment object per unique `receiptUserId`
+ * from all line item assignments. Use this to get the list of people splitting
+ * the bill (e.g. for people lists, bill breakdown). Each entry carries
+ * receiptUserId and receiptUser for display.
+ *
+ * @example
+ * ```typescript
+ * const assignedUsers = useAtomValue(assignedUsersAtom);
+ * const receiptUserIds = assignedUsers.map((a) => a.receiptUserId);
+ * ```
  */
-const assignmentsOverrideAtom = atom<Assignment[] | null>(null);
+export const assignedUsersAtom = atom((get) => {
+  const receipt = get(receiptAtom);
+  if (!receipt) return [];
 
-/**
- * List of all unique assignments involved in the receipt split.
- * Defaults to extracting unique assignments by userId from line item assignments.
- */
-export const assignmentsAtom = atom(
-  (get) => {
-    const override = get(assignmentsOverrideAtom);
-    if (override) return override;
-
-    const receipt = get(receiptAtom);
-    if (!receipt) return [];
-
-    // Extract unique assignments by receiptUserId from line item assignments
-    const assignments = new Map<string, Assignment>();
-    for (const item of receipt.lineItems) {
-      for (const assignment of item.assignments) {
-        if (!assignments.has(assignment.receiptUserId)) {
-          assignments.set(assignment.receiptUserId, assignment);
-        }
+  const userMap = new Map<string, Assignment>();
+  for (const item of receipt.lineItems) {
+    for (const assignment of item.assignments) {
+      if (!userMap.has(assignment.receiptUserId)) {
+        userMap.set(assignment.receiptUserId, assignment);
       }
     }
-    return Array.from(assignments.values());
-  },
-  (_get, set, newValue: Assignment[] | null) => {
-    set(assignmentsOverrideAtom, newValue);
   }
-);
+  return Array.from(userMap.values());
+});

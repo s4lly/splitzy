@@ -17,7 +17,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  assignmentsAtom,
+  assignedUsersAtom,
   personFairTotalsAtom,
   personPretaxTotalsAtom,
   receiptAtom,
@@ -33,8 +33,8 @@ import { FileText, UserPlus } from 'lucide-react';
 
 export const BillBreakdownCollab = () => {
   const isMobile = useMobile();
-  const assignments = useAtomValue(assignmentsAtom);
-  const receiptUserIds = assignments.map((a) => a.receiptUserId);
+  const assignedUsers = useAtomValue(assignedUsersAtom);
+  const receiptUserIds = assignedUsers.map((a) => a.receiptUserId);
   const receipt = useAtomValue(receiptAtom);
   const personFairTotals = useAtomValue(personFairTotalsAtom);
   const personPretaxTotals = useAtomValue(personPretaxTotalsAtom);
@@ -77,11 +77,11 @@ export const BillBreakdownCollab = () => {
     <div className="space-y-2">
       <h3 className="mb-1 font-medium">Bill Breakdown</h3>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {assignments.map((assignment, idx) => {
+        {assignedUsers.map((assignment, idx) => {
           const receiptUserId = assignment.receiptUserId;
           const displayName = getUserDisplayName(assignment);
           const receiptUserIdString = String(receiptUserId);
-          const colorPair = getColorForName(receiptUserIdString, idx, assignments.length);
+          const colorPair = getColorForName(receiptUserIdString, idx, assignedUsers.length);
           const colorStyle = getColorStyle(colorPair);
 
           const personFairTotal: Decimal =

@@ -1,7 +1,5 @@
 import LineItemsTableDesktop from '@/components/Receipt/LineItemsTableDesktop';
-import { assignmentsAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useZeroLineItemMutations } from './useZeroLineItemMutations';
-import { useAtomValue } from 'jotai';
 
 export function LineItemsTableDesktopAdapter({ people }: { people: string[] }) {
   const {
@@ -15,11 +13,11 @@ export function LineItemsTableDesktopAdapter({ people }: { people: string[] }) {
     isDeleting,
   } = useZeroLineItemMutations();
 
-  const assignments = useAtomValue(assignmentsAtom);
-
   if (!isReady || !receipt) {
     return null;
   }
+
+  const allAssignments = receipt.lineItems.flatMap((item) => item.assignments);
 
   return (
     <LineItemsTableDesktop
@@ -32,7 +30,7 @@ export function LineItemsTableDesktopAdapter({ people }: { people: string[] }) {
       onUpdateLineItem={handleUpdateLineItem}
       onDeleteLineItem={handleDeleteLineItem}
       isDeleting={isDeleting}
-      allAssignments={assignments}
+      allAssignments={allAssignments}
     />
   );
 }

@@ -5,7 +5,7 @@ import {
 } from '@/components/Receipt/utils/get-color-for-name';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { assignmentsAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
+import { assignedUsersAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useMobile } from '@/hooks/useMobile';
 import { cn } from '@/lib/utils';
 import { getUserDisplayName } from '@/utils/user-display';
@@ -15,8 +15,8 @@ import { useState } from 'react';
 
 export const PeopleManagerFormCollab = () => {
   const isMobile = useMobile();
-  const assignments = useAtomValue(assignmentsAtom);
-  const receiptUserIds = assignments.map((a) => a.receiptUserId);
+  const assignedUsers = useAtomValue(assignedUsersAtom);
+  const receiptUserIds = assignedUsers.map((a) => a.receiptUserId);
   const [newPersonName, setNewPersonName] = useState('');
 
   const handleAddPerson = () => {
@@ -54,14 +54,14 @@ export const PeopleManagerFormCollab = () => {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {assignments.map((assignment, index) => {
+        {assignedUsers.map((assignment, index) => {
           const receiptUserId = assignment.receiptUserId;
           const displayName = getUserDisplayName(assignment);
           const receiptUserIdString = String(receiptUserId);
           const colorPair = getColorForName(
             receiptUserIdString,
             index,
-            assignments.length
+            assignedUsers.length
           );
           const colorStyle = getColorStyle(colorPair);
           return (

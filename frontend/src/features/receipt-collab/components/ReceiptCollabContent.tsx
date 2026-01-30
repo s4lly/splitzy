@@ -8,7 +8,7 @@ import { LineItemsTableDesktopAdapter } from '@/features/line-items/adapters/zer
 import { LineItemsTableMobileAdapter } from '@/features/line-items/adapters/zero/LineItemsTableMobileAdapter';
 import { NoLineItemsMessage } from '@/features/line-items/components/NoLineItemsMessage';
 import {
-  assignmentsAtom,
+  assignedUsersAtom,
   receiptAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useReceiptSync } from '@/features/receipt-collab/hooks/useReceiptSync';
@@ -33,8 +33,8 @@ export const ReceiptCollabContent = () => {
 
   const isMobile = useMobile();
   const receipt = useAtomValue(receiptAtom);
-  const assignments = useAtomValue(assignmentsAtom);
-  const receiptUserIds = assignments.map((a) => a.receiptUserId);
+  const assignedUsers = useAtomValue(assignedUsersAtom);
+  const receiptUserIds = assignedUsers.map((a) => a.receiptUserId);
   const [isAddingItem, setIsAddingItem] = useState(false);
 
   if (!receipt) {

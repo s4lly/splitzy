@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  assignmentsAtom,
+  assignedUsersAtom,
   useEqualSplitAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useAtomValue } from 'jotai';
@@ -13,8 +13,8 @@ import { EqualSplitBannerCollab } from './EqualSplitBannerCollab';
 
 export const ManualSplitTabCollab = () => {
   const [showPeopleManager, setShowPeopleManager] = useState(false);
-  const assignments = useAtomValue(assignmentsAtom);
-  const userIds = assignments.map((a) => a.receiptUserId);
+  const assignedUsers = useAtomValue(assignedUsersAtom);
+  const userIds = assignedUsers.map((a) => a.receiptUserId);
   const useEqualSplit = useAtomValue(useEqualSplitAtom);
 
   return (
