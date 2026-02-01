@@ -18,6 +18,7 @@ from schemas.receipt import (
     AssignmentResponse,
     LineItem,
     LineItemResponse,
+    LineItemWithAssignmentsResponse,
     ReceiptLineItemCreate,
     RegularReceiptResponse,
     UserReceiptCreate,
@@ -354,7 +355,7 @@ def get_user_receipt(receipt_id):
                     user_response = UserResponse.model_validate(
                         assignment.receipt_user.user
                     ).model_dump()
-                
+
                 # AssignmentResponse now matches Assignment model structure
                 assignment_response = AssignmentResponse.model_validate(
                     assignment
@@ -369,7 +370,10 @@ def get_user_receipt(receipt_id):
 
             line_item_dict = LineItemResponse.model_validate(line_item).model_dump()
             line_item_dict["assignments"] = assignments
-            line_items_with_assignments.append(line_item_dict)
+            validated_line_item = LineItemWithAssignmentsResponse.model_validate(
+                line_item_dict
+            )
+            line_items_with_assignments.append(validated_line_item.model_dump())
 
         # Build receipt data with line items that include assignments
         receipt_data = RegularReceiptResponse.model_validate(receipt).model_dump(
