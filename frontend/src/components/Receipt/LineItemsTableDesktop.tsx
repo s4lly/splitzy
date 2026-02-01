@@ -37,7 +37,7 @@ export default function LineItemsTableDesktop({
   onUpdateLineItem,
   onDeleteLineItem,
   isDeleting,
-  allAssignments,
+  allAssignments = [],
 }: {
   line_items: readonly ReceiptLineItem[];
   people: string[]; // ULID receipt user IDs
@@ -207,7 +207,7 @@ export default function LineItemsTableDesktop({
                         item={item}
                         formPricePerItem={item.pricePerItem}
                         formQuantity={item.quantity}
-                        allAssignments={allAssignments}
+                        allAssignments={allAssignments ?? []}
                       />
                       <Separator />
                       <div className="flex justify-between gap-2 p-2">
