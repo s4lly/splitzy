@@ -26,7 +26,7 @@ export interface ReceiptLineItem {
   /** The unique identifier for this line item */
   readonly id: string;
 
-  /** The name or description of the item */
+  /** The name or description of the item (nullable to match backend receipt_line_items.name) */
   readonly name: string | null;
 
   /** The quantity of this item, using Decimal.js for precision */

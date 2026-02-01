@@ -28,7 +28,7 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
   const lineItems: readonly ReceiptLineItem[] = zeroReceipt.line_items.map(
     (item): ReceiptLineItem => ({
       id: item.id,
-      name: item.name ?? '',
+      name: item.name ?? null,
       quantity: new Decimal(item.quantity),
       pricePerItem: new Decimal(item.price_per_item),
       totalPrice: new Decimal(item.total_price),
