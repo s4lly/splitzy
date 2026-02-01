@@ -4,7 +4,7 @@ import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import {
-  peopleAtom,
+  assignedUsersAtom,
   receiptAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useAtomValue } from 'jotai';
@@ -12,16 +12,17 @@ import { Divide } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export const EvenSplitTabCollab = () => {
-  const people = useAtomValue(peopleAtom);
+  const assignedUsers = useAtomValue(assignedUsersAtom);
+  const receiptUserIds = assignedUsers.map((a) => a.receiptUserId);
   const receipt = useAtomValue(receiptAtom);
   const [numberOfPeople, setNumberOfPeople] = useState(
-    people.length > 0 ? people.length : 1
+    receiptUserIds.length > 0 ? receiptUserIds.length : 1
   );
 
-  // Sync numberOfPeople when people array changes
+  // Sync numberOfPeople when assignments array changes
   useEffect(() => {
-    setNumberOfPeople(people.length > 0 ? people.length : 1);
-  }, [people.length]);
+    setNumberOfPeople(receiptUserIds.length > 0 ? receiptUserIds.length : 1);
+  }, [receiptUserIds.length]);
 
   if (!receipt) {
     return null;

@@ -15,7 +15,9 @@ import type {
   UpdateLineItemData,
 } from '@/features/line-items/types';
 import { cn } from '@/lib/utils';
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import type { Assignment } from '@/models/Assignment';
+import type { Receipt } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { Pencil } from 'lucide-react';
 import { Fragment, useState } from 'react';
 import { Separator } from '../ui/separator';
@@ -29,21 +31,27 @@ export default function LineItemsTableDesktop({
   line_items,
   people,
   receipt,
-  togglePersonAssignment,
+  addExistingPersonAssignment,
+  addNewPersonAssignment,
+  removePersonAssignment,
   onUpdateLineItem,
   onDeleteLineItem,
   isDeleting,
+  allAssignments = [],
 }: {
   line_items: readonly ReceiptLineItem[];
-  people: string[];
+  people: string[]; // ULID receipt user IDs
   receipt: Receipt;
-  togglePersonAssignment: (itemId: string, person: string) => void;
+  addExistingPersonAssignment: (itemId: string, receiptUserId: string) => void;
+  addNewPersonAssignment: (itemId: string, displayName: string) => void;
+  removePersonAssignment: (itemId: string, assignmentId: string) => void;
   onUpdateLineItem: (data: UpdateLineItemData) => void;
   onDeleteLineItem: (
     data: DeleteLineItemData,
     options?: MutationCallbackOptions
   ) => void;
   isDeleting?: boolean;
+  allAssignments?: readonly Assignment[];
 }) {
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [assignmentItemId, setAssignmentItemId] = useState<string | null>(null);
@@ -99,7 +107,9 @@ export default function LineItemsTableDesktop({
                 )}
               >
                 <TableCell>
-                  <span className="text-base font-medium">{item.name}</span>
+                  <span className="text-base font-medium">
+                    {item.name ?? '(Unnamed item)'}
+                  </span>
                 </TableCell>
                 <TableCell>
                   <span className="text-base font-medium">
@@ -185,15 +195,19 @@ export default function LineItemsTableDesktop({
                       </div>
                       <AssignmentsList
                         possiblePeople={people}
-                        onAddAssignment={(person) => {
-                          togglePersonAssignment(item.id, person);
-                        }}
-                        onRemoveAssignment={(person) => {
-                          togglePersonAssignment(item.id, person);
-                        }}
+                        onAddExistingPerson={(receiptUserId) =>
+                          addExistingPersonAssignment(item.id, receiptUserId)
+                        }
+                        onAddNewPerson={(displayName) =>
+                          addNewPersonAssignment(item.id, displayName)
+                        }
+                        onRemoveAssignment={(assignmentId) =>
+                          removePersonAssignment(item.id, assignmentId)
+                        }
                         item={item}
                         formPricePerItem={item.pricePerItem}
                         formQuantity={item.quantity}
+                        allAssignments={allAssignments ?? []}
                       />
                       <Separator />
                       <div className="flex justify-between gap-2 p-2">

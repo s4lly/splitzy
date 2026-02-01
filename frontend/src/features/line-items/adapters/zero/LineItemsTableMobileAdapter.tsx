@@ -3,7 +3,9 @@ import { useZeroLineItemMutations } from './useZeroLineItemMutations';
 
 export function LineItemsTableMobileAdapter({ people }: { people: string[] }) {
   const {
-    togglePersonAssignment,
+    addExistingPersonAssignment,
+    addNewPersonAssignment,
+    removePersonAssignment,
     handleUpdateLineItem,
     handleDeleteLineItem,
     receipt,
@@ -14,15 +16,20 @@ export function LineItemsTableMobileAdapter({ people }: { people: string[] }) {
     return null;
   }
 
+  const allAssignments = receipt.lineItems.flatMap((item) => item.assignments);
+
   return (
     <LineItemsTableMobile
       line_items={receipt.lineItems}
       receipt={receipt}
       people={people}
-      togglePersonAssignment={togglePersonAssignment}
+      addExistingPersonAssignment={addExistingPersonAssignment}
+      addNewPersonAssignment={addNewPersonAssignment}
+      removePersonAssignment={removePersonAssignment}
       onUpdateLineItem={handleUpdateLineItem}
       onDeleteLineItem={handleDeleteLineItem}
       isDeleting={false}
+      allAssignments={allAssignments}
     />
   );
 }

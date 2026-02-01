@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import type { Receipt } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import debounce from 'lodash.debounce';
 import LineItemForm from './LineItemForm';
 

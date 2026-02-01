@@ -7,7 +7,9 @@ import type {
   UpdateLineItemData,
 } from '@/features/line-items/types';
 import { cn } from '@/lib/utils';
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import type { Assignment } from '@/models/Assignment';
+import type { Receipt } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { ChevronUp, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../ui/button';
@@ -23,21 +25,27 @@ export default function LineItemsTableMobile({
   line_items,
   receipt,
   people,
-  togglePersonAssignment,
+  addExistingPersonAssignment,
+  addNewPersonAssignment,
+  removePersonAssignment,
   onUpdateLineItem,
   onDeleteLineItem,
   isDeleting,
+  allAssignments,
 }: {
   line_items: readonly ReceiptLineItem[];
   receipt: Receipt;
-  people: string[];
-  togglePersonAssignment: (itemId: string, person: string) => void;
+  people: string[]; // ULID receipt user IDs
+  addExistingPersonAssignment: (itemId: string, receiptUserId: string) => void;
+  addNewPersonAssignment: (itemId: string, displayName: string) => void;
+  removePersonAssignment: (itemId: string, assignmentId: string) => void;
   onUpdateLineItem: (data: UpdateLineItemData) => void;
   onDeleteLineItem: (
     data: DeleteLineItemData,
     options?: MutationCallbackOptions
   ) => void;
   isDeleting?: boolean;
+  allAssignments?: readonly Assignment[];
 }) {
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [assignmentItemId, setAssignmentItemId] = useState<string | null>(null);
@@ -103,7 +111,9 @@ export default function LineItemsTableMobile({
               // view
               <>
                 <div className="flex items-center justify-between border-b border-border/40 bg-muted/10 p-2">
-                  <span className="text-base font-medium">{item.name}</span>
+                  <span className="text-base font-medium">
+                    {item.name ?? '(Unnamed item)'}
+                  </span>
                   <div className="flex items-center gap-2">
                     <div className="text-right font-semibold">
                       {formatCurrency(
@@ -143,15 +153,19 @@ export default function LineItemsTableMobile({
                 <AssignmentsHeader onAssignmentCancel={handleEditClose} />
                 <AssignmentsList
                   possiblePeople={people}
-                  onAddAssignment={(person) =>
-                    togglePersonAssignment(item.id, person)
+                  onAddExistingPerson={(receiptUserId) =>
+                    addExistingPersonAssignment(item.id, receiptUserId)
                   }
-                  onRemoveAssignment={(person) =>
-                    togglePersonAssignment(item.id, person)
+                  onAddNewPerson={(displayName) =>
+                    addNewPersonAssignment(item.id, displayName)
+                  }
+                  onRemoveAssignment={(assignmentId) =>
+                    removePersonAssignment(item.id, assignmentId)
                   }
                   item={item}
                   formPricePerItem={item.pricePerItem}
                   formQuantity={item.quantity}
+                  allAssignments={allAssignments}
                 />
               </>
             ) : (

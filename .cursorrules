@@ -20,6 +20,13 @@
 - Line items are stored in separate ReceiptLineItem table
 - Always use proper SQLAlchemy relationships and foreign keys
 
+## Database Migrations
+- **CRITICAL: When creating a new model, always import it in `backend/migrations/env.py`**
+- This ensures Alembic can discover the model during `flask db migrate` autogenerate
+- Add the import after the Flask imports, before the config section
+- Example: `from models.assignment import Assignment`
+- This is a catch-all pattern to ensure all models are registered with SQLAlchemy's metadata
+
 ## Code Style
 - Follow existing code patterns in the project
 - Use proper error handling and logging

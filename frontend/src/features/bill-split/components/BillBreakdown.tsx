@@ -221,7 +221,7 @@ export const BillBreakdown = ({
                             >
                               <td className="px-3 py-2.5 align-top">
                                 <div className="max-w-[200px] overflow-x-auto text-sm">
-                                  {item.name}
+                                  {item.name ?? '(Unnamed item)'}
                                 </div>
                                 {item.shared && (
                                   <div className="mt-0.5 text-xs text-muted-foreground">

@@ -1,7 +1,9 @@
+import { ReceiptResponseSchema } from '@/lib/receiptSchemas';
+import type { Assignment } from '@/models/Assignment';
+import type { Receipt } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import Decimal from 'decimal.js';
 import { z } from 'zod';
-import { ReceiptResponseSchema } from '@/lib/receiptSchemas';
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
 
 /**
  * Transforms a TanStack Query response to the canonical Receipt interface.
@@ -21,15 +23,46 @@ export function fromTanStackResponse(
   const toDecimal = (value: number | null): Decimal | null =>
     value !== null ? new Decimal(value) : null;
 
-  // Transform line items
+  // Transform line items with assignments
   const lineItems: readonly ReceiptLineItem[] = receipt_data.line_items.map(
     (item): ReceiptLineItem => ({
       id: item.id,
-      name: item.name,
+      name: item.name ?? null,
       quantity: new Decimal(item.quantity),
       pricePerItem: new Decimal(item.price_per_item),
       totalPrice: new Decimal(item.total_price),
-      assignments: item.assignments as readonly string[],
+      deletedAt: null, // API doesn't return deleted_at for line items yet
+      assignments: (item.assignments ?? []).map(
+        (a): Assignment => ({
+          id: a.id,
+          receiptUserId: a.receipt_user_id,
+          receiptLineItemId: a.receipt_line_item_id,
+          createdAt: new Date(a.created_at),
+          deletedAt: a.deleted_at ? new Date(a.deleted_at) : null,
+          receiptUser: a.receipt_user
+            ? {
+                id: a.receipt_user.id,
+                userId: a.receipt_user.user_id ?? null,
+                displayName: a.receipt_user.display_name ?? null,
+                createdAt: new Date(a.receipt_user.created_at),
+                deletedAt: a.receipt_user.deleted_at
+                  ? new Date(a.receipt_user.deleted_at)
+                  : null,
+                user: a.receipt_user.user
+                  ? {
+                      id: a.receipt_user.user.id,
+                      authUserId: a.receipt_user.user.auth_user_id,
+                      displayName: a.receipt_user.user.display_name ?? null,
+                      createdAt: new Date(a.receipt_user.user.created_at),
+                      deletedAt: a.receipt_user.user.deleted_at
+                        ? new Date(a.receipt_user.user.deleted_at)
+                        : null,
+                    }
+                  : null,
+              }
+            : null,
+        })
+      ),
     })
   );
 
@@ -68,4 +101,3 @@ export function fromTanStackResponse(
     lineItems,
   };
 }
-

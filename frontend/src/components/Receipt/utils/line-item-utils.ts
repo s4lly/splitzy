@@ -1,17 +1,23 @@
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import type { Receipt } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import Decimal from 'decimal.js';
 
 /**
- * Extracts unique person names from line item assignments
- * @param lineItems Array of line items to extract people from
- * @returns Array of unique person names
+ * Extracts unique receipt user IDs from line item assignments
+ * @param lineItems Array of line items to extract receipt user IDs from
+ * @returns Array of unique receipt user IDs
  */
 export const getPeopleFromLineItems = (
   lineItems: readonly ReceiptLineItem[]
 ): string[] => {
-  const allAssignments = lineItems.flatMap((item) => item.assignments);
+  const allAssignments = lineItems
+    .flatMap((item) => item.assignments)
+    .filter((assignment) => !assignment.deletedAt);
+  const receiptUserIds = allAssignments.map(
+    (assignment) => assignment.receiptUserId
+  );
 
-  return Array.from(new Set(allAssignments));
+  return Array.from(new Set(receiptUserIds));
 };
 
 /**
@@ -27,29 +33,36 @@ export type PersonItem = {
 };
 
 /**
- * Finds all items assigned to a person and calculates their costs
- * @param person The person to find items for
+ * Finds all items assigned to a receipt user and calculates their costs
+ * @param receiptUserId The receipt user ID of the person to find items for
  * @param receipt The receipt containing line items
  * @returns Array of person items with calculated costs
  */
 export const getPersonItems = (
-  person: string,
+  receiptUserId: string, // ULID
   receipt: Receipt
 ): PersonItem[] => {
   const personItems: PersonItem[] = [];
   receipt.lineItems.forEach((item) => {
-    const assignedPeople = item.assignments;
+    const assignedReceiptUserIds = item.assignments
+      .filter((a) => !a.deletedAt)
+      .map((a) => a.receiptUserId);
+    const isAssigned = assignedReceiptUserIds.includes(receiptUserId);
 
-    if (assignedPeople.includes(person)) {
+    if (isAssigned) {
       const totalPrice = item.pricePerItem.mul(item.quantity);
-      const pricePerPerson = totalPrice.div(new Decimal(assignedPeople.length));
+      const pricePerPerson = totalPrice.div(
+        new Decimal(assignedReceiptUserIds.length)
+      );
       personItems.push({
-        name: item.name,
+        name: item.name ?? '(Unnamed item)',
         quantity: item.quantity,
         originalPrice: totalPrice,
         price: pricePerPerson,
-        shared: assignedPeople.length > 1,
-        sharedWith: assignedPeople.filter((p) => p !== person),
+        shared: assignedReceiptUserIds.length > 1,
+        // TODO: used person display name before
+        // with receipt user id, maybe don't need to transform to string
+        sharedWith: assignedReceiptUserIds.filter((id) => id !== receiptUserId),
       });
     }
   });

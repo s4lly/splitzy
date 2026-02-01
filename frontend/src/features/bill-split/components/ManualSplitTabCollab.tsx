@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  peopleAtom,
+  assignedUsersAtom,
   useEqualSplitAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useAtomValue } from 'jotai';
@@ -13,7 +13,8 @@ import { EqualSplitBannerCollab } from './EqualSplitBannerCollab';
 
 export const ManualSplitTabCollab = () => {
   const [showPeopleManager, setShowPeopleManager] = useState(false);
-  const people = useAtomValue(peopleAtom);
+  const assignedUsers = useAtomValue(assignedUsersAtom);
+  const userIds = assignedUsers.map((a) => a.receiptUserId);
   const useEqualSplit = useAtomValue(useEqualSplitAtom);
 
   return (
@@ -37,10 +38,10 @@ export const ManualSplitTabCollab = () => {
 
       <CardContent className="p-0">
         {/* Assignment Progress */}
-        {people.length > 0 && <AssignmentProgressCollab />}
+        {userIds.length > 0 && <AssignmentProgressCollab />}
 
         {/* Equal Split Banner */}
-        {useEqualSplit && people.length > 0 && <EqualSplitBannerCollab />}
+        {useEqualSplit && userIds.length > 0 && <EqualSplitBannerCollab />}
 
         {/* TODO revisit "people manager" and work with server state instead */}
         {/* People Manager Form */}

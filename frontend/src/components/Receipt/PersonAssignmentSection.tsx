@@ -1,5 +1,6 @@
 import { useMobile } from '@/hooks/useMobile';
-import type { ReceiptLineItem } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
+import { getUserDisplayName } from '@/utils/user-display';
 import { cn } from '@/lib/utils';
 import React from 'react';
 import PersonBadge from './PersonBadge';
@@ -11,7 +12,7 @@ import {
 
 interface PersonAssignmentSectionProps {
   item: ReceiptLineItem;
-  people: string[];
+  people: string[]; // ULID receipt user IDs
   className?: string;
 }
 
@@ -23,24 +24,26 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
   const MAX_VISIBLE_ASSIGNED_PEOPLE = isMobile
     ? Infinity
     : MAX_VISIBLE_ASSIGNED_PEOPLE_DESKTOP;
-  const visibleAssignedPeople = item.assignments.slice(
+  const visibleAssignments = item.assignments.slice(
     0,
     MAX_VISIBLE_ASSIGNED_PEOPLE
   );
 
-  if (visibleAssignedPeople.length > 0) {
+  if (visibleAssignments.length > 0) {
     return (
       <>
-        {visibleAssignedPeople.map((person, personIdx) => {
-          // Use the person's index in the overall people array for consistent colors
-          const personIndex = people.indexOf(person);
+        {visibleAssignments.map((assignment, personIdx) => {
+          const receiptUserId = assignment.receiptUserId;
+          const displayName = getUserDisplayName(assignment);
+          // Use the receiptUserId's index in the overall people array for consistent colors
+          const personIndex = people.indexOf(receiptUserId);
           const normalizedIndex =
             people.length > 0
               ? (personIndex >= 0 ? personIndex : personIdx) % people.length
               : 0;
 
           const colorPair = getColorForName(
-            person,
+            receiptUserId,
             normalizedIndex,
             people.length
           );
@@ -48,8 +51,8 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
 
           return (
             <PersonBadge
-              key={personIdx}
-              name={person}
+              key={assignment.id}
+              name={displayName}
               size={isMobile ? 'sm' : 'md'}
               colorStyle={colorStyle}
               className={cn(

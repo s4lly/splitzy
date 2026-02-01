@@ -1,11 +1,25 @@
-import { ReceiptLineItem, User, UserReceipt } from '@/zero/schema';
+import { Assignment, ReceiptLineItem, ReceiptUser, User, UserReceipt } from '@/zero/schema';
 import { ReactNode, createContext, useContext } from 'react';
+
+/**
+ * Assignment with related receipt user from Zero query
+ */
+export type AssignmentWithReceiptUser = Assignment & {
+  receipt_user?: (ReceiptUser & { user?: User | null }) | null;
+};
+
+/**
+ * Line item with related assignments from Zero query
+ */
+export type LineItemWithAssignments = ReceiptLineItem & {
+  assignments: readonly AssignmentWithReceiptUser[];
+};
 
 /**
  * Receipt with related line items and user from Zero query
  */
 export type ReceiptWithLineItems = UserReceipt & {
-  line_items: readonly ReceiptLineItem[];
+  line_items: readonly LineItemWithAssignments[];
   user?: User | null;
 };
 

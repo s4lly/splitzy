@@ -5,27 +5,31 @@ import {
 } from '@/components/Receipt/utils/get-color-for-name';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { peopleAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
+import { assignedUsersAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useMobile } from '@/hooks/useMobile';
 import { cn } from '@/lib/utils';
+import { getUserDisplayName } from '@/utils/user-display';
 import { useAtomValue } from 'jotai';
 import { Plus, X } from 'lucide-react';
 import { useState } from 'react';
 
 export const PeopleManagerFormCollab = () => {
   const isMobile = useMobile();
-  const people = useAtomValue(peopleAtom);
+  const assignedUsers = useAtomValue(assignedUsersAtom);
+  const receiptUserIds = assignedUsers.map((a) => a.receiptUserId);
   const [newPersonName, setNewPersonName] = useState('');
 
   const handleAddPerson = () => {
     // Blank implementation - no operation
-    if (newPersonName.trim() && !people.includes(newPersonName.trim())) {
+    // Note: Adding people would require creating new Assignment objects
+    if (newPersonName.trim()) {
       setNewPersonName('');
     }
   };
 
-  const handleRemovePerson = (_person: string) => {
+  const handleRemovePerson = (_receiptUserId: string) => {
     // Blank implementation - no operation
+    // Note: Removing people would require deleting Assignment objects
   };
 
   return (
@@ -50,36 +54,43 @@ export const PeopleManagerFormCollab = () => {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {people.map((person, index) => {
-          const colorPair = getColorForName(person, index, people.length);
+        {assignedUsers.map((assignment, index) => {
+          const receiptUserId = assignment.receiptUserId;
+          const displayName = getUserDisplayName(assignment);
+          const receiptUserIdString = String(receiptUserId);
+          const colorPair = getColorForName(
+            receiptUserIdString,
+            index,
+            assignedUsers.length
+          );
           const colorStyle = getColorStyle(colorPair);
           return (
             <div
-              key={person}
+              key={receiptUserId}
               className="flex items-center rounded-full px-3 py-1"
               style={colorStyle}
             >
               <PersonBadge
-                name={person}
+                name={displayName}
                 size="sm"
                 colorStyle={colorStyle}
                 className={cn(!isMobile && 'border-2 border-white')}
               />
               <span className="ml-1 text-sm [color:var(--text-light)] dark:[color:var(--text-dark)]">
-                {person}
+                {displayName}
               </span>
               <Button
                 variant="ghost"
                 size="sm"
                 className="ml-1 h-5 w-5 rounded-full p-0 hover:bg-destructive/20"
-                onClick={() => handleRemovePerson(person)}
+                onClick={() => handleRemovePerson(receiptUserId)}
               >
                 <X className="h-3 w-3" />
               </Button>
             </div>
           );
         })}
-        {people.length === 0 && (
+        {receiptUserIds.length === 0 && (
           <p className="text-sm text-muted-foreground">
             No people added yet. Add people to split the bill.
           </p>

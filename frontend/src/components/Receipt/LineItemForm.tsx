@@ -5,7 +5,7 @@ import {
 } from '@/components/Receipt/utils/format-currency';
 import { Input } from '@/components/ui/input';
 import { Toggle } from '@/components/ui/toggle';
-import type { ReceiptLineItem } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
@@ -31,7 +31,7 @@ export default function LineItemForm({
   }) => void;
   onEditCancel?: () => void;
 }) {
-  const [formName, setFormName] = useState(item.name);
+  const [formName, setFormName] = useState(item.name ?? '');
   const [formQuantity, setFormQuantity] = useState<number>(
     item.quantity.toNumber()
   );

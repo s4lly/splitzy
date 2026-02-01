@@ -4,19 +4,25 @@ import warnings
 import requests
 from flask import Blueprint, current_app, jsonify, request, send_from_directory
 from pydantic import ValidationError
+from sqlalchemy.orm import joinedload
 from werkzeug.utils import secure_filename
 
 from blueprints.auth import get_current_user
 from image_analyzer import ImageAnalysisError, ImageAnalyzer, ImageAnalyzerConfigError
 from models import db
+from models.assignment import Assignment
 from models.receipt_line_item import ReceiptLineItem
+from models.receipt_user import ReceiptUser
 from models.user_receipt import UserReceipt
 from schemas.receipt import (
+    AssignmentResponse,
     LineItem,
     LineItemResponse,
+    LineItemWithAssignmentsResponse,
     ReceiptLineItemCreate,
     RegularReceiptResponse,
     UserReceiptCreate,
+    UserResponse,
 )
 
 
@@ -35,7 +41,8 @@ def upload_to_blob_storage(image_data, filename, content_type):
     safe_filename = "unknown_file"  # Default for error logging
 
     try:
-        # Get the Vercel function URL from environment - this is validated at app startup
+        # Get the Vercel function URL from environment
+        # This is validated at app startup
         vercel_function_url = os.environ.get("VERCEL_FUNCTION_URL")
         if not vercel_function_url:
             current_app.logger.error(
@@ -195,8 +202,10 @@ def analyze_receipt():
         # ========================================================================
         # Receipt Model Validation
         # ========================================================================
-        # receipt_model should always be a Pydantic model (RegularReceipt, TransportationTicket, or NotAReceipt)
-        # If there was an error in processing, ImageAnalysisError would have been raised above
+        # receipt_model should always be a Pydantic model
+        # (RegularReceipt, TransportationTicket, or NotAReceipt)
+        # If there was an error in processing,
+        # ImageAnalysisError would have been raised above
         if not hasattr(receipt_model, "model_dump"):
             # This shouldn't happen, but handle it gracefully
             current_app.logger.error(
@@ -319,19 +328,63 @@ def get_user_receipts():
 
 @receipts_bp.route("/api/user/receipts/<int:receipt_id>", methods=["GET"])
 def get_user_receipt(receipt_id):
-    """Get a specific receipt by ID"""
+    """Get a specific receipt by ID with assignments and users"""
     try:
-        receipt = db.session.get(UserReceipt, receipt_id)
+        # Eager load relationships: line_items -> assignments -> receipt_user -> user
+        receipt = db.session.get(
+            UserReceipt,
+            receipt_id,
+            options=[
+                joinedload(UserReceipt.line_items)
+                .joinedload(ReceiptLineItem.assignments)
+                .joinedload(Assignment.receipt_user)
+                .joinedload(ReceiptUser.user)
+            ],
+        )
 
         if not receipt:
             return jsonify({"success": False, "error": "Receipt not found"}), 404
 
+        # Build line items with assignments and users
+        line_items_with_assignments = []
+        for line_item in receipt.line_items:
+            assignments = []
+            for assignment in line_item.assignments:
+                user_response = None
+                if assignment.receipt_user and assignment.receipt_user.user:
+                    user_response = UserResponse.model_validate(
+                        assignment.receipt_user.user
+                    ).model_dump()
+
+                # AssignmentResponse now matches Assignment model structure
+                assignment_response = AssignmentResponse.model_validate(
+                    assignment
+                ).model_dump()
+                # Add display_name from receipt_user relationship
+                if assignment.receipt_user:
+                    assignment_response["display_name"] = (
+                        assignment.receipt_user.display_name
+                    )
+                assignment_response["user"] = user_response
+                assignments.append(assignment_response)
+
+            line_item_dict = LineItemResponse.model_validate(line_item).model_dump()
+            line_item_dict["assignments"] = assignments
+            validated_line_item = LineItemWithAssignmentsResponse.model_validate(
+                line_item_dict
+            )
+            line_items_with_assignments.append(validated_line_item.model_dump())
+
+        # Build receipt data with line items that include assignments
+        receipt_data = RegularReceiptResponse.model_validate(receipt).model_dump(
+            exclude={"id", "line_items"}
+        )
+        receipt_data["line_items"] = line_items_with_assignments
+
         # Format receipt for the response
         response_receipt = {
             "id": receipt.id,
-            "receipt_data": RegularReceiptResponse.model_validate(receipt).model_dump(
-                exclude={"id"}
-            ),
+            "receipt_data": receipt_data,
             "image_path": receipt.image_path,
             "created_at": receipt.created_at.isoformat(),
         }
@@ -360,7 +413,9 @@ def delete_user_receipt(receipt_id):
             return jsonify(
                 {
                     "success": False,
-                    "error": "Receipt not found or you do not have permission to delete it",
+                    "error": (
+                        "Receipt not found or you do not have permission to delete it"
+                    ),
                 }
             ), 404
 
@@ -401,8 +456,11 @@ def get_receipt_image(receipt_id):
         # Legacy handling for local files
         # DEPRECATED: Local file storage is deprecated in favor of blob storage
         warnings.warn(
-            "Local file storage for receipt images is deprecated and will be removed in a future version. "
-            "Please migrate to blob storage.",
+            (
+                "Local file storage for receipt images is deprecated "
+                "and will be removed in a future version. "
+                "Please migrate to blob storage."
+            ),
             DeprecationWarning,
             stacklevel=2,
         )
@@ -513,7 +571,8 @@ def update_line_item(receipt_id, item_id):
                 setattr(line_item, key, value)
             else:
                 current_app.logger.warning(
-                    f"[update_line_item] Attempted to update disallowed field '{key}' for line item (ignored)"
+                    f"[update_line_item] Attempted to update "
+                    f"disallowed field '{key}' for line item (ignored)"
                 )
 
         db.session.commit()
@@ -522,7 +581,8 @@ def update_line_item(receipt_id, item_id):
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(
-            f"[update_line_item] Error for receipt ID {receipt_id}, item ID {item_id}: {str(e)}"
+            f"[update_line_item] Error for receipt ID {receipt_id}, "
+            f"item ID {item_id}: {str(e)}"
         )
         return jsonify({"success": False, "error": "Failed to update line item"}), 500
 
@@ -543,15 +603,18 @@ def update_receipt_data(receipt_id):
         # Update the receipt properties directly on the model
         for key, value in data.items():
             # Only allow updating valid UserReceipt properties
-            # Exclude line_items as they have their own endpoint, and id/user_id for security
+            # Exclude line_items as they have their own endpoint,
+            # and id/user_id for security
             if key not in ["line_items", "id", "user_id", "created_at"] and hasattr(
                 receipt, key
             ):
                 setattr(receipt, key, value)
             else:
-                if key in ["line_items", "id", "user_id", "created_at"]:
+                restricted_fields = ["line_items", "id", "user_id", "created_at"]
+                if key in restricted_fields:
                     current_app.logger.warning(
-                        f"[update_receipt_data] Attempted to update restricted field: {key}"
+                        f"[update_receipt_data] Attempted to update "
+                        f"restricted field: {key}"
                     )
                 else:
                     current_app.logger.warning(
@@ -593,7 +656,8 @@ def delete_line_item(receipt_id, item_id):
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(
-            f"[delete_line_item] Error for receipt ID {receipt_id}, item ID {item_id}: {str(e)}"
+            f"[delete_line_item] Error for receipt ID {receipt_id}, "
+            f"item ID {item_id}: {str(e)}"
         )
         return jsonify({"success": False, "error": "Failed to delete line item"}), 500
 

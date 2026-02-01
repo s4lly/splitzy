@@ -1,5 +1,6 @@
 import LineItemsTableDesktop from '@/components/Receipt/LineItemsTableDesktop';
-import type { Receipt, ReceiptLineItem } from '@/models/Receipt';
+import type { Receipt } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { useTanstackLineItemMutations } from './useTanstackLineItemMutations';
 
 export function LineItemsTableDesktopAdapter({
@@ -12,21 +13,29 @@ export function LineItemsTableDesktopAdapter({
   people: string[];
 }) {
   const {
-    togglePersonAssignment,
+    addExistingPersonAssignment,
+    addNewPersonAssignment,
+    removePersonAssignment,
     handleUpdateLineItem,
     handleDeleteLineItem,
     isDeleting,
   } = useTanstackLineItemMutations(receipt);
+
+  // Collect all assignments from line_items
+  const allAssignments = line_items.flatMap((item) => item.assignments);
 
   return (
     <LineItemsTableDesktop
       line_items={line_items}
       receipt={receipt}
       people={people}
-      togglePersonAssignment={togglePersonAssignment}
+      addExistingPersonAssignment={addExistingPersonAssignment}
+      addNewPersonAssignment={addNewPersonAssignment}
+      removePersonAssignment={removePersonAssignment}
       onUpdateLineItem={handleUpdateLineItem}
       onDeleteLineItem={handleDeleteLineItem}
       isDeleting={isDeleting}
+      allAssignments={allAssignments}
     />
   );
 }

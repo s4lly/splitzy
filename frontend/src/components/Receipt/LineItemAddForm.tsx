@@ -1,6 +1,6 @@
 import LineItemForm from '@/components/Receipt/LineItemForm';
 import type { AddLineItemData, UpdateLineItemData } from '@/features/line-items/types';
-import type { ReceiptLineItem } from '@/models/Receipt';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import Decimal from 'decimal.js';
 import { useState } from 'react';
 import { Button } from '../ui/button';
