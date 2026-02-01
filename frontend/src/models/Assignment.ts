@@ -19,7 +19,14 @@ import type { ReceiptUser } from './ReceiptUser';
  *     userId: 1,
  *     displayName: "Jane Doe",
  *     createdAt: new Date("2024-01-10"),
- *     deletedAt: null
+ *     deletedAt: null,
+ *     user: {
+ *       id: 1,
+ *       authUserId: "user_2abc123",
+ *       displayName: "Jane Doe",
+ *       createdAt: new Date("2024-01-10"),
+ *       deletedAt: null
+ *     }
  *   }
  * };
  * ```
