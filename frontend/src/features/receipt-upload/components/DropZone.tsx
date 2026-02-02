@@ -31,4 +31,3 @@ export const DropZone = ({ onDrop, children }: DropZoneProps) => {
     </div>
   );
 };
-

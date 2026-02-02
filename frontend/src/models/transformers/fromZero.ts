@@ -15,7 +15,7 @@ import Decimal from 'decimal.js';
  * Zero stores dates as Unix timestamps (numbers), which are converted to Date objects.
  */
 export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
-  console.log("=".repeat(100), "fromZeroReceipt", zeroReceipt);
+  console.log('='.repeat(100), 'fromZeroReceipt', zeroReceipt);
   // Convert Unix timestamps to Date objects
   const createdAt = new Date(zeroReceipt.created_at);
   const date = zeroReceipt.date ? new Date(zeroReceipt.date) : null;
@@ -40,20 +40,28 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
           receiptLineItemId: a.receipt_line_item_id,
           createdAt: new Date(a.created_at),
           deletedAt: a.deleted_at ? new Date(a.deleted_at) : null,
-          receiptUser: a.receipt_user ? {
-            id: a.receipt_user.id,
-            userId: a.receipt_user.user_id ?? null,
-            displayName: a.receipt_user.display_name ?? null,
-            createdAt: new Date(a.receipt_user.created_at),
-            deletedAt: a.receipt_user.deleted_at ? new Date(a.receipt_user.deleted_at) : null,
-            user: a.receipt_user.user ? {
-              id: a.receipt_user.user.id,
-              authUserId: a.receipt_user.user.auth_user_id,
-              displayName: a.receipt_user.user.display_name ?? null,
-              createdAt: new Date(a.receipt_user.user.created_at),
-              deletedAt: a.receipt_user.user.deleted_at ? new Date(a.receipt_user.user.deleted_at) : null,
-            } : null,
-          } : null,
+          receiptUser: a.receipt_user
+            ? {
+                id: a.receipt_user.id,
+                userId: a.receipt_user.user_id ?? null,
+                displayName: a.receipt_user.display_name ?? null,
+                createdAt: new Date(a.receipt_user.created_at),
+                deletedAt: a.receipt_user.deleted_at
+                  ? new Date(a.receipt_user.deleted_at)
+                  : null,
+                user: a.receipt_user.user
+                  ? {
+                      id: a.receipt_user.user.id,
+                      authUserId: a.receipt_user.user.auth_user_id,
+                      displayName: a.receipt_user.user.display_name ?? null,
+                      createdAt: new Date(a.receipt_user.user.created_at),
+                      deletedAt: a.receipt_user.user.deleted_at
+                        ? new Date(a.receipt_user.user.deleted_at)
+                        : null,
+                    }
+                  : null,
+              }
+            : null,
         })
       ),
     })

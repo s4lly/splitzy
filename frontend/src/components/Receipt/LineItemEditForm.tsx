@@ -21,7 +21,6 @@ export default function LineItemEditForm({
     price_per_item?: number;
   }) => void;
 }) {
-
   const debouncedPersistName = useMemo(
     () =>
       debounce((value: string) => {

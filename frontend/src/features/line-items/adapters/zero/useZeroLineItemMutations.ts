@@ -68,10 +68,7 @@ export function useZeroLineItemMutations() {
 
     const clientResult = await result.client;
     if (clientResult.type === 'error') {
-      console.error(
-        'Failed to create assignment:',
-        clientResult.error.message
-      );
+      console.error('Failed to create assignment:', clientResult.error.message);
     } else {
       console.info('Successfully created assignment');
     }
@@ -152,14 +149,13 @@ export function useZeroLineItemMutations() {
       return;
     }
 
-    const result = zero.mutate(mutators.assignments.delete({ id: assignmentId }));
+    const result = zero.mutate(
+      mutators.assignments.delete({ id: assignmentId })
+    );
 
     const clientResult = await result.client;
     if (clientResult.type === 'error') {
-      console.error(
-        'Failed to delete assignment:',
-        clientResult.error.message
-      );
+      console.error('Failed to delete assignment:', clientResult.error.message);
     } else {
       console.info('Successfully deleted assignment');
     }

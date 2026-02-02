@@ -14,15 +14,9 @@
  * - One-to-many with receipt_line_items (user_receipts.id -> receipt_line_items.receipt_id)
  */
 
-import {
-  boolean,
-  json,
-  number,
-  string,
-  table,
-} from "@rocicorp/zero";
+import { boolean, json, number, string, table } from '@rocicorp/zero';
 
-export const userReceipt = table("user_receipts")
+export const userReceipt = table('user_receipts')
   .columns({
     id: number(),
     user_id: number().optional(),
@@ -50,10 +44,10 @@ export const userReceipt = table("user_receipts")
     origin: string().optional(),
     destination: string().optional(),
     passenger: string().optional(),
-    class_: string().from("class").optional(),
+    class_: string().from('class').optional(),
     fare: number().optional(),
     currency: string().optional(),
     taxes: number().optional(),
     receipt_metadata: json().optional(),
   })
-  .primaryKey("id");
+  .primaryKey('id');

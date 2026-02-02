@@ -52,4 +52,3 @@ export const PreviewImage = ({ preview, onClear }: PreviewImageProps) => {
     </AnimatePresence>
   );
 };
-

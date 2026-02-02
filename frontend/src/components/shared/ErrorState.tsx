@@ -31,4 +31,3 @@ export const ErrorState = ({ message }: ErrorStateProps) => {
     </div>
   );
 };
-

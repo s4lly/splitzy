@@ -1,8 +1,8 @@
 import {
-    createBuilder,
-    createSchema,
-    relationships,
-    type Row,
+  createBuilder,
+  createSchema,
+  relationships,
+  type Row,
 } from '@rocicorp/zero';
 import { assignment } from './schemas/assignment';
 import { receiptLineItem } from './schemas/receipt-line-item';
@@ -32,7 +32,7 @@ const userReceiptRelationships = relationships(
       destSchema: receiptLineItem,
       destField: ['receipt_id'],
     }),
-  }),
+  })
 );
 
 const receiptLineItemRelationships = relationships(
@@ -48,21 +48,24 @@ const receiptLineItemRelationships = relationships(
       destSchema: assignment,
       destField: ['receipt_line_item_id'],
     }),
-  }),
+  })
 );
 
-const receiptUserRelationships = relationships(receiptUser, ({ one, many }) => ({
-  user: one({
-    sourceField: ['user_id'],
-    destField: ['id'],
-    destSchema: user,
-  }),
-  assignments: many({
-    sourceField: ['id'],
-    destSchema: assignment,
-    destField: ['receipt_user_id'],
-  }),
-}));
+const receiptUserRelationships = relationships(
+  receiptUser,
+  ({ one, many }) => ({
+    user: one({
+      sourceField: ['user_id'],
+      destField: ['id'],
+      destSchema: user,
+    }),
+    assignments: many({
+      sourceField: ['id'],
+      destSchema: assignment,
+      destField: ['receipt_user_id'],
+    }),
+  })
+);
 
 const assignmentRelationships = relationships(assignment, ({ one }) => ({
   receipt_user: one({

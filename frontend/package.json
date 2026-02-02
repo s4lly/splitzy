@@ -54,7 +54,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "dev:vercel": "vercel dev --listen ${VERCEL_DEV_PORT:-3001}",
+    "dev:vercel": "cd .. && vercel dev --listen ${VERCEL_DEV_PORT:-3001}",
+    "vercel:link": "cd .. && vercel link",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",

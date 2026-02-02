@@ -14,9 +14,9 @@
  * - Many-to-one with receipt_line_items (assignments.receipt_line_item_id -> receipt_line_items.id)
  */
 
-import { number, string, table } from "@rocicorp/zero";
+import { number, string, table } from '@rocicorp/zero';
 
-export const assignment = table("assignments")
+export const assignment = table('assignments')
   .columns({
     id: string(), // ULID, client-generated
     receipt_user_id: string(), // FK to receipt_users.id (ULID)
@@ -24,4 +24,4 @@ export const assignment = table("assignments")
     created_at: number(),
     deleted_at: number().optional(),
   })
-  .primaryKey("id");
+  .primaryKey('id');

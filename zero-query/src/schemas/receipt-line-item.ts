@@ -14,9 +14,9 @@
  * - One-to-many with assignments (receipt_line_items.id -> assignments.receipt_line_item_id)
  */
 
-import { number, string, table } from "@rocicorp/zero";
+import { number, string, table } from '@rocicorp/zero';
 
-export const receiptLineItem = table("receipt_line_items")
+export const receiptLineItem = table('receipt_line_items')
   .columns({
     id: string(), // UUID maps to string in Zero
     receipt_id: number(), // Foreign key to user_receipts.id
@@ -27,4 +27,4 @@ export const receiptLineItem = table("receipt_line_items")
     created_at: number(),
     deleted_at: number().optional(),
   })
-  .primaryKey("id");
+  .primaryKey('id');

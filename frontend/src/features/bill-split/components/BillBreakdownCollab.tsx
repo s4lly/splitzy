@@ -81,7 +81,11 @@ export const BillBreakdownCollab = () => {
           const receiptUserId = assignment.receiptUserId;
           const displayName = getUserDisplayName(assignment);
           const receiptUserIdString = String(receiptUserId);
-          const colorPair = getColorForName(receiptUserIdString, idx, assignedUsers.length);
+          const colorPair = getColorForName(
+            receiptUserIdString,
+            idx,
+            assignedUsers.length
+          );
           const colorStyle = getColorStyle(colorPair);
 
           const personFairTotal: Decimal =
@@ -118,7 +122,8 @@ export const BillBreakdownCollab = () => {
                       <div className="flex items-end justify-between">
                         <div className="text-lg font-semibold">
                           {formatCurrency(
-                            personFairTotals.get(receiptUserId) ?? new Decimal(0)
+                            personFairTotals.get(receiptUserId) ??
+                              new Decimal(0)
                           )}
                         </div>
                         <div className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-800/30 dark:text-blue-300">
@@ -138,7 +143,8 @@ export const BillBreakdownCollab = () => {
                         </div>
                         <div className="text-sm font-medium">
                           {formatCurrency(
-                            personPretaxTotals.get(receiptUserId) ?? new Decimal(0)
+                            personPretaxTotals.get(receiptUserId) ??
+                              new Decimal(0)
                           )}
                         </div>
                       </div>
@@ -261,7 +267,8 @@ export const BillBreakdownCollab = () => {
                             </td>
                             <td className="px-3 py-2 text-right text-sm">
                               {formatCurrency(
-                                personPretaxTotals.get(receiptUserId) ?? new Decimal(0)
+                                personPretaxTotals.get(receiptUserId) ??
+                                  new Decimal(0)
                               )}
                             </td>
                           </tr>

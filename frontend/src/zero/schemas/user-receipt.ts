@@ -14,13 +14,7 @@
  * - One-to-many with receipt_line_items (user_receipts.id -> receipt_line_items.receipt_id)
  */
 
-import {
-  boolean,
-  json,
-  number,
-  string,
-  table,
-} from '@rocicorp/zero';
+import { boolean, json, number, string, table } from '@rocicorp/zero';
 
 export const userReceipt = table('user_receipts')
   .columns({

@@ -14,9 +14,9 @@
  * - One-to-many with assignments (receipt_users.id -> assignments.receipt_user_id)
  */
 
-import { number, string, table } from "@rocicorp/zero";
+import { number, string, table } from '@rocicorp/zero';
 
-export const receiptUser = table("receipt_users")
+export const receiptUser = table('receipt_users')
   .columns({
     id: string(), // ULID, client-generated
     user_id: number().optional(),
@@ -24,4 +24,4 @@ export const receiptUser = table("receipt_users")
     created_at: number(),
     deleted_at: number().optional(),
   })
-  .primaryKey("id");
+  .primaryKey('id');
