@@ -14,9 +14,9 @@
  * - One-to-many with assignments (users.id -> assignments.user_id)
  */
 
-import { number, string, table } from "@rocicorp/zero";
+import { number, string, table } from '@rocicorp/zero';
 
-export const user = table("users")
+export const user = table('users')
   .columns({
     id: number(),
     auth_user_id: string(),
@@ -24,4 +24,4 @@ export const user = table("users")
     created_at: number(),
     deleted_at: number().optional(),
   })
-  .primaryKey("id");
+  .primaryKey('id');

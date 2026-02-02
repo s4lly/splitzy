@@ -3,19 +3,19 @@ import {
   createSchema,
   relationships,
   type Row,
-} from "@rocicorp/zero";
-import { assignment } from "./schemas/assignment.js";
-import { receiptLineItem } from "./schemas/receipt-line-item.js";
-import { receiptUser } from "./schemas/receipt-user.js";
-import { userReceipt } from "./schemas/user-receipt.js";
-import { user } from "./schemas/user.js";
+} from '@rocicorp/zero';
+import { assignment } from './schemas/assignment.js';
+import { receiptLineItem } from './schemas/receipt-line-item.js';
+import { receiptUser } from './schemas/receipt-user.js';
+import { userReceipt } from './schemas/user-receipt.js';
+import { user } from './schemas/user.js';
 
 // Define relationships after all tables are imported to avoid circular dependencies
 const userRelationships = relationships(user, ({ many }) => ({
   receipts: many({
-    sourceField: ["id"],
+    sourceField: ['id'],
     destSchema: userReceipt,
-    destField: ["user_id"],
+    destField: ['user_id'],
   }),
 }));
 
@@ -23,56 +23,59 @@ const userReceiptRelationships = relationships(
   userReceipt,
   ({ one, many }) => ({
     user: one({
-      sourceField: ["user_id"],
-      destField: ["id"],
+      sourceField: ['user_id'],
+      destField: ['id'],
       destSchema: user,
     }),
     line_items: many({
-      sourceField: ["id"],
+      sourceField: ['id'],
       destSchema: receiptLineItem,
-      destField: ["receipt_id"],
+      destField: ['receipt_id'],
     }),
-  }),
+  })
 );
 
 const receiptLineItemRelationships = relationships(
   receiptLineItem,
   ({ one, many }) => ({
     receipt: one({
-      sourceField: ["receipt_id"],
-      destField: ["id"],
+      sourceField: ['receipt_id'],
+      destField: ['id'],
       destSchema: userReceipt,
     }),
     assignments: many({
-      sourceField: ["id"],
+      sourceField: ['id'],
       destSchema: assignment,
-      destField: ["receipt_line_item_id"],
+      destField: ['receipt_line_item_id'],
     }),
-  }),
+  })
 );
 
-const receiptUserRelationships = relationships(receiptUser, ({ one, many }) => ({
-  user: one({
-    sourceField: ["user_id"],
-    destField: ["id"],
-    destSchema: user,
-  }),
-  assignments: many({
-    sourceField: ["id"],
-    destSchema: assignment,
-    destField: ["receipt_user_id"],
-  }),
-}));
+const receiptUserRelationships = relationships(
+  receiptUser,
+  ({ one, many }) => ({
+    user: one({
+      sourceField: ['user_id'],
+      destField: ['id'],
+      destSchema: user,
+    }),
+    assignments: many({
+      sourceField: ['id'],
+      destSchema: assignment,
+      destField: ['receipt_user_id'],
+    }),
+  })
+);
 
 const assignmentRelationships = relationships(assignment, ({ one }) => ({
   receipt_user: one({
-    sourceField: ["receipt_user_id"],
-    destField: ["id"],
+    sourceField: ['receipt_user_id'],
+    destField: ['id'],
     destSchema: receiptUser,
   }),
   line_item: one({
-    sourceField: ["receipt_line_item_id"],
-    destField: ["id"],
+    sourceField: ['receipt_line_item_id'],
+    destField: ['id'],
     destSchema: receiptLineItem,
   }),
 }));
@@ -106,7 +109,7 @@ export type AuthData = {
   userID: string | null;
 };
 
-declare module "@rocicorp/zero" {
+declare module '@rocicorp/zero' {
   interface DefaultTypes {
     schema: Schema;
     authData: AuthData;
