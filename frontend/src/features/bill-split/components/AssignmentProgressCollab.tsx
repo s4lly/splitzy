@@ -74,9 +74,7 @@ export const AssignmentProgressCollab = () => {
                 ? 0
                 : Math.min(
                     100,
-                    personTotalsSum.div(receiptTotal)
-                      .mul(100)
-                      .toNumber()
+                    personTotalsSum.div(receiptTotal).mul(100).toNumber()
                   )
             }%`,
           }}
@@ -85,4 +83,3 @@ export const AssignmentProgressCollab = () => {
     </div>
   );
 };
-

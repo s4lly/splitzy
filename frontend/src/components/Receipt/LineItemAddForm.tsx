@@ -1,5 +1,8 @@
 import LineItemForm from '@/components/Receipt/LineItemForm';
-import type { AddLineItemData, UpdateLineItemData } from '@/features/line-items/types';
+import type {
+  AddLineItemData,
+  UpdateLineItemData,
+} from '@/features/line-items/types';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import Decimal from 'decimal.js';
 import { useState } from 'react';
@@ -20,7 +23,6 @@ export default function LineItemAddForm({
   onAddLineItem: (data: AddLineItemData) => void;
   isPending?: boolean;
 }) {
-
   // Local state for form values with default values
   const [formData, setFormData] = useState({
     name: '',
@@ -90,11 +92,7 @@ export default function LineItemAddForm({
       />
 
       <div className="flex justify-end gap-2 p-2">
-        <Button
-          onClick={onAddCancel}
-          variant="outline"
-          disabled={isPending}
-        >
+        <Button onClick={onAddCancel} variant="outline" disabled={isPending}>
           Cancel
         </Button>
         <Button

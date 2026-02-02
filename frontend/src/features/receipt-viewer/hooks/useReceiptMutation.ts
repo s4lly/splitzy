@@ -74,4 +74,3 @@ export function useReceiptMutation(
 
   return { mutate, isSaving };
 }
-

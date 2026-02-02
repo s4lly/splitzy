@@ -14,4 +14,3 @@ export const ErrorMessage = ({ error }: ErrorMessageProps) => {
     </div>
   );
 };
-

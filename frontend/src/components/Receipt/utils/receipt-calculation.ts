@@ -200,9 +200,14 @@ export namespace calculations {
         candidate?: { pricePerItem: Decimal; quantity: Decimal };
       }
     ): Decimal {
-      const assignedReceiptUserIds = item.assignments.map((assignment) => assignment.receiptUserId);
+      const assignedReceiptUserIds = item.assignments.map(
+        (assignment) => assignment.receiptUserId
+      );
 
-      if (assignedReceiptUserIds.length === 0 || !assignedReceiptUserIds.includes(person)) {
+      if (
+        assignedReceiptUserIds.length === 0 ||
+        !assignedReceiptUserIds.includes(person)
+      ) {
         return new Decimal(0);
       }
 
@@ -834,10 +839,7 @@ export namespace calculations {
       if (searchValue) {
         // Note: searchValue doesn't make sense with numeric IDs, but kept for API compatibility
         // In practice, this would need user data to search by name
-        return people.filter(
-          (person) =>
-            !assignedPeople.includes(person)
-        );
+        return people.filter((person) => !assignedPeople.includes(person));
       }
 
       return people.filter((person) => !assignedPeople.includes(person));

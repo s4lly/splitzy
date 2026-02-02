@@ -6,7 +6,10 @@ import { Label } from '@/components/ui/label';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
 import type { Assignment } from '@/models/Assignment';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-import { getReceiptUserDisplayName, getUserDisplayName } from '@/utils/user-display';
+import {
+  getReceiptUserDisplayName,
+  getUserDisplayName,
+} from '@/utils/user-display';
 import Decimal from 'decimal.js';
 import { Plus, X } from 'lucide-react';
 import React, { useState } from 'react';

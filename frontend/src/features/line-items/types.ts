@@ -41,4 +41,3 @@ export interface AddLineItemData {
   receiptId: string;
   lineItemData: LineItemFormData;
 }
-

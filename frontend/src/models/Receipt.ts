@@ -3,13 +3,13 @@ import type { ReceiptLineItem } from './ReceiptLineItem';
 
 /**
  * Represents a receipt with all its associated data.
- * 
+ *
  * Receipts are immutable and created from server state. They contain
  * comprehensive information about a transaction including merchant details,
  * pricing breakdowns, payment information, and line items. All monetary
  * values use Decimal.js for precision to avoid floating-point errors.
  * Use mutation functions to update receipts rather than modifying them directly.
- * 
+ *
  * @example
  * ```typescript
  * const receipt: Receipt = {

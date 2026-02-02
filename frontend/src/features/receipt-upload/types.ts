@@ -12,4 +12,3 @@ export interface ReceiptAnalysisResult {
   };
   [key: string]: unknown;
 }
-

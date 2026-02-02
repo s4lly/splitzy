@@ -1,4 +1,10 @@
-import { Assignment, ReceiptLineItem, ReceiptUser, User, UserReceipt } from '@/zero/schema';
+import {
+  Assignment,
+  ReceiptLineItem,
+  ReceiptUser,
+  User,
+  UserReceipt,
+} from '@/zero/schema';
 import { ReactNode, createContext, useContext } from 'react';
 
 /**

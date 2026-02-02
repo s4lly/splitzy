@@ -79,7 +79,9 @@ describe('GratuityEditor', () => {
       const user = userEvent.setup();
       render(<GratuityEditor {...defaultProps} receiptGratuity={0} />);
 
-      const addButton = screen.getByRole('button', { name: /update gratuity/i });
+      const addButton = screen.getByRole('button', {
+        name: /update gratuity/i,
+      });
       await user.click(addButton);
 
       expect(screen.getByLabelText(/gratuity/i)).toBeInTheDocument();
@@ -108,7 +110,9 @@ describe('GratuityEditor', () => {
       const user = userEvent.setup();
       render(<GratuityEditor {...defaultProps} receiptGratuity={0} />);
 
-      const addButton = screen.getByRole('button', { name: /update gratuity/i });
+      const addButton = screen.getByRole('button', {
+        name: /update gratuity/i,
+      });
       await user.click(addButton);
 
       expect(
@@ -429,4 +433,3 @@ describe('GratuityEditor', () => {
     });
   });
 });
-

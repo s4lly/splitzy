@@ -3,16 +3,17 @@ import { useMobile } from './useMobile';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock matchMedia
-const createMatchMedia = (matches: boolean) => vi.fn().mockImplementation(query => ({
-  matches,
-  media: query,
-  onchange: null,
-  addListener: vi.fn(), // deprecated
-  removeListener: vi.fn(), // deprecated
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  dispatchEvent: vi.fn(),
-}));
+const createMatchMedia = (matches: boolean) =>
+  vi.fn().mockImplementation((query) => ({
+    matches,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
 
 describe('useMobile', () => {
   let matchMedia: any;
@@ -50,7 +51,7 @@ describe('useMobile', () => {
         mql.listener = listener;
       }),
       removeEventListener: vi.fn(),
-      listener: (e: { matches: boolean; }) => {}, // Initialize listener
+      listener: (e: { matches: boolean }) => {}, // Initialize listener
     };
     vi.spyOn(window, 'matchMedia').mockImplementation(() => mql as any);
 

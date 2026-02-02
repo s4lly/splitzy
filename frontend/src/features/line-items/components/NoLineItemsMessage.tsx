@@ -12,12 +12,10 @@ export const NoLineItemsMessage = ({ merchant }: NoLineItemsMessageProps) => {
         No Item Details Available
       </p>
       <p className="text-sm text-amber-700 dark:text-amber-300">
-        This{' '}
-        {merchant ? 'document from ' + merchant : 'document'}{' '}
-        doesn't include detailed line items. The total amount has been equally
-        divided among all people.
+        This {merchant ? 'document from ' + merchant : 'document'} doesn't
+        include detailed line items. The total amount has been equally divided
+        among all people.
       </p>
     </div>
   );
 };
-

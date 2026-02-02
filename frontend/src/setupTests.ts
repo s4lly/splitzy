@@ -34,7 +34,7 @@ global.ProgressEvent = class ProgressEvent extends Event {
   lengthComputable: boolean;
   loaded: number;
   total: number;
-  
+
   constructor(type: string, eventInitDict?: ProgressEventInit) {
     super(type, eventInitDict);
     this.lengthComputable = eventInitDict?.lengthComputable ?? false;

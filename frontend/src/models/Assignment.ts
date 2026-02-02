@@ -2,10 +2,10 @@ import type { ReceiptUser } from './ReceiptUser';
 
 /**
  * Represents an assignment that links a receipt user to a receipt line item.
- * 
+ *
  * Assignments are immutable and created from server state. They track which
  * receipt user is responsible for which line item on a receipt.
- * 
+ *
  * @example
  * ```typescript
  * const assignment: Assignment = {
