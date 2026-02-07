@@ -1,4 +1,4 @@
-import { mealChipColors } from '@/components/Receipt/utils/get-color-for-name-v2';
+import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,7 @@ export const PeopleManagerForm = ({
 }: PeopleManagerFormProps) => {
   const isMobile = useMobile();
   const chipColors =
-    people.length > 0 ? mealChipColors(receiptId, people) : null;
+    people.length > 0 ? getAvatarChipColors(receiptId, people) : null;
 
   return (
     <div className="mb-4 rounded-lg border bg-muted/20 p-3">

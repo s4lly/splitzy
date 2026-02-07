@@ -11,7 +11,7 @@ import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { getUserDisplayName } from '@/utils/user-display';
 import React from 'react';
 import { MAX_VISIBLE_ASSIGNED_PEOPLE_DESKTOP } from './constants';
-import { mealChipColors } from './utils/get-color-for-name-v2';
+import { getAvatarChipColors } from './utils/avatar-chip-colors';
 
 interface PersonAssignmentSectionProps {
   item: ReceiptLineItem;
@@ -43,7 +43,7 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
     );
   }
 
-  const chipColors = mealChipColors(receiptId, people);
+  const chipColors = getAvatarChipColors(receiptId, people);
   const overflowCount = item.assignments.length - MAX_VISIBLE_ASSIGNED_PEOPLE;
 
   return (

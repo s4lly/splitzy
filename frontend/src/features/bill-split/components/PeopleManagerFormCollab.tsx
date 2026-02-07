@@ -1,4 +1,4 @@
-import { mealChipColors } from '@/components/Receipt/utils/get-color-for-name-v2';
+import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,7 +36,7 @@ export const PeopleManagerFormCollab = () => {
 
   const chipColors =
     receipt && receiptUserIds.length > 0
-      ? mealChipColors(receipt.id, receiptUserIds)
+      ? getAvatarChipColors(receipt.id, receiptUserIds)
       : null;
 
   return (

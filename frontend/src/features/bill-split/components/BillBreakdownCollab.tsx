@@ -1,5 +1,5 @@
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
-import { mealChipColors } from '@/components/Receipt/utils/get-color-for-name-v2';
+import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
 import { getPersonItems } from '@/components/Receipt/utils/line-item-utils';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -71,7 +71,7 @@ export const BillBreakdownCollab = () => {
     );
   }
 
-  const chipColors = mealChipColors(receipt.id, receiptUserIds);
+  const chipColors = getAvatarChipColors(receipt.id, receiptUserIds);
 
   return (
     <div className="space-y-2">
