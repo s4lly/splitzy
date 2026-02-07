@@ -131,7 +131,11 @@ export default function LineItemsTableDesktop({
                     clickCallback={() => handleAssignmentToggle(item.id)}
                     isSelected={assignmentItemId === item.id}
                   >
-                    <PersonAssignmentSection item={item} people={people} />
+                    <PersonAssignmentSection
+                      item={item}
+                      people={people}
+                      receiptId={receipt.id}
+                    />
                   </AssignmentsContainer>
                 </TableCell>
                 <TableCell className="text-right">

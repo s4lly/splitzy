@@ -1,12 +1,13 @@
-import PersonBadge from '@/components/Receipt/PersonBadge';
-import {
-  getColorForName,
-  getColorStyle,
-} from '@/components/Receipt/utils/get-color-for-name';
+import { mealChipColors } from '@/components/Receipt/utils/get-color-for-name-v2';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { assignedUsersAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
+import {
+  assignedUsersAtom,
+  receiptAtom,
+} from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useMobile } from '@/hooks/useMobile';
+import { getInitials } from '@/lib/get-initials';
 import { cn } from '@/lib/utils';
 import { getUserDisplayName } from '@/utils/user-display';
 import { useAtomValue } from 'jotai';
@@ -17,6 +18,7 @@ export const PeopleManagerFormCollab = () => {
   const isMobile = useMobile();
   const assignedUsers = useAtomValue(assignedUsersAtom);
   const receiptUserIds = assignedUsers.map((a) => a.receiptUserId);
+  const receipt = useAtomValue(receiptAtom);
   const [newPersonName, setNewPersonName] = useState('');
 
   const handleAddPerson = () => {
@@ -31,6 +33,11 @@ export const PeopleManagerFormCollab = () => {
     // Blank implementation - no operation
     // Note: Removing people would require deleting Assignment objects
   };
+
+  const chipColors =
+    receipt && receiptUserIds.length > 0
+      ? mealChipColors(receipt.id, receiptUserIds)
+      : null;
 
   return (
     <div className="mb-4 rounded-lg border bg-muted/20 p-3">
@@ -54,31 +61,24 @@ export const PeopleManagerFormCollab = () => {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {assignedUsers.map((assignment, index) => {
+        {assignedUsers.map((assignment) => {
           const receiptUserId = assignment.receiptUserId;
           const displayName = getUserDisplayName(assignment);
-          const receiptUserIdString = String(receiptUserId);
-          const colorPair = getColorForName(
-            receiptUserIdString,
-            index,
-            assignedUsers.length
-          );
-          const colorStyle = getColorStyle(colorPair);
+          const c = chipColors?.get(receiptUserId);
           return (
             <div
               key={receiptUserId}
               className="flex items-center rounded-full px-3 py-1"
-              style={colorStyle}
             >
-              <PersonBadge
-                name={displayName}
-                size="sm"
-                colorStyle={colorStyle}
-                className={cn(!isMobile && 'border-2 border-white')}
-              />
-              <span className="ml-1 text-sm [color:var(--text-light)] dark:[color:var(--text-dark)]">
-                {displayName}
-              </span>
+              <Avatar
+                className={cn('ring-1', c?.ring)}
+                title={displayName}
+              >
+                <AvatarFallback className={cn(c?.bg, c?.text)}>
+                  {getInitials(displayName)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="ml-1 text-sm">{displayName}</span>
               <Button
                 variant="ghost"
                 size="sm"

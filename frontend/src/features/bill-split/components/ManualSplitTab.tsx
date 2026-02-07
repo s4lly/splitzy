@@ -83,6 +83,7 @@ export const ManualSplitTab = ({
         {/* {showPeopleManager && (
           <PeopleManagerForm
             people={people}
+            receiptId={receipt.id}
             newPersonName={newPersonName}
             onNewPersonNameChange={setNewPersonName}
             onAddPerson={handleAddPerson}

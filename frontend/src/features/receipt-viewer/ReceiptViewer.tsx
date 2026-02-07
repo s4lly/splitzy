@@ -10,7 +10,7 @@ export const ReceiptViewer = () => {
   return (
     <div>
       <h1>Receipt Viewer</h1>
-      <pre>{JSON.stringify(receipt, null, 2)}</pre>
+      <pre className="max-w-full overflow-x-auto">{JSON.stringify(receipt, null, 2)}</pre>
     </div>
   );
 };

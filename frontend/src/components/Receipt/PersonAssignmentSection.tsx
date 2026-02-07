@@ -1,24 +1,29 @@
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+} from '@/components/ui/avatar';
 import { useMobile } from '@/hooks/useMobile';
+import { getInitials } from '@/lib/get-initials';
+import { cn } from '@/lib/utils';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { getUserDisplayName } from '@/utils/user-display';
-import { cn } from '@/lib/utils';
 import React from 'react';
-import PersonBadge from './PersonBadge';
 import { MAX_VISIBLE_ASSIGNED_PEOPLE_DESKTOP } from './constants';
-import {
-  getColorForName,
-  getSolidColorStyle,
-} from './utils/get-color-for-name';
+import { mealChipColors } from './utils/get-color-for-name-v2';
 
 interface PersonAssignmentSectionProps {
   item: ReceiptLineItem;
   people: string[]; // ULID receipt user IDs
+  receiptId: number;
   className?: string;
 }
 
 const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
   item,
   people,
+  receiptId,
 }) => {
   const isMobile = useMobile();
   const MAX_VISIBLE_ASSIGNED_PEOPLE = isMobile
@@ -29,56 +34,44 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
     MAX_VISIBLE_ASSIGNED_PEOPLE
   );
 
-  if (visibleAssignments.length > 0) {
-    return (
-      <>
-        {visibleAssignments.map((assignment, personIdx) => {
-          const receiptUserId = assignment.receiptUserId;
-          const displayName = getUserDisplayName(assignment);
-          // Use the receiptUserId's index in the overall people array for consistent colors
-          const personIndex = people.indexOf(receiptUserId);
-          const normalizedIndex =
-            people.length > 0
-              ? (personIndex >= 0 ? personIndex : personIdx) % people.length
-              : 0;
-
-          const colorPair = getColorForName(
-            receiptUserId,
-            normalizedIndex,
-            people.length
-          );
-          const colorStyle = getSolidColorStyle(colorPair);
-
-          return (
-            <PersonBadge
-              key={assignment.id}
-              name={displayName}
-              size={isMobile ? 'sm' : 'md'}
-              colorStyle={colorStyle}
-              className={cn(
-                isMobile &&
-                  'group flex items-center gap-1 rounded-full bg-muted/20 py-1',
-                !isMobile && 'border-2 border-white',
-                !isMobile && personIdx > 0 && '-ml-4'
-              )}
-            />
-          );
-        })}
-
-        {item.assignments.length > MAX_VISIBLE_ASSIGNED_PEOPLE && (
-          <div className="text-xs text-muted-foreground">
-            +{item.assignments.length - MAX_VISIBLE_ASSIGNED_PEOPLE}
-          </div>
-        )}
-      </>
-    );
-  } else {
+  // If there are no visible assignments, show a "Add" message
+  if (visibleAssignments.length === 0) {
     return (
       <div className="flex w-full justify-center">
         <p className="font-medium">Add</p>
       </div>
     );
   }
+
+  const chipColors = mealChipColors(receiptId, people);
+  const overflowCount = item.assignments.length - MAX_VISIBLE_ASSIGNED_PEOPLE;
+
+  return (
+    <AvatarGroup>
+      {visibleAssignments.map((assignment) => {
+        const receiptUserId = assignment.receiptUserId;
+        const displayName = getUserDisplayName(assignment);
+        const c = chipColors.get(receiptUserId);
+
+        return (
+          <Avatar
+            key={assignment.id}
+            className={cn('ring-1', c?.ring)}
+            title={displayName}
+          >
+            <AvatarFallback className={cn(c?.bg, c?.text)}>
+              {getInitials(displayName)}
+            </AvatarFallback>
+          </Avatar>
+        );
+      })}
+      {overflowCount > 0 && (
+        <AvatarGroupCount className="text-xs">
+          +{overflowCount}
+        </AvatarGroupCount>
+      )}
+    </AvatarGroup>
+  );
 };
 
 export default PersonAssignmentSection;

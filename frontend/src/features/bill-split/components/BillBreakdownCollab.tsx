@@ -1,11 +1,8 @@
-import PersonBadge from '@/components/Receipt/PersonBadge';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
-import {
-  getColorForName,
-  getColorStyle,
-} from '@/components/Receipt/utils/get-color-for-name';
+import { mealChipColors } from '@/components/Receipt/utils/get-color-for-name-v2';
 import { getPersonItems } from '@/components/Receipt/utils/line-item-utils';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -25,6 +22,7 @@ import {
   useEqualSplitAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useMobile } from '@/hooks/useMobile';
+import { getInitials } from '@/lib/get-initials';
 import { cn } from '@/lib/utils';
 import { getUserDisplayName } from '@/utils/user-display';
 import Decimal from 'decimal.js';
@@ -73,20 +71,16 @@ export const BillBreakdownCollab = () => {
     );
   }
 
+  const chipColors = mealChipColors(receipt.id, receiptUserIds);
+
   return (
     <div className="space-y-2">
       <h3 className="mb-1 font-medium">Bill Breakdown</h3>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {assignedUsers.map((assignment, idx) => {
+        {assignedUsers.map((assignment) => {
           const receiptUserId = assignment.receiptUserId;
           const displayName = getUserDisplayName(assignment);
-          const receiptUserIdString = String(receiptUserId);
-          const colorPair = getColorForName(
-            receiptUserIdString,
-            idx,
-            assignedUsers.length
-          );
-          const colorStyle = getColorStyle(colorPair);
+          const c = chipColors.get(receiptUserId);
 
           const personFairTotal: Decimal =
             personFairTotals.get(receiptUserId) ?? new Decimal(0);
@@ -103,17 +97,16 @@ export const BillBreakdownCollab = () => {
           return (
             <Dialog key={receiptUserId}>
               <DialogTrigger asChild>
-                <div
-                  className="cursor-pointer rounded-lg border p-4 transition-shadow [background-color:color-mix(in_srgb,var(--bg-light)_5%,transparent)] hover:shadow-md dark:[background-color:color-mix(in_srgb,var(--bg-dark)_20%,transparent)]"
-                  style={colorStyle}
-                >
+                <div className="cursor-pointer rounded-lg border p-4 transition-shadow hover:shadow-md">
                   <div className="mb-2 flex items-center gap-2">
-                    <PersonBadge
-                      name={displayName}
-                      size={isMobile ? 'sm' : 'md'}
-                      colorStyle={colorStyle}
-                      className={cn(!isMobile && 'border-2 border-white')}
-                    />
+                    <Avatar
+                      className={cn('ring-1', c?.ring)}
+                      title={displayName}
+                    >
+                      <AvatarFallback className={cn(c?.bg, c?.text)}>
+                        {getInitials(displayName)}
+                      </AvatarFallback>
+                    </Avatar>
                     <span className="truncate font-medium">{displayName}</span>
                   </div>
 
@@ -196,12 +189,14 @@ export const BillBreakdownCollab = () => {
               <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
-                    <PersonBadge
-                      name={displayName}
-                      size="md"
-                      colorStyle={colorStyle}
-                      className={cn(!isMobile && 'border-2 border-white')}
-                    />
+                    <Avatar
+                      className={cn('ring-1', c?.ring)}
+                      title={displayName}
+                    >
+                      <AvatarFallback className={cn(c?.bg, c?.text)}>
+                        {getInitials(displayName)}
+                      </AvatarFallback>
+                    </Avatar>
                     <span>{displayName}'s Items</span>
                   </DialogTitle>
                   <DialogDescription>
