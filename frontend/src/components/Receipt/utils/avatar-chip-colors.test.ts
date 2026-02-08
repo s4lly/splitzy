@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  fnv1a32,
-  getAvatarChipColors,
-  PALETTE,
-} from './avatar-chip-colors';
+import { fnv1a32, getAvatarChipColors, PALETTE } from './avatar-chip-colors';
 
 describe('fnv1a32', () => {
   it('returns same hash for same input', () => {
@@ -74,8 +70,7 @@ describe('getAvatarChipColors', () => {
     const ids = ['01A', '01B'];
     const a = getAvatarChipColors(1, ids);
     const b = getAvatarChipColors(2, ids);
-    const same =
-      a.get('01A') === b.get('01A') && a.get('01B') === b.get('01B');
+    const same = a.get('01A') === b.get('01A') && a.get('01B') === b.get('01B');
     expect(same).toBe(false);
   });
 
@@ -84,14 +79,18 @@ describe('getAvatarChipColors', () => {
     const result = getAvatarChipColors(100, ids);
     for (const color of result.values()) {
       const found = PALETTE.some(
-        (p) => p.bg === color.bg && p.text === color.text && p.ring === color.ring
+        (p) =>
+          p.bg === color.bg && p.text === color.text && p.ring === color.ring
       );
       expect(found).toBe(true);
     }
   });
 
   it('handles many participants (more than palette size) deterministically', () => {
-    const ids = Array.from({ length: 30 }, (_, i) => `01U${String(i).padStart(2, '0')}`);
+    const ids = Array.from(
+      { length: 30 },
+      (_, i) => `01U${String(i).padStart(2, '0')}`
+    );
     const result = getAvatarChipColors(1, ids);
     expect(result.size).toBe(30);
     const a = getAvatarChipColors(1, ids);

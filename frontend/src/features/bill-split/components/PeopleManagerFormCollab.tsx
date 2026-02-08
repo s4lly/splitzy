@@ -70,10 +70,7 @@ export const PeopleManagerFormCollab = () => {
               key={receiptUserId}
               className="flex items-center rounded-full px-3 py-1"
             >
-              <Avatar
-                className={cn('ring-1', c?.ring)}
-                title={displayName}
-              >
+              <Avatar className={cn('ring-1', c?.ring)} title={displayName}>
                 <AvatarFallback className={cn(c?.bg, c?.text)}>
                   {getInitials(displayName)}
                 </AvatarFallback>
