@@ -299,9 +299,9 @@ backend/scripts/verify-dump.sh backend/dumps/mydumpfile-2026-01-24-0830.bak
 From backend directory:
 
 ```bash
-./scripts/verify-dump.sh dumps/mydumpfile-2026-01-24-0830.bak
+./scripts/verify-dump.sh backend/dumps/mydumpfile-2026-01-24-0830.bak
 # or
-scripts/verify-dump.sh ../backend/dumps/mydumpfile-2026-01-24-0830.bak
+scripts/verify-dump.sh backend/dumps/mydumpfile-2026-01-24-0830.bak
 ```
 
 **What it checks:**
