@@ -1,5 +1,9 @@
+import {
+  PALETTE,
+  fnv1a32,
+  getAvatarChipColors,
+} from '@/components/Receipt/utils/avatar-chip-colors';
 import { describe, expect, it } from 'vitest';
-import { fnv1a32, getAvatarChipColors, PALETTE } from './avatar-chip-colors';
 
 describe('fnv1a32', () => {
   it('returns same hash for same input', () => {
