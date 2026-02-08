@@ -1,3 +1,7 @@
+import Decimal from 'decimal.js';
+import { useAtomValue } from 'jotai';
+import { AlertCircle, DollarSign } from 'lucide-react';
+
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,9 +12,6 @@ import {
 } from '@/features/receipt-collab/atoms/receiptAtoms';
 import GratuityEditor from '@/features/receipt-viewer/components/GratuityEditor';
 import TipEditor from '@/features/receipt-viewer/components/TipEditor';
-import Decimal from 'decimal.js';
-import { useAtomValue } from 'jotai';
-import { AlertCircle, DollarSign } from 'lucide-react';
 
 /**
  * Summary card component that displays receipt totals and breakdown.

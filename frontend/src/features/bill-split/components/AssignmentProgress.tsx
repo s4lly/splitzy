@@ -1,6 +1,7 @@
-import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import Decimal from 'decimal.js';
 import { AlertCircle, Check } from 'lucide-react';
+
+import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 
 interface AssignmentProgressProps {
   personTotalsSum: Decimal;

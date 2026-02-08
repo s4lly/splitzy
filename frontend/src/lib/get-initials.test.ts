@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { getInitials } from '@/lib/get-initials';
 
 describe('getInitials', () => {

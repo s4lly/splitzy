@@ -2,9 +2,12 @@
 // Imports
 // -----------------------------------------------------------------------------
 
+import { ChevronUp, Pencil, Plus } from 'lucide-react';
+import { useState } from 'react';
+
+import LineItemCard from '@/components/Receipt/components/LineItemCard';
 import LineItemEditForm from '@/components/Receipt/LineItemEditForm';
 import PersonAssignmentSection from '@/components/Receipt/PersonAssignmentSection';
-import LineItemCard from '@/components/Receipt/components/LineItemCard';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Button } from '@/components/ui/button';
@@ -22,8 +25,6 @@ import { cn } from '@/lib/utils';
 import type { Assignment } from '@/models/Assignment';
 import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-import { ChevronUp, Pencil, Plus } from 'lucide-react';
-import { useState } from 'react';
 
 // -----------------------------------------------------------------------------
 // Component

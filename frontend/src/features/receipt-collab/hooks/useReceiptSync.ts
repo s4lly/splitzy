@@ -1,7 +1,8 @@
-import { useReceiptContext } from '@/context/ReceiptContext';
-import { receiptRawAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
+
+import { useReceiptContext } from '@/context/ReceiptContext';
+import { receiptRawAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 
 /**
  * Hook that syncs receipt data from React Context into Jotai's atom system.

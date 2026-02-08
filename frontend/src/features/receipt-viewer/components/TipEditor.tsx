@@ -1,3 +1,7 @@
+import Decimal from 'decimal.js';
+import { Trash } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
 import PercentageTipButton from '@/components/Receipt/components/PercentageTipButton';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
@@ -8,9 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useReceiptMutation } from '@/features/receipt-viewer/hooks/useReceiptMutation';
 import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
-import Decimal from 'decimal.js';
-import { Trash } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 interface TipEditorProps {
   receiptTip: Decimal;

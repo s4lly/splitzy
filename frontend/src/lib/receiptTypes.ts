@@ -1,5 +1,6 @@
-import type { UserReceipt } from '@/zero/schema';
 import { z } from 'zod';
+
+import type { UserReceipt } from '@/zero/schema';
 
 /**
  * Shared schema for receipt history items displayed in the UI

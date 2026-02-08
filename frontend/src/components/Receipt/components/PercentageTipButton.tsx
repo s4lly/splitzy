@@ -1,5 +1,6 @@
-import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import Decimal from 'decimal.js';
+
+import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 
 interface PercentageTipButtonProps {
   percentage: number;

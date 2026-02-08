@@ -1,4 +1,5 @@
 import LineItemsTableMobile from '@/components/Receipt/LineItemsTableMobile';
+
 import { useZeroLineItemMutations } from './useZeroLineItemMutations';
 
 export function LineItemsTableMobileAdapter({ people }: { people: string[] }) {

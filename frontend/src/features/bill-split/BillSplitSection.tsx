@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { EvenSplitTab } from './components/EvenSplitTab';
 import { ManualSplitTab } from './components/ManualSplitTab';
 import { BillSplitSectionProps } from './types';

@@ -1,6 +1,8 @@
-import receiptService from '@/services/receiptService';
 import { useAuth } from '@clerk/clerk-react';
 import { useMutation } from '@tanstack/react-query';
+
+import receiptService from '@/services/receiptService';
+
 import type { ReceiptAnalysisResult } from '../types';
 
 export function useReceiptAnalysisMutation() {

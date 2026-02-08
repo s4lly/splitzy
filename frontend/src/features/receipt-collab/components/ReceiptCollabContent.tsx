@@ -1,3 +1,8 @@
+import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
+import { Plus, ShoppingBag } from 'lucide-react';
+import { useState } from 'react';
+
 import LineItemCard from '@/components/Receipt/components/LineItemCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,10 +23,6 @@ import { ReceiptSummaryCard } from '@/features/receipt-viewer/ReceiptSummaryCard
 import { ReceiptViewer } from '@/features/receipt-viewer/ReceiptViewer';
 import { useMobile } from '@/hooks/useMobile';
 import { isLocalDevelopment } from '@/utils/env';
-import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
-import { Plus, ShoppingBag } from 'lucide-react';
-import { useState } from 'react';
 
 /**
  * Inner component that has access to both ReceiptContext and Jotai.

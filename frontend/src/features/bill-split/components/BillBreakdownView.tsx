@@ -1,5 +1,8 @@
-import { formatCurrency } from '@/components/Receipt/utils/format-currency';
+import Decimal from 'decimal.js';
+import { FileText, UserPlus } from 'lucide-react';
+
 import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
+import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { getPersonItems } from '@/components/Receipt/utils/line-item-utils';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -13,12 +16,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import type { PersonInfo } from '@/features/bill-split/types';
 import { getInitials } from '@/lib/get-initials';
 import { cn } from '@/lib/utils';
-import type { PersonInfo } from '@/features/bill-split/types';
 import type { Receipt } from '@/models/Receipt';
-import Decimal from 'decimal.js';
-import { FileText, UserPlus } from 'lucide-react';
 
 export interface BillBreakdownViewProps {
   people: PersonInfo[];
@@ -104,7 +105,7 @@ export const BillBreakdownView = ({
               <DialogTrigger asChild>
                 <button
                   type="button"
-                  className="w-full cursor-pointer rounded-lg border bg-transparent p-4 text-left font-inherit transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="font-inherit w-full cursor-pointer rounded-lg border bg-transparent p-4 text-left transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <div className="mb-2 flex items-center gap-2">
                     {personAvatar}

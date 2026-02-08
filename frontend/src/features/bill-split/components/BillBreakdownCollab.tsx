@@ -1,3 +1,5 @@
+import { useAtomValue } from 'jotai';
+
 import { BillBreakdownView } from '@/features/bill-split/components/BillBreakdownView';
 import {
   assignedUsersAtom,
@@ -8,7 +10,6 @@ import {
   useEqualSplitAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { getUserDisplayName } from '@/utils/user-display';
-import { useAtomValue } from 'jotai';
 
 export const BillBreakdownCollab = () => {
   const assignedUsers = useAtomValue(assignedUsersAtom);

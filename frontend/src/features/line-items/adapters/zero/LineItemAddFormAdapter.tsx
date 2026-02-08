@@ -1,11 +1,12 @@
-import LineItemAddForm from '@/components/Receipt/LineItemAddForm';
-import type { AddLineItemData } from '@/features/line-items/types';
-import { receiptIdAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
-import { mutators } from '@/zero/mutators';
 import { useZero } from '@rocicorp/zero/react';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+
+import LineItemAddForm from '@/components/Receipt/LineItemAddForm';
+import type { AddLineItemData } from '@/features/line-items/types';
+import { receiptIdAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
+import { mutators } from '@/zero/mutators';
 
 export function LineItemAddFormAdapter({
   onAddCancel,

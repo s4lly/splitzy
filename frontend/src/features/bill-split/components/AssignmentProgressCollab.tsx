@@ -1,3 +1,6 @@
+import { useAtomValue } from 'jotai';
+import { AlertCircle, Check } from 'lucide-react';
+
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import {
   isFullyAssignedAtom,
@@ -5,8 +8,6 @@ import {
   receiptTotalAtom,
   unassignedAmountAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
-import { useAtomValue } from 'jotai';
-import { AlertCircle, Check } from 'lucide-react';
 
 export const AssignmentProgressCollab = () => {
   const personTotalsSum = useAtomValue(personTotalsSumAtom);

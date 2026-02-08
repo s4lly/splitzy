@@ -1,9 +1,11 @@
-import TipEditor from '@/features/summary-card/TipEditor';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Decimal from 'decimal.js';
-import { HttpResponse, http } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import TipEditor from '@/features/summary-card/TipEditor';
+
 import { server } from '../../mocks/server';
 import { render } from '../../test-utils';
 

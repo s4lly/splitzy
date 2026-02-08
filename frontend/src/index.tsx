@@ -1,9 +1,5 @@
-import { ThemeProvider } from '@/components/ThemeProvider';
-import { FeatureFlagProvider } from '@/context/FeatureFlagProvider';
-import { AuthenticatedZeroProvider } from '@/context/ZeroProvider';
 import '@/index.css';
-import { POSTHOG_HOST } from '@/utils/constants';
-import { isLocalDevelopment } from '@/utils/env';
+
 import { ClerkProvider } from '@clerk/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -12,6 +8,13 @@ import { PostHogProvider } from 'posthog-js/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+
+import { ThemeProvider } from '@/components/ThemeProvider';
+import { FeatureFlagProvider } from '@/context/FeatureFlagProvider';
+import { AuthenticatedZeroProvider } from '@/context/ZeroProvider';
+import { POSTHOG_HOST } from '@/utils/constants';
+import { isLocalDevelopment } from '@/utils/env';
+
 import App from './App';
 
 // ---- Clerk ----

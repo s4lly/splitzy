@@ -1,10 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render } from '../../test-utils';
-import GratuityEditor from '@/features/summary-card/GratuityEditor';
-import { server } from '../../mocks/server';
 import { http, HttpResponse } from 'msw';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import GratuityEditor from '@/features/summary-card/GratuityEditor';
+
+import { server } from '../../mocks/server';
+import { render } from '../../test-utils';
 
 // Mock the format-currency utility
 vi.mock('@/components/Receipt/utils/format-currency', () => ({

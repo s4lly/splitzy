@@ -1,10 +1,11 @@
+import { describe, expect, it } from 'vitest';
+
 import {
   DEFAULT_CHIP_COLOR,
-  PALETTE,
   fnv1a32,
   getAvatarChipColors,
+  PALETTE,
 } from '@/components/Receipt/utils/avatar-chip-colors';
-import { describe, expect, it } from 'vitest';
 
 describe('DEFAULT_CHIP_COLOR', () => {
   it('has bg, text, and ring string properties', () => {

@@ -1,7 +1,8 @@
-import ReceiptAnalysisPage from '@/pages/ReceiptAnalysisPage';
-import ReceiptCollabPage from '@/pages/ReceiptCollabPage';
 import { Loader2 } from 'lucide-react';
 import { useFeatureFlagEnabled } from 'posthog-js/react';
+
+import ReceiptAnalysisPage from '@/pages/ReceiptAnalysisPage';
+import ReceiptCollabPage from '@/pages/ReceiptCollabPage';
 
 export default function ReceiptRoute() {
   const isCollabEnabled = useFeatureFlagEnabled('receipt-collab-edit');

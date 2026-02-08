@@ -1,3 +1,5 @@
+import { Receipt } from 'lucide-react';
+
 import {
   Card,
   CardContent,
@@ -6,7 +8,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Receipt } from 'lucide-react';
 
 /**
  * Skeleton loading component for ReceiptHistory

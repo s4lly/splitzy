@@ -1,3 +1,5 @@
+import { Plus, X } from 'lucide-react';
+
 import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -5,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { useMobile } from '@/hooks/useMobile';
 import { getInitials } from '@/lib/get-initials';
 import { cn } from '@/lib/utils';
-import { Plus, X } from 'lucide-react';
 
 interface PeopleManagerFormProps {
   people: string[];

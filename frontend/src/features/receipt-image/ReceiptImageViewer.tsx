@@ -1,3 +1,9 @@
+import { useAuth } from '@clerk/clerk-react';
+import { animated, useSpring } from '@react-spring/web';
+import { Download, Image as ImageIcon, Settings, Undo } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -7,11 +13,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import type { Receipt } from '@/models/Receipt';
-import { useAuth } from '@clerk/clerk-react';
-import { animated, useSpring } from '@react-spring/web';
-import { Download, Image as ImageIcon, Settings, Undo } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+
 import { ImageSettingsDialog } from './components/ImageSettingsDialog';
 import { useImageGestures } from './hooks/useImageGestures';
 import { downloadImage } from './utils/downloadImage';

@@ -1,3 +1,7 @@
+import { useAtomValue } from 'jotai';
+import { Plus, X } from 'lucide-react';
+import { useState } from 'react';
+
 import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -10,9 +14,6 @@ import { useMobile } from '@/hooks/useMobile';
 import { getInitials } from '@/lib/get-initials';
 import { cn } from '@/lib/utils';
 import { getUserDisplayName } from '@/utils/user-display';
-import { useAtomValue } from 'jotai';
-import { Plus, X } from 'lucide-react';
-import { useState } from 'react';
 
 export const PeopleManagerFormCollab = () => {
   const isMobile = useMobile();

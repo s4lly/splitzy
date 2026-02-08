@@ -1,3 +1,7 @@
+import { useAtomValue } from 'jotai';
+import { Divide } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
 import NumericInput from '@/components/NumericInput';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
@@ -7,9 +11,6 @@ import {
   assignedUsersAtom,
   receiptAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
-import { useAtomValue } from 'jotai';
-import { Divide } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 export const EvenSplitTabCollab = () => {
   const assignedUsers = useAtomValue(assignedUsersAtom);

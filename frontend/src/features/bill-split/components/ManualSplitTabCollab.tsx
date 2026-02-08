@@ -1,12 +1,14 @@
+import { useAtomValue } from 'jotai';
+import { Users } from 'lucide-react';
+import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   assignedUsersAtom,
   useEqualSplitAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
-import { useAtomValue } from 'jotai';
-import { Users } from 'lucide-react';
-import { useState } from 'react';
+
 import { AssignmentProgressCollab } from './AssignmentProgressCollab';
 import { BillBreakdownCollab } from './BillBreakdownCollab';
 import { EqualSplitBannerCollab } from './EqualSplitBannerCollab';

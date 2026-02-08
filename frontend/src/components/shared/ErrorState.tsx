@@ -1,6 +1,7 @@
-import { Button } from '@/components/ui/button';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+import { Button } from '@/components/ui/button';
 
 interface ErrorStateProps {
   message: string;

@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { EvenSplitTabCollab } from './components/EvenSplitTabCollab';
 import { ManualSplitTabCollab } from './components/ManualSplitTabCollab';
 

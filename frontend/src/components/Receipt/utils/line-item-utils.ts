@@ -1,6 +1,7 @@
+import Decimal from 'decimal.js';
+
 import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-import Decimal from 'decimal.js';
 
 /**
  * Extracts unique receipt user IDs from line item assignments

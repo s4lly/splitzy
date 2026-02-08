@@ -1,6 +1,7 @@
-import { hasLineItemsAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useAtomValue } from 'jotai';
 import { AlertCircle } from 'lucide-react';
+
+import { hasLineItemsAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 
 export const EqualSplitBannerCollab = () => {
   const receiptHasLineItems = useAtomValue(hasLineItemsAtom);

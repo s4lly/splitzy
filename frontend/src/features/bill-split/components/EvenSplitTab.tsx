@@ -1,11 +1,12 @@
+import { Divide } from 'lucide-react';
+import { useState } from 'react';
+
 import NumericInput from '@/components/NumericInput';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import type { Receipt } from '@/models/Receipt';
-import { Divide } from 'lucide-react';
-import { useState } from 'react';
 
 interface EvenSplitTabProps {
   receipt: Receipt;
