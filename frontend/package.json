@@ -63,7 +63,7 @@
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format:check": "eslint . && prettier --check .",
     "format:fix": "eslint --fix . && prettier --write --ignore-unknown ."
   },
   "browserslist": {
