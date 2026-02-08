@@ -163,6 +163,9 @@ export function getAvatarChipColors(
     if (!used.has(preferred)) {
       index = preferred;
       used.add(index);
+    } else if (used.size >= PALETTE_LEN) {
+      // Palette saturated; skip linear probe and use preferred (repeated color)
+      index = preferred;
     } else {
       let probe = (preferred + 1) % PALETTE_LEN;
       while (probe !== preferred && used.has(probe)) {
