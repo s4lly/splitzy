@@ -117,9 +117,7 @@ export const BillBreakdownView = ({
                     <>
                       <div className="flex items-end justify-between">
                         <div className="text-lg font-semibold">
-                          {formatCurrency(
-                            personFairTotals.get(person.id) ?? new Decimal(0)
-                          )}
+                          {formatCurrency(personFairTotal)}
                         </div>
                         <div className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-800/30 dark:text-blue-300">
                           Equal split
@@ -137,9 +135,7 @@ export const BillBreakdownView = ({
                           Items subtotal:
                         </div>
                         <div className="text-sm font-medium">
-                          {formatCurrency(
-                            personPretaxTotals.get(person.id) ?? new Decimal(0)
-                          )}
+                          {formatCurrency(personPretaxTotal)}
                         </div>
                       </div>
                       <div className="mt-1 flex items-end justify-between">
@@ -259,10 +255,7 @@ export const BillBreakdownView = ({
                               Subtotal
                             </td>
                             <td className="px-3 py-2 text-right text-sm">
-                              {formatCurrency(
-                                personPretaxTotals.get(person.id) ??
-                                  new Decimal(0)
-                              )}
+                              {formatCurrency(personPretaxTotal)}
                             </td>
                           </tr>
                           {!receipt.taxIncludedInItems &&
