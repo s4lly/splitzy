@@ -1,3 +1,5 @@
+import { MAX_VISIBLE_ASSIGNED_PEOPLE_DESKTOP } from '@/components/Receipt/constants';
+import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
 import {
   Avatar,
   AvatarFallback,
@@ -10,8 +12,6 @@ import { cn } from '@/lib/utils';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { getUserDisplayName } from '@/utils/user-display';
 import React from 'react';
-import { MAX_VISIBLE_ASSIGNED_PEOPLE_DESKTOP } from './constants';
-import { getAvatarChipColors } from './utils/avatar-chip-colors';
 
 interface PersonAssignmentSectionProps {
   item: ReceiptLineItem;
