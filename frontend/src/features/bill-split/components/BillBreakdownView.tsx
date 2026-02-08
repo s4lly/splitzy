@@ -67,6 +67,7 @@ export const BillBreakdownView = ({
 
   const personIds = people.map((p) => p.id);
   const chipColors = getAvatarChipColors(receipt.id, personIds);
+  const idToName = new Map(people.map((p) => [p.id, p.displayName]));
 
   return (
     <div className="space-y-2">
@@ -229,7 +230,10 @@ export const BillBreakdownView = ({
                                 </div>
                                 {item.shared && (
                                   <div className="mt-0.5 text-xs text-muted-foreground">
-                                    Shared with {item.sharedWith.join(', ')}
+                                    Shared with{' '}
+                                    {item.sharedWith
+                                      .map((id) => idToName.get(id) ?? id)
+                                      .join(', ')}
                                   </div>
                                 )}
                               </td>
