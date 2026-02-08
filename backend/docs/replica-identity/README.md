@@ -38,7 +38,7 @@ This error occurs when Alembic tries to update the `alembic_version` table to re
 4. **Dump Process**: When `pg_dump` was used to create the dump:
 
    ```bash
-   pg_dump -Fc -v -d $DATABASE_URL -f mydumpfile.bak
+   pg_dump -Fc -v -d $DATABASE_URL -f backend/dumps/mydumpfile.bak
    ```
 
    The dump file did NOT include any `ALTER TABLE ... REPLICA IDENTITY` statements because:
@@ -99,16 +99,17 @@ This script:
 - Sets REPLICA IDENTITY to use the primary key (if available) or FULL (if no primary key)
 - Ensures `pg_dump` will include these settings in the dump
 
-Then create your dump as usual:
+Then create your dump as usual (dumps go in the git-ignored `backend/dumps/` directory):
 
 ```bash
-pg_dump -Fc -v -d $DATABASE_URL -f mydumpfile.bak
+mkdir -p backend/dumps
+pg_dump -Fc -v -d $DATABASE_URL -f backend/dumps/mydumpfile.bak
 ```
 
-**Or use the automated script**:
+**Or use the automated script** (run from project root):
 
 ```bash
-./docs/replica-identity/dump_with_replica_identity.sh mydumpfile.bak
+./backend/docs/replica-identity/dump_with_replica_identity.sh backend/dumps/mydumpfile.bak
 ```
 
 **Files**:
@@ -129,10 +130,10 @@ This script:
 - Sets REPLICA IDENTITY on all tables in publications that don't have it set
 - Acts as a fallback in case REPLICA IDENTITY wasn't included in the dump
 
-**Or use the automated restore script**:
+**Or use the automated restore script** (run from project root):
 
 ```bash
-./docs/replica-identity/restore_with_replica_identity.sh mydumpfile.bak $TARGET_DATABASE_URL
+./backend/docs/replica-identity/restore_with_replica_identity.sh backend/dumps/mydumpfile.bak $TARGET_DATABASE_URL
 ```
 
 **Files**:

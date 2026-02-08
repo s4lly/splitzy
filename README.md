@@ -108,7 +108,7 @@ Then start the services:
 
 ```bash
 # First-time setup (with database restore from a dump file)
-./backend/scripts/setup-local-db.sh mydumpfile.bak
+./backend/scripts/setup-local-db.sh backend/dumps/mydumpfile.bak
 
 # Or start fresh without restoring data
 ./backend/scripts/setup-local-db.sh

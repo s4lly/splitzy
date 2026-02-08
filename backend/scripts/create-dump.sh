@@ -13,8 +13,8 @@
 #                   Format: postgresql://user:password@host:port/database
 #
 # Output:
-#   Creates a file named: mydumpfile-YYYY-MM-DD-HHMM.bak in the backend/ directory
-#   Example: mydumpfile-2026-01-24-0830.bak
+#   Creates a file named: mydumpfile-YYYY-MM-DD-HHMM.bak in backend/dumps/ (git-ignored)
+#   Example: backend/dumps/mydumpfile-2026-01-24-0830.bak
 #
 # Note: This script can be run from any directory within the project.
 
@@ -63,8 +63,10 @@ fi
 # Example: 2026-01-24-0830 (January 24, 2026 at 8:30 AM)
 TIMESTAMP=$(date +"%Y-%m-%d-%H%M")
 
-# Output filename with timestamp
-OUTPUT_FILE="$PROJECT_ROOT/backend/mydumpfile-${TIMESTAMP}.bak"
+# Output directory (git-ignored) and filename
+DUMP_DIR="$PROJECT_ROOT/backend/dumps"
+mkdir -p "$DUMP_DIR"
+OUTPUT_FILE="$DUMP_DIR/mydumpfile-${TIMESTAMP}.bak"
 
 echo ""
 echo "=========================================="
