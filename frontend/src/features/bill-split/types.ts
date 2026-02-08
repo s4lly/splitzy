@@ -1,6 +1,12 @@
 import type { Receipt } from '@/models/Receipt';
 import Decimal from 'decimal.js';
 
+/** Lookup key and display name for a person in bill breakdown (name or receiptUserId). */
+export interface PersonInfo {
+  id: string;
+  displayName: string;
+}
+
 /**
  * Props for the BillSplitSection component.
  * Manages the bill splitting UI including people management, assignment progress, and breakdown.
