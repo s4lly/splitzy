@@ -1,5 +1,8 @@
 import { MAX_VISIBLE_ASSIGNED_PEOPLE_DESKTOP } from '@/components/Receipt/constants';
-import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
+import {
+  DEFAULT_CHIP_COLOR,
+  getAvatarChipColors,
+} from '@/components/Receipt/utils/avatar-chip-colors';
 import {
   Avatar,
   AvatarFallback,
@@ -52,15 +55,15 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
       {visibleAssignments.map((assignment) => {
         const receiptUserId = assignment.receiptUserId;
         const displayName = getUserDisplayName(assignment);
-        const c = chipColors.get(receiptUserId);
+        const c = chipColors.get(receiptUserId) || DEFAULT_CHIP_COLOR;
 
         return (
           <Avatar
             key={assignment.id}
-            className={cn('ring-1', c?.ring)}
+            className={cn('ring-1', c.ring)}
             title={displayName}
           >
-            <AvatarFallback className={cn(c?.bg, c?.text)}>
+            <AvatarFallback className={cn(c.bg, c.text)}>
               {getInitials(displayName)}
             </AvatarFallback>
           </Avatar>

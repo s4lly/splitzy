@@ -1,9 +1,33 @@
 import {
+  DEFAULT_CHIP_COLOR,
   PALETTE,
   fnv1a32,
   getAvatarChipColors,
 } from '@/components/Receipt/utils/avatar-chip-colors';
 import { describe, expect, it } from 'vitest';
+
+describe('DEFAULT_CHIP_COLOR', () => {
+  it('has bg, text, and ring string properties', () => {
+    expect(DEFAULT_CHIP_COLOR).toMatchObject({
+      bg: expect.any(String),
+      text: expect.any(String),
+      ring: expect.any(String),
+    });
+  });
+
+  it('uses neutral Tailwind classes for fallback styling', () => {
+    expect(DEFAULT_CHIP_COLOR.bg).toMatch(/neutral/);
+    expect(DEFAULT_CHIP_COLOR.text).toMatch(/neutral/);
+    expect(DEFAULT_CHIP_COLOR.ring).toMatch(/neutral/);
+  });
+
+  it('is a valid chip color (same shape as PALETTE entries)', () => {
+    const fromPalette = PALETTE[0];
+    expect(Object.keys(DEFAULT_CHIP_COLOR).sort()).toEqual(
+      Object.keys(fromPalette).sort()
+    );
+  });
+});
 
 describe('fnv1a32', () => {
   it('returns same hash for same input', () => {

@@ -10,6 +10,13 @@ export type AvatarChipColor = {
   ring: string;
 };
 
+/** Default neutral chip color when a participant has no assigned color (e.g. missing from scope). */
+export const DEFAULT_CHIP_COLOR: AvatarChipColor = {
+  bg: 'bg-neutral-100 dark:bg-neutral-700/50',
+  text: 'text-neutral-800 dark:text-neutral-200',
+  ring: 'ring-neutral-200 dark:ring-neutral-600/50',
+};
+
 /** Curated palette (~22 entries). All classes are literal Tailwind strings for purge safety. */
 export const PALETTE: AvatarChipColor[] = [
   {
