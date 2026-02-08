@@ -6,8 +6,14 @@ set -e
 
 # Resolve paths relative to this script's location (works from any directory)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-OUTPUT_FILE="${1:-mydumpfile.bak}"
+OUTPUT_FILE="${1:-backend/dumps/mydumpfile.bak}"
 DATABASE_URL="${DATABASE_URL:-${NEON_DATABASE_URL}}"
+
+# Ensure output directory exists (e.g. backend/dumps/ which is git-ignored)
+OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
+if [ -n "$OUTPUT_DIR" ] && [ "$OUTPUT_DIR" != "." ]; then
+    mkdir -p "$OUTPUT_DIR"
+fi
 
 if [ -z "$DATABASE_URL" ]; then
     echo "Error: DATABASE_URL or NEON_DATABASE_URL must be set"

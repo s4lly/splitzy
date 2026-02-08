@@ -9,7 +9,7 @@
 #
 # Usage:
 #   ./backend/scripts/setup-local-db.sh                    # Start services without restore
-#   ./backend/scripts/setup-local-db.sh mydumpfile.bak     # Restore from dump, then start services
+#   ./backend/scripts/setup-local-db.sh backend/dumps/mydumpfile.bak  # Restore from dump, then start services
 #
 # Note: This script can be run from any directory within the project.
 

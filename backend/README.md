@@ -191,9 +191,9 @@ From project root:
 backend/scripts/setup-local-db.sh
 
 # With database restore:
-./backend/scripts/setup-local-db.sh mydumpfile.bak
+./backend/scripts/setup-local-db.sh backend/dumps/mydumpfile.bak
 # or
-backend/scripts/setup-local-db.sh mydumpfile.bak
+backend/scripts/setup-local-db.sh backend/dumps/mydumpfile.bak
 ```
 
 From backend directory:
@@ -204,9 +204,9 @@ From backend directory:
 scripts/setup-local-db.sh
 
 # With database restore:
-./scripts/setup-local-db.sh mydumpfile.bak
+./scripts/setup-local-db.sh backend/dumps/mydumpfile.bak
 # or
-scripts/setup-local-db.sh mydumpfile.bak
+scripts/setup-local-db.sh backend/dumps/mydumpfile.bak
 ```
 
 The script will:
@@ -224,7 +224,7 @@ Creates a timestamped database backup using `pg_dump` in custom format. The dump
 **What it does:**
 
 - Reads `DATABASE_URL` from environment (defaults to local dev if not set)
-- Generates a timestamped filename: `mydumpfile-YYYY-MM-DD-HHMM.bak`
+- Generates a timestamped filename in `backend/dumps/`: `mydumpfile-YYYY-MM-DD-HHMM.bak`
 - Creates a compressed custom-format dump (best for `pg_restore`)
 - Includes verbose output to show progress
 
@@ -254,8 +254,8 @@ scripts/create-dump.sh
 
 **Output:**
 
-The script creates a dump file in the `backend/` directory with a timestamp:
-- Example: `backend/mydumpfile-2026-01-24-0830.bak`
+The script creates a dump file in the git-ignored `backend/dumps/` directory with a timestamp:
+- Example: `backend/dumps/mydumpfile-2026-01-24-0830.bak`
 - Format: `mydumpfile-YYYY-MM-DD-HHMM.bak`
 - The custom format (`-F c`) provides best compression and flexibility
 
@@ -291,17 +291,17 @@ Verifies a database dump file by restoring it to a temporary Docker PostgreSQL c
 From project root:
 
 ```bash
-./backend/scripts/verify-dump.sh backend/mydumpfile-2026-01-24-0830.bak
+./backend/scripts/verify-dump.sh backend/dumps/mydumpfile-2026-01-24-0830.bak
 # or
-backend/scripts/verify-dump.sh backend/mydumpfile-2026-01-24-0830.bak
+backend/scripts/verify-dump.sh backend/dumps/mydumpfile-2026-01-24-0830.bak
 ```
 
 From backend directory:
 
 ```bash
-./scripts/verify-dump.sh mydumpfile-2026-01-24-0830.bak
+./scripts/verify-dump.sh backend/dumps/mydumpfile-2026-01-24-0830.bak
 # or
-scripts/verify-dump.sh ../backend/mydumpfile-2026-01-24-0830.bak
+scripts/verify-dump.sh backend/dumps/mydumpfile-2026-01-24-0830.bak
 ```
 
 **What it checks:**
@@ -369,20 +369,20 @@ From project root:
 
 ```bash
 # Safe restore (preserves existing data)
-./backend/scripts/restore-dump.sh backend/mydumpfile-2026-01-24-0830.bak
+./backend/scripts/restore-dump.sh backend/dumps/mydumpfile-2026-01-24-0830.bak
 
 # Clean restore (drops existing objects - WIPES DATA!)
-./backend/scripts/restore-dump.sh backend/mydumpfile-2026-01-24-0830.bak --clean
+./backend/scripts/restore-dump.sh backend/dumps/mydumpfile-2026-01-24-0830.bak --clean
 ```
 
 From backend directory:
 
 ```bash
 # Safe restore
-./scripts/restore-dump.sh mydumpfile-2026-01-24-0830.bak
+./scripts/restore-dump.sh dumps/mydumpfile-2026-01-24-0830.bak
 
 # Clean restore
-./scripts/restore-dump.sh mydumpfile-2026-01-24-0830.bak --clean
+./scripts/restore-dump.sh dumps/mydumpfile-2026-01-24-0830.bak --clean
 ```
 
 **Restore Modes:**
@@ -431,10 +431,10 @@ From backend directory:
 ./backend/scripts/create-dump.sh
 
 # 2. Verify the dump (optional but recommended)
-./backend/scripts/verify-dump.sh backend/mydumpfile-2026-01-24-0830.bak
+./backend/scripts/verify-dump.sh backend/dumps/mydumpfile-2026-01-24-0830.bak
 
 # 3. Restore the dump
-./backend/scripts/restore-dump.sh backend/mydumpfile-2026-01-24-0830.bak --clean
+./backend/scripts/restore-dump.sh backend/dumps/mydumpfile-2026-01-24-0830.bak --clean
 ```
 
 ## Testing
