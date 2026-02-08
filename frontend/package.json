@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@adobe/react-spectrum": "^3.39.0",
     "@clerk/clerk-react": "^5.58.1",
