@@ -190,8 +190,8 @@ export const BillBreakdownView = ({
                     <span>{person.displayName}'s Items</span>
                   </DialogTitle>
                   <DialogDescription>
-                    Detailed breakdown of items assigned to{' '}
-                    {person.displayName}.
+                    Detailed breakdown of items assigned to {person.displayName}
+                    .
                   </DialogDescription>
                 </DialogHeader>
 
