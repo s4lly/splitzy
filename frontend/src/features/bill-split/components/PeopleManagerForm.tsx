@@ -1,16 +1,15 @@
-import PersonBadge from '@/components/Receipt/PersonBadge';
-import {
-  getColorForName,
-  getColorStyle,
-} from '@/components/Receipt/utils/get-color-for-name';
+import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useMobile } from '@/hooks/useMobile';
+import { getInitials } from '@/lib/get-initials';
 import { cn } from '@/lib/utils';
 import { Plus, X } from 'lucide-react';
 
 interface PeopleManagerFormProps {
   people: string[];
+  receiptId: number;
   newPersonName: string;
   onNewPersonNameChange: (name: string) => void;
   onAddPerson: () => void;
@@ -19,12 +18,15 @@ interface PeopleManagerFormProps {
 
 export const PeopleManagerForm = ({
   people,
+  receiptId,
   newPersonName,
   onNewPersonNameChange,
   onAddPerson,
   onRemovePerson,
 }: PeopleManagerFormProps) => {
   const isMobile = useMobile();
+  const chipColors =
+    people.length > 0 ? getAvatarChipColors(receiptId, people) : null;
 
   return (
     <div className="mb-4 rounded-lg border bg-muted/20 p-3">
@@ -44,24 +46,19 @@ export const PeopleManagerForm = ({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {people.map((person, idx) => {
-          const colorPair = getColorForName(person, idx, people.length);
-          const colorStyle = getColorStyle(colorPair);
+        {people.map((person) => {
+          const c = chipColors?.get(person);
           return (
             <div
-              key={idx}
+              key={person}
               className="flex items-center rounded-full px-3 py-1"
-              style={colorStyle}
             >
-              <PersonBadge
-                name={person}
-                size="sm"
-                colorStyle={colorStyle}
-                className={cn(!isMobile && 'border-2 border-white')}
-              />
-              <span className="ml-1 text-sm [color:var(--text-light)] dark:[color:var(--text-dark)]">
-                {person}
-              </span>
+              <Avatar className={cn('ring-1', c?.ring)} title={person}>
+                <AvatarFallback className={cn(c?.bg, c?.text)}>
+                  {getInitials(person)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="ml-1 text-sm">{person}</span>
               <Button
                 variant="ghost"
                 size="sm"

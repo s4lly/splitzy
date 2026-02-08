@@ -1,3 +1,15 @@
+// -----------------------------------------------------------------------------
+// Imports
+// -----------------------------------------------------------------------------
+
+import LineItemEditForm from '@/components/Receipt/LineItemEditForm';
+import PersonAssignmentSection from '@/components/Receipt/PersonAssignmentSection';
+import LineItemCard from '@/components/Receipt/components/LineItemCard';
+import { formatCurrency } from '@/components/Receipt/utils/format-currency';
+import { calculations } from '@/components/Receipt/utils/receipt-calculation';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Toggle } from '@/components/ui/toggle';
 import { AssignmentsContainer } from '@/features/assignments/assignments-container';
 import { AssignmentsHeader } from '@/features/assignments/assignments-header';
 import AssignmentsList from '@/features/assignments/assignments-list';
@@ -12,30 +24,30 @@ import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { ChevronUp, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '../ui/button';
-import { Separator } from '../ui/separator';
-import { Toggle } from '../ui/toggle';
-import LineItemEditForm from './LineItemEditForm';
-import PersonAssignmentSection from './PersonAssignmentSection';
-import LineItemCard from './components/LineItemCard';
-import { formatCurrency } from './utils/format-currency';
-import { calculations } from './utils/receipt-calculation';
+
+// -----------------------------------------------------------------------------
+// Component
+// -----------------------------------------------------------------------------
 
 export default function LineItemsTableMobile({
+  // --- Data ---
   line_items,
   receipt,
   people,
+  allAssignments,
+  // --- Assignment Callbacks ---
   addExistingPersonAssignment,
   addNewPersonAssignment,
   removePersonAssignment,
+  // --- Line Item Callbacks ---
   onUpdateLineItem,
   onDeleteLineItem,
   isDeleting,
-  allAssignments,
 }: {
   line_items: readonly ReceiptLineItem[];
   receipt: Receipt;
   people: string[]; // ULID receipt user IDs
+  allAssignments?: readonly Assignment[];
   addExistingPersonAssignment: (itemId: string, receiptUserId: string) => void;
   addNewPersonAssignment: (itemId: string, displayName: string) => void;
   removePersonAssignment: (itemId: string, assignmentId: string) => void;
@@ -45,24 +57,27 @@ export default function LineItemsTableMobile({
     options?: MutationCallbackOptions
   ) => void;
   isDeleting?: boolean;
-  allAssignments?: readonly Assignment[];
 }) {
+  // ---------------------------------------------------------------------------
+  // State
+  // ---------------------------------------------------------------------------
+
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [assignmentItemId, setAssignmentItemId] = useState<string | null>(null);
 
-  // Edit mode handlers
+  // ---------------------------------------------------------------------------
+  // Handlers
+  // ---------------------------------------------------------------------------
+
   const handleEditOpen = (e: React.MouseEvent, itemId: string) => {
     setEditItemId(itemId);
     setAssignmentItemId(null);
-
     e.stopPropagation();
   };
 
-  // Assignment list handlers
   const handleAssignmentOpen = (e: React.MouseEvent, itemId: string) => {
     e.stopPropagation();
     setEditItemId(null);
-
     setAssignmentItemId((prevItemId) =>
       prevItemId === itemId ? null : itemId
     );
@@ -87,9 +102,14 @@ export default function LineItemsTableMobile({
     );
   };
 
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
+
   return (
     <>
       {line_items.map((item) => {
+        // Derived state for this item
         const showReducedDetails = assignmentItemId === item.id;
         const showReducedAssignments = editItemId === item.id;
 
@@ -98,9 +118,9 @@ export default function LineItemsTableMobile({
             key={item.id}
             selected={showReducedAssignments || showReducedDetails}
           >
-            {/* line item details */}
+            {/* ========================= LINE ITEM DETAILS ========================= */}
             {showReducedAssignments ? (
-              // edit
+              // --- Edit Mode ---
               <LineItemEditForm
                 item={item}
                 receipt={receipt}
@@ -108,8 +128,9 @@ export default function LineItemsTableMobile({
                 onUpdateLineItem={onUpdateLineItem}
               />
             ) : (
-              // view
+              // --- View Mode ---
               <>
+                {/* Header: Name + Price + Edit Toggle */}
                 <div className="flex items-center justify-between border-b border-border/40 bg-muted/10 p-2">
                   <span className="text-base font-medium">
                     {item.name ?? '(Unnamed item)'}
@@ -127,6 +148,7 @@ export default function LineItemsTableMobile({
                   </div>
                 </div>
 
+                {/* Details: Quantity + Unit Price (hidden when assignments expanded) */}
                 {!showReducedDetails && (
                   <div className="flex flex-col gap-2 p-2">
                     <div className="flex items-baseline gap-2 text-sm">
@@ -146,9 +168,9 @@ export default function LineItemsTableMobile({
               </>
             )}
 
-            {/* assignments */}
+            {/* ============================ ASSIGNMENTS ============================ */}
             {showReducedDetails ? (
-              // edit
+              // --- Edit Mode ---
               <>
                 <AssignmentsHeader onAssignmentCancel={handleEditClose} />
                 <AssignmentsList
@@ -169,7 +191,7 @@ export default function LineItemsTableMobile({
                 />
               </>
             ) : (
-              // view
+              // --- View Mode ---
               <div
                 className={cn(
                   'flex p-2',
@@ -178,6 +200,7 @@ export default function LineItemsTableMobile({
                     : 'flex-col'
                 )}
               >
+                {/* Label + Toggle */}
                 <div className={cn('flex items-center justify-between')}>
                   <span className="text-nowrap text-sm font-medium">
                     Assigned to:
@@ -190,16 +213,19 @@ export default function LineItemsTableMobile({
                   )}
                 </div>
 
+                {/* Assignment Badges */}
                 {item.assignments.length > 0 && (
                   <AssignmentsContainer>
                     <PersonAssignmentSection
                       className={cn(showReducedAssignments && 'justify-end')}
                       item={item}
                       people={people}
+                      receiptId={receipt.id}
                     />
                   </AssignmentsContainer>
                 )}
 
+                {/* Collapse Toggle (when in edit mode) */}
                 {showReducedAssignments && (
                   <Toggle onClick={(e) => handleAssignmentOpen(e, item.id)}>
                     <ChevronUp />
@@ -208,8 +234,10 @@ export default function LineItemsTableMobile({
               </div>
             )}
 
+            {/* ========================== CARD FOOTER ========================== */}
             <Separator />
 
+            {/* Action Buttons (only visible when expanded) */}
             {(showReducedAssignments || showReducedDetails) && (
               <div className="flex justify-between p-2 pt-3">
                 <Button
