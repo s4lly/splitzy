@@ -94,19 +94,23 @@ export const BillBreakdownCollab = () => {
 
           const personItems = getPersonItems(receiptUserId, receipt);
 
+          const personAvatar = (
+            <Avatar
+              className={cn('ring-1', c?.ring)}
+              title={displayName}
+            >
+              <AvatarFallback className={cn(c?.bg, c?.text)}>
+                {getInitials(displayName)}
+              </AvatarFallback>
+            </Avatar>
+          );
+
           return (
             <Dialog key={receiptUserId}>
               <DialogTrigger asChild>
                 <div className="cursor-pointer rounded-lg border p-4 transition-shadow hover:shadow-md">
                   <div className="mb-2 flex items-center gap-2">
-                    <Avatar
-                      className={cn('ring-1', c?.ring)}
-                      title={displayName}
-                    >
-                      <AvatarFallback className={cn(c?.bg, c?.text)}>
-                        {getInitials(displayName)}
-                      </AvatarFallback>
-                    </Avatar>
+                    {personAvatar}
                     <span className="truncate font-medium">{displayName}</span>
                   </div>
 
@@ -189,14 +193,7 @@ export const BillBreakdownCollab = () => {
               <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
-                    <Avatar
-                      className={cn('ring-1', c?.ring)}
-                      title={displayName}
-                    >
-                      <AvatarFallback className={cn(c?.bg, c?.text)}>
-                        {getInitials(displayName)}
-                      </AvatarFallback>
-                    </Avatar>
+                    {personAvatar}
                     <span>{displayName}'s Items</span>
                   </DialogTitle>
                   <DialogDescription>
