@@ -16,14 +16,14 @@ import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { ChevronUp, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '../ui/button';
-import { Separator } from '../ui/separator';
-import { Toggle } from '../ui/toggle';
-import LineItemEditForm from './LineItemEditForm';
-import PersonAssignmentSection from './PersonAssignmentSection';
-import LineItemCard from './components/LineItemCard';
-import { formatCurrency } from './utils/format-currency';
-import { calculations } from './utils/receipt-calculation';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Toggle } from '@/components/ui/toggle';
+import LineItemEditForm from '@/components/Receipt/LineItemEditForm';
+import PersonAssignmentSection from '@/components/Receipt/PersonAssignmentSection';
+import LineItemCard from '@/components/Receipt/components/LineItemCard';
+import { formatCurrency } from '@/components/Receipt/utils/format-currency';
+import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 
 // -----------------------------------------------------------------------------
 // Component
