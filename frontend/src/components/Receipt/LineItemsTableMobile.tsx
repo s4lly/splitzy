@@ -2,6 +2,14 @@
 // Imports
 // -----------------------------------------------------------------------------
 
+import LineItemEditForm from '@/components/Receipt/LineItemEditForm';
+import PersonAssignmentSection from '@/components/Receipt/PersonAssignmentSection';
+import LineItemCard from '@/components/Receipt/components/LineItemCard';
+import { formatCurrency } from '@/components/Receipt/utils/format-currency';
+import { calculations } from '@/components/Receipt/utils/receipt-calculation';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Toggle } from '@/components/ui/toggle';
 import { AssignmentsContainer } from '@/features/assignments/assignments-container';
 import { AssignmentsHeader } from '@/features/assignments/assignments-header';
 import AssignmentsList from '@/features/assignments/assignments-list';
@@ -16,14 +24,6 @@ import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { ChevronUp, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Toggle } from '@/components/ui/toggle';
-import LineItemEditForm from '@/components/Receipt/LineItemEditForm';
-import PersonAssignmentSection from '@/components/Receipt/PersonAssignmentSection';
-import LineItemCard from '@/components/Receipt/components/LineItemCard';
-import { formatCurrency } from '@/components/Receipt/utils/format-currency';
-import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 
 // -----------------------------------------------------------------------------
 // Component

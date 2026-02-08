@@ -1,4 +1,9 @@
+import LineItemEditForm from '@/components/Receipt/LineItemEditForm';
+import PersonAssignmentSection from '@/components/Receipt/PersonAssignmentSection';
+import { formatCurrency } from '@/components/Receipt/utils/format-currency';
+import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import {
   Table,
   TableBody,
@@ -7,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Toggle } from '@/components/ui/toggle';
 import { AssignmentsContainer } from '@/features/assignments/assignments-container';
 import AssignmentsList from '@/features/assignments/assignments-list';
 import type {
@@ -20,12 +26,6 @@ import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { Pencil } from 'lucide-react';
 import { Fragment, useState } from 'react';
-import { Separator } from '@/components/ui/separator';
-import { Toggle } from '@/components/ui/toggle';
-import LineItemEditForm from '@/components/Receipt/LineItemEditForm';
-import PersonAssignmentSection from '@/components/Receipt/PersonAssignmentSection';
-import { formatCurrency } from '@/components/Receipt/utils/format-currency';
-import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 
 export default function LineItemsTableDesktop({
   line_items,
