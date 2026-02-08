@@ -1,3 +1,6 @@
+import type { UseMutationResult } from '@tanstack/react-query';
+import { FileText, Loader2 } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { DropZone } from '@/features/receipt-upload/components/DropZone';
@@ -9,8 +12,6 @@ import type {
   ReceiptAnalysisResult,
   ReceiptUploaderProps,
 } from '@/features/receipt-upload/types';
-import type { UseMutationResult } from '@tanstack/react-query';
-import { FileText, Loader2 } from 'lucide-react';
 
 /**
  * Parses the error state from the receipt analysis mutation and returns

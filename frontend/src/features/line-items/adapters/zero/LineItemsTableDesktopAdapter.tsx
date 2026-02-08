@@ -1,4 +1,5 @@
 import LineItemsTableDesktop from '@/components/Receipt/LineItemsTableDesktop';
+
 import { useZeroLineItemMutations } from './useZeroLineItemMutations';
 
 export function LineItemsTableDesktopAdapter({ people }: { people: string[] }) {

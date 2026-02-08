@@ -1,3 +1,7 @@
+import { useZero } from '@rocicorp/zero/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
 import {
   Dialog,
   DialogContent,
@@ -8,9 +12,6 @@ import {
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { mutators } from '@/zero/mutators';
-import { useZero } from '@rocicorp/zero/react';
-import { useState } from 'react';
-import { toast } from 'sonner';
 
 interface ImageSettingsDialogProps {
   open: boolean;

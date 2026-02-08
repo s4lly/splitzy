@@ -1,3 +1,6 @@
+import { Trash } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
 import { useReceiptDataUpdateMutation } from '@/components/Receipt/hooks/useReceiptDataUpdateMutation';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { Button } from '@/components/ui/button';
@@ -5,8 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
-import { Trash } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 interface GratuityEditorProps {
   receiptId: string;

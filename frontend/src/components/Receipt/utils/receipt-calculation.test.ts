@@ -1,6 +1,8 @@
-import type { Assignment } from '@/models/Assignment';
 import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
+
+import type { Assignment } from '@/models/Assignment';
+
 import { calculations } from './receipt-calculation';
 
 const makeAssignment = (

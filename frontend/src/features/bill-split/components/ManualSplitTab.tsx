@@ -1,9 +1,11 @@
-import { Button } from '@/components/ui/button';
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { Receipt } from '@/models/Receipt';
 import Decimal from 'decimal.js';
 import { Users } from 'lucide-react';
 import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Receipt } from '@/models/Receipt';
+
 import { AssignmentProgress } from './AssignmentProgress';
 import { BillBreakdown } from './BillBreakdown';
 import { EqualSplitBanner } from './EqualSplitBanner';

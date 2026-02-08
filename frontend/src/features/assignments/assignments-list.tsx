@@ -1,3 +1,7 @@
+import Decimal from 'decimal.js';
+import { Plus, X } from 'lucide-react';
+import React, { useState } from 'react';
+
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Button } from '@/components/ui/button';
@@ -10,9 +14,6 @@ import {
   getReceiptUserDisplayName,
   getUserDisplayName,
 } from '@/utils/user-display';
-import Decimal from 'decimal.js';
-import { Plus, X } from 'lucide-react';
-import React, { useState } from 'react';
 
 interface AssignmentsListProps {
   possiblePeople: string[]; // ULID receipt user IDs

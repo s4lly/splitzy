@@ -1,9 +1,10 @@
+import Decimal from 'decimal.js';
+import { z } from 'zod';
+
 import { ReceiptResponseSchema } from '@/lib/receiptSchemas';
 import type { Assignment } from '@/models/Assignment';
 import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-import Decimal from 'decimal.js';
-import { z } from 'zod';
 
 /**
  * Transforms a TanStack Query response to the canonical Receipt interface.

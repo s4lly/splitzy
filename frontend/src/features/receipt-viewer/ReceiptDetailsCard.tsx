@@ -1,9 +1,10 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { QRCode } from '@/components/ui/kibo-ui/qr-code';
 import { motion } from 'framer-motion';
 import { Calendar, QrCode, ShoppingBag, Tag } from 'lucide-react';
 import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { QRCode } from '@/components/ui/kibo-ui/qr-code';
 
 interface ReceiptDetailsCardProps {
   merchant: string | null;

@@ -1,6 +1,7 @@
-import { Toggle } from '@/components/ui/toggle';
 import { ChevronDown } from 'lucide-react';
 import React from 'react';
+
+import { Toggle } from '@/components/ui/toggle';
 
 interface AssignmentsHeaderProps {
   onAssignmentCancel: () => void;

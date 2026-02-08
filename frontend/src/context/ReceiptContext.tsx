@@ -1,3 +1,5 @@
+import { createContext, ReactNode, useContext } from 'react';
+
 import {
   Assignment,
   ReceiptLineItem,
@@ -5,7 +7,6 @@ import {
   User,
   UserReceipt,
 } from '@/zero/schema';
-import { ReactNode, createContext, useContext } from 'react';
 
 /**
  * Assignment with related receipt user from Zero query

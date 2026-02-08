@@ -1,3 +1,6 @@
+import { ArrowLeft, ChevronRight, TriangleAlert } from 'lucide-react';
+import { useContext, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -8,8 +11,6 @@ import {
   useFeatureFlagDispatch,
 } from '@/context/FeatureFlagProvider';
 import { useMobile } from '@/hooks/useMobile';
-import { ArrowLeft, ChevronRight, TriangleAlert } from 'lucide-react';
-import { useContext, useState } from 'react';
 
 export default function SettingsPage() {
   const [selectedCategory, setSelectedCategory] = useState('feature-flags');

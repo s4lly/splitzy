@@ -1,7 +1,9 @@
+import debounce from 'lodash.debounce';
 import { useEffect, useMemo } from 'react';
+
 import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-import debounce from 'lodash.debounce';
+
 import LineItemForm from './LineItemForm';
 
 export default function LineItemEditForm({

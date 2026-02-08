@@ -1,14 +1,15 @@
-import { ThemeToggle } from '@/components/ThemeToggle';
-import receiptService from '@/services/receiptService';
 import {
-  SignInButton,
   SignedIn,
   SignedOut,
+  SignInButton,
   UserButton,
 } from '@clerk/clerk-react';
 import { Receipt, Server } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
+import { ThemeToggle } from '@/components/ThemeToggle';
+import receiptService from '@/services/receiptService';
 
 export default function Header() {
   const [apiStatus, setApiStatus] = useState<

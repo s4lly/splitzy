@@ -1,8 +1,9 @@
+import { useAuth } from '@clerk/clerk-react';
+import { useSuspenseQuery } from '@tanstack/react-query';
+
 import type { ReceiptHistoryItem } from '@/lib/receiptTypes';
 import { fromLegacyReceipt } from '@/lib/receiptTypes';
 import receiptService from '@/services/receiptService';
-import { useAuth } from '@clerk/clerk-react';
-import { useSuspenseQuery } from '@tanstack/react-query';
 
 /**
  * Query key factory for user receipts

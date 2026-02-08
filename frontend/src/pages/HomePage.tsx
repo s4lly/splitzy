@@ -1,14 +1,15 @@
+import { SignedIn, SignedOut } from '@clerk/clerk-react';
+import { motion } from 'framer-motion';
+import { AlertCircle } from 'lucide-react';
+import React, { Suspense, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
 import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
 import { SignInPromptCard } from '@/features/auth/SignInPromptCard';
 import { ReceiptUploader } from '@/features/receipt-upload';
 import { useUserReceiptsQuery } from '@/hooks/useUserReceiptsQuery';
 import receiptService from '@/services/receiptService';
-import { SignedIn, SignedOut } from '@clerk/clerk-react';
-import { motion } from 'framer-motion';
-import { AlertCircle } from 'lucide-react';
-import React, { Suspense, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * Wrapper component that uses the receipt query hook

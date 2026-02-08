@@ -1,3 +1,6 @@
+import { SignInButton } from '@clerk/clerk-react';
+import { LogIn } from 'lucide-react';
+
 import {
   Card,
   CardContent,
@@ -6,8 +9,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { SignInButton } from '@clerk/clerk-react';
-import { LogIn } from 'lucide-react';
 
 interface SignInPromptCardProps {
   className?: string;

@@ -1,3 +1,6 @@
+import Decimal from 'decimal.js';
+import { atom } from 'jotai';
+
 import {
   calculations,
   PersonIdentifier,
@@ -10,8 +13,6 @@ import {
 import { ReceiptWithLineItems } from '@/context/ReceiptContext';
 import type { Assignment } from '@/models/Assignment';
 import { fromZeroReceipt } from '@/models/transformers/fromZero';
-import Decimal from 'decimal.js';
-import { atom } from 'jotai';
 
 // =============================================================================
 // Base Atom (synced from ReceiptContext)

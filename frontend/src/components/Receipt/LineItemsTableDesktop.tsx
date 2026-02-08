@@ -1,3 +1,6 @@
+import { Pencil } from 'lucide-react';
+import { Fragment, useState } from 'react';
+
 import LineItemEditForm from '@/components/Receipt/LineItemEditForm';
 import PersonAssignmentSection from '@/components/Receipt/PersonAssignmentSection';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
@@ -24,8 +27,6 @@ import { cn } from '@/lib/utils';
 import type { Assignment } from '@/models/Assignment';
 import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-import { Pencil } from 'lucide-react';
-import { Fragment, useState } from 'react';
 
 export default function LineItemsTableDesktop({
   line_items,

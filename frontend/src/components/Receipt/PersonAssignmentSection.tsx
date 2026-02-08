@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { MAX_VISIBLE_ASSIGNED_PEOPLE_DESKTOP } from '@/components/Receipt/constants';
 import {
   DEFAULT_CHIP_COLOR,
@@ -14,7 +16,6 @@ import { getInitials } from '@/lib/get-initials';
 import { cn } from '@/lib/utils';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { getUserDisplayName } from '@/utils/user-display';
-import React from 'react';
 
 interface PersonAssignmentSectionProps {
   item: ReceiptLineItem;

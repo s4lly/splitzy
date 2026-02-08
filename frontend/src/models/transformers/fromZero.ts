@@ -1,3 +1,5 @@
+import Decimal from 'decimal.js';
+
 import type {
   AssignmentWithReceiptUser,
   ReceiptWithLineItems,
@@ -7,7 +9,6 @@ import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import type { ReceiptUser } from '@/models/ReceiptUser';
 import type { User } from '@/models/User';
-import Decimal from 'decimal.js';
 
 /**
  * Transforms a Rocicorp Zero query result to the canonical Receipt interface.

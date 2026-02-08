@@ -1,6 +1,7 @@
+import Decimal from 'decimal.js';
+
 import { BillBreakdownView } from '@/features/bill-split/components/BillBreakdownView';
 import type { Receipt } from '@/models/Receipt';
-import Decimal from 'decimal.js';
 
 interface BillBreakdownProps {
   people: string[];

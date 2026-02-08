@@ -1,8 +1,10 @@
+import Decimal from 'decimal.js';
+import { AlertCircle, DollarSign } from 'lucide-react';
+
 import GratuityEditor from '@/features/summary-card/GratuityEditor';
 import TipEditor from '@/features/summary-card/TipEditor';
 import type { Receipt } from '@/models/Receipt';
-import Decimal from 'decimal.js';
-import { AlertCircle, DollarSign } from 'lucide-react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { formatCurrency } from './utils/format-currency';
 import { calculations } from './utils/receipt-calculation';

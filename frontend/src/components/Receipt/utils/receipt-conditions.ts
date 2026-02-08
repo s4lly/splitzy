@@ -1,5 +1,7 @@
 import Decimal from 'decimal.js';
+
 import type { Receipt } from '@/models/Receipt';
+
 import { ItemSplits } from './receipt-calculation';
 
 /**

@@ -1,3 +1,8 @@
+import { formatDistanceToNow } from 'date-fns';
+import { motion } from 'framer-motion';
+import { Clock, Eye, Receipt, Store } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -7,10 +12,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import type { ReceiptHistoryItem } from '@/lib/receiptTypes';
-import { formatDistanceToNow } from 'date-fns';
-import { motion } from 'framer-motion';
-import { Clock, Eye, Receipt, Store } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+
 import ReceiptHistorySkeleton from './ReceiptHistorySkeleton';
 
 interface ReceiptHistoryProps {

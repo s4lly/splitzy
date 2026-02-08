@@ -1,5 +1,5 @@
-import LineItemAddForm from '@/components/Receipt/LineItemAddForm';
 import { useLineItemAddMutation } from '@/components/Receipt/hooks/useLineItemAddMutation';
+import LineItemAddForm from '@/components/Receipt/LineItemAddForm';
 import type { AddLineItemData } from '@/features/line-items/types';
 
 export function LineItemAddFormAdapter({

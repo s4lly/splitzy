@@ -3,7 +3,9 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
+
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
+
 // localStorage is already set up in setupLocalStorage.ts which runs before this file
 import { server } from './mocks/server';
 

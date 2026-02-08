@@ -1,9 +1,9 @@
 import { DBSchema, openDB } from 'idb';
 import { useFeatureFlagEnabled } from 'posthog-js/react';
 import {
+  createContext,
   Dispatch,
   ReactNode,
-  createContext,
   useContext,
   useEffect,
   useReducer,

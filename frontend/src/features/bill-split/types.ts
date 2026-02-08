@@ -1,5 +1,6 @@
-import type { Receipt } from '@/models/Receipt';
 import Decimal from 'decimal.js';
+
+import type { Receipt } from '@/models/Receipt';
 
 /** Lookup key and display name for a person in bill breakdown (name or receiptUserId). */
 export interface PersonInfo {

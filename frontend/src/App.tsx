@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { Route, Routes } from 'react-router-dom';
+
 import AuthenticatedOnly from '@/components/Auth/AuthenticatedOnly';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
@@ -8,7 +10,6 @@ import { Toaster } from '@/components/ui/sonner';
 import HomePage from '@/pages/HomePage';
 import ReceiptsPage from '@/pages/ReceiptsPage';
 import SettingsPage from '@/pages/SettingsPage';
-import { Route, Routes } from 'react-router-dom';
 
 function App() {
   return (

@@ -1,3 +1,8 @@
+import Decimal from 'decimal.js';
+import { motion } from 'framer-motion';
+import { Plus, Receipt as ReceiptIcon, ShoppingBag } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BillSplitSection } from '@/features/bill-split/BillSplitSection';
@@ -8,12 +13,9 @@ import { NoLineItemsMessage } from '@/features/line-items/components/NoLineItems
 import { ReceiptDetailsCard } from '@/features/receipt-viewer/ReceiptDetailsCard';
 import { useMobile } from '@/hooks/useMobile';
 import type { Receipt } from '@/models/Receipt';
-import Decimal from 'decimal.js';
-import { motion } from 'framer-motion';
-import { Plus, Receipt as ReceiptIcon, ShoppingBag } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import SummaryCard from './SummaryCard';
+
 import LineItemCard from './components/LineItemCard';
+import SummaryCard from './SummaryCard';
 import { getPeopleFromLineItems } from './utils/line-item-utils';
 import { calculations } from './utils/receipt-calculation';
 import {

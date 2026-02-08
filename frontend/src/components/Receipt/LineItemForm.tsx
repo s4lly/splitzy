@@ -1,3 +1,7 @@
+import { motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+
 import NumericInput from '@/components/NumericInput';
 import {
   formatCurrency,
@@ -6,9 +10,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Toggle } from '@/components/ui/toggle';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-import { motion } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
-import { useState } from 'react';
 
 export default function LineItemForm({
   item,

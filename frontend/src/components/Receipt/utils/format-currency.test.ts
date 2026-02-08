@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { formatCurrency, truncateToTwoDecimals } from './format-currency';
 
 describe('truncateToTwoDecimals', () => {
