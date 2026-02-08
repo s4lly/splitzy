@@ -80,6 +80,9 @@ instance/
 *.sqlite
 *.sqlite3
 
+# PostgreSQL dump files (stored in backend/dumps/)
+backend/dumps/
+
 # Test coverage
 htmlcov/
 .tox/
