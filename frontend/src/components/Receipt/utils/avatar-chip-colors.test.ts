@@ -74,8 +74,9 @@ describe('getAvatarChipColors', () => {
     const ids = ['01A', '01B'];
     const a = getAvatarChipColors(1, ids);
     const b = getAvatarChipColors(2, ids);
-    const same = a.get('01A') === b.get('01A') && a.get('01B') === b.get('01B');
-    expect(same).toBe(false);
+    const assignA = Object.fromEntries(a);
+    const assignB = Object.fromEntries(b);
+    expect(assignA).not.toEqual(assignB);
   });
 
   it('all returned colors are from PALETTE', () => {
