@@ -101,7 +101,10 @@ export const BillBreakdownView = ({
           return (
             <Dialog key={person.id}>
               <DialogTrigger asChild>
-                <div className="cursor-pointer rounded-lg border p-4 transition-shadow hover:shadow-md">
+                <button
+                  type="button"
+                  className="w-full cursor-pointer rounded-lg border bg-transparent p-4 text-left font-inherit transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
                   <div className="mb-2 flex items-center gap-2">
                     {personAvatar}
                     <span className="truncate font-medium">
@@ -180,7 +183,7 @@ export const BillBreakdownView = ({
                       'Equal amount split'
                     )}
                   </div>
-                </div>
+                </button>
               </DialogTrigger>
 
               <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-md">
