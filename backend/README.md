@@ -204,9 +204,9 @@ From backend directory:
 scripts/setup-local-db.sh
 
 # With database restore:
-./scripts/setup-local-db.sh dumps/mydumpfile.bak
+./scripts/setup-local-db.sh backend/dumps/mydumpfile.bak
 # or
-scripts/setup-local-db.sh ../backend/dumps/mydumpfile.bak
+scripts/setup-local-db.sh backend/dumps/mydumpfile.bak
 ```
 
 The script will:
