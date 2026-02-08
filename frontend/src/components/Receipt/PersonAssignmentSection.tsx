@@ -24,6 +24,7 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
   item,
   people,
   receiptId,
+  className,
 }) => {
   const isMobile = useMobile();
   const MAX_VISIBLE_ASSIGNED_PEOPLE = isMobile
@@ -47,7 +48,7 @@ const PersonAssignmentSection: React.FC<PersonAssignmentSectionProps> = ({
   const overflowCount = item.assignments.length - MAX_VISIBLE_ASSIGNED_PEOPLE;
 
   return (
-    <AvatarGroup>
+    <AvatarGroup className={className}>
       {visibleAssignments.map((assignment) => {
         const receiptUserId = assignment.receiptUserId;
         const displayName = getUserDisplayName(assignment);
