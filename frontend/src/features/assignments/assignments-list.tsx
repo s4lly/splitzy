@@ -1,13 +1,19 @@
 import Decimal from 'decimal.js';
-import { Plus, X } from 'lucide-react';
+import { HandGrab, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
 
+import {
+  DEFAULT_CHIP_COLOR,
+  getAvatarChipColors,
+} from '@/components/Receipt/utils/avatar-chip-colors';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
+import { cn } from '@/lib/utils';
 import type { Assignment } from '@/models/Assignment';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import {
@@ -16,6 +22,7 @@ import {
 } from '@/utils/user-display';
 
 interface AssignmentsListProps {
+  receiptId: number;
   possiblePeople: string[]; // ULID receipt user IDs
   onAddExistingPerson: (receiptUserId: string) => void;
   onAddNewPerson: (displayName: string) => void;
@@ -27,6 +34,7 @@ interface AssignmentsListProps {
 }
 
 const AssignmentsList: React.FC<AssignmentsListProps> = ({
+  receiptId,
   possiblePeople,
   onAddExistingPerson,
   onAddNewPerson,
@@ -46,6 +54,8 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
     assignedReceiptUserIds,
     newPersonSanitized
   );
+
+  const chipColors = getAvatarChipColors(receiptId, possiblePeople);
 
   // Helper to get display name for a receiptUserId
   // Uses all assignments across receipt if available, otherwise falls back to item's assignments
@@ -95,12 +105,23 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
             {item.assignments.map((assignment) => {
               const receiptUserId = assignment.receiptUserId;
               const displayName = getUserDisplayName(assignment);
+              const c = chipColors.get(receiptUserId) || DEFAULT_CHIP_COLOR;
+
               return (
                 <li
                   key={assignment.id}
-                  className="flex items-center justify-between rounded bg-muted/30 px-3 py-2"
+                  className="flex items-center justify-between bg-muted/30 py-2"
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-2">
+                    <Avatar
+                      key={assignment.id}
+                      className={cn('ring-1', c.ring)}
+                      title={displayName}
+                    >
+                      <AvatarFallback className={cn(c.bg, c.text)}>
+                        <HandGrab />
+                      </AvatarFallback>
+                    </Avatar>
                     <span>{displayName}</span>
                   </div>
                   <div className="flex items-center gap-2">
