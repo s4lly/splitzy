@@ -32,8 +32,8 @@ function log(
   const logEntry = {
     timestamp: new Date().toISOString(),
     level,
-    version: BUILD_VERSION,
     message,
+    version: BUILD_VERSION,
     ...context,
   };
   const logLine = JSON.stringify(logEntry);
