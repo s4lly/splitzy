@@ -23,6 +23,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+ARG BUILD_VERSION=unknown
+ENV BUILD_VERSION=$BUILD_VERSION
+
 # Copy package files
 COPY package.json package-lock.json* ./
 
