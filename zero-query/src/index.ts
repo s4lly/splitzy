@@ -148,7 +148,11 @@ app.use('*', async (c, next) => {
 });
 
 app.get('/health', (c) => {
-  return c.json({ status: 'ok', version: BUILD_VERSION, timestamp: new Date().toISOString() });
+  return c.json({
+    status: 'ok',
+    version: BUILD_VERSION,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.post('/api/query', async (c) => {
