@@ -108,17 +108,39 @@ export const mutators = defineMutators({
             throw new Error('Cannot claim as a different user');
           }
 
-          // Prevent overwriting another user's existing claim
-          const rows = await tx.run(zql.receipt_users.where('id', args.id));
-          const existing = Array.isArray(rows) ? rows[0] : rows;
-          if (
-            existing?.user_id != null &&
-            existing.user_id !== authenticatedUser.id
-          ) {
+          // Atomic conditional update: only update when row is unclaimed or already claimed by this user
+          const isClaim = args.user_id !== null;
+          const includeDisplayName = args.display_name !== undefined;
+          let sql: string;
+          let params: unknown[];
+          if (isClaim) {
+            if (includeDisplayName) {
+              sql =
+                'UPDATE receipt_users SET user_id = $1, display_name = $2 WHERE id = $3 AND (user_id IS NULL OR user_id = $1) RETURNING id';
+              params = [authenticatedUser.id, args.display_name, args.id];
+            } else {
+              sql =
+                'UPDATE receipt_users SET user_id = $1 WHERE id = $2 AND (user_id IS NULL OR user_id = $1) RETURNING id';
+              params = [authenticatedUser.id, args.id];
+            }
+          } else {
+            if (includeDisplayName) {
+              sql =
+                'UPDATE receipt_users SET user_id = NULL, display_name = $1 WHERE id = $2 AND (user_id IS NULL OR user_id = $3) RETURNING id';
+              params = [args.display_name, args.id, authenticatedUser.id];
+            } else {
+              sql =
+                'UPDATE receipt_users SET user_id = NULL WHERE id = $1 AND (user_id IS NULL OR user_id = $2) RETURNING id';
+              params = [args.id, authenticatedUser.id];
+            }
+          }
+          const updated = await tx.dbTransaction.query(sql, params);
+          const rowCount = Array.isArray(updated) ? updated.length : 0;
+          if (rowCount === 0) {
             throw new Error('Already claimed by another user');
           }
 
-          // Use authenticated numeric user ID instead of caller-supplied value
+          // Apply the same change via Zero mutate so sync state is updated
           await tx.mutate.receipt_users.update({
             id: args.id,
             ...(args.display_name !== undefined && {
