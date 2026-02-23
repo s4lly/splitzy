@@ -104,17 +104,12 @@ export const mutators = defineMutators({
           }
 
           // Validate args.user_id: must be null (unclaim) or match authenticated user
-          if (
-            args.user_id !== null &&
-            args.user_id !== authenticatedUser.id
-          ) {
+          if (args.user_id !== null && args.user_id !== authenticatedUser.id) {
             throw new Error('Cannot claim as a different user');
           }
 
           // Prevent overwriting another user's existing claim
-          const rows = await tx.run(
-            zql.receipt_users.where('id', args.id)
-          );
+          const rows = await tx.run(zql.receipt_users.where('id', args.id));
           const existing = Array.isArray(rows) ? rows[0] : rows;
           if (
             existing?.user_id != null &&
