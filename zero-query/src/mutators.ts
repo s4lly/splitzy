@@ -95,10 +95,9 @@ export const mutators = defineMutators({
           }
 
           // Resolve Clerk auth ID -> numeric user ID
-          const users = await tx.run(
+          const [authenticatedUser] = await tx.run(
             zql.users.where('auth_user_id', ctx.userID)
           );
-          const authenticatedUser = Array.isArray(users) ? users[0] : users;
           if (!authenticatedUser) {
             throw new Error('Authenticated user not found');
           }
