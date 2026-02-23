@@ -113,7 +113,6 @@ export function SwitchReceiptUserDialog({
         toast.error('Failed to switch person', {
           description: unclaimClient.error.message,
         });
-        setIsSaving(false);
         return;
       }
 
