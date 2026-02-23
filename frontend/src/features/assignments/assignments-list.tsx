@@ -228,14 +228,18 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                             }
                           }}
                           aria-label={
-                            action.type === 'switch'
-                              ? `Switch to ${displayName}`
-                              : `Claim ${displayName}`
+                            action.type === 'sign-in'
+                              ? `Sign in to claim ${displayName}`
+                              : action.type === 'switch'
+                                ? `Switch to ${displayName}`
+                                : `Claim ${displayName}`
                           }
                           title={
-                            action.type === 'switch'
-                              ? `Switch to ${displayName}`
-                              : `Claim ${displayName}`
+                            action.type === 'sign-in'
+                              ? `Sign in to claim ${displayName}`
+                              : action.type === 'switch'
+                                ? `Switch to ${displayName}`
+                                : `Claim ${displayName}`
                           }
                         >
                           <Avatar
