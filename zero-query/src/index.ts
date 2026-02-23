@@ -9,6 +9,8 @@ import { mutators } from './mutators.js';
 import { queries } from './queries.js';
 import { schema } from './schema.js';
 
+const BUILD_VERSION = process.env.BUILD_VERSION || 'unknown';
+
 // Structured logging utility
 interface LogContext {
   requestId?: string;
@@ -31,6 +33,7 @@ function log(
     timestamp: new Date().toISOString(),
     level,
     message,
+    version: BUILD_VERSION,
     ...context,
   };
   const logLine = JSON.stringify(logEntry);
@@ -145,7 +148,11 @@ app.use('*', async (c, next) => {
 });
 
 app.get('/health', (c) => {
-  return c.json({ status: 'ok', timestamp: new Date().toISOString() });
+  return c.json({
+    status: 'ok',
+    version: BUILD_VERSION,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.post('/api/query', async (c) => {
