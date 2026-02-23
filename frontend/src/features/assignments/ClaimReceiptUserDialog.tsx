@@ -1,5 +1,6 @@
 import { useQuery, useZero } from '@rocicorp/zero/react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -52,11 +53,17 @@ export function ClaimReceiptUserDialog({
           'Failed to claim receipt user:',
           clientResult.error.message
         );
+        toast.error('Failed to claim person', {
+          description: clientResult.error.message,
+        });
       } else {
         onOpenChange(false);
       }
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Something went wrong';
       console.error('Error claiming receipt user:', error);
+      toast.error('Failed to claim person', { description: message });
     } finally {
       setIsSaving(false);
     }

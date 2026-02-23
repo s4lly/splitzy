@@ -1,6 +1,7 @@
 import { useQuery, useZero } from '@rocicorp/zero/react';
 import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import type { AvatarChipColor } from '@/components/Receipt/utils/avatar-chip-colors';
 import {
@@ -109,6 +110,9 @@ export function SwitchReceiptUserDialog({
           'Failed to unclaim previous receipt user:',
           unclaimClient.error.message
         );
+        toast.error('Failed to switch person', {
+          description: unclaimClient.error.message,
+        });
         setIsSaving(false);
         return;
       }
@@ -126,11 +130,17 @@ export function SwitchReceiptUserDialog({
           'Failed to claim new receipt user:',
           claimClient.error.message
         );
+        toast.error('Failed to switch person', {
+          description: claimClient.error.message,
+        });
       } else {
         onOpenChange(false);
       }
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Something went wrong';
       console.error('Error switching receipt user:', error);
+      toast.error('Failed to switch person', { description: message });
     } finally {
       setIsSaving(false);
     }
