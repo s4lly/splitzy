@@ -5,9 +5,12 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "format:fix": "prettier --write --ignore-unknown ."
+    "format": "prettier --check .",
+    "format:fix": "prettier --write --ignore-unknown .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "type-check": "tsc --noEmit",
+    "check": "npm run lint && npm run format && npm run type-check"
   },
   "dependencies": {
     "@clerk/backend": "^2.29.2",
@@ -19,8 +22,11 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
+    "eslint": "^10.0.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "prettier": "^3.8.1",
     "tsx": "^4.7.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.56.0"
   }
 }
