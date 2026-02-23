@@ -211,8 +211,15 @@ app.post('/api/mutate', async (c) => {
   const requestId = c.get('requestId');
   const startTime = c.get('startTime');
   let mutatorName: string | undefined;
+  let userID: string | null = null;
 
   try {
+    const { toAuth } = await clerkClient.authenticateRequest(c.req.raw, {
+      authorizedParties,
+    });
+    const auth = toAuth();
+    userID = auth?.userId ?? null;
+
     const result = await handleMutateRequest(
       dbProvider,
       (transact) =>
@@ -221,11 +228,11 @@ app.post('/api/mutate', async (c) => {
           log('debug', 'Executing mutator', {
             requestId,
             mutatorName,
-            userID: 'anon',
+            userID: userID ?? 'anon',
           });
 
           const mutator = mustGetMutator(mutators, name);
-          return mutator.fn({ args, tx, ctx: { userID: 'anon' } });
+          return mutator.fn({ args, tx, ctx: { userID } });
         }),
       c.req.raw
     );
@@ -236,7 +243,7 @@ app.post('/api/mutate', async (c) => {
       requestId,
       mutatorName,
       duration,
-      userID: 'anon',
+      userID: userID ?? 'anon',
     });
 
     return c.json(result);
@@ -249,7 +256,7 @@ app.post('/api/mutate', async (c) => {
       requestId,
       mutatorName,
       duration,
-      userID: 'anon',
+      userID: userID ?? 'anon',
       error: errorMessage,
       stack: errorStack,
     });
