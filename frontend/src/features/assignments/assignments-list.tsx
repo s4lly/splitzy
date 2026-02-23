@@ -351,7 +351,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
             {assignmentsAddAllEnabled &&
               filteredReceiptUserIds.length > 0 &&
               newPersonSanitized === '' && (
-                <div className="mb-2">
+                <li className="mb-2">
                   <Button
                     type="button"
                     size="sm"
@@ -366,24 +366,27 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                   >
                     Assign All
                   </Button>
-                </div>
+                </li>
               )}
             {filteredReceiptUserIds.length === 0 ? (
-              <div className="text-center">
-                {newPersonSanitized ? (
-                  <li className="text-sm text-muted-foreground">
-                    No matching people. Press Enter to add.
-                  </li>
-                ) : (
-                  <li className="text-sm text-muted-foreground">
-                    All people assigned.
-                  </li>
-                )}
-              </div>
+              <li>
+                <div className="text-center">
+                  {newPersonSanitized ? (
+                    <span className="text-sm text-muted-foreground">
+                      No matching people. Press Enter to add.
+                    </span>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">
+                      All people assigned.
+                    </span>
+                  )}
+                </div>
+              </li>
             ) : (
               filteredReceiptUserIds.map((receiptUserId) => {
                 const displayName =
                   getDisplayNameForReceiptUserId(receiptUserId);
+
                 return (
                   <li
                     key={receiptUserId}
