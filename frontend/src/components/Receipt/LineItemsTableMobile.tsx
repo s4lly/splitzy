@@ -175,6 +175,7 @@ export default function LineItemsTableMobile({
               <>
                 <AssignmentsHeader onAssignmentCancel={handleEditClose} />
                 <AssignmentsList
+                  receiptId={receipt.id}
                   possiblePeople={people}
                   onAddExistingPerson={(receiptUserId) =>
                     addExistingPersonAssignment(item.id, receiptUserId)

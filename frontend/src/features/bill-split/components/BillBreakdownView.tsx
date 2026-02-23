@@ -1,11 +1,11 @@
 import Decimal from 'decimal.js';
-import { FileText, UserPlus } from 'lucide-react';
+import { Check, FileText, UserPlus } from 'lucide-react';
 
 import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { getPersonItems } from '@/components/Receipt/utils/line-item-utils';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarBadge, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -29,6 +29,8 @@ export interface BillBreakdownViewProps {
   receiptTotal: Decimal;
   useEqualSplit: boolean;
   onManagePeopleClick?: () => void;
+  /** Receipt user id linked to the signed-in user; show badge on that person's avatar when set */
+  linkedToSignedInUserReceiptUserId?: string | null;
 }
 
 export const BillBreakdownView = ({
@@ -39,6 +41,7 @@ export const BillBreakdownView = ({
   receiptTotal,
   useEqualSplit,
   onManagePeopleClick,
+  linkedToSignedInUserReceiptUserId,
 }: BillBreakdownViewProps) => {
   if (people.length === 0) {
     return (
@@ -89,14 +92,29 @@ export const BillBreakdownView = ({
 
           const personItems = getPersonItems(person.id, receipt);
 
+          const isLinkedToSignedInUser =
+            linkedToSignedInUserReceiptUserId != null &&
+            person.id === linkedToSignedInUserReceiptUserId;
           const personAvatar = (
             <Avatar
-              className={cn('ring-1', c?.ring)}
+              className={cn(
+                'ring-1',
+                c?.ring,
+                isLinkedToSignedInUser && 'overflow-visible'
+              )}
               title={person.displayName}
             >
               <AvatarFallback className={cn(c?.bg, c?.text)}>
                 {getInitials(person.displayName)}
               </AvatarFallback>
+              {isLinkedToSignedInUser && (
+                <AvatarBadge
+                  className="bg-green-600 text-white ring-2 ring-background dark:bg-green-700 dark:text-white"
+                  aria-label="Linked to your account"
+                >
+                  <Check className="size-2.5" aria-hidden />
+                </AvatarBadge>
+              )}
             </Avatar>
           );
 

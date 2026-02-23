@@ -60,7 +60,7 @@ services:
 
   # Zero cache server - syncs data from PostgreSQL to SQLite replica
   zero-cache-local:
-    image: rocicorp/zero:0.25.6
+    image: rocicorp/zero:0.25.12
     ports:
       - 4848:4848
     environment:

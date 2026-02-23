@@ -74,6 +74,16 @@ export const mutators = defineMutators({
         });
       }
     ),
+    update: defineMutator(
+      z.object({
+        id: z.string(),
+        user_id: z.number().nullish(), // null = unclaim, number = claim, undefined = no change
+        display_name: z.string().optional(),
+      }),
+      async ({ tx, args }) => {
+        await tx.mutate.receipt_users.update(args);
+      }
+    ),
   },
   assignments: {
     insert: defineMutator(
