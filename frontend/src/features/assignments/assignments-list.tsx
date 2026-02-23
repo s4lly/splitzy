@@ -54,13 +54,13 @@ function getAvatarAction(
   clerkUserId: string | null | undefined
 ): AvatarAction {
   if (assignment.receiptUser?.userId != null) return null;
+  if (clerkUserId == null) return { type: 'sign-in' };
 
   const assignments = allAssignments ?? [];
   const currentUserClaimed = assignments.find(
     (a) => a.receiptUser?.user?.authUserId === clerkUserId
   );
 
-  if (clerkUserId == null) return { type: 'sign-in' };
   if (currentUserClaimed == null) return { type: 'claim' };
   return {
     type: 'switch',
