@@ -1,3 +1,4 @@
+import { useAuth } from '@clerk/clerk-react';
 import { useAtomValue } from 'jotai';
 
 import { BillBreakdownView } from '@/features/bill-split/components/BillBreakdownView';
@@ -12,6 +13,7 @@ import {
 import { getUserDisplayName } from '@/utils/user-display';
 
 export const BillBreakdownCollab = () => {
+  const { userId: clerkUserId } = useAuth();
   const assignedUsers = useAtomValue(assignedUsersAtom);
   const receipt = useAtomValue(receiptAtom);
   const personFairTotals = useAtomValue(personFairTotalsAtom);
@@ -28,6 +30,16 @@ export const BillBreakdownCollab = () => {
     displayName: getUserDisplayName(a),
   }));
 
+  // Resolve which receipt user (if any) is linked to the signed-in Clerk user for the avatar badge.
+  let linkedToSignedInUserReceiptUserId: string | null = null;
+  if (clerkUserId != null) {
+    const claimedBySignedInUser = assignedUsers.find(
+      (a) => a.receiptUser?.user?.authUserId === clerkUserId
+    );
+    linkedToSignedInUserReceiptUserId =
+      claimedBySignedInUser?.receiptUserId ?? null;
+  }
+
   return (
     <BillBreakdownView
       people={people}
@@ -36,6 +48,7 @@ export const BillBreakdownCollab = () => {
       personPretaxTotals={personPretaxTotals}
       receiptTotal={receiptTotal}
       useEqualSplit={useEqualSplit}
+      linkedToSignedInUserReceiptUserId={linkedToSignedInUserReceiptUserId}
     />
   );
 };

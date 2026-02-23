@@ -199,6 +199,7 @@ export default function LineItemsTableDesktop({
                         </div>
                       </div>
                       <AssignmentsList
+                        receiptId={receipt.id}
                         possiblePeople={people}
                         onAddExistingPerson={(receiptUserId) =>
                           addExistingPersonAssignment(item.id, receiptUserId)
