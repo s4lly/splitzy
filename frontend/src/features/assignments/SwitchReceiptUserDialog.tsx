@@ -130,9 +130,33 @@ export function SwitchReceiptUserDialog({
           'Failed to claim new receipt user:',
           claimClient.error.message
         );
-        toast.error('Failed to switch person', {
-          description: claimClient.error.message,
-        });
+        // Best-effort rollback: restore user_id on previous receipt user
+        try {
+          const rollbackResult = zero.mutate(
+            mutators.receiptUsers.update({
+              id: previousReceiptUser.id,
+              user_id: internalUserId,
+            })
+          );
+          const rollbackClient = await rollbackResult.client;
+          if (rollbackClient.type === 'error') {
+            console.error('Rollback failed:', rollbackClient.error.message);
+            toast.error('Failed to switch person', {
+              description:
+                'Could not restore your original claim. Please try claiming again manually.',
+            });
+          } else {
+            toast.error('Failed to switch person', {
+              description: 'Your original claim has been restored.',
+            });
+          }
+        } catch (rollbackError) {
+          console.error('Rollback threw an exception:', rollbackError);
+          toast.error('Failed to switch person', {
+            description:
+              'Could not restore your original claim. Please try claiming again manually.',
+          });
+        }
       } else {
         onOpenChange(false);
       }
