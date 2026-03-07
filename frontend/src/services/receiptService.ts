@@ -1,11 +1,11 @@
 import axios from 'axios';
+import type { z } from 'zod';
 
 import {
   ReceiptHistoryItemAPISchema,
   ReceiptResponseSchema,
   UserReceiptsResponseSchema,
 } from '@/lib/receiptSchemas';
-import type { z } from 'zod';
 
 type ReceiptHistoryItem = z.infer<typeof ReceiptHistoryItemAPISchema>;
 

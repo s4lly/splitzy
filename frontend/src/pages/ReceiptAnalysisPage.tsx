@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import type { z } from 'zod';
 
 import ReceiptAnalysisDisplay from '@/components/Receipt/ReceiptAnalysisDisplay';
 import { ErrorState } from '@/components/shared/ErrorState';
@@ -10,7 +11,6 @@ import { ReceiptImageViewer } from '@/features/receipt-image/ReceiptImageViewer'
 import { ReceiptResponseSchema } from '@/lib/receiptSchemas';
 import { fromTanStackResponse } from '@/models/transformers/fromTanStack';
 import receiptService from '@/services/receiptService';
-import type { z } from 'zod';
 
 const ReceiptAnalysisPage = () => {
   const { receiptId } = useParams();

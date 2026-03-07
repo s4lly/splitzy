@@ -1,5 +1,6 @@
 import { zeroNodePg } from '@rocicorp/zero/server/adapters/pg';
 import { Pool } from 'pg';
+
 import { schema } from './schema.js';
 
 const connectionString = process.env.ZERO_UPSTREAM_DB;
