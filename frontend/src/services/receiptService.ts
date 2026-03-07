@@ -1,81 +1,12 @@
 import axios from 'axios';
-import type { z } from 'zod';
 
 import {
-  ReceiptHistoryItemAPISchema,
   ReceiptResponseSchema,
   UserReceiptsResponseSchema,
 } from '@/lib/receiptSchemas';
 
-type ReceiptHistoryItem = z.infer<typeof ReceiptHistoryItemAPISchema>;
-
 const API_URL =
   import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
-// Local storage key for mock receipt history
-const MOCK_RECEIPTS_KEY = 'mock_receipt_history';
-
-// Helper to get mock receipts from localStorage
-const getMockReceipts = () => {
-  const storedReceipts = localStorage.getItem(MOCK_RECEIPTS_KEY);
-  if (storedReceipts) {
-    return JSON.parse(storedReceipts);
-  }
-  return [
-    {
-      id: 1,
-      receipt_data: {
-        merchant: 'Whole Foods Market',
-        date: '2023-06-15',
-        total: 78.95,
-        subtotal: 73.95,
-        tax: 5.0,
-        items: [
-          {
-            name: 'Organic Bananas',
-            quantity: 1,
-            unit_price: 3.99,
-            price: 3.99,
-          },
-          {
-            name: 'Cage-Free Eggs',
-            quantity: 1,
-            unit_price: 4.99,
-            price: 4.99,
-          },
-          { name: 'Almond Milk', quantity: 2, unit_price: 3.49, price: 6.98 },
-        ],
-      },
-      created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
-    },
-    {
-      id: 2,
-      receipt_data: {
-        merchant: 'Target',
-        date: '2023-06-10',
-        total: 124.56,
-        subtotal: 115.3,
-        tax: 9.26,
-        items: [
-          { name: 'T-Shirt', quantity: 2, unit_price: 19.99, price: 39.98 },
-          {
-            name: 'Cleaning Supplies',
-            quantity: 1,
-            unit_price: 12.99,
-            price: 12.99,
-          },
-          { name: 'Snacks', quantity: 1, unit_price: 15.75, price: 15.75 },
-        ],
-      },
-      created_at: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(), // 9 days ago
-    },
-  ];
-};
-
-// Helper to save mock receipts to localStorage
-const saveMockReceipts = (receipts: ReceiptHistoryItem[]) => {
-  localStorage.setItem(MOCK_RECEIPTS_KEY, JSON.stringify(receipts));
-};
 
 /**
  * Service for interacting with the document analysis API
@@ -122,43 +53,18 @@ const receiptService = {
    */
   getUserReceiptHistory: async (options?: { token?: string }) => {
     try {
-      // Try to fetch from the server first
-      try {
-        // Only include Authorization header when token is present
-        const headers: Record<string, string> = options?.token
-          ? { Authorization: `Bearer ${options.token}` }
-          : {};
-
-        const response = await axios.get(`${API_URL}/user/receipts`, {
-          headers,
-        });
-
-        // Zod validation
-        const parsed = UserReceiptsResponseSchema.safeParse(response.data);
-
-        if (!parsed.success) {
-          console.error('Invalid receipt history response:', parsed.error);
-          throw new Error('Invalid receipt history response from server');
-        }
-
-        return parsed.data;
-      } catch (serverError) {
-        // If it's a validation error, re-throw it
-        if (
-          serverError instanceof Error &&
-          serverError.message.includes('Invalid')
-        ) {
-          throw serverError;
-        }
-        console.log('Server endpoint not available, using mock data');
-
-        // If server endpoint is not available, return mock data
-        // Note: Mock data should also be validated, but for now we'll return as-is
-        return {
-          success: true,
-          receipts: getMockReceipts(),
-        };
+      const headers: Record<string, string> = options?.token
+        ? { Authorization: `Bearer ${options.token}` }
+        : {};
+      const response = await axios.get(`${API_URL}/user/receipts`, {
+        headers,
+      });
+      const parsed = UserReceiptsResponseSchema.safeParse(response.data);
+      if (!parsed.success) {
+        console.error('Invalid receipt history response:', parsed.error);
+        throw new Error('Invalid receipt history response from server');
       }
+      return parsed.data;
     } catch (error) {
       console.error('Error fetching receipt history:', error);
       throw error;
@@ -172,27 +78,10 @@ const receiptService = {
    */
   deleteReceipt: async (receiptId: number | string) => {
     try {
-      // Try server endpoint first
-      try {
-        const response = await axios.delete(
-          `${API_URL}/user/receipts/${Number(receiptId)}`
-        );
-        return response.data;
-      } catch (serverError) {
-        console.log('Server endpoint not available, using mock data');
-
-        // If server endpoint is not available, delete from local storage
-        const mockReceipts = getMockReceipts() as ReceiptHistoryItem[];
-        const updatedReceipts = mockReceipts.filter(
-          (receipt: ReceiptHistoryItem) => receipt.id !== Number(receiptId)
-        );
-        saveMockReceipts(updatedReceipts);
-
-        return {
-          success: true,
-          message: 'Receipt deleted successfully',
-        };
-      }
+      const response = await axios.delete(
+        `${API_URL}/user/receipts/${Number(receiptId)}`
+      );
+      return response.data;
     } catch (error) {
       console.error('Error deleting receipt:', error);
       throw error;
@@ -206,36 +95,15 @@ const receiptService = {
    */
   getSingleReceipt: async (receiptId: number | string) => {
     try {
-      // Try server endpoint first
-      try {
-        const response = await axios.get(
-          `${API_URL}/user/receipts/${Number(receiptId)}`
-        );
-        // Zod validation
-        const parsed = ReceiptResponseSchema.safeParse(response.data);
-        if (!parsed.success) {
-          console.error('Invalid receipt response:', parsed.error);
-          throw new Error('Invalid receipt response from server');
-        }
-        return parsed.data;
-      } catch (serverError) {
-        console.log('Server endpoint not available, using mock data');
-
-        // If server endpoint is not available, get from local storage
-        const mockReceipts = getMockReceipts() as ReceiptHistoryItem[];
-        const receipt = mockReceipts.find(
-          (r: ReceiptHistoryItem) => r.id === Number(receiptId)
-        );
-
-        if (!receipt) {
-          throw new Error('Receipt not found');
-        }
-
-        return {
-          success: true,
-          receipt: receipt,
-        };
+      const response = await axios.get(
+        `${API_URL}/user/receipts/${Number(receiptId)}`
+      );
+      const parsed = ReceiptResponseSchema.safeParse(response.data);
+      if (!parsed.success) {
+        console.error('Invalid receipt response:', parsed.error);
+        throw new Error('Invalid receipt response from server');
       }
+      return parsed.data;
     } catch (error) {
       console.error('Error fetching receipt:', error);
       throw error;
