@@ -78,6 +78,32 @@ Then edit the `.env` files with your actual values. For local-only overrides, yo
 
 **Note:** The `zero-query/.env` file is required when using Docker Compose (Option B setup). The `docker-compose.yml` will use `zero-query/.env.example` as a fallback, but you should create `zero-query/.env` with your actual Clerk API keys and other configuration values.
 
+### Production Deployment Checklist (Vercel + Render)
+
+Use this checklist before/after production deploys to avoid auth and Zero sync issues.
+
+1. **Clerk publishable key**
+   - Set `VITE_CLERK_PUBLISHABLE_KEY` in frontend production env.
+   - `pk_live_*` is recommended.
+   - `pk_test_*` is supported (for testing/no custom domain), but Clerk will show browser warnings and enforce development-instance limits.
+
+2. **Zero version parity**
+   - Keep frontend + zero-query `@rocicorp/zero` package versions aligned.
+   - Zero-cache version is pinned only in the root **Dockerfile** (used by both local docker-compose and production). Change it there to upgrade; then rebuild/redeploy zero-cache.
+
+3. **Allowed frontend origins**
+   - In Render zero-query env, set `FRONTEND_ORIGINS` to include your deployed frontend URL(s), for example:
+     - `https://splitzy-kappa.vercel.app`
+   - If you use preview deployments, add those origins too.
+
+4. **If you see `VersionNotSupported` protocol errors**
+   - Typical error: `server is at sync protocol v44 and does not support v45`.
+   - This usually means your frontend client is newer than deployed zero-cache.
+   - Fix by redeploying/upgrading zero-cache (and zero-query if needed) so versions are compatible, then retest.
+
+5. **If the root Dockerfile base image (`rocicorp/zero`) was changed**
+   - Rebuild and redeploy zero-cache: locally run `docker-compose up -d --build zero-cache-local`; in production, redeploy the zero-cache service from the same Dockerfile.
+
 ### Development Modes
 
 You can develop in two ways:
@@ -114,11 +140,15 @@ Then start the services:
 ./backend/scripts/setup-local-db.sh
 ```
 
+**Importing a production dump:** `docker compose up -d` reuses the existing database container and data. For a deterministic local copy of production, use `./backend/scripts/setup-local-db.sh backend/dumps/yourdump.bak`: it runs a **clean restore** (drops existing DB objects from the dump, then restores). If restore fails, the script exits and Zero services are not started. Create dumps with `./backend/scripts/create-dump.sh` (app-data only by default). App-only dumps contain only the **public schema** (tables, sequences, indexes, FKs)—no Zero schemas, publications, subscriptions, or event triggers—so restore succeeds and Zero services recreate their objects when they start. Dumps from an older or mixed configuration are not supported; regenerate with the current script. Use `--include-zero` only when you intentionally need Zero schemas and replication metadata in the dump (e.g. debugging replication).
+
 This starts:
 
 - **PostgreSQL** at `localhost:5432`
 - **Zero Query API** at `localhost:3000`
-- **Zero Cache** at `localhost:4848`
+- **Zero Cache** at `localhost:4848` (built from the root `Dockerfile`; same image definition as production)
+
+The root **Dockerfile** is the single source of truth for zero-cache. Zero version upgrades go only there; then run `docker-compose up -d --build zero-cache-local` to rebuild locally.
 
 Set this in `backend/.env`:
 
@@ -137,11 +167,13 @@ docker-compose logs -f        # Follow logs
 
 **Updating a single service:**
 
-To update one service without restarting the others (e.g., after making changes to `zero-query`):
+To update one service without restarting the others (e.g., after making changes to `zero-query` or the root `Dockerfile` for zero-cache):
 
 ```bash
 # Rebuild and restart a single service
 docker-compose up -d --build zero-query-local
+# Or after changing the root Dockerfile (zero-cache):
+docker-compose up -d --build zero-cache-local
 
 # Just restart without rebuilding
 docker-compose up -d zero-query-local
