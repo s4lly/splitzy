@@ -7,8 +7,10 @@ import ReceiptAnalysisDisplay from '@/components/Receipt/ReceiptAnalysisDisplay'
 import { ErrorState } from '@/components/shared/ErrorState';
 import { LoadingState } from '@/components/shared/LoadingState';
 import { ReceiptImageViewer } from '@/features/receipt-image/ReceiptImageViewer';
+import { ReceiptResponseSchema } from '@/lib/receiptSchemas';
 import { fromTanStackResponse } from '@/models/transformers/fromTanStack';
 import receiptService from '@/services/receiptService';
+import type { z } from 'zod';
 
 const ReceiptAnalysisPage = () => {
   const { receiptId } = useParams();
@@ -30,7 +32,9 @@ const ReceiptAnalysisPage = () => {
   // Transform receipt data once and reuse throughout the component
   const receipt = useMemo(() => {
     if (!receiptData?.receipt) return null;
-    return fromTanStackResponse(receiptData);
+    return fromTanStackResponse(
+      receiptData as z.infer<typeof ReceiptResponseSchema>
+    );
   }, [receiptData]);
 
   // Extract error message for ErrorState component

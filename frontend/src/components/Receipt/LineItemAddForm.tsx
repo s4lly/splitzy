@@ -80,6 +80,7 @@ export default function LineItemAddForm({
     quantity: new Decimal(formData.quantity),
     pricePerItem: new Decimal(formData.price_per_item),
     totalPrice: new Decimal(formData.quantity * formData.price_per_item),
+    deletedAt: null,
     assignments: [],
   };
 

@@ -1,9 +1,13 @@
 import axios from 'axios';
 
 import {
+  ReceiptHistoryItemAPISchema,
   ReceiptResponseSchema,
   UserReceiptsResponseSchema,
 } from '@/lib/receiptSchemas';
+import type { z } from 'zod';
+
+type ReceiptHistoryItem = z.infer<typeof ReceiptHistoryItemAPISchema>;
 
 const API_URL =
   import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -69,7 +73,7 @@ const getMockReceipts = () => {
 };
 
 // Helper to save mock receipts to localStorage
-const saveMockReceipts = (receipts) => {
+const saveMockReceipts = (receipts: ReceiptHistoryItem[]) => {
   localStorage.setItem(MOCK_RECEIPTS_KEY, JSON.stringify(receipts));
 };
 
@@ -166,21 +170,21 @@ const receiptService = {
    * @param {number} receiptId - The ID of the receipt to delete
    * @returns {Promise} - A promise that resolves when the receipt is deleted
    */
-  deleteReceipt: async (receiptId) => {
+  deleteReceipt: async (receiptId: number | string) => {
     try {
       // Try server endpoint first
       try {
         const response = await axios.delete(
-          `${API_URL}/user/receipts/${receiptId}`
+          `${API_URL}/user/receipts/${Number(receiptId)}`
         );
         return response.data;
       } catch (serverError) {
         console.log('Server endpoint not available, using mock data');
 
         // If server endpoint is not available, delete from local storage
-        const mockReceipts = getMockReceipts();
+        const mockReceipts = getMockReceipts() as ReceiptHistoryItem[];
         const updatedReceipts = mockReceipts.filter(
-          (receipt) => receipt.id !== receiptId
+          (receipt: ReceiptHistoryItem) => receipt.id !== Number(receiptId)
         );
         saveMockReceipts(updatedReceipts);
 
@@ -200,12 +204,12 @@ const receiptService = {
    * @param {number} receiptId - The ID of the receipt to fetch
    * @returns {Promise} - A promise that resolves to the receipt data
    */
-  getSingleReceipt: async (receiptId) => {
+  getSingleReceipt: async (receiptId: number | string) => {
     try {
       // Try server endpoint first
       try {
         const response = await axios.get(
-          `${API_URL}/user/receipts/${receiptId}`
+          `${API_URL}/user/receipts/${Number(receiptId)}`
         );
         // Zod validation
         const parsed = ReceiptResponseSchema.safeParse(response.data);
@@ -218,8 +222,10 @@ const receiptService = {
         console.log('Server endpoint not available, using mock data');
 
         // If server endpoint is not available, get from local storage
-        const mockReceipts = getMockReceipts();
-        const receipt = mockReceipts.find((r) => r.id === receiptId);
+        const mockReceipts = getMockReceipts() as ReceiptHistoryItem[];
+        const receipt = mockReceipts.find(
+          (r: ReceiptHistoryItem) => r.id === Number(receiptId)
+        );
 
         if (!receipt) {
           throw new Error('Receipt not found');
@@ -242,11 +248,11 @@ const receiptService = {
    * @returns {Promise<string|null>} - A promise that resolves to the image URL or null if not found
    * @deprecated - use image_path from receipt data instead
    */
-  getReceiptImage: async (receiptId) => {
+  getReceiptImage: async (receiptId: number | string) => {
     try {
       // Try to get the image from the backend API
       const response = await axios.get(
-        `${API_URL}/user/receipts/${receiptId}/image`
+        `${API_URL}/user/receipts/${Number(receiptId)}/image`
       );
 
       // Check if the response contains a blob URL
@@ -261,9 +267,9 @@ const receiptService = {
       }
 
       return null;
-    } catch (error) {
+    } catch (error: unknown) {
       // Check if this is a 404 error
-      if (error.response && error.response.status === 404) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
         console.log(
           `Image endpoint not implemented on backend yet or no image for receipt ID ${receiptId}`
         );
@@ -295,9 +301,13 @@ const receiptService = {
    * @param {string[]} assignments - The new assignments for the line item
    * @returns {Promise} - A promise that resolves to the updated receipt data
    */
-  updateAssignments: async (receiptId, lineItemId, assignments) => {
+  updateAssignments: async (
+    receiptId: number | string,
+    lineItemId: string,
+    assignments: string[]
+  ) => {
     const response = await axios.put(
-      `${API_URL}/user/receipts/${receiptId}/assignments`,
+      `${API_URL}/user/receipts/${Number(receiptId)}/assignments`,
       { line_item_id: lineItemId, assignments: assignments }
     );
     return response.data;
@@ -310,9 +320,13 @@ const receiptService = {
    * @param {Object} updateObj - The object containing the updates to make
    * @returns {Promise} - A promise that resolves to the updated receipt data
    */
-  updateLineItem: async (receiptId, itemId, updateObj) => {
+  updateLineItem: async (
+    receiptId: number | string,
+    itemId: number | string,
+    updateObj: Record<string, unknown>
+  ) => {
     const response = await axios.put(
-      `${API_URL}/user/receipts/${receiptId}/line-items/${itemId}`,
+      `${API_URL}/user/receipts/${Number(receiptId)}/line-items/${itemId}`,
       updateObj
     );
     return response.data;
@@ -324,9 +338,9 @@ const receiptService = {
    * @param {number} itemId - The ID of the line item to delete
    * @returns {Promise} - A promise that resolves when the line item is deleted
    */
-  deleteLineItem: async (receiptId, itemId) => {
+  deleteLineItem: async (receiptId: number | string, itemId: number | string) => {
     const response = await axios.delete(
-      `${API_URL}/user/receipts/${receiptId}/line-items/${itemId}`
+      `${API_URL}/user/receipts/${Number(receiptId)}/line-items/${itemId}`
     );
     return response.data;
   },
@@ -337,9 +351,12 @@ const receiptService = {
    * @param {Object} lineItemData - The line item data to add
    * @returns {Promise} - A promise that resolves to the added line item
    */
-  addLineItem: async (receiptId, lineItemData) => {
+  addLineItem: async (
+    receiptId: number | string,
+    lineItemData: Record<string, unknown>
+  ) => {
     const response = await axios.post(
-      `${API_URL}/user/receipts/${receiptId}/line-items`,
+      `${API_URL}/user/receipts/${Number(receiptId)}/line-items`,
       lineItemData
     );
     return response.data;
@@ -351,9 +368,12 @@ const receiptService = {
    * @param {Object} updateObj - The object containing the updates to make
    * @returns {Promise} - A promise that resolves to the updated receipt data
    */
-  updateReceiptData: async (receiptId, updateObj) => {
+  updateReceiptData: async (
+    receiptId: number | string,
+    updateObj: Record<string, unknown>
+  ) => {
     const response = await axios.put(
-      `${API_URL}/user/receipts/${receiptId}/receipt-data`,
+      `${API_URL}/user/receipts/${Number(receiptId)}/receipt-data`,
       updateObj
     );
     return response.data;
