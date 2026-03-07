@@ -16,7 +16,7 @@ interface SelectTriggerProps
   extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> {}
 
 const SelectTrigger = React.forwardRef<
-  HTMLButtonElement,
+  React.ElementRef<typeof SelectPrimitive.Trigger>,
   SelectTriggerProps
 >(({ className, children, ...props }, ref) => (
     <SelectPrimitive.Trigger
@@ -42,7 +42,7 @@ interface SelectScrollUpButtonProps
   > {}
 
 const SelectScrollUpButton = React.forwardRef<
-  HTMLDivElement,
+  React.ElementRef<typeof SelectPrimitive.ScrollUpButton>,
   SelectScrollUpButtonProps
 >(({ className, ...props }, ref) => (
     <SelectPrimitive.ScrollUpButton
@@ -65,7 +65,7 @@ interface SelectScrollDownButtonProps
   > {}
 
 const SelectScrollDownButton = React.forwardRef<
-  HTMLDivElement,
+  React.ElementRef<typeof SelectPrimitive.ScrollDownButton>,
   SelectScrollDownButtonProps
 >(({ className, ...props }, ref) => (
     <SelectPrimitive.ScrollDownButton
@@ -87,7 +87,7 @@ interface SelectContentProps
   extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> {}
 
 const SelectContent = React.forwardRef<
-  HTMLDivElement,
+  React.ElementRef<typeof SelectPrimitive.Content>,
   SelectContentProps
 >(({ className, children, position = 'popper', ...props }, ref) => (
     <SelectPrimitive.Portal>
@@ -123,7 +123,7 @@ interface SelectLabelProps
   extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label> {}
 
 const SelectLabel = React.forwardRef<
-  HTMLDivElement,
+  React.ElementRef<typeof SelectPrimitive.Label>,
   SelectLabelProps
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
@@ -138,7 +138,7 @@ interface SelectItemProps
   extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {}
 
 const SelectItem = React.forwardRef<
-  HTMLDivElement,
+  React.ElementRef<typeof SelectPrimitive.Item>,
   SelectItemProps
 >(({ className, children, ...props }, ref) => (
     <SelectPrimitive.Item
@@ -165,7 +165,7 @@ interface SelectSeparatorProps
   extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator> {}
 
 const SelectSeparator = React.forwardRef<
-  HTMLDivElement,
+  React.ElementRef<typeof SelectPrimitive.Separator>,
   SelectSeparatorProps
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
