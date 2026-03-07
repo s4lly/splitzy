@@ -1,8 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
 
-import { LineItemSchema, ReceiptResponseSchema } from '@/lib/receiptSchemas';
+import {
+  type LineItem,
+  type ReceiptResponse,
+  type UpdateLineItemPayload,
+} from '@/lib/receiptSchemas';
 import receiptService from '@/services/receiptService';
+
+export type UpdateLineItemVariables = {
+  receiptId: string;
+  itemId: string;
+} & UpdateLineItemPayload;
 
 export function useLineItemUpdateMutation() {
   const queryClient = useQueryClient();
@@ -12,18 +20,14 @@ export function useLineItemUpdateMutation() {
       receiptId,
       itemId,
       ...rest
-    }: { receiptId: string; itemId: string } & Partial<
-      z.infer<typeof LineItemSchema>
-    >) => {
+    }: UpdateLineItemVariables) => {
       return receiptService.updateLineItem(receiptId, itemId, rest);
     },
     onMutate: ({
       receiptId,
       itemId,
       ...rest
-    }: { receiptId: string; itemId: string } & Partial<
-      z.infer<typeof LineItemSchema>
-    >) => {
+    }: UpdateLineItemVariables) => {
       queryClient.cancelQueries({ queryKey: ['receipt', receiptId] });
 
       const previousData = queryClient.getQueryData(['receipt', receiptId]);
@@ -31,10 +35,10 @@ export function useLineItemUpdateMutation() {
       try {
         queryClient.setQueryData(
           ['receipt', receiptId],
-          (old: z.infer<typeof ReceiptResponseSchema>) => {
+          (old: ReceiptResponse) => {
             const newData = { ...old };
             const item = newData.receipt.receipt_data.line_items.find(
-              (item) => item.id === itemId
+              (li: LineItem) => li.id === itemId
             );
             if (item && rest.name) {
               item.name = rest.name;

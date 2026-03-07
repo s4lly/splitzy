@@ -1,6 +1,10 @@
 import axios from 'axios';
 
 import {
+  type LineItem,
+  type LineItemPayload,
+  type UpdateLineItemPayload,
+  type UpdateReceiptPayload,
   ReceiptResponseSchema,
   UserReceiptsResponseSchema,
 } from '@/lib/receiptSchemas';
@@ -191,9 +195,9 @@ const receiptService = {
   updateLineItem: async (
     receiptId: number | string,
     itemId: number | string,
-    updateObj: Record<string, unknown>
+    updateObj: UpdateLineItemPayload
   ) => {
-    const response = await axios.put(
+    const response = await axios.put<{ success: boolean }>(
       `${API_URL}/user/receipts/${Number(receiptId)}/line-items/${itemId}`,
       updateObj
     );
@@ -221,12 +225,12 @@ const receiptService = {
    */
   addLineItem: async (
     receiptId: number | string,
-    lineItemData: Record<string, unknown>
+    lineItemData: LineItemPayload
   ) => {
-    const response = await axios.post(
-      `${API_URL}/user/receipts/${Number(receiptId)}/line-items`,
-      lineItemData
-    );
+    const response = await axios.post<{
+      success: boolean;
+      line_item: LineItem;
+    }>(`${API_URL}/user/receipts/${Number(receiptId)}/line-items`, lineItemData);
     return response.data;
   },
 
@@ -238,9 +242,9 @@ const receiptService = {
    */
   updateReceiptData: async (
     receiptId: number | string,
-    updateObj: Record<string, unknown>
+    updateObj: UpdateReceiptPayload
   ) => {
-    const response = await axios.put(
+    const response = await axios.put<{ success: boolean }>(
       `${API_URL}/user/receipts/${Number(receiptId)}/receipt-data`,
       updateObj
     );
