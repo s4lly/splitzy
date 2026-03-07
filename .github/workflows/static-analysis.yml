@@ -21,104 +21,29 @@ jobs:
             zero-query:
               - 'zero-query/**'
 
-  frontend-lint:
+  static-analysis:
     needs: changes
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    if: ${{ (matrix.subsystem == 'frontend' && needs.changes.outputs.frontend == 'true') || (matrix.subsystem == 'zero-query' && needs.changes.outputs.zero-query == 'true') }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        subsystem: [frontend, zero-query]
+        script: [lint, format, type-check]
+        include:
+          - subsystem: frontend
+            node-version: '20'
+          - subsystem: zero-query
+            node-version: '20.19'
     defaults:
       run:
-        working-directory: frontend
+        working-directory: ${{ matrix.subsystem }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: ${{ matrix.subsystem }}/package-lock.json
       - run: npm ci
-      - run: npm run lint
-
-  frontend-format:
-    needs: changes
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - run: npm ci
-      - run: npm run format
-
-  frontend-type-check:
-    needs: changes
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - run: npm ci
-      - run: npm run type-check
-
-  zero-query-lint:
-    needs: changes
-    if: ${{ needs.changes.outputs.zero-query == 'true' }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: zero-query
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.19'
-          cache: 'npm'
-          cache-dependency-path: zero-query/package-lock.json
-      - run: npm ci
-      - run: npm run lint
-
-  zero-query-format:
-    needs: changes
-    if: ${{ needs.changes.outputs.zero-query == 'true' }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: zero-query
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.19'
-          cache: 'npm'
-          cache-dependency-path: zero-query/package-lock.json
-      - run: npm ci
-      - run: npm run format
-
-  zero-query-type-check:
-    needs: changes
-    if: ${{ needs.changes.outputs.zero-query == 'true' }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: zero-query
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.19'
-          cache: 'npm'
-          cache-dependency-path: zero-query/package-lock.json
-      - run: npm ci
-      - run: npm run type-check
+      - run: npm run ${{ matrix.script }}
