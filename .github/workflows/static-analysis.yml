@@ -21,29 +21,44 @@ jobs:
             zero-query:
               - 'zero-query/**'
 
-  static-analysis:
+  static-analysis-frontend:
     needs: changes
-    if: ${{ (matrix.subsystem == 'frontend' && needs.changes.outputs.frontend == 'true') || (matrix.subsystem == 'zero-query' && needs.changes.outputs.zero-query == 'true') }}
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        subsystem: [frontend, zero-query]
         script: [lint, format, type-check]
-        include:
-          - subsystem: frontend
-            node-version: '20'
-          - subsystem: zero-query
-            node-version: '20.19'
     defaults:
       run:
-        working-directory: ${{ matrix.subsystem }}
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20.19'
           cache: 'npm'
-          cache-dependency-path: ${{ matrix.subsystem }}/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run ${{ matrix.script }}
+
+  static-analysis-zero-query:
+    needs: changes
+    if: needs.changes.outputs.zero-query == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        script: [lint, format, type-check]
+    defaults:
+      run:
+        working-directory: zero-query
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19'
+          cache: 'npm'
+          cache-dependency-path: zero-query/package-lock.json
       - run: npm ci
       - run: npm run ${{ matrix.script }}
