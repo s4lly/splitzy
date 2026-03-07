@@ -1,4 +1,6 @@
-type ReportHandler = (metric: { name: string; value: number; id: string; delta: number; navigationType: string }) => void;
+import type { MetricType } from 'web-vitals';
+
+type ReportHandler = (metric: MetricType) => void;
 
 const reportWebVitals = (onPerfEntry?: ReportHandler) => {
   if (onPerfEntry && typeof onPerfEntry === 'function') {
