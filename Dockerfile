@@ -1,4 +1,6 @@
-FROM rocicorp/zero:0.25.5
+# Zero cache image - single source of truth for local (docker-compose) and production deploys.
+# Keep this version aligned with frontend/zero-query @rocicorp/zero package version.
+FROM rocicorp/zero:0.25.12
 
 # Expose the Zero cache port
 EXPOSE 4848

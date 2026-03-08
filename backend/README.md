@@ -172,7 +172,7 @@ The script will:
 
 #### `setup-local-db.sh`
 
-Sets up the local development environment with PostgreSQL and Zero services. Optionally restores the database from a dump file.
+Sets up the local development environment with PostgreSQL and Zero services. Optionally restores the database from a dump file. **Docker Compose reuses existing DB container state**; for a deterministic import of a production dump, run this script with a dump path so it performs a clean restore before starting Zero (restore must succeed or the script exits and Zero services are not started).
 
 **What it does:**
 
@@ -215,11 +215,13 @@ The script will:
 2. Ask for confirmation before proceeding
 3. Only execute if you confirm with "yes"
 
+After restore, the script sets REPLICA IDENTITY on published tables and ensures `alembic_version` has a primary key (required for Zero replication). If restore fails, the script exits and Zero services are not started.
+
 **Note:** If you provide a dump file path, it can be relative to the project root or an absolute path.
 
 #### `create-dump.sh`
 
-Creates a timestamped database backup using `pg_dump` in custom format. The dump file is compressed and can be restored using `pg_restore`.
+Creates a timestamped database backup using `pg_dump` in custom format. The dump file is compressed and can be restored using `pg_restore`. **By default dumps are app-data only**: only the **public schema** is dumped (tables, sequences, indexes, FKs in `public`), with no Zero schemas, publications, subscriptions, or event triggers, so restore succeeds and Zero services recreate their objects when they start. Dumps from an older or mixed configuration are not supported—regenerate with the current script. Use `--include-zero` only when you intentionally need Zero schemas and replication metadata in the dump (e.g. debugging replication).
 
 **What it does:**
 
@@ -240,16 +242,15 @@ From project root:
 
 ```bash
 ./backend/scripts/create-dump.sh
-# or
-backend/scripts/create-dump.sh
+# Include Zero schemas (optional, for debugging replication):
+./backend/scripts/create-dump.sh --include-zero
 ```
 
 From backend directory:
 
 ```bash
 ./scripts/create-dump.sh
-# or
-scripts/create-dump.sh
+./scripts/create-dump.sh --include-zero
 ```
 
 **Output:**
@@ -266,6 +267,8 @@ The script creates a dump file in the git-ignored `backend/dumps/` directory wit
   - If not set, defaults to: `postgresql://postgres:pass@localhost:5432/splitzy`
 
 **Note:** The dump uses custom format which is compressed and allows selective restoration. See the script comments for detailed explanation of all `pg_dump` flags.
+
+**Validating app-only dumps:** After creating a new app-only dump, you can confirm it has no Zero replication globals by running `pg_restore -l backend/dumps/mydumpfile-YYYY-MM-DD-HHMM.bak | grep -E 'PUBLICATION|EVENT TRIGGER'`—there should be no output. Then run `./backend/scripts/setup-local-db.sh backend/dumps/mydumpfile-YYYY-MM-DD-HHMM.bak` and confirm restore completes without schema "zero" or "zero_0" errors and that zero-cache starts successfully.
 
 #### `verify-dump.sh`
 

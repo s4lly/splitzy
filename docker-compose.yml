@@ -59,8 +59,11 @@ services:
       start_period: 10s
 
   # Zero cache server - syncs data from PostgreSQL to SQLite replica
+  # Builds from root Dockerfile (single source of truth for production and local)
   zero-cache-local:
-    image: rocicorp/zero:0.25.12
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - 4848:4848
     environment:
