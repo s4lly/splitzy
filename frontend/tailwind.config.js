@@ -17,9 +17,9 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        display: ['Fraunces', 'Georgia', 'serif'],
+        display: ['Fraunces Variable', 'Georgia', 'serif'],
         sans: [
-          'Plus Jakarta Sans',
+          'Plus Jakarta Sans Variable',
           '-apple-system',
           'BlinkMacSystemFont',
           'sans-serif',
