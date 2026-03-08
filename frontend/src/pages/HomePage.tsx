@@ -88,7 +88,7 @@ const HomePage = () => {
         <ReceiptUploader onAnalysisComplete={handleAnalysisComplete} />
 
         {apiStatus === 'unhealthy' && (
-          <div className="mt-3 flex items-start gap-3 rounded-xl border border-destructive/25 bg-destructive/8 p-4 text-sm">
+          <div className="bg-destructive/8 mt-3 flex items-start gap-3 rounded-xl border border-destructive/25 p-4 text-sm">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" />
             <p className="text-destructive">
               Service temporarily unavailable. Please try again later.
@@ -117,7 +117,7 @@ const HomePage = () => {
         <h2 className="mb-6 text-center font-display text-[1.4rem] font-semibold leading-snug tracking-[-0.01em] text-foreground">
           From receipt to settled,
           <br />
-          <span className="italic font-light">in a few taps.</span>
+          <span className="font-light italic">in a few taps.</span>
         </h2>
 
         <div className="flex flex-col gap-3">

@@ -47,11 +47,11 @@ export const ReceiptDetailsCard = ({
   };
 
   return (
-    <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
-      <CardHeader className="px-3 pb-2 sm:px-6">
+    <Card className="overflow-hidden border-0 shadow-[0_2px_12px_0_rgba(0,0,0,0.06)]">
+      <CardHeader className="px-4 pb-2 sm:px-5">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-3 text-xl font-bold">
-            <ShoppingBag className="h-6 w-6" />
+          <CardTitle className="flex items-center gap-2 font-display text-lg font-semibold">
+            <ShoppingBag className="h-5 w-5 text-muted-foreground" />
             Document Details
           </CardTitle>
           <Button
@@ -64,7 +64,7 @@ export const ReceiptDetailsCard = ({
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="px-3 sm:px-6">
+      <CardContent className="px-4 sm:px-5">
         {showQrCode && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
