@@ -1,5 +1,6 @@
 #!/bin/bash
 # Script to restore a database dump and set REPLICA IDENTITY
+# Uses clean restore (drops existing objects) so restore is deterministic and constraints apply.
 # Usage: ./restore_with_replica_identity.sh [dump_file] [target_database_url]
 
 set -e
@@ -45,16 +46,16 @@ echo "  Target Database: $(echo "$TARGET_DB" | sed -E 's|://[^:]+:[^@]+@|://***:
 echo "  Dump File: $DUMP_FILE"
 echo ""
 echo "pg_restore options:"
-echo "  --no-owner  : Skip restoration of object ownership (avoids permission errors)"
-echo "  -v          : Verbose mode (shows progress and details)"
-echo "  -d          : Connect to the specified database"
+echo "  -O, --no-owner : Skip restoration of object ownership (avoids permission errors)"
+echo "  -x             : Skip access privileges"
+echo "  --clean        : Drop existing objects before restore (deterministic replace)"
+echo "  --if-exists    : Use IF EXISTS when dropping (safe with --clean)"
+echo "  -v             : Verbose mode"
 echo "=========================================="
 echo ""
 
-echo "Step 1: Restoring database dump..."
-pg_restore --no-owner -v -d "$TARGET_DB" "$DUMP_FILE" || {
-    echo "Warning: Some restore errors may have occurred (this is often normal)"
-}
+echo "Step 1: Restoring database dump (clean mode: existing objects dropped first)..."
+pg_restore -v -O -x --clean --if-exists -d "$TARGET_DB" "$DUMP_FILE"
 
 echo "Step 2: Setting REPLICA IDENTITY on published tables..."
 SQL_FILE="$SCRIPT_DIR/set_replica_identity_after_restore.sql"
@@ -63,6 +64,21 @@ if [ ! -f "$SQL_FILE" ]; then
     exit 1
 fi
 psql "$TARGET_DB" -f "$SQL_FILE"
+
+echo "Step 3: Ensuring alembic_version has primary key (required for Zero replication)..."
+TABLE_EXISTS=$(psql "$TARGET_DB" -t -A -c "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='alembic_version');")
+if [ "$TABLE_EXISTS" = "t" ]; then
+    HAS_PK=$(psql "$TARGET_DB" -t -A -c "SELECT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = 'public.alembic_version'::regclass AND contype = 'p');")
+    if [ "$HAS_PK" != "t" ]; then
+        FIX_SQL="$SCRIPT_DIR/fix_zero_alembic_version.sql"
+        if [ -f "$FIX_SQL" ]; then
+            psql "$TARGET_DB" -f "$FIX_SQL"
+        else
+            echo "Error: $FIX_SQL not found; Zero will fail without a primary key on alembic_version."
+            exit 1
+        fi
+    fi
+fi
 
 echo "Done! Database restored and REPLICA IDENTITY configured."
 

@@ -88,15 +88,20 @@ done
 echo "  PostgreSQL is ready!"
 echo ""
 
-# Step 3: Restore database if dump file provided
+# Step 3: Restore database if dump file provided (clean restore; must succeed before Zero starts)
 if [ -n "$DUMP_FILE" ]; then
     if [ -f "$DUMP_FILE" ]; then
-        echo "Step 3: Restoring database from $DUMP_FILE..."
+        # Confirm app-only dump: no Zero globals (event triggers/publications) that would fail restore
+        if pg_restore -l "$DUMP_FILE" 2>/dev/null | grep -qE 'EVENT TRIGGER|PUBLICATION'; then
+            echo "Error: Dump contains Zero globals (EVENT TRIGGER or PUBLICATION). Use an app-only dump created with: ./backend/scripts/create-dump.sh"
+            exit 1
+        fi
+        echo "Step 3: Restoring database from $DUMP_FILE (clean mode: existing DB objects dropped first)..."
         
         # Use the local database URL
         LOCAL_DB_URL="postgresql://postgres:pass@localhost:5432/splitzy"
         
-        # Run the restore script
+        # Restore script uses pg_restore --clean --if-exists and fails on error; Zero services start only after success
         "$PROJECT_ROOT/backend/docs/replica-identity/restore_with_replica_identity.sh" "$DUMP_FILE" "$LOCAL_DB_URL"
         echo ""
     else
