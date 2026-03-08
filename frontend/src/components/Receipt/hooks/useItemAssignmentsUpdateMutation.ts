@@ -49,16 +49,14 @@ export function useItemAssignmentsUpdateMutation() {
             );
             if (!lineItem) return;
 
-            lineItem.assignments = assignments.map(
-              (receipt_user_id, idx) => ({
-                id: `opt-${lineItemId}-${receipt_user_id}-${idx}`,
-                receipt_user_id,
-                receipt_line_item_id: lineItemId,
-                created_at: new Date().toISOString(),
-                deleted_at: null,
-                receipt_user: null,
-              })
-            );
+            lineItem.assignments = assignments.map((receipt_user_id, idx) => ({
+              id: `opt-${lineItemId}-${receipt_user_id}-${idx}`,
+              receipt_user_id,
+              receipt_line_item_id: lineItemId,
+              created_at: new Date().toISOString(),
+              deleted_at: null,
+              receipt_user: null,
+            }));
           });
         }
       );

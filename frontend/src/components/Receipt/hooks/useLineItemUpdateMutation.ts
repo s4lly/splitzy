@@ -29,7 +29,11 @@ export function useLineItemUpdateMutation() {
       return receiptService.updateLineItem(receiptId, itemId, rest);
     },
 
-    onMutate: async ({ receiptId, itemId, ...rest }: UpdateLineItemVariables) => {
+    onMutate: async ({
+      receiptId,
+      itemId,
+      ...rest
+    }: UpdateLineItemVariables) => {
       // Prevent other queries from overwriting our optimistic update
       await queryClient.cancelQueries({ queryKey: ['receipt', receiptId] });
 
@@ -53,7 +57,8 @@ export function useLineItemUpdateMutation() {
 
               // Patch only fields that were provided (use !== undefined so 0 and "" are applied)
               if (rest.name !== undefined) lineItem.name = rest.name;
-              if (rest.quantity !== undefined) lineItem.quantity = rest.quantity;
+              if (rest.quantity !== undefined)
+                lineItem.quantity = rest.quantity;
               if (rest.price_per_item !== undefined)
                 lineItem.price_per_item = rest.price_per_item;
               if (rest.total_price !== undefined)

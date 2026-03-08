@@ -110,7 +110,10 @@ export function useLineItemAddMutation() {
             const withoutTemps = draft.receipt.receipt_data.line_items.filter(
               (li: LineItem) => !li.id.startsWith('temp-')
             );
-            draft.receipt.receipt_data.line_items = [data.line_item, ...withoutTemps];
+            draft.receipt.receipt_data.line_items = [
+              data.line_item,
+              ...withoutTemps,
+            ];
           });
         }
       );
