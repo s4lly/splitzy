@@ -14,16 +14,10 @@ export function useReceiptDataUpdateMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      receiptId,
-      ...rest
-    }: UpdateReceiptDataVariables) => {
+    mutationFn: ({ receiptId, ...rest }: UpdateReceiptDataVariables) => {
       return receiptService.updateReceiptData(receiptId, rest);
     },
-    onMutate: async ({
-      receiptId,
-      ...rest
-    }: UpdateReceiptDataVariables) => {
+    onMutate: async ({ receiptId, ...rest }: UpdateReceiptDataVariables) => {
       // Cancel any in-flight queries to prevent races
       await queryClient.cancelQueries({ queryKey: ['receipt', receiptId] });
 

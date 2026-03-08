@@ -3,9 +3,9 @@ import axios from 'axios';
 import {
   type LineItem,
   type LineItemPayload,
+  ReceiptResponseSchema,
   type UpdateLineItemPayload,
   type UpdateReceiptPayload,
-  ReceiptResponseSchema,
   UserReceiptsResponseSchema,
 } from '@/lib/receiptSchemas';
 
@@ -210,7 +210,10 @@ const receiptService = {
    * @param {number} itemId - The ID of the line item to delete
    * @returns {Promise} - A promise that resolves when the line item is deleted
    */
-  deleteLineItem: async (receiptId: number | string, itemId: number | string) => {
+  deleteLineItem: async (
+    receiptId: number | string,
+    itemId: number | string
+  ) => {
     const response = await axios.delete(
       `${API_URL}/user/receipts/${Number(receiptId)}/line-items/${itemId}`
     );
@@ -230,7 +233,10 @@ const receiptService = {
     const response = await axios.post<{
       success: boolean;
       line_item: LineItem;
-    }>(`${API_URL}/user/receipts/${Number(receiptId)}/line-items`, lineItemData);
+    }>(
+      `${API_URL}/user/receipts/${Number(receiptId)}/line-items`,
+      lineItemData
+    );
     return response.data;
   },
 

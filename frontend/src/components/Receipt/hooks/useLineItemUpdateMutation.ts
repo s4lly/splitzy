@@ -16,18 +16,10 @@ export function useLineItemUpdateMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      receiptId,
-      itemId,
-      ...rest
-    }: UpdateLineItemVariables) => {
+    mutationFn: ({ receiptId, itemId, ...rest }: UpdateLineItemVariables) => {
       return receiptService.updateLineItem(receiptId, itemId, rest);
     },
-    onMutate: ({
-      receiptId,
-      itemId,
-      ...rest
-    }: UpdateLineItemVariables) => {
+    onMutate: ({ receiptId, itemId, ...rest }: UpdateLineItemVariables) => {
       queryClient.cancelQueries({ queryKey: ['receipt', receiptId] });
 
       const previousData = queryClient.getQueryData(['receipt', receiptId]);

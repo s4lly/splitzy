@@ -35,7 +35,9 @@ export function useLineItemAddMutation() {
       lineItemData,
     }: {
       receiptId: string;
-      lineItemData: LineItemPayload | (Partial<LineItemPayload> & { name?: string });
+      lineItemData:
+        | LineItemPayload
+        | (Partial<LineItemPayload> & { name?: string });
     }) => {
       const payload =
         'total_price' in lineItemData && lineItemData.total_price !== undefined
@@ -48,7 +50,9 @@ export function useLineItemAddMutation() {
       lineItemData,
     }: {
       receiptId: string;
-      lineItemData: LineItemPayload | (Partial<LineItemPayload> & { name?: string });
+      lineItemData:
+        | LineItemPayload
+        | (Partial<LineItemPayload> & { name?: string });
     }) => {
       queryClient.cancelQueries({ queryKey: ['receipt', receiptId] });
 
