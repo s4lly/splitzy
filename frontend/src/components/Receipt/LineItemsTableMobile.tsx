@@ -143,8 +143,20 @@ export default function LineItemsTableMobile({
                       )}
                     </div>
 
-                    <Toggle onClick={(e) => handleEditOpen(e, item.id)}>
-                      {!showReducedDetails ? <Pencil /> : <ChevronUp />}
+                    <Toggle
+                      onClick={(e) => handleEditOpen(e, item.id)}
+                      aria-expanded={showReducedAssignments}
+                      aria-label={
+                        showReducedDetails
+                          ? 'Collapse edit'
+                          : `Edit ${item.name ?? 'item'}`
+                      }
+                    >
+                      {!showReducedDetails ? (
+                        <Pencil aria-hidden />
+                      ) : (
+                        <ChevronUp aria-hidden />
+                      )}
                     </Toggle>
                   </div>
                 </div>
@@ -209,8 +221,20 @@ export default function LineItemsTableMobile({
                   </span>
 
                   {!showReducedAssignments && (
-                    <Toggle onClick={(e) => handleAssignmentOpen(e, item.id)}>
-                      {item.assignments.length === 0 ? <Plus /> : <Pencil />}
+                    <Toggle
+                      onClick={(e) => handleAssignmentOpen(e, item.id)}
+                      aria-expanded={showReducedDetails}
+                      aria-label={
+                        item.assignments.length === 0
+                          ? `Assign ${item.name ?? 'item'}`
+                          : `Manage assignments for ${item.name ?? 'item'}`
+                      }
+                    >
+                      {item.assignments.length === 0 ? (
+                        <Plus aria-hidden />
+                      ) : (
+                        <Pencil aria-hidden />
+                      )}
                     </Toggle>
                   )}
                 </div>
@@ -229,8 +253,12 @@ export default function LineItemsTableMobile({
 
                 {/* Collapse Toggle (when in edit mode) */}
                 {showReducedAssignments && (
-                  <Toggle onClick={(e) => handleAssignmentOpen(e, item.id)}>
-                    <ChevronUp />
+                  <Toggle
+                    onClick={(e) => handleAssignmentOpen(e, item.id)}
+                    aria-expanded={showReducedDetails}
+                    aria-label="Collapse assignments"
+                  >
+                    <ChevronUp aria-hidden />
                   </Toggle>
                 )}
               </div>

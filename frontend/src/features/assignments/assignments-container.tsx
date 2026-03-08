@@ -6,11 +6,14 @@ export const AssignmentsContainer = ({
   className,
   isSelected,
   clickCallback,
+  ariaLabel,
 }: {
   children: React.ReactNode;
   className?: string;
   isSelected?: boolean;
   clickCallback?: (e: React.MouseEvent) => void;
+  /** Accessible name when rendered as a button (desktop). */
+  ariaLabel?: string;
 }) => {
   const isMobile = useMobile();
 
@@ -29,6 +32,12 @@ export const AssignmentsContainer = ({
         className
       )}
       onClick={handleClick}
+      {...(Container === 'button' && ariaLabel
+        ? { 'aria-label': ariaLabel }
+        : {})}
+      {...(Container === 'button' && typeof isSelected === 'boolean'
+        ? { 'aria-expanded': isSelected }
+        : {})}
     >
       {children}
     </Container>

@@ -21,7 +21,9 @@ import { ReceiptImageViewer } from '@/features/receipt-image/ReceiptImageViewer'
 import { ReceiptDetailsCard } from '@/features/receipt-viewer/ReceiptDetailsCard';
 import { ReceiptSummaryCard } from '@/features/receipt-viewer/ReceiptSummaryCard';
 import { ReceiptViewer } from '@/features/receipt-viewer/ReceiptViewer';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useMobile } from '@/hooks/useMobile';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { isLocalDevelopment } from '@/utils/env';
 
 /**
@@ -37,6 +39,15 @@ export const ReceiptCollabContent = () => {
   const assignedUsers = useAtomValue(assignedUsersAtom);
   const receiptUserIds = assignedUsers.map((a) => a.receiptUserId);
   const [isAddingItem, setIsAddingItem] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
+
+  useDocumentTitle(
+    receipt
+      ? receipt.merchant
+        ? `Receipt #${receipt.id} — ${receipt.merchant}`
+        : `Receipt #${receipt.id}`
+      : undefined
+  );
 
   if (!receipt) {
     return null;
@@ -44,15 +55,24 @@ export const ReceiptCollabContent = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={
+        shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }
+      }
       animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.4,
-        ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
-      }}
+      transition={
+        shouldReduceMotion
+          ? { duration: 0 }
+          : {
+              duration: 0.4,
+              ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+            }
+      }
       className="w-full"
     >
       <div className="mx-auto max-w-3xl px-4 py-5">
+        <h1 className="sr-only">
+          Receipt{receipt.merchant ? ` — ${receipt.merchant}` : ' details'}
+        </h1>
         <div className="flex flex-col gap-4">
           <ReceiptImageViewer receipt={receipt} />
 

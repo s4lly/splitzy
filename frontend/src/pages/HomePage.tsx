@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
 import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
 import { ReceiptUploader } from '@/features/receipt-upload';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useUserReceiptsQuery } from '@/hooks/useUserReceiptsQuery';
 import receiptService from '@/services/receiptService';
 
@@ -38,15 +40,25 @@ const features = [
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.45, delay, ease: EASE },
-});
+const fadeUp = (delay = 0, reducedMotion = false) =>
+  reducedMotion
+    ? {
+        initial: { opacity: 1, y: 0 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0 },
+      }
+    : {
+        initial: { opacity: 0, y: 16 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.45, delay, ease: EASE },
+      };
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [apiStatus, setApiStatus] = useState('checking');
+  const shouldReduceMotion = useReducedMotion();
+
+  useDocumentTitle('Home');
 
   React.useEffect(() => {
     const checkApiHealth = async () => {
@@ -71,8 +83,9 @@ const HomePage = () => {
 
   return (
     <div className="mx-auto max-w-md px-4">
+      <h1 className="sr-only">Splitzy</h1>
       {/* ── Hero ── */}
-      <motion.section {...fadeUp(0)} className="pb-4 pt-8">
+      <motion.section {...fadeUp(0, shouldReduceMotion)} className="pb-4 pt-8">
         <div className="mb-4 flex justify-center">
           <span className="rounded-full bg-accent px-3.5 py-1 text-xs font-medium tracking-wide text-accent-foreground">
             receipt splitting, simplified
@@ -84,12 +97,18 @@ const HomePage = () => {
       </motion.section>
 
       {/* ── Upload ── */}
-      <motion.section {...fadeUp(0.1)} className="pb-5">
+      <motion.section {...fadeUp(0.1, shouldReduceMotion)} className="pb-5">
         <ReceiptUploader onAnalysisComplete={handleAnalysisComplete} />
 
         {apiStatus === 'unhealthy' && (
-          <div className="bg-destructive/8 mt-3 flex items-start gap-3 rounded-xl border border-destructive/25 p-4 text-sm">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" />
+          <div
+            role="alert"
+            className="bg-destructive/8 mt-3 flex items-start gap-3 rounded-xl border border-destructive/25 p-4 text-sm"
+          >
+            <AlertCircle
+              className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive"
+              aria-hidden
+            />
             <p className="text-destructive">
               Service temporarily unavailable. Please try again later.
             </p>
@@ -99,7 +118,7 @@ const HomePage = () => {
 
       {/* ── Receipt history (signed-in only) ── */}
       <SignedIn>
-        <motion.section {...fadeUp(0.2)} className="pb-6">
+        <motion.section {...fadeUp(0.2, shouldReduceMotion)} className="pb-6">
           <Suspense fallback={<ReceiptHistorySkeleton />}>
             <ReceiptHistorySection />
           </Suspense>
@@ -108,7 +127,7 @@ const HomePage = () => {
 
       {/* ── How it works (below fold) ── */}
       <motion.section
-        {...fadeUp(0.25)}
+        {...fadeUp(0.25, shouldReduceMotion)}
         className="border-t border-border pb-20 pt-8"
       >
         <p className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
@@ -124,16 +143,27 @@ const HomePage = () => {
           {features.map((feature, i) => (
             <motion.div
               key={feature.title}
-              initial={{ opacity: 0, y: 10 }}
+              initial={
+                shouldReduceMotion
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0, y: 10 }
+              }
               animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.4,
-                delay: 0.35 + i * 0.07,
-                ease: EASE,
-              }}
+              transition={
+                shouldReduceMotion
+                  ? { duration: 0 }
+                  : {
+                      duration: 0.4,
+                      delay: 0.35 + i * 0.07,
+                      ease: EASE,
+                    }
+              }
               className="flex items-start gap-4 rounded-2xl bg-card p-5 shadow-[0_1px_4px_0_rgba(0,0,0,0.06)] ring-1 ring-border/70"
             >
-              <div className="flex size-11 flex-shrink-0 items-center justify-center rounded-xl bg-accent text-xl">
+              <div
+                className="flex size-11 flex-shrink-0 items-center justify-center rounded-xl bg-accent text-xl"
+                aria-hidden
+              >
                 {feature.emoji}
               </div>
               <div className="pt-0.5">
@@ -146,7 +176,7 @@ const HomePage = () => {
                 {feature.signInCta && (
                   <SignedOut>
                     <SignInButton>
-                      <button className="mt-2 text-xs font-semibold text-primary underline-offset-2 hover:underline">
+                      <button className="mt-2 min-h-[24px] min-w-[24px] text-xs font-semibold text-primary underline-offset-2 hover:underline">
                         Sign in to see your history →
                       </button>
                     </SignInButton>

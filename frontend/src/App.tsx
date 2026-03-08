@@ -14,10 +14,20 @@ import SettingsPage from '@/pages/SettingsPage';
 function App() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <a
+        href="#main-content"
+        className="sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-50 focus-visible:inline-block focus-visible:h-auto focus-visible:w-auto focus-visible:overflow-visible focus-visible:rounded-md focus-visible:bg-background focus-visible:px-4 focus-visible:py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:[clip:auto] focus-visible:[margin:0]"
+      >
+        Skip to main content
+      </a>
       <Header />
 
       {/* Main Content */}
-      <main className="w-full flex-1 px-0 py-0 sm:container">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="w-full flex-1 px-0 py-0 sm:container"
+      >
         <Routes>
           {/* TODO: add back when configured with router and pages implemented */}
           {/* <Route path="/auth" element={<AuthLayout />}>

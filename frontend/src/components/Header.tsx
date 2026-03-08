@@ -14,7 +14,10 @@ export default function Header() {
     <header className="sticky top-0 z-10 w-full border-b border-border bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/60">
       {/* ---- Header Content ---- */}
 
-      <div className="flex h-14 items-center px-1 sm:container">
+      <nav
+        aria-label="Main navigation"
+        className="flex h-14 items-center px-1 sm:container"
+      >
         <div className="mr-auto flex items-center gap-2 text-2xl font-bold">
           <Link to="/" className="flex items-center gap-2">
             <Receipt className="h-6 w-6" />
@@ -44,7 +47,7 @@ export default function Header() {
 
           <ThemeToggle />
         </div>
-      </div>
+      </nav>
     </header>
   );
 }

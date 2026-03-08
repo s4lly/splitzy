@@ -48,9 +48,9 @@ const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
             <p className="mt-1 text-sm">Upload a receipt to get started</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <ul className="m-0 list-none space-y-4 p-0">
             {receipts.map((receipt, index) => (
-              <motion.div
+              <motion.li
                 key={receipt.id}
                 className="rounded-lg border p-3 transition-colors hover:bg-accent/5"
                 initial={{ opacity: 0, y: 10 }}
@@ -60,7 +60,7 @@ const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
                 <div className="mb-2 flex items-start justify-between">
                   <div>
                     <h3 className="flex items-center gap-1 font-medium">
-                      <Store className="h-4 w-4" />
+                      <Store className="h-4 w-4" aria-hidden />
                       {receipt.merchant || 'Unknown Merchant'}
                     </h3>
                     <p className="text-sm text-muted-foreground">
@@ -73,7 +73,7 @@ const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
                     </p>
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground">
-                    <Clock className="mr-1 h-3 w-3" />
+                    <Clock className="mr-1 h-3 w-3" aria-hidden />
                     {receipt.created_at
                       ? formatDistanceToNow(receipt.created_at, {
                           addSuffix: true,
@@ -88,14 +88,15 @@ const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
                     size="sm"
                     onClick={() => handleViewReceipt(receipt.id)}
                     className="h-8"
+                    aria-label={`View receipt from ${receipt.merchant || 'Unknown Merchant'}`}
                   >
-                    <Eye className="mr-1 h-3.5 w-3.5" />
+                    <Eye className="mr-1 h-3.5 w-3.5" aria-hidden />
                     View
                   </Button>
                 </div>
-              </motion.div>
+              </motion.li>
             ))}
-          </div>
+          </ul>
         )}
       </CardContent>
     </Card>

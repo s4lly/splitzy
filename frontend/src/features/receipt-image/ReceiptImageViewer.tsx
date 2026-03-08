@@ -102,8 +102,9 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
                       size="sm"
                       className="h-8 w-8 p-0"
                       onClick={() => setSettingsOpen(true)}
+                      aria-label="Image settings"
                     >
-                      <Settings className="h-4 w-4" />
+                      <Settings className="h-4 w-4" aria-hidden />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -125,6 +126,7 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden
                   >
                     <path
                       strokeLinecap="round"
@@ -158,8 +160,9 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
                     size="sm"
                     className="rounded-full opacity-80 shadow-md hover:opacity-100"
                     onClick={resetImage}
+                    aria-label="Reset image zoom"
                   >
-                    <Undo className="h-4 w-4" />
+                    <Undo className="h-4 w-4" aria-hidden />
                   </Button>
                 </div>
               )}

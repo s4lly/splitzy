@@ -35,6 +35,7 @@ export default function Footer() {
           <Server className="h-3.5 w-3.5" />
           <span>API</span>
           <span
+            aria-hidden
             className={`h-1.5 w-1.5 rounded-full ${
               apiStatus === 'healthy'
                 ? 'bg-green-500'

@@ -22,13 +22,15 @@ export const PreviewImage = ({ preview, onClear }: PreviewImageProps) => {
             className="mx-auto max-h-[300px] rounded-lg"
           />
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onClear();
             }}
-            className="absolute right-2 top-2 rounded-full bg-background/80 p-1 backdrop-blur-sm hover:bg-background"
+            className="absolute right-2 top-2 flex min-h-[24px] min-w-[24px] items-center justify-center rounded-full bg-background/80 p-1 backdrop-blur-sm hover:bg-background"
+            aria-label="Clear preview"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden />
           </button>
         </motion.div>
       ) : (
