@@ -42,8 +42,9 @@ export interface LineItemFormData {
 
 /**
  * Data for adding a new line item to a receipt.
+ * name is required; other fields are optional and normalized by the add mutation.
  */
 export interface AddLineItemData {
   receiptId: string;
-  lineItemData: LineItemFormData;
+  lineItemData: LineItemFormData & { name: string };
 }

@@ -7,21 +7,25 @@ import {
 } from '@/lib/receiptSchemas';
 import receiptService from '@/services/receiptService';
 
+/** Draft for add: name required; other fields optional. total_price is always computed. */
+export type DraftLineItemPayload = Partial<LineItemPayload> & { name: string };
+
 export type AddLineItemVariables = {
   receiptId: string;
   lineItemData: LineItemPayload;
 };
 
 function toLineItemPayload(
-  data: Partial<LineItemPayload> & { name?: string }
+  data: LineItemPayload | DraftLineItemPayload
 ): LineItemPayload {
   const quantity = data.quantity ?? 1;
   const price_per_item = data.price_per_item ?? 0;
+  const total_price = quantity * price_per_item;
   return {
-    name: data.name ?? '',
+    name: data.name,
     quantity,
     price_per_item,
-    total_price: data.total_price ?? quantity * price_per_item,
+    total_price,
     assignments: data.assignments ?? [],
   };
 }
@@ -35,14 +39,9 @@ export function useLineItemAddMutation() {
       lineItemData,
     }: {
       receiptId: string;
-      lineItemData:
-        | LineItemPayload
-        | (Partial<LineItemPayload> & { name?: string });
+      lineItemData: LineItemPayload | DraftLineItemPayload;
     }) => {
-      const payload =
-        'total_price' in lineItemData && lineItemData.total_price !== undefined
-          ? (lineItemData as LineItemPayload)
-          : toLineItemPayload(lineItemData);
+      const payload = toLineItemPayload(lineItemData);
       return receiptService.addLineItem(receiptId, payload);
     },
     onMutate: ({
@@ -50,13 +49,13 @@ export function useLineItemAddMutation() {
       lineItemData,
     }: {
       receiptId: string;
-      lineItemData:
-        | LineItemPayload
-        | (Partial<LineItemPayload> & { name?: string });
+      lineItemData: LineItemPayload | DraftLineItemPayload;
     }) => {
       queryClient.cancelQueries({ queryKey: ['receipt', receiptId] });
 
       const previousData = queryClient.getQueryData(['receipt', receiptId]);
+
+      const payload = toLineItemPayload(lineItemData);
 
       try {
         queryClient.setQueryData(
@@ -74,11 +73,11 @@ export function useLineItemAddMutation() {
                   line_items: [
                     {
                       id: `temp-${Date.now()}`, // Temporary ID for optimistic update
-                      name: lineItemData.name,
-                      quantity: lineItemData.quantity || 1,
-                      price_per_item: lineItemData.price_per_item || 0,
-                      total_price: lineItemData.total_price || 0,
-                      assignments: [],
+                      name: payload.name,
+                      quantity: payload.quantity,
+                      price_per_item: payload.price_per_item,
+                      total_price: payload.total_price,
+                      assignments: payload.assignments,
                     },
                     ...old.receipt.receipt_data.line_items,
                   ],
