@@ -1,49 +1,41 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
+import { produce } from 'immer';
 
-import { ReceiptDataSchema, ReceiptResponseSchema } from '@/lib/receiptSchemas';
+import {
+  type ReceiptResponse,
+  type UpdateReceiptPayload,
+} from '@/lib/receiptSchemas';
 import receiptService from '@/services/receiptService';
+
+export type UpdateReceiptDataVariables = {
+  receiptId: string;
+} & UpdateReceiptPayload;
 
 export function useReceiptDataUpdateMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      receiptId,
-      ...rest
-    }: { receiptId: string } & Partial<z.infer<typeof ReceiptDataSchema>>) => {
+    mutationFn: ({ receiptId, ...rest }: UpdateReceiptDataVariables) => {
       return receiptService.updateReceiptData(receiptId, rest);
     },
-    onMutate: async ({
-      receiptId,
-      ...rest
-    }: { receiptId: string } & Partial<z.infer<typeof ReceiptDataSchema>>) => {
+    onMutate: async ({ receiptId, ...rest }: UpdateReceiptDataVariables) => {
       // Cancel any in-flight queries to prevent races
       await queryClient.cancelQueries({ queryKey: ['receipt', receiptId] });
 
-      const previousData = queryClient.getQueryData<
-        z.infer<typeof ReceiptResponseSchema>
-      >(['receipt', receiptId]);
+      const previousData = queryClient.getQueryData<ReceiptResponse>([
+        'receipt',
+        receiptId,
+      ]);
 
       try {
         queryClient.setQueryData(
           ['receipt', receiptId],
-          (old: z.infer<typeof ReceiptResponseSchema> | undefined) => {
+          (old: ReceiptResponse | undefined) => {
             if (!old) return old;
 
-            // Create a new immutable object structure
-            const newData = {
-              ...old,
-              receipt: {
-                ...old.receipt,
-                receipt_data: {
-                  ...old.receipt.receipt_data,
-                  ...rest,
-                },
-              },
-            };
-
-            return newData;
+            return produce(old, (draft) => {
+              Object.assign(draft.receipt.receipt_data, rest);
+            });
           }
         );
       } catch (error) {

@@ -1,8 +1,35 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
+import { produce } from 'immer';
 
-import { LineItemSchema, ReceiptResponseSchema } from '@/lib/receiptSchemas';
+import {
+  type LineItem,
+  type LineItemPayload,
+  type ReceiptResponse,
+} from '@/lib/receiptSchemas';
 import receiptService from '@/services/receiptService';
+
+/** Draft for add: name required; other fields optional. total_price is always computed. */
+export type DraftLineItemPayload = Partial<LineItemPayload> & { name: string };
+
+export type AddLineItemVariables = {
+  receiptId: string;
+  lineItemData: LineItemPayload;
+};
+
+function toLineItemPayload(
+  data: LineItemPayload | DraftLineItemPayload
+): LineItemPayload {
+  const quantity = data.quantity ?? 1;
+  const price_per_item = data.price_per_item ?? 0;
+  const total_price = quantity * price_per_item;
+  return {
+    name: data.name,
+    quantity,
+    price_per_item,
+    total_price,
+    assignments: data.assignments ?? [],
+  };
+}
 
 export function useLineItemAddMutation() {
   const queryClient = useQueryClient();
@@ -13,49 +40,50 @@ export function useLineItemAddMutation() {
       lineItemData,
     }: {
       receiptId: string;
-      lineItemData: Partial<z.infer<typeof LineItemSchema>>;
+      lineItemData: LineItemPayload | DraftLineItemPayload;
     }) => {
-      return receiptService.addLineItem(receiptId, lineItemData);
+      const payload = toLineItemPayload(lineItemData);
+      return receiptService.addLineItem(receiptId, payload);
     },
     onMutate: ({
       receiptId,
       lineItemData,
     }: {
       receiptId: string;
-      lineItemData: Partial<z.infer<typeof LineItemSchema>>;
+      lineItemData: LineItemPayload | DraftLineItemPayload;
     }) => {
       queryClient.cancelQueries({ queryKey: ['receipt', receiptId] });
 
       const previousData = queryClient.getQueryData(['receipt', receiptId]);
 
+      const payload = toLineItemPayload(lineItemData);
+
       try {
         queryClient.setQueryData(
           ['receipt', receiptId],
-          (old: z.infer<typeof ReceiptResponseSchema>) => {
+          (old: ReceiptResponse) => {
             if (!old) return old;
 
-            // Create a completely new object to ensure TanStack Query detects the change
-            const newData = {
-              ...old,
-              receipt: {
-                ...old.receipt,
-                receipt_data: {
-                  ...old.receipt.receipt_data,
-                  line_items: [
-                    {
-                      id: `temp-${Date.now()}`, // Temporary ID for optimistic update
-                      name: lineItemData.name,
-                      quantity: lineItemData.quantity || 1,
-                      price_per_item: lineItemData.price_per_item || 0,
-                      total_price: lineItemData.total_price || 0,
-                      assignments: [],
-                    },
-                    ...old.receipt.receipt_data.line_items,
-                  ],
-                },
-              },
-            };
-            return newData;
+            const tempId = `temp-${Date.now()}`;
+            return produce(old, (draft) => {
+              draft.receipt.receipt_data.line_items.unshift({
+                id: tempId,
+                name: payload.name,
+                quantity: payload.quantity,
+                price_per_item: payload.price_per_item,
+                total_price: payload.total_price,
+                assignments: payload.assignments.map(
+                  (receipt_user_id, idx): LineItem['assignments'][number] => ({
+                    id: `opt-${tempId}-${receipt_user_id}-${idx}`,
+                    receipt_user_id,
+                    receipt_line_item_id: tempId,
+                    created_at: new Date().toISOString(),
+                    deleted_at: null,
+                    receipt_user: null,
+                  })
+                ),
+              });
+            });
           }
         );
       } catch (error) {
@@ -75,26 +103,18 @@ export function useLineItemAddMutation() {
       // Update the cache with the actual response data
       queryClient.setQueryData(
         ['receipt', variables.receiptId],
-        (old: z.infer<typeof ReceiptResponseSchema>) => {
+        (old: ReceiptResponse) => {
           if (!old) return old;
 
-          // Create a completely new object to ensure TanStack Query detects the change
-          const newData = {
-            ...old,
-            receipt: {
-              ...old.receipt,
-              receipt_data: {
-                ...old.receipt.receipt_data,
-                line_items: [
-                  data.line_item, // Use the actual line item from the response
-                  ...old.receipt.receipt_data.line_items.filter(
-                    (item) => !item.id.startsWith('temp-') // Remove temporary items
-                  ),
-                ],
-              },
-            },
-          };
-          return newData;
+          return produce(old, (draft) => {
+            const withoutTemps = draft.receipt.receipt_data.line_items.filter(
+              (li: LineItem) => !li.id.startsWith('temp-')
+            );
+            draft.receipt.receipt_data.line_items = [
+              data.line_item,
+              ...withoutTemps,
+            ];
+          });
         }
       );
     },

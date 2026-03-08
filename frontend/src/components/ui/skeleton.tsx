@@ -1,9 +1,11 @@
+import type { HTMLAttributes } from 'react';
+
 import { cn } from '../../lib/utils';
 
 /**
  * Skeleton component for loading states
  */
-const Skeleton = ({ className, ...props }) => {
+const Skeleton = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
       className={cn('animate-pulse rounded-md bg-muted', className)}

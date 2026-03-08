@@ -4,11 +4,12 @@ import {
   relationships,
   type Row,
 } from '@rocicorp/zero';
+
 import { assignment } from './schemas/assignment.js';
 import { receiptLineItem } from './schemas/receipt-line-item.js';
 import { receiptUser } from './schemas/receipt-user.js';
-import { userReceipt } from './schemas/user-receipt.js';
 import { user } from './schemas/user.js';
+import { userReceipt } from './schemas/user-receipt.js';
 
 // Define relationships after all tables are imported to avoid circular dependencies
 const userRelationships = relationships(user, ({ many }) => ({

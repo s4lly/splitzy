@@ -1,0 +1,12 @@
+{
+  "name": "brits-and-pieces",
+  "private": true,
+  "scripts": {
+    "format": "npm run format --prefix frontend && npm run format --prefix zero-query",
+    "format:fix": "npm run format:fix --prefix frontend && npm run format:fix --prefix zero-query",
+    "lint": "npm run lint --prefix frontend && npm run lint --prefix zero-query",
+    "lint:fix": "npm run lint:fix --prefix frontend && npm run lint:fix --prefix zero-query",
+    "type-check": "npm run type-check --prefix frontend && npm run type-check --prefix zero-query",
+    "check": "npm run check --prefix frontend && npm run check --prefix zero-query"
+  }
+}

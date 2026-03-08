@@ -34,6 +34,7 @@ export const LineItemSchema = z.object({
   quantity: z.number(),
   total_price: z.number(),
 });
+export type LineItem = z.infer<typeof LineItemSchema>;
 
 export const ReceiptDataSchema = z.object({
   date: z.string().nullable(),
@@ -66,6 +67,7 @@ export const ReceiptResponseSchema = z.object({
   receipt: ReceiptSchema,
   success: z.boolean(),
 });
+export type ReceiptResponse = z.infer<typeof ReceiptResponseSchema>;
 
 // Schema for receipt items in the history list endpoint
 export const ReceiptHistoryItemAPISchema = z.object({
@@ -79,3 +81,51 @@ export const UserReceiptsResponseSchema = z.object({
   success: z.boolean(),
   receipts: z.array(ReceiptHistoryItemAPISchema),
 });
+
+// ---------------------------------------------------------------------------
+// Request payload schemas (for API mutation calls)
+// ---------------------------------------------------------------------------
+
+/** Refinement: at least one property must be present (not undefined). Matches backend "if not data" rejection. */
+const atLeastOneField = <T extends Record<string, unknown>>(obj: T) =>
+  Object.values(obj).some((v) => v !== undefined);
+
+const atLeastOneFieldMessage = 'At least one field must be provided for update';
+
+/** Payload for POST /user/receipts/:id/line-items (add line item). Matches backend LineItem. */
+export const LineItemPayloadSchema = z.object({
+  name: z.string(),
+  quantity: z.number().default(1),
+  price_per_item: z.number().default(0),
+  total_price: z.number().default(0),
+  assignments: z.array(z.string()).default([]),
+});
+export type LineItemPayload = z.infer<typeof LineItemPayloadSchema>;
+
+/**
+ * Payload for PUT /user/receipts/:id/line-items/:itemId (update line item).
+ * Backend allowlist: name, quantity, price_per_item, total_price, assignments.
+ * Empty objects are rejected at runtime via refinement; for compile-time "at least one key"
+ * you could use ts-essentials' RequireAtLeastOne<UpdateLineItemPayload, keyof UpdateLineItemPayload>.
+ */
+export const UpdateLineItemPayloadSchema = z
+  .object({
+    name: z.string().optional(),
+    quantity: z.number().optional(),
+    price_per_item: z.number().optional(),
+    total_price: z.number().optional(),
+    assignments: z.array(z.string()).optional(),
+  })
+  .refine(atLeastOneField, { message: atLeastOneFieldMessage });
+export type UpdateLineItemPayload = z.infer<typeof UpdateLineItemPayloadSchema>;
+
+/**
+ * Payload for PUT /user/receipts/:id/receipt-data (update receipt data). Excludes line_items, id, user_id, created_at.
+ * Empty objects are rejected at runtime via refinement; for compile-time enforcement, ts-essentials RequireAtLeastOne could be used.
+ */
+export const UpdateReceiptPayloadSchema = ReceiptDataSchema.omit({
+  line_items: true,
+})
+  .partial()
+  .refine(atLeastOneField, { message: atLeastOneFieldMessage });
+export type UpdateReceiptPayload = z.infer<typeof UpdateReceiptPayloadSchema>;

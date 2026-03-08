@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { produce } from 'immer';
 import { z } from 'zod';
 
 import { ReceiptResponseSchema } from '@/lib/receiptSchemas';
@@ -42,25 +43,21 @@ export function useItemAssignmentsUpdateMutation() {
         (old: z.infer<typeof ReceiptResponseSchema>) => {
           if (!old) return old;
 
-          const newLineItems = old.receipt.receipt_data.line_items.map(
-            (item) => {
-              if (item.id === lineItemId) {
-                return { ...item, assignments };
-              }
-              return item;
-            }
-          );
+          return produce(old, (draft) => {
+            const lineItem = draft.receipt.receipt_data.line_items.find(
+              (item) => item.id === lineItemId
+            );
+            if (!lineItem) return;
 
-          return {
-            ...old,
-            receipt: {
-              ...old.receipt,
-              receipt_data: {
-                ...old.receipt.receipt_data,
-                line_items: newLineItems,
-              },
-            },
-          };
+            lineItem.assignments = assignments.map((receipt_user_id, idx) => ({
+              id: `opt-${lineItemId}-${receipt_user_id}-${idx}`,
+              receipt_user_id,
+              receipt_line_item_id: lineItemId,
+              created_at: new Date().toISOString(),
+              deleted_at: null,
+              receipt_user: null,
+            }));
+          });
         }
       );
 

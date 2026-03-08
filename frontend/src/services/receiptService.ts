@@ -1,77 +1,18 @@
 import axios from 'axios';
 
 import {
+  type LineItem,
+  type LineItemPayload,
   ReceiptResponseSchema,
+  type UpdateLineItemPayload,
+  UpdateLineItemPayloadSchema,
+  type UpdateReceiptPayload,
+  UpdateReceiptPayloadSchema,
   UserReceiptsResponseSchema,
 } from '@/lib/receiptSchemas';
 
 const API_URL =
   import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
-// Local storage key for mock receipt history
-const MOCK_RECEIPTS_KEY = 'mock_receipt_history';
-
-// Helper to get mock receipts from localStorage
-const getMockReceipts = () => {
-  const storedReceipts = localStorage.getItem(MOCK_RECEIPTS_KEY);
-  if (storedReceipts) {
-    return JSON.parse(storedReceipts);
-  }
-  return [
-    {
-      id: 1,
-      receipt_data: {
-        merchant: 'Whole Foods Market',
-        date: '2023-06-15',
-        total: 78.95,
-        subtotal: 73.95,
-        tax: 5.0,
-        items: [
-          {
-            name: 'Organic Bananas',
-            quantity: 1,
-            unit_price: 3.99,
-            price: 3.99,
-          },
-          {
-            name: 'Cage-Free Eggs',
-            quantity: 1,
-            unit_price: 4.99,
-            price: 4.99,
-          },
-          { name: 'Almond Milk', quantity: 2, unit_price: 3.49, price: 6.98 },
-        ],
-      },
-      created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
-    },
-    {
-      id: 2,
-      receipt_data: {
-        merchant: 'Target',
-        date: '2023-06-10',
-        total: 124.56,
-        subtotal: 115.3,
-        tax: 9.26,
-        items: [
-          { name: 'T-Shirt', quantity: 2, unit_price: 19.99, price: 39.98 },
-          {
-            name: 'Cleaning Supplies',
-            quantity: 1,
-            unit_price: 12.99,
-            price: 12.99,
-          },
-          { name: 'Snacks', quantity: 1, unit_price: 15.75, price: 15.75 },
-        ],
-      },
-      created_at: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(), // 9 days ago
-    },
-  ];
-};
-
-// Helper to save mock receipts to localStorage
-const saveMockReceipts = (receipts) => {
-  localStorage.setItem(MOCK_RECEIPTS_KEY, JSON.stringify(receipts));
-};
 
 /**
  * Service for interacting with the document analysis API
@@ -118,43 +59,18 @@ const receiptService = {
    */
   getUserReceiptHistory: async (options?: { token?: string }) => {
     try {
-      // Try to fetch from the server first
-      try {
-        // Only include Authorization header when token is present
-        const headers: Record<string, string> = options?.token
-          ? { Authorization: `Bearer ${options.token}` }
-          : {};
-
-        const response = await axios.get(`${API_URL}/user/receipts`, {
-          headers,
-        });
-
-        // Zod validation
-        const parsed = UserReceiptsResponseSchema.safeParse(response.data);
-
-        if (!parsed.success) {
-          console.error('Invalid receipt history response:', parsed.error);
-          throw new Error('Invalid receipt history response from server');
-        }
-
-        return parsed.data;
-      } catch (serverError) {
-        // If it's a validation error, re-throw it
-        if (
-          serverError instanceof Error &&
-          serverError.message.includes('Invalid')
-        ) {
-          throw serverError;
-        }
-        console.log('Server endpoint not available, using mock data');
-
-        // If server endpoint is not available, return mock data
-        // Note: Mock data should also be validated, but for now we'll return as-is
-        return {
-          success: true,
-          receipts: getMockReceipts(),
-        };
+      const headers: Record<string, string> = options?.token
+        ? { Authorization: `Bearer ${options.token}` }
+        : {};
+      const response = await axios.get(`${API_URL}/user/receipts`, {
+        headers,
+      });
+      const parsed = UserReceiptsResponseSchema.safeParse(response.data);
+      if (!parsed.success) {
+        console.error('Invalid receipt history response:', parsed.error);
+        throw new Error('Invalid receipt history response from server');
       }
+      return parsed.data;
     } catch (error) {
       console.error('Error fetching receipt history:', error);
       throw error;
@@ -166,29 +82,12 @@ const receiptService = {
    * @param {number} receiptId - The ID of the receipt to delete
    * @returns {Promise} - A promise that resolves when the receipt is deleted
    */
-  deleteReceipt: async (receiptId) => {
+  deleteReceipt: async (receiptId: number | string) => {
     try {
-      // Try server endpoint first
-      try {
-        const response = await axios.delete(
-          `${API_URL}/user/receipts/${receiptId}`
-        );
-        return response.data;
-      } catch (serverError) {
-        console.log('Server endpoint not available, using mock data');
-
-        // If server endpoint is not available, delete from local storage
-        const mockReceipts = getMockReceipts();
-        const updatedReceipts = mockReceipts.filter(
-          (receipt) => receipt.id !== receiptId
-        );
-        saveMockReceipts(updatedReceipts);
-
-        return {
-          success: true,
-          message: 'Receipt deleted successfully',
-        };
-      }
+      const response = await axios.delete(
+        `${API_URL}/user/receipts/${Number(receiptId)}`
+      );
+      return response.data;
     } catch (error) {
       console.error('Error deleting receipt:', error);
       throw error;
@@ -200,36 +99,17 @@ const receiptService = {
    * @param {number} receiptId - The ID of the receipt to fetch
    * @returns {Promise} - A promise that resolves to the receipt data
    */
-  getSingleReceipt: async (receiptId) => {
+  getSingleReceipt: async (receiptId: number | string) => {
     try {
-      // Try server endpoint first
-      try {
-        const response = await axios.get(
-          `${API_URL}/user/receipts/${receiptId}`
-        );
-        // Zod validation
-        const parsed = ReceiptResponseSchema.safeParse(response.data);
-        if (!parsed.success) {
-          console.error('Invalid receipt response:', parsed.error);
-          throw new Error('Invalid receipt response from server');
-        }
-        return parsed.data;
-      } catch (serverError) {
-        console.log('Server endpoint not available, using mock data');
-
-        // If server endpoint is not available, get from local storage
-        const mockReceipts = getMockReceipts();
-        const receipt = mockReceipts.find((r) => r.id === receiptId);
-
-        if (!receipt) {
-          throw new Error('Receipt not found');
-        }
-
-        return {
-          success: true,
-          receipt: receipt,
-        };
+      const response = await axios.get(
+        `${API_URL}/user/receipts/${Number(receiptId)}`
+      );
+      const parsed = ReceiptResponseSchema.safeParse(response.data);
+      if (!parsed.success) {
+        console.error('Invalid receipt response:', parsed.error);
+        throw new Error('Invalid receipt response from server');
       }
+      return parsed.data;
     } catch (error) {
       console.error('Error fetching receipt:', error);
       throw error;
@@ -242,11 +122,11 @@ const receiptService = {
    * @returns {Promise<string|null>} - A promise that resolves to the image URL or null if not found
    * @deprecated - use image_path from receipt data instead
    */
-  getReceiptImage: async (receiptId) => {
+  getReceiptImage: async (receiptId: number | string) => {
     try {
       // Try to get the image from the backend API
       const response = await axios.get(
-        `${API_URL}/user/receipts/${receiptId}/image`
+        `${API_URL}/user/receipts/${Number(receiptId)}/image`
       );
 
       // Check if the response contains a blob URL
@@ -261,9 +141,9 @@ const receiptService = {
       }
 
       return null;
-    } catch (error) {
+    } catch (error: unknown) {
       // Check if this is a 404 error
-      if (error.response && error.response.status === 404) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
         console.log(
           `Image endpoint not implemented on backend yet or no image for receipt ID ${receiptId}`
         );
@@ -295,9 +175,13 @@ const receiptService = {
    * @param {string[]} assignments - The new assignments for the line item
    * @returns {Promise} - A promise that resolves to the updated receipt data
    */
-  updateAssignments: async (receiptId, lineItemId, assignments) => {
+  updateAssignments: async (
+    receiptId: number | string,
+    lineItemId: string,
+    assignments: string[]
+  ) => {
     const response = await axios.put(
-      `${API_URL}/user/receipts/${receiptId}/assignments`,
+      `${API_URL}/user/receipts/${Number(receiptId)}/assignments`,
       { line_item_id: lineItemId, assignments: assignments }
     );
     return response.data;
@@ -310,10 +194,21 @@ const receiptService = {
    * @param {Object} updateObj - The object containing the updates to make
    * @returns {Promise} - A promise that resolves to the updated receipt data
    */
-  updateLineItem: async (receiptId, itemId, updateObj) => {
-    const response = await axios.put(
-      `${API_URL}/user/receipts/${receiptId}/line-items/${itemId}`,
-      updateObj
+  updateLineItem: async (
+    receiptId: number | string,
+    itemId: number | string,
+    updateObj: UpdateLineItemPayload
+  ) => {
+    const parsed = UpdateLineItemPayloadSchema.safeParse(updateObj);
+    if (!parsed.success) {
+      throw new Error(
+        parsed.error.issues.map((e) => e.message).join('; ') ||
+          'Invalid update payload'
+      );
+    }
+    const response = await axios.put<{ success: boolean }>(
+      `${API_URL}/user/receipts/${Number(receiptId)}/line-items/${itemId}`,
+      parsed.data
     );
     return response.data;
   },
@@ -324,9 +219,12 @@ const receiptService = {
    * @param {number} itemId - The ID of the line item to delete
    * @returns {Promise} - A promise that resolves when the line item is deleted
    */
-  deleteLineItem: async (receiptId, itemId) => {
+  deleteLineItem: async (
+    receiptId: number | string,
+    itemId: number | string
+  ) => {
     const response = await axios.delete(
-      `${API_URL}/user/receipts/${receiptId}/line-items/${itemId}`
+      `${API_URL}/user/receipts/${Number(receiptId)}/line-items/${itemId}`
     );
     return response.data;
   },
@@ -337,9 +235,15 @@ const receiptService = {
    * @param {Object} lineItemData - The line item data to add
    * @returns {Promise} - A promise that resolves to the added line item
    */
-  addLineItem: async (receiptId, lineItemData) => {
-    const response = await axios.post(
-      `${API_URL}/user/receipts/${receiptId}/line-items`,
+  addLineItem: async (
+    receiptId: number | string,
+    lineItemData: LineItemPayload
+  ) => {
+    const response = await axios.post<{
+      success: boolean;
+      line_item: LineItem;
+    }>(
+      `${API_URL}/user/receipts/${Number(receiptId)}/line-items`,
       lineItemData
     );
     return response.data;
@@ -351,10 +255,20 @@ const receiptService = {
    * @param {Object} updateObj - The object containing the updates to make
    * @returns {Promise} - A promise that resolves to the updated receipt data
    */
-  updateReceiptData: async (receiptId, updateObj) => {
-    const response = await axios.put(
-      `${API_URL}/user/receipts/${receiptId}/receipt-data`,
-      updateObj
+  updateReceiptData: async (
+    receiptId: number | string,
+    updateObj: UpdateReceiptPayload
+  ) => {
+    const parsed = UpdateReceiptPayloadSchema.safeParse(updateObj);
+    if (!parsed.success) {
+      throw new Error(
+        parsed.error.issues.map((e) => e.message).join('; ') ||
+          'Invalid update payload'
+      );
+    }
+    const response = await axios.put<{ success: boolean }>(
+      `${API_URL}/user/receipts/${Number(receiptId)}/receipt-data`,
+      parsed.data
     );
     return response.data;
   },

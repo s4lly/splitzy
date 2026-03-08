@@ -1,0 +1,69 @@
+name: Static Analysis
+
+on:
+  pull_request:
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      zero-query: ${{ steps.filter.outputs.zero-query }}
+      tooling: ${{ steps.filter.outputs.tooling }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+            zero-query:
+              - 'zero-query/**'
+            tooling:
+              - 'package.json'
+              - 'package-lock.json'
+              - '.nvmrc'
+
+  static-analysis-frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.tooling == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        script: [lint, format, type-check]
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run ${{ matrix.script }}
+
+  static-analysis-zero-query:
+    needs: changes
+    if: needs.changes.outputs.zero-query == 'true' || needs.changes.outputs.tooling == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        script: [lint, format, type-check]
+    defaults:
+      run:
+        working-directory: zero-query
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19'
+          cache: 'npm'
+          cache-dependency-path: zero-query/package-lock.json
+      - run: npm ci
+      - run: npm run ${{ matrix.script }}

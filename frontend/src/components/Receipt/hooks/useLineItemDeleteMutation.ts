@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { produce } from 'immer';
 import { z } from 'zod';
 
 import { ReceiptResponseSchema } from '@/lib/receiptSchemas';
@@ -32,20 +33,13 @@ export function useLineItemDeleteMutation() {
         queryClient.setQueryData(
           ['receipt', receiptId],
           (old: z.infer<typeof ReceiptResponseSchema>) => {
-            // Create a completely new object to ensure TanStack Query detects the change
-            const newData = {
-              ...old,
-              receipt: {
-                ...old.receipt,
-                receipt_data: {
-                  ...old.receipt.receipt_data,
-                  line_items: old.receipt.receipt_data.line_items.filter(
-                    (item) => item.id !== itemId
-                  ),
-                },
-              },
-            };
-            return newData;
+            if (!old) return old;
+            return produce(old, (draft) => {
+              draft.receipt.receipt_data.line_items =
+                draft.receipt.receipt_data.line_items.filter(
+                  (item) => item.id !== itemId
+                );
+            });
           }
         );
       } catch (error) {
@@ -67,20 +61,12 @@ export function useLineItemDeleteMutation() {
         ['receipt', variables.receiptId],
         (old: z.infer<typeof ReceiptResponseSchema>) => {
           if (!old) return old;
-          // Create a completely new object to ensure TanStack Query detects the change
-          const newData = {
-            ...old,
-            receipt: {
-              ...old.receipt,
-              receipt_data: {
-                ...old.receipt.receipt_data,
-                line_items: old.receipt.receipt_data.line_items.filter(
-                  (item) => item.id !== variables.itemId
-                ),
-              },
-            },
-          };
-          return newData;
+          return produce(old, (draft) => {
+            draft.receipt.receipt_data.line_items =
+              draft.receipt.receipt_data.line_items.filter(
+                (item) => item.id !== variables.itemId
+              );
+          });
         }
       );
     },

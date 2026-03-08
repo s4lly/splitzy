@@ -19,6 +19,7 @@ type FlagValue = {
 interface FeatureFlags {
   'edit-line-items': FlagValue;
   'assignments-add-all': FlagValue;
+  'receipt-desktop-table': FlagValue;
 }
 
 // Define actions
@@ -86,6 +87,7 @@ async function clearFlagsFromDB() {
 const initialFlags: FeatureFlags = {
   'edit-line-items': { location: 'unset', value: false },
   'assignments-add-all': { location: 'unset', value: false },
+  'receipt-desktop-table': { location: 'unset', value: false },
 };
 
 // Reducer

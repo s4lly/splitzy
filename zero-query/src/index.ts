@@ -1,9 +1,9 @@
 import { createClerkClient } from '@clerk/backend';
 import { serve } from '@hono/node-server';
-import { Hono } from 'hono';
-
 import { mustGetMutator, mustGetQuery } from '@rocicorp/zero';
 import { handleMutateRequest, handleQueryRequest } from '@rocicorp/zero/server';
+import { Hono } from 'hono';
+
 import { dbProvider } from './db-provider.js';
 import { mutators } from './mutators.js';
 import { queries } from './queries.js';
