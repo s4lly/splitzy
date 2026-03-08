@@ -36,15 +36,15 @@ export const PreviewImage = ({ preview, onClear }: PreviewImageProps) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="flex flex-col items-center gap-2"
+          className="flex flex-col items-center gap-2.5"
         >
-          <Upload className="h-12 w-12 text-muted-foreground" />
+          <Upload className="h-8 w-8 text-muted-foreground/50" />
           <div>
-            <p className="text-base font-medium">
-              Drag and drop your document here
+            <p className="text-sm font-medium text-foreground">
+              Tap to upload a receipt
             </p>
-            <p className="text-sm text-muted-foreground">
-              or click to select a file
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              or drag & drop · JPEG, PNG
             </p>
           </div>
         </motion.div>

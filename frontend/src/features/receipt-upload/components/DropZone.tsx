@@ -20,10 +20,10 @@ export const DropZone = ({ onDrop, children }: DropZoneProps) => {
   return (
     <div
       {...getRootProps()}
-      className={`cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+      className={`cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
         isDragActive
-          ? 'border-primary bg-primary/5'
-          : 'border-border hover:border-primary/50'
+          ? 'border-primary/50 bg-primary/5'
+          : 'border-border/60 bg-accent/25 hover:border-primary/30 hover:bg-accent/40'
       }`}
     >
       <input {...getInputProps()} />
