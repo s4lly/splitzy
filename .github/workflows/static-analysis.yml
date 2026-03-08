@@ -11,6 +11,7 @@ jobs:
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       zero-query: ${{ steps.filter.outputs.zero-query }}
+      tooling: ${{ steps.filter.outputs.tooling }}
     steps:
       - uses: dorny/paths-filter@v3
         id: filter
@@ -20,10 +21,14 @@ jobs:
               - 'frontend/**'
             zero-query:
               - 'zero-query/**'
+            tooling:
+              - 'package.json'
+              - 'package-lock.json'
+              - '.nvmrc'
 
   static-analysis-frontend:
     needs: changes
-    if: needs.changes.outputs.frontend == 'true'
+    if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.tooling == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -44,7 +49,7 @@ jobs:
 
   static-analysis-zero-query:
     needs: changes
-    if: needs.changes.outputs.zero-query == 'true'
+    if: needs.changes.outputs.zero-query == 'true' || needs.changes.outputs.tooling == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
