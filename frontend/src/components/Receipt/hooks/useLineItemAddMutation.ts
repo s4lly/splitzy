@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { produce } from 'immer';
 
 import {
   type LineItem,
@@ -63,28 +64,26 @@ export function useLineItemAddMutation() {
           (old: ReceiptResponse) => {
             if (!old) return old;
 
-            // Create a completely new object to ensure TanStack Query detects the change
-            const newData = {
-              ...old,
-              receipt: {
-                ...old.receipt,
-                receipt_data: {
-                  ...old.receipt.receipt_data,
-                  line_items: [
-                    {
-                      id: `temp-${Date.now()}`, // Temporary ID for optimistic update
-                      name: payload.name,
-                      quantity: payload.quantity,
-                      price_per_item: payload.price_per_item,
-                      total_price: payload.total_price,
-                      assignments: payload.assignments,
-                    },
-                    ...old.receipt.receipt_data.line_items,
-                  ],
-                },
-              },
-            };
-            return newData;
+            const tempId = `temp-${Date.now()}`;
+            return produce(old, (draft) => {
+              draft.receipt.receipt_data.line_items.unshift({
+                id: tempId,
+                name: payload.name,
+                quantity: payload.quantity,
+                price_per_item: payload.price_per_item,
+                total_price: payload.total_price,
+                assignments: payload.assignments.map(
+                  (receipt_user_id, idx): LineItem['assignments'][number] => ({
+                    id: `opt-${tempId}-${receipt_user_id}-${idx}`,
+                    receipt_user_id,
+                    receipt_line_item_id: tempId,
+                    created_at: new Date().toISOString(),
+                    deleted_at: null,
+                    receipt_user: null,
+                  })
+                ),
+              });
+            });
           }
         );
       } catch (error) {
@@ -107,23 +106,12 @@ export function useLineItemAddMutation() {
         (old: ReceiptResponse) => {
           if (!old) return old;
 
-          // Create a completely new object to ensure TanStack Query detects the change
-          const newData = {
-            ...old,
-            receipt: {
-              ...old.receipt,
-              receipt_data: {
-                ...old.receipt.receipt_data,
-                line_items: [
-                  data.line_item, // Use the actual line item from the response
-                  ...old.receipt.receipt_data.line_items.filter(
-                    (li: LineItem) => !li.id.startsWith('temp-') // Remove temporary items
-                  ),
-                ],
-              },
-            },
-          };
-          return newData;
+          return produce(old, (draft) => {
+            const withoutTemps = draft.receipt.receipt_data.line_items.filter(
+              (li: LineItem) => !li.id.startsWith('temp-')
+            );
+            draft.receipt.receipt_data.line_items = [data.line_item, ...withoutTemps];
+          });
         }
       );
     },

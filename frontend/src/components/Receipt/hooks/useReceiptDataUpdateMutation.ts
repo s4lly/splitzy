@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { produce } from 'immer';
 
 import {
   type ReceiptResponse,
@@ -32,19 +33,9 @@ export function useReceiptDataUpdateMutation() {
           (old: ReceiptResponse | undefined) => {
             if (!old) return old;
 
-            // Create a new immutable object structure
-            const newData = {
-              ...old,
-              receipt: {
-                ...old.receipt,
-                receipt_data: {
-                  ...old.receipt.receipt_data,
-                  ...rest,
-                },
-              },
-            };
-
-            return newData;
+            return produce(old, (draft) => {
+              Object.assign(draft.receipt.receipt_data, rest);
+            });
           }
         );
       } catch (error) {
