@@ -5,7 +5,9 @@ import {
   type LineItemPayload,
   ReceiptResponseSchema,
   type UpdateLineItemPayload,
+  UpdateLineItemPayloadSchema,
   type UpdateReceiptPayload,
+  UpdateReceiptPayloadSchema,
   UserReceiptsResponseSchema,
 } from '@/lib/receiptSchemas';
 
@@ -197,9 +199,16 @@ const receiptService = {
     itemId: number | string,
     updateObj: UpdateLineItemPayload
   ) => {
+    const parsed = UpdateLineItemPayloadSchema.safeParse(updateObj);
+    if (!parsed.success) {
+      throw new Error(
+        parsed.error.issues.map((e) => e.message).join('; ') ||
+          'Invalid update payload'
+      );
+    }
     const response = await axios.put<{ success: boolean }>(
       `${API_URL}/user/receipts/${Number(receiptId)}/line-items/${itemId}`,
-      updateObj
+      parsed.data
     );
     return response.data;
   },
@@ -250,9 +259,16 @@ const receiptService = {
     receiptId: number | string,
     updateObj: UpdateReceiptPayload
   ) => {
+    const parsed = UpdateReceiptPayloadSchema.safeParse(updateObj);
+    if (!parsed.success) {
+      throw new Error(
+        parsed.error.issues.map((e) => e.message).join('; ') ||
+          'Invalid update payload'
+      );
+    }
     const response = await axios.put<{ success: boolean }>(
       `${API_URL}/user/receipts/${Number(receiptId)}/receipt-data`,
-      updateObj
+      parsed.data
     );
     return response.data;
   },
