@@ -60,26 +60,6 @@ def get_metadata():
     return target_db.metadata
 
 
-def include_object(object, name, type_, reflected, compare_to):
-    """
-    Filter objects during autogenerate to exclude specific columns/tables.
-
-    TEMPORARY: This function currently ignores the 'assignments' column on
-    'receipt_line_items' table to prevent Alembic from dropping it during
-    autogenerate. The column exists in the database but is not defined in
-    the ReceiptLineItem model because we're using a relationship with the
-    same name instead.
-
-    TODO: Once you're ready to drop the old 'assignments' column from the
-    database, remove the check below and create a migration to drop it.
-    """
-    # Ignore the 'assignments' column on receipt_line_items table
-    if type_ == "column" and name == "assignments":
-        if hasattr(object, "table") and object.table.name == "receipt_line_items":
-            return False
-    return True
-
-
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -97,7 +77,6 @@ def run_migrations_offline():
         url=url,
         target_metadata=get_metadata(),
         literal_binds=True,
-        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -132,7 +111,6 @@ def run_migrations_online():
         context.configure(
             connection=connection,
             target_metadata=get_metadata(),
-            include_object=include_object,
             **conf_args,
         )
 
