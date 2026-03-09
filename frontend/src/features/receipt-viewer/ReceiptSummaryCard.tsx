@@ -157,6 +157,8 @@ export const ReceiptSummaryCard = () => {
           <TipEditor
             receiptTip={receipt.tip ?? new Decimal(0)}
             itemsTotal={itemsTotal}
+            receiptTax={receipt.tax ?? new Decimal(0)}
+            tipAfterTax={receipt.tipAfterTax ?? false}
             receiptId={receipt.id}
           />
 

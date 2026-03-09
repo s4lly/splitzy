@@ -34,6 +34,7 @@ export const userReceipt = table('user_receipts')
     total: number().optional(),
     payment_method: string().optional(),
     tax_included_in_items: boolean().optional(),
+    tip_after_tax: boolean().optional(),
     display_subtotal: number().optional(),
     items_total: number().optional(),
     pretax_total: number().optional(),

@@ -34,6 +34,7 @@ import type { ReceiptLineItem } from './ReceiptLineItem';
  *   finalTotal: new Decimal(59.50),
  *   isReceipt: true,
  *   taxIncludedInItems: false,
+ *   tipAfterTax: false,
  *   lineItems: []
  * };
  * ```
@@ -102,6 +103,9 @@ export interface Receipt {
 
   /** Whether tax is already included in the individual line item prices */
   readonly taxIncludedInItems: boolean;
+
+  /** Whether tip percentage buttons should calculate based on post-tax amount */
+  readonly tipAfterTax: boolean;
 
   // Line items
   /** Array of line items that make up this receipt */
