@@ -36,12 +36,12 @@ timeout /t 2 /nobreak > nul
 cd ..\frontend
 if not exist node_modules (
     echo Installing frontend dependencies...
-    call npm install
+    call pnpm install
 )
 
 :: Start frontend in a new window
 echo Starting React frontend...
-start cmd /k "npm run dev"
+start cmd /k "pnpm run dev"
 
 echo.
 echo Both servers are running.

@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "type-check": "tsc --noEmit",
-    "check": "npm run lint && npm run format && npm run type-check"
+    "check": "pnpm run lint && pnpm run format && pnpm run type-check"
   },
   "dependencies": {
     "@clerk/backend": "^2.29.2",
@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
+    "@types/pg": "^8.18.0",
     "eslint": "^10.0.1",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "prettier": "^3.8.1",

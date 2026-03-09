@@ -48,12 +48,12 @@ sleep 2
 cd "$REPO_ROOT/frontend" || exit
 if [ ! -d "node_modules" ]; then
     echo -e "${BLUE}Installing frontend dependencies...${NC}"
-    npm install
+    pnpm install
 fi
 
 # Start frontend
 echo -e "${GREEN}Starting React frontend...${NC}"
-npm run dev &
+pnpm run dev &
 FRONTEND_PID=$!
 
 # Function to handle script termination

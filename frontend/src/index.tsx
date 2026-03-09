@@ -3,7 +3,7 @@ import '@/index.css';
 import { ClerkProvider } from '@clerk/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { PostHog, PostHogConfig } from 'posthog-js';
+import type { PostHogConfig, PostHogInterface } from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -36,7 +36,7 @@ if (!POSTHOG_PROJECT_API_KEY) {
 
 const options: Partial<PostHogConfig> = {
   api_host: POSTHOG_HOST,
-  loaded: (posthog: PostHog) => {
+  loaded: (posthog: PostHogInterface) => {
     if (isLocalDevelopment()) {
       posthog.setPersonProperties({ environment: 'development' });
     }

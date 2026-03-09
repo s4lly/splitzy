@@ -232,28 +232,23 @@ This works for any service: `db-splitzy-local`, `zero-query-local`, or `zero-cac
 
 ### Frontend Setup
 
-1. Navigate to the frontend directory:
+1. Install Node.js dependencies from the repository root:
+
+   ```bash
+   pnpm install
+   ```
+
+2. Set up environment variables:
 
    ```bash
    cd frontend
-   ```
-
-2. Install Node.js dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Set up environment variables:
-
-   ```bash
    cp .env.example .env
    # Edit .env with your actual values
    ```
 
-4. Start the development server:
+3. Start the development server (from repo root):
    ```bash
-   npm run dev
+   pnpm --filter frontend run dev
    ```
    The frontend will start at http://localhost:5173
 
@@ -275,8 +270,7 @@ This works for any service: `db-splitzy-local`, `zero-query-local`, or `zero-cac
 pytest
 
 # Frontend tests
-cd frontend
-npm test
+pnpm --filter frontend run test
 ```
 
 ## License

@@ -1,6 +1,6 @@
 ```
-npm install
-npm run dev
+pnpm install
+pnpm --filter zero-query run dev
 ```
 
 ```

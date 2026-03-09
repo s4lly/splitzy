@@ -16,15 +16,15 @@ This is the React frontend for the Receipt Splitting App, built with React Spect
 ### Prerequisites
 
 - Node.js 18+
-- npm or yarn
+- pnpm
 - Receipt Analysis API backend running
 
 ### Installation
 
 1. Clone this repository
-2. Install dependencies:
+2. Install dependencies from the repository root:
    ```bash
-   npm install
+   pnpm install
    ```
 3. Create a `.env` file in `frontend`:
    ```
@@ -36,7 +36,7 @@ This is the React frontend for the Receipt Splitting App, built with React Spect
 Start the development server:
 
 ```bash
-npm run dev
+pnpm --filter frontend run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) to view it in your browser.
@@ -44,13 +44,13 @@ Open [http://localhost:5173](http://localhost:5173) to view it in your browser.
 ### Building for Production
 
 ```bash
-npm run build
+pnpm --filter frontend run build
 ```
 
 ### Preview Production Build
 
 ```bash
-npm run preview
+pnpm --filter frontend run preview
 ```
 
 ### Running Tests
@@ -59,11 +59,11 @@ This project uses [Vitest](https://vitest.dev/) and [Testing Library](https://te
 
 - Run all tests:
   ```bash
-  npm test
+  pnpm --filter frontend run test
   ```
 - Run tests in interactive UI mode:
   ```bash
-  npm run test:ui
+  pnpm --filter frontend run test:ui
   ```
 
 ### Project Structure
