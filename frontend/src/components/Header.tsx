@@ -7,6 +7,7 @@ import {
 import { Receipt } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function Header() {
@@ -43,8 +44,9 @@ export default function Header() {
             </UserButton>
           </SignedIn>
 
-          {/* ---- Theme Toggle ---- */}
+          {/* ---- Language & Theme ---- */}
 
+          <LanguageSwitcher />
           <ThemeToggle />
         </div>
       </nav>

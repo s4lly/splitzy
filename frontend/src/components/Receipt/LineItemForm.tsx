@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
@@ -40,6 +41,7 @@ export default function LineItemForm({
     truncateToTwoDecimals(item.pricePerItem)
   );
   const [isNameFocused, setIsNameFocused] = useState(false);
+  const { t } = useLingui();
 
   const formTotal = Number(formQuantity) * (parseFloat(formPricePerItem) || 0);
 
@@ -116,7 +118,7 @@ export default function LineItemForm({
             onChange={handleNameChange}
             onFocus={() => setIsNameFocused(true)}
             onBlur={() => setIsNameFocused(false)}
-            placeholder="Item name"
+            placeholder={t`Item name`}
             required
           />
         </motion.div>
@@ -151,17 +153,21 @@ export default function LineItemForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Quantity</label>
+        <label className="text-sm font-medium">
+          <Trans>Quantity</Trans>
+        </label>
         <NumericInput
           value={formQuantity}
           onChange={handleNumericQuantityChange}
           min={1}
-          placeholder="Quantity"
+          placeholder={t`Quantity`}
         />
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Unit Price</label>
+        <label className="text-sm font-medium">
+          <Trans>Unit Price</Trans>
+        </label>
         <div className="flex items-center gap-2">
           <span className="select-none pl-2 pr-1 text-lg text-muted-foreground">
             $
@@ -172,7 +178,7 @@ export default function LineItemForm({
             onChange={handlePriceChange}
             onBlur={handlePriceBlur}
             onKeyDown={handlePriceKeyDown}
-            placeholder="Unit price"
+            placeholder={t`Unit price`}
             min={0}
             step="0.01"
             required

@@ -1,4 +1,5 @@
 import { SignedIn, SignedOut } from '@clerk/clerk-react';
+import { Trans } from '@lingui/react/macro';
 import { useQuery } from '@rocicorp/zero/react';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
@@ -29,7 +30,9 @@ const ReceiptsPage = () => {
       <div className="px-1 py-8 sm:container">
         <Card className="p-6">
           <p className="text-destructive">
-            Unable to load receipt history. Please try again later.
+            <Trans>
+              Unable to load receipt history. Please try again later.
+            </Trans>
           </p>
         </Card>
       </div>

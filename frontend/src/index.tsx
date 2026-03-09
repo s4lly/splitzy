@@ -1,6 +1,7 @@
 import '@/index.css';
 
 import { ClerkProvider } from '@clerk/react-router';
+import { I18nProvider } from '@lingui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import type { PostHogConfig, PostHogInterface } from 'posthog-js';
@@ -13,6 +14,7 @@ import App from '@/App';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { FeatureFlagProvider } from '@/context/FeatureFlagProvider';
 import { AuthenticatedZeroProvider } from '@/context/ZeroProvider';
+import { activateLocale, getDefaultLocale, i18n } from '@/i18n';
 import { POSTHOG_HOST } from '@/utils/constants';
 import { isLocalDevelopment } from '@/utils/env';
 
@@ -48,29 +50,37 @@ const queryClient = new QueryClient();
 
 // ----
 
-const container = document.getElementById('root');
-if (!container) {
-  throw new Error('Root container not found');
+async function main() {
+  await activateLocale(getDefaultLocale());
+
+  const container = document.getElementById('root');
+  if (!container) {
+    throw new Error('Root container not found');
+  }
+
+  const root = ReactDOM.createRoot(container);
+  root.render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <I18nProvider i18n={i18n}>
+          <ThemeProvider attribute="class" defaultTheme="system">
+            <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
+              <FeatureFlagProvider>
+                <BrowserRouter>
+                  <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+                    <AuthenticatedZeroProvider>
+                      <App />
+                    </AuthenticatedZeroProvider>
+                  </ClerkProvider>
+                </BrowserRouter>
+              </FeatureFlagProvider>
+            </PostHogProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+          </ThemeProvider>
+        </I18nProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
 }
 
-const root = ReactDOM.createRoot(container);
-root.render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="system">
-        <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
-          <FeatureFlagProvider>
-            <BrowserRouter>
-              <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-                <AuthenticatedZeroProvider>
-                  <App />
-                </AuthenticatedZeroProvider>
-              </ClerkProvider>
-            </BrowserRouter>
-          </FeatureFlagProvider>
-        </PostHogProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </ThemeProvider>
-    </QueryClientProvider>
-  </React.StrictMode>
-);
+main();

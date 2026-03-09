@@ -1,4 +1,5 @@
 import { SignInButton } from '@clerk/clerk-react';
+import { Trans } from '@lingui/react/macro';
 import { LogIn } from 'lucide-react';
 
 import {
@@ -24,10 +25,14 @@ export const SignInPromptCard = ({ className }: SignInPromptCardProps) => {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <LogIn className="h-6 w-6 text-primary" />
           </div>
-          <CardTitle className="text-xl">Sign in to continue</CardTitle>
+          <CardTitle className="text-xl">
+            <Trans>Sign in to continue</Trans>
+          </CardTitle>
           <CardDescription>
-            Create an account or sign in to see your receipt analysis history
-            and manage your documents.
+            <Trans>
+              Create an account or sign in to see your receipt analysis history
+              and manage your documents.
+            </Trans>
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">

@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Plus, X } from 'lucide-react';
 
 import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
@@ -25,16 +26,19 @@ export const PeopleManagerForm = ({
   onAddPerson,
   onRemovePerson,
 }: PeopleManagerFormProps) => {
+  const { t } = useLingui();
   const isMobile = useMobile();
   const chipColors =
     people.length > 0 ? getAvatarChipColors(receiptId, people) : null;
 
   return (
     <div className="mb-4 rounded-lg border bg-muted/20 p-3">
-      <h3 className="mb-2 font-medium">Add People to Split With</h3>
+      <h3 className="mb-2 font-medium">
+        <Trans>Add People to Split With</Trans>
+      </h3>
       <div className="mb-3 flex flex-col gap-2 sm:flex-row">
         <Input
-          placeholder="Enter name"
+          placeholder={t`Enter name`}
           value={newPersonName}
           onChange={(e) => onNewPersonNameChange(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && onAddPerson()}
@@ -42,7 +46,7 @@ export const PeopleManagerForm = ({
         />
         <Button onClick={onAddPerson} size="sm" className="w-full sm:w-auto">
           <Plus className="mr-1 h-4 w-4" />
-          Add
+          <Trans>Add</Trans>
         </Button>
       </div>
 
@@ -73,7 +77,7 @@ export const PeopleManagerForm = ({
         })}
         {people.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            No people added yet. Add people to split the bill.
+            <Trans>No people added yet. Add people to split the bill.</Trans>
           </p>
         )}
       </div>

@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Divide } from 'lucide-react';
 import { useState } from 'react';
 
@@ -14,6 +15,7 @@ interface EvenSplitTabProps {
 }
 
 export const EvenSplitTab = ({ receipt, people }: EvenSplitTabProps) => {
+  const { t } = useLingui();
   const [numberOfPeople, setNumberOfPeople] = useState(
     people.length > 0 ? people.length : 1
   );
@@ -34,7 +36,7 @@ export const EvenSplitTab = ({ receipt, people }: EvenSplitTabProps) => {
         <CardTitle className="flex items-center text-xl font-bold">
           <div className="flex items-center gap-3">
             <Divide className="h-6 w-6" />
-            Split Evenly
+            <Trans>Split Evenly</Trans>
           </div>
         </CardTitle>
       </CardHeader>
@@ -42,33 +44,37 @@ export const EvenSplitTab = ({ receipt, people }: EvenSplitTabProps) => {
       <CardContent className="p-0">
         <div className="flex flex-col gap-2">
           <Label htmlFor="number-of-people">
-            Split between how many people?
+            <Trans>Split between how many people?</Trans>
           </Label>
           <NumericInput
             id="number-of-people"
             value={numberOfPeople}
             onChange={setNumberOfPeople}
             min={1}
-            placeholder="Number of people"
+            placeholder={t`Number of people`}
           />
           <div className="mt-2 flex flex-col gap-2 border-t-2 border-border pt-3">
             <div className="flex items-center justify-between">
-              <span className="text-base font-semibold">Per Person:</span>
+              <span className="text-base font-semibold">
+                <Trans>Per Person:</Trans>
+              </span>
               <span className="text-xl font-bold">
                 {formatCurrency(evenlySplitTotalRounded)}
               </span>
             </div>
             {hasEvenlySplitDifference && (
               <p className="rounded-md bg-muted/30 px-3 py-2 text-center text-sm text-muted-foreground">
-                Note: One person will pay an additional{' '}
-                {formatCurrency(
-                  Math.abs(
-                    calculatedTotal
-                      .minus(evenlySplitTotalRounded.mul(numberOfPeople))
-                      .toNumber()
-                  )
-                )}{' '}
-                to cover the rounding difference
+                <Trans>
+                  Note: One person will pay an additional{' '}
+                  {formatCurrency(
+                    Math.abs(
+                      calculatedTotal
+                        .minus(evenlySplitTotalRounded.mul(numberOfPeople))
+                        .toNumber()
+                    )
+                  )}{' '}
+                  to cover the rounding difference
+                </Trans>
               </p>
             )}
           </div>

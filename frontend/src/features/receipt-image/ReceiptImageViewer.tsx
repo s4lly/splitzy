@@ -1,4 +1,5 @@
 import { useAuth } from '@clerk/clerk-react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { animated, useSpring } from '@react-spring/web';
 import { Download, Image as ImageIcon, Settings, Undo } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -24,6 +25,7 @@ interface ReceiptImageViewerProps {
 }
 
 export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
+  const { t } = useLingui();
   const { ref, style, resetImage } = useImageGestures();
   const [imageError, setImageError] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -54,11 +56,11 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
     if (!imageUrl) return;
     try {
       await downloadImage(imageUrl, fileName);
-      toast.success('Image downloaded successfully');
+      toast.success(t`Image downloaded successfully`);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : 'Failed to download image';
-      toast.error('Download failed', {
+        error instanceof Error ? error.message : t`Failed to download image`;
+      toast.error(t`Download failed`, {
         description: message,
       });
     }
@@ -79,7 +81,7 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
         <CardHeader className="flex flex-row items-center justify-between border-b border-border/50 pb-2">
           <CardTitle className="flex items-center gap-2 font-display text-lg font-semibold">
             <ImageIcon className="h-5 w-5 text-primary" />
-            Receipt Image
+            <Trans>Receipt Image</Trans>
           </CardTitle>
           <div className="flex items-center gap-2">
             {imageUrl && shouldShowImage && (
@@ -90,7 +92,7 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
                 onClick={handleDownloadImage}
               >
                 <Download className="mr-1 h-4 w-4" />
-                Download
+                <Trans>Download</Trans>
               </Button>
             )}
             {isOwner && receiptId && (
@@ -102,13 +104,15 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
                       size="sm"
                       className="h-8 w-8 p-0"
                       onClick={() => setSettingsOpen(true)}
-                      aria-label="Image settings"
+                      aria-label={t`Image settings`}
                     >
                       <Settings className="h-4 w-4" aria-hidden />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Image Settings</p>
+                    <p>
+                      <Trans>Image Settings</Trans>
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -136,7 +140,7 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
                     />
                   </svg>
                   <p className="text-muted-foreground">
-                    Failed to load receipt image
+                    <Trans>Failed to load receipt image</Trans>
                   </p>
                 </div>
               ) : (
@@ -147,7 +151,7 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
                 >
                   <img
                     src={imageUrl}
-                    alt="Receipt"
+                    alt={t`Receipt`}
                     className="mx-auto max-h-[75vh] touch-none object-contain transition-transform duration-100"
                     onError={handleImageError}
                   />
@@ -160,7 +164,7 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
                     size="sm"
                     className="rounded-full opacity-80 shadow-md hover:opacity-100"
                     onClick={resetImage}
-                    aria-label="Reset image zoom"
+                    aria-label={t`Reset image zoom`}
                   >
                     <Undo className="h-4 w-4" aria-hidden />
                   </Button>
@@ -170,20 +174,24 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
           ) : imageUrl && !shouldShowImage ? (
             <div className="flex flex-col items-center justify-center bg-muted/30 px-4 py-16 text-center">
               <ImageIcon className="mb-4 h-16 w-16 text-muted-foreground/40" />
-              <p className="text-muted-foreground">Image hidden by owner</p>
+              <p className="text-muted-foreground">
+                <Trans>Image hidden by owner</Trans>
+              </p>
               <p className="mt-2 text-sm text-muted-foreground/70">
-                The receipt image is only visible to the owner
+                <Trans>The receipt image is only visible to the owner</Trans>
               </p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center bg-muted/30 px-4 py-16 text-center">
               <ImageIcon className="mb-4 h-16 w-16 text-muted-foreground/40" />
               <p className="text-muted-foreground">
-                Receipt image not available
+                <Trans>Receipt image not available</Trans>
               </p>
               <p className="mt-2 text-sm text-muted-foreground/70">
-                The original receipt image might not be stored or is no longer
-                accessible
+                <Trans>
+                  The original receipt image might not be stored or is no longer
+                  accessible
+                </Trans>
               </p>
             </div>
           )}

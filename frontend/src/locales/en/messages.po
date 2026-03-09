@@ -1,0 +1,995 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-03-09 00:32-0700\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:116
+#: src/components/Receipt/LineItemsTableMobile.tsx:139
+#: src/features/bill-split/components/BillBreakdownView.tsx:253
+msgid "(Unnamed item)"
+msgstr "(Unnamed item)"
+
+#. placeholder {0}: personItems.length
+#. placeholder {1}: personItems.length !== 1 ? 'items' : 'item'
+#: src/features/bill-split/components/BillBreakdownView.tsx:201
+msgid "{0} {1} assigned"
+msgstr "{0} {1} assigned"
+
+#. placeholder {0}: calculations.utils.formatPercentage( personFairTotal, receiptTotal )
+#: src/features/bill-split/components/BillBreakdownView.tsx:186
+msgid "{0} of total"
+msgstr "{0} of total"
+
+#. placeholder {0}: person.displayName
+#: src/features/bill-split/components/BillBreakdownView.tsx:216
+msgid "{0}'s Items"
+msgstr "{0}'s Items"
+
+#. placeholder {0}: people.length
+#: src/features/bill-split/components/BillBreakdownView.tsx:151
+msgid "1/{0} of the total"
+msgstr "1/{0} of the total"
+
+#: src/pages/SettingsPage.tsx:194
+msgid "Account Settings"
+msgstr "Account Settings"
+
+#: src/pages/SettingsPage.tsx:202
+msgid "Account settings content would go here."
+msgstr "Account settings content would go here."
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:100
+msgid "Actions"
+msgstr "Actions"
+
+#: src/components/Receipt/LineItemAddForm.tsx:107
+#: src/features/bill-split/components/PeopleManagerForm.tsx:47
+#: src/features/bill-split/components/PeopleManagerFormCollab.tsx:62
+msgid "Add"
+msgstr "Add"
+
+#: src/components/Receipt/ReceiptAnalysisDisplay.tsx:153
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:100
+msgid "Add Item"
+msgstr "Add Item"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:54
+msgid "Add People to Split the Bill"
+msgstr "Add People to Split the Bill"
+
+#: src/features/bill-split/components/PeopleManagerForm.tsx:36
+#: src/features/bill-split/components/PeopleManagerFormCollab.tsx:47
+msgid "Add People to Split With"
+msgstr "Add People to Split With"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:206
+msgid "Add Users"
+msgstr "Add Users"
+
+#: src/features/receipt-viewer/components/TipEditor.tsx:183
+#: src/features/summary-card/TipEditor.tsx:248
+msgid "After tax"
+msgstr "After tax"
+
+#: src/features/bill-split/components/AssignmentProgress.tsx:42
+#: src/features/bill-split/components/AssignmentProgressCollab.tsx:41
+msgid "All items assigned"
+msgstr "All items assigned"
+
+#: src/features/assignments/assignments-list.tsx:382
+msgid "All people assigned."
+msgstr "All people assigned."
+
+#: src/features/receipt-upload/ReceiptUploader.tsx:114
+msgid "Analyze Document"
+msgstr "Analyze Document"
+
+#: src/features/receipt-upload/ReceiptUploader.tsx:109
+msgid "Analyzing…"
+msgstr "Analyzing…"
+
+#: src/pages/SettingsPage.tsx:251
+msgid "Appearance"
+msgstr "Appearance"
+
+#: src/pages/SettingsPage.tsx:259
+msgid "Appearance settings content would go here."
+msgstr "Appearance settings content would go here."
+
+#. placeholder {0}: item.name ?? t`item`
+#: src/components/Receipt/LineItemsTableMobile.tsx:235
+msgid "Assign {0}"
+msgstr "Assign {0}"
+
+#: src/features/assignments/assignments-list.tsx:402
+#: src/features/assignments/assignments-list.tsx:403
+msgid "Assign {displayName}"
+msgstr "Assign {displayName}"
+
+#: src/features/assignments/assignments-list.tsx:369
+msgid "Assign All"
+msgstr "Assign All"
+
+#: src/pages/HomePage.tsx:53
+msgid "Assign items to people, split shared costs, and handle tips. No awkward math."
+msgstr "Assign items to people, split shared costs, and handle tips. No awkward math."
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:98
+msgid "Assigned To"
+msgstr "Assigned To"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:226
+#: src/features/assignments/assignments-header.tsx:18
+msgid "Assigned to:"
+msgstr "Assigned to:"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:201
+msgid "Assigned Users"
+msgstr "Assigned Users"
+
+#: src/features/bill-split/components/AssignmentProgress.tsx:42
+#: src/features/bill-split/components/AssignmentProgressCollab.tsx:41
+msgid "Assignment in progress"
+msgstr "Assignment in progress"
+
+#: src/context/ZeroProvider.tsx:126
+msgid "Authentication Error"
+msgstr "Authentication Error"
+
+#: src/pages/SettingsPage.tsx:82
+msgid "Back to Settings"
+msgstr "Back to Settings"
+
+#: src/features/receipt-viewer/components/TipEditor.tsx:180
+#: src/features/summary-card/TipEditor.tsx:245
+msgid "Before tax"
+msgstr "Before tax"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:83
+msgid "Bill Breakdown"
+msgstr "Bill Breakdown"
+
+#: src/pages/SettingsPage.tsx:270
+msgid "Billing"
+msgstr "Billing"
+
+#: src/pages/SettingsPage.tsx:278
+msgid "Billing settings content would go here."
+msgstr "Billing settings content would go here."
+
+#: src/components/Receipt/LineItemAddForm.tsx:100
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:93
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:229
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:160
+#: src/features/receipt-viewer/components/TipEditor.tsx:242
+#: src/features/summary-card/GratuityEditor.tsx:194
+#: src/features/summary-card/TipEditor.tsx:307
+msgid "Cancel"
+msgstr "Cancel"
+
+#: src/components/Footer.tsx:48
+msgid "checking"
+msgstr "checking"
+
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:100
+msgid "Claim"
+msgstr "Claim"
+
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:80
+msgid "Claim \"{displayName}\" as yourself? This will link this user to your account."
+msgstr "Claim \"{displayName}\" as yourself? This will link this user to your account."
+
+#: src/features/assignments/assignments-list.tsx:237
+#: src/features/assignments/assignments-list.tsx:244
+msgid "Claim {displayName}"
+msgstr "Claim {displayName}"
+
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:78
+#: src/features/assignments/SignInToClaimDialog.tsx:29
+msgid "Claim this person"
+msgstr "Claim this person"
+
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:100
+msgid "Claiming…"
+msgstr "Claiming…"
+
+#: src/features/receipt-upload/components/PreviewImage.tsx:34
+msgid "Clear preview"
+msgstr "Clear preview"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:57
+msgid "Click \"Manage People\" to add friends and assign items to them. Then tag each item with who should pay for it."
+msgstr "Click \"Manage People\" to add friends and assign items to them. Then tag each item with who should pay for it."
+
+#: src/features/assignments/SignInToClaimDialog.tsx:49
+#: src/features/bill-split/components/BillBreakdownView.tsx:348
+msgid "Close"
+msgstr "Close"
+
+#: src/features/assignments/assignments-header.tsx:22
+msgid "Close assignments"
+msgstr "Close assignments"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:265
+msgid "Collapse assignments"
+msgstr "Collapse assignments"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:153
+msgid "Collapse edit"
+msgstr "Collapse edit"
+
+#: src/pages/SettingsPage.tsx:216
+msgid "Control how and when you receive notifications."
+msgstr "Control how and when you receive notifications."
+
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:74
+msgid "Control who can see the receipt image."
+msgstr "Control who can see the receipt image."
+
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:147
+msgid "Could not restore your original claim. Please try claiming again manually."
+msgstr "Could not restore your original claim. Please try claiming again manually."
+
+#: src/features/assignments/assignments-list.tsx:348
+msgid "Create"
+msgstr "Create"
+
+#: src/features/assignments/SignInToClaimDialog.tsx:31
+msgid "Create an account or sign in to claim \"{displayName}\" as yourself. You can then link this receipt user to your account and keep your receipt history in one place."
+msgstr "Create an account or sign in to claim \"{displayName}\" as yourself. You can then link this receipt user to your account and keep your receipt history in one place."
+
+#: src/features/auth/SignInPromptCard.tsx:32
+msgid "Create an account or sign in to see your receipt analysis history and manage your documents."
+msgstr "Create an account or sign in to see your receipt analysis history and manage your documents."
+
+#: src/pages/SettingsPage.tsx:254
+msgid "Customize the look and feel of the application."
+msgstr "Customize the look and feel of the application."
+
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:94
+msgid "Date:"
+msgstr "Date:"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:178
+#: src/components/Receipt/LineItemsTableDesktop.tsx:234
+#: src/components/Receipt/LineItemsTableMobile.tsx:285
+msgid "Delete"
+msgstr "Delete"
+
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:147
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:148
+#: src/features/summary-card/GratuityEditor.tsx:182
+#: src/features/summary-card/GratuityEditor.tsx:183
+msgid "Delete gratuity"
+msgstr "Delete gratuity"
+
+#: src/features/receipt-viewer/components/TipEditor.tsx:230
+#: src/features/summary-card/TipEditor.tsx:296
+msgid "Delete tip"
+msgstr "Delete tip"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:285
+msgid "Deleting..."
+msgstr "Deleting..."
+
+#. placeholder {0}: person.displayName
+#: src/features/bill-split/components/BillBreakdownView.tsx:219
+msgid "Detailed breakdown of items assigned to {0}."
+msgstr "Detailed breakdown of items assigned to {0}."
+
+#: src/components/Receipt/ReceiptAnalysisDisplay.tsx:132
+msgid "Document Analysis"
+msgstr "Document Analysis"
+
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:57
+msgid "Document Details"
+msgstr "Document Details"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:184
+#: src/components/Receipt/LineItemsTableDesktop.tsx:240
+#: src/components/Receipt/LineItemsTableMobile.tsx:288
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:167
+#: src/features/receipt-viewer/components/TipEditor.tsx:249
+#: src/features/summary-card/GratuityEditor.tsx:201
+#: src/features/summary-card/TipEditor.tsx:314
+msgid "Done"
+msgstr "Done"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:95
+msgid "Download"
+msgstr "Download"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:63
+msgid "Download failed"
+msgstr "Download failed"
+
+#: src/features/receipt-upload/components/DropZone.tsx:26
+msgid "Drop files here to upload"
+msgstr "Drop files here to upload"
+
+#. placeholder {0}: item.name ?? t`item`
+#: src/components/Receipt/LineItemsTableDesktop.tsx:155
+#: src/components/Receipt/LineItemsTableMobile.tsx:154
+msgid "Edit {0}"
+msgstr "Edit {0}"
+
+#: src/pages/SettingsPage.tsx:138
+msgid "Enable or disable features in your application."
+msgstr "Enable or disable features in your application."
+
+#: src/features/bill-split/components/PeopleManagerForm.tsx:39
+#: src/features/bill-split/components/PeopleManagerFormCollab.tsx:50
+msgid "Enter name"
+msgstr "Enter name"
+
+#: src/features/assignments/assignments-list.tsx:330
+msgid "Enter name..."
+msgstr "Enter name..."
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:206
+msgid "Equal amount split"
+msgstr "Equal amount split"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:147
+msgid "Equal split"
+msgstr "Equal split"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:339
+msgid "Equal split - no specific items assigned"
+msgstr "Equal split - no specific items assigned"
+
+#: src/features/bill-split/components/EqualSplitBanner.tsx:17
+#: src/features/bill-split/components/EqualSplitBannerCollab.tsx:16
+msgid "Equal Split Mode"
+msgstr "Equal Split Mode"
+
+#: src/features/bill-split/BillSplitSection.tsx:26
+#: src/features/bill-split/BillSplitSectionCollab.tsx:14
+msgid "Evenly"
+msgstr "Evenly"
+
+#: src/pages/HomePage.tsx:58
+msgid "Every split is saved. Review, adjust, or settle up any time."
+msgstr "Every split is saved. Review, adjust, or settle up any time."
+
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:58
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:68
+msgid "Failed to claim person"
+msgstr "Failed to claim person"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:62
+msgid "Failed to download image"
+msgstr "Failed to download image"
+
+#: src/context/ZeroProvider.tsx:130
+msgid "Failed to fetch authentication token. Your requests may not be properly authenticated."
+msgstr "Failed to fetch authentication token. Your requests may not be properly authenticated."
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:141
+msgid "Failed to load receipt image"
+msgstr "Failed to load receipt image"
+
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:115
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:145
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:150
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:168
+msgid "Failed to switch person"
+msgstr "Failed to switch person"
+
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:55
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:62
+msgid "Failed to update image visibility"
+msgstr "Failed to update image visibility"
+
+#: src/pages/SettingsPage.tsx:23
+#: src/pages/SettingsPage.tsx:135
+msgid "Feature Flags"
+msgstr "Feature Flags"
+
+#: src/components/Receipt/SummaryCard.tsx:155
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:181
+msgid "Final Total:"
+msgstr "Final Total:"
+
+#: src/pages/HomePage.tsx:165
+msgid "From receipt to settled,<0/><1>in a few taps.</1>"
+msgstr "From receipt to settled,<0/><1>in a few taps.</1>"
+
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:125
+#: src/features/summary-card/GratuityEditor.tsx:157
+msgid "Gratuity"
+msgstr "Gratuity"
+
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:113
+#: src/features/summary-card/GratuityEditor.tsx:145
+msgid "Gratuity:"
+msgstr "Gratuity:"
+
+#: src/components/Footer.tsx:46
+msgid "healthy"
+msgstr "healthy"
+
+#: src/features/bill-split/components/ManualSplitTab.tsx:63
+#: src/features/bill-split/components/ManualSplitTabCollab.tsx:37
+msgid "Hide"
+msgstr "Hide"
+
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:65
+msgid "Hide QR Code"
+msgstr "Hide QR Code"
+
+#: src/pages/HomePage.tsx:162
+msgid "how it works"
+msgstr "how it works"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:59
+msgid "Image downloaded successfully"
+msgstr "Image downloaded successfully"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:175
+msgid "Image hidden by owner"
+msgstr "Image hidden by owner"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:107
+msgid "Image settings"
+msgstr "Image settings"
+
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:72
+#: src/features/receipt-image/ReceiptImageViewer.tsx:113
+msgid "Image Settings"
+msgstr "Image Settings"
+
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:58
+msgid "Image visibility updated"
+msgstr "Image visibility updated"
+
+#: src/components/Receipt/SummaryCard.tsx:112
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:137
+msgid "Included in prices"
+msgstr "Included in prices"
+
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:45
+msgid "Invalid Date"
+msgstr "Invalid Date"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:138
+#: src/components/Receipt/LineItemsTableDesktop.tsx:155
+#: src/components/Receipt/LineItemsTableMobile.tsx:154
+#: src/components/Receipt/LineItemsTableMobile.tsx:235
+#: src/components/Receipt/LineItemsTableMobile.tsx:236
+msgid "item"
+msgstr "item"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:94
+#: src/features/bill-split/components/BillBreakdownView.tsx:233
+msgid "Item"
+msgstr "Item"
+
+#: src/components/Receipt/LineItemForm.tsx:121
+msgid "Item name"
+msgstr "Item name"
+
+#: src/components/Receipt/ReceiptAnalysisDisplay.tsx:144
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:91
+msgid "Items"
+msgstr "Items"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:159
+msgid "Items subtotal:"
+msgstr "Items subtotal:"
+
+#: src/features/receipt-viewer/components/TipEditor.tsx:190
+#: src/features/summary-card/TipEditor.tsx:255
+msgid "Items total"
+msgstr "Items total"
+
+#: src/components/Receipt/SummaryCard.tsx:70
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:95
+msgid "Items Total:"
+msgstr "Items Total:"
+
+#: src/features/assignments/assignments-list.tsx:275
+#: src/features/bill-split/components/BillBreakdownView.tsx:118
+msgid "Linked to your account"
+msgstr "Linked to your account"
+
+#. placeholder {0}: item.name ?? t`item`
+#: src/components/Receipt/LineItemsTableDesktop.tsx:138
+#: src/components/Receipt/LineItemsTableMobile.tsx:236
+msgid "Manage assignments for {0}"
+msgstr "Manage assignments for {0}"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:70
+#: src/features/bill-split/components/ManualSplitTab.tsx:63
+#: src/features/bill-split/components/ManualSplitTabCollab.tsx:37
+msgid "Manage People"
+msgstr "Manage People"
+
+#: src/pages/SettingsPage.tsx:197
+msgid "Manage your account information and preferences."
+msgstr "Manage your account information and preferences."
+
+#: src/pages/SettingsPage.tsx:235
+msgid "Manage your privacy and security settings."
+msgstr "Manage your privacy and security settings."
+
+#: src/pages/SettingsPage.tsx:273
+msgid "Manage your subscription and payment methods."
+msgstr "Manage your subscription and payment methods."
+
+#: src/features/bill-split/BillSplitSection.tsx:25
+#: src/features/bill-split/BillSplitSectionCollab.tsx:13
+msgid "Manual"
+msgstr "Manual"
+
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:84
+msgid "Merchant:"
+msgstr "Merchant:"
+
+#. placeholder {0}: previousReceiptUser.name
+#. placeholder {1}: newReceiptUser.name
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:180
+msgid "Move your claim from \"{0}\" to \"{1}\"? Your account will be linked to the new receipt user."
+msgstr "Move your claim from \"{0}\" to \"{1}\"? Your account will be linked to the new receipt user."
+
+#: src/features/assignments/assignments-list.tsx:321
+msgid "New:"
+msgstr "New:"
+
+#: src/features/line-items/components/NoLineItemsMessage.tsx:13
+msgid "No Item Details Available"
+msgstr "No Item Details Available"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:340
+msgid "No items assigned yet"
+msgstr "No items assigned yet"
+
+#: src/features/bill-split/components/EqualSplitBanner.tsx:26
+#: src/features/bill-split/components/EqualSplitBannerCollab.tsx:25
+msgid "No items have been assigned yet. The total has been divided equally among all people by default."
+msgstr "No items have been assigned yet. The total has been divided equally among all people by default."
+
+#: src/features/assignments/assignments-list.tsx:378
+msgid "No matching people. Press Enter to add."
+msgstr "No matching people. Press Enter to add."
+
+#: src/features/assignments/assignments-list.tsx:186
+msgid "No one assigned yet."
+msgstr "No one assigned yet."
+
+#: src/features/bill-split/components/PeopleManagerForm.tsx:78
+#: src/features/bill-split/components/PeopleManagerFormCollab.tsx:95
+msgid "No people added yet. Add people to split the bill."
+msgstr "No people added yet. Add people to split the bill."
+
+#: src/components/Receipt/ReceiptHistory.tsx:51
+msgid "No receipt history found"
+msgstr "No receipt history found"
+
+#. placeholder {0}: formatCurrency( Math.abs( calculatedTotal .minus(evenlySplitTotalRounded.mul(numberOfPeople)) .toNumber() ) )
+#: src/features/bill-split/components/EvenSplitTab.tsx:65
+#: src/features/bill-split/components/EvenSplitTabCollab.tsx:76
+msgid "Note: One person will pay an additional {0} to cover the rounding difference"
+msgstr "Note: One person will pay an additional {0} to cover the rounding difference"
+
+#: src/pages/SettingsPage.tsx:213
+msgid "Notification Settings"
+msgstr "Notification Settings"
+
+#: src/pages/SettingsPage.tsx:221
+msgid "Notification settings content would go here."
+msgstr "Notification settings content would go here."
+
+#: src/features/bill-split/components/EvenSplitTab.tsx:54
+#: src/features/bill-split/components/EvenSplitTabCollab.tsx:65
+msgid "Number of people"
+msgstr "Number of people"
+
+#. placeholder {0}: formatCurrency(item.originalPrice)
+#: src/features/bill-split/components/BillBreakdownView.tsx:275
+msgid "of {0}"
+msgstr "of {0}"
+
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:81
+msgid "Only you can see the image when enabled"
+msgstr "Only you can see the image when enabled"
+
+#: src/features/receipt-upload/components/PreviewImage.tsx:52
+msgid "or drag & drop · JPEG, PNG"
+msgstr "or drag & drop · JPEG, PNG"
+
+#: src/features/bill-split/components/EvenSplitTab.tsx:58
+#: src/features/bill-split/components/EvenSplitTabCollab.tsx:69
+msgid "Per Person:"
+msgstr "Per Person:"
+
+#: src/components/Receipt/SummaryCard.tsx:127
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:152
+msgid "Post-tax Total:"
+msgstr "Post-tax Total:"
+
+#: src/components/Receipt/SummaryCard.tsx:99
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:124
+msgid "Pre-tax Total:"
+msgstr "Pre-tax Total:"
+
+#: src/features/receipt-upload/components/PreviewImage.tsx:24
+msgid "Preview"
+msgstr "Preview"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:96
+#: src/features/bill-split/components/BillBreakdownView.tsx:239
+msgid "Price"
+msgstr "Price"
+
+#: src/pages/SettingsPage.tsx:232
+msgid "Privacy & Security"
+msgstr "Privacy & Security"
+
+#: src/pages/SettingsPage.tsx:240
+msgid "Privacy settings content would go here."
+msgstr "Privacy settings content would go here."
+
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:79
+msgid "Private Image"
+msgstr "Private Image"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:95
+#: src/features/bill-split/components/BillBreakdownView.tsx:236
+msgid "Qty"
+msgstr "Qty"
+
+#: src/components/Receipt/LineItemForm.tsx:156
+#: src/components/Receipt/LineItemForm.tsx:161
+msgid "Quantity"
+msgstr "Quantity"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:171
+msgid "Quantity:"
+msgstr "Quantity:"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:152
+msgid "Receipt"
+msgstr "Receipt"
+
+#. placeholder {0}: receipt.merchant
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:75
+msgid "Receipt — {0}"
+msgstr "Receipt — {0}"
+
+#: src/pages/SettingsPage.tsx:163
+msgid "Receipt Desktop Table"
+msgstr "Receipt Desktop Table"
+
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:77
+msgid "Receipt details"
+msgstr "Receipt details"
+
+#: src/components/Receipt/ReceiptHistory.tsx:40
+msgid "Receipt History"
+msgstr "Receipt History"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:84
+msgid "Receipt Image"
+msgstr "Receipt Image"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:184
+msgid "Receipt image not available"
+msgstr "Receipt image not available"
+
+#: src/pages/HomePage.tsx:137
+msgid "receipt splitting, simplified"
+msgstr "receipt splitting, simplified"
+
+#: src/features/receipt-viewer/ReceiptViewer.tsx:16
+msgid "Receipt Viewer"
+msgstr "Receipt Viewer"
+
+#: src/features/assignments/assignments-list.tsx:304
+#: src/features/assignments/assignments-list.tsx:305
+msgid "Remove {displayName}"
+msgstr "Remove {displayName}"
+
+#: src/pages/SettingsPage.tsx:153
+msgid "Reset All Flags"
+msgstr "Reset All Flags"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:165
+msgid "Reset image zoom"
+msgstr "Reset image zoom"
+
+#: src/context/ZeroProvider.tsx:153
+msgid "Retry"
+msgstr "Retry"
+
+#: src/context/ZeroProvider.tsx:148
+msgid "Retrying..."
+msgstr "Retrying..."
+
+#: src/pages/HomePage.tsx:141
+msgid "Scan a receipt, divide costs fairly, settle up in seconds."
+msgstr "Scan a receipt, divide costs fairly, settle up in seconds."
+
+#: src/pages/HomePage.tsx:47
+msgid "Scan any receipt"
+msgstr "Scan any receipt"
+
+#: src/pages/SettingsPage.tsx:118
+msgid "Select a category"
+msgstr "Select a category"
+
+#: src/pages/HomePage.tsx:125
+msgid "Service temporarily unavailable. Please try again later."
+msgstr "Service temporarily unavailable. Please try again later."
+
+#: src/pages/SettingsPage.tsx:40
+msgid "Settings"
+msgstr "Settings"
+
+#. placeholder {0}: item.sharedWith .map((id) => idToName.get(id) ?? id) .join(', ')
+#: src/features/bill-split/components/BillBreakdownView.tsx:257
+msgid "Shared with {0}"
+msgstr "Shared with {0}"
+
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:65
+msgid "Show QR Code"
+msgstr "Show QR Code"
+
+#: src/features/assignments/SignInToClaimDialog.tsx:40
+msgid "Sign in or create account"
+msgstr "Sign in or create account"
+
+#: src/features/assignments/assignments-list.tsx:234
+#: src/features/assignments/assignments-list.tsx:241
+msgid "Sign in to claim {displayName}"
+msgstr "Sign in to claim {displayName}"
+
+#: src/features/auth/SignInPromptCard.tsx:29
+msgid "Sign in to continue"
+msgstr "Sign in to continue"
+
+#: src/pages/HomePage.tsx:210
+msgid "Sign in to see your history →"
+msgstr "Sign in to see your history →"
+
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:66
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:166
+msgid "Something went wrong"
+msgstr "Something went wrong"
+
+#: src/features/bill-split/components/EvenSplitTab.tsx:47
+#: src/features/bill-split/components/EvenSplitTabCollab.tsx:58
+msgid "Split between how many people?"
+msgstr "Split between how many people?"
+
+#: src/features/bill-split/components/EvenSplitTab.tsx:39
+#: src/features/bill-split/components/EvenSplitTabCollab.tsx:50
+msgid "Split Evenly"
+msgstr "Split Evenly"
+
+#: src/pages/HomePage.tsx:52
+msgid "Split fairly"
+msgstr "Split fairly"
+
+#: src/features/bill-split/components/ManualSplitTab.tsx:55
+#: src/features/bill-split/components/ManualSplitTabCollab.tsx:29
+msgid "Split with Friends"
+msgstr "Split with Friends"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:285
+msgid "Subtotal"
+msgstr "Subtotal"
+
+#: src/components/Receipt/SummaryCard.tsx:84
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:109
+msgid "Subtotal (as shown):"
+msgstr "Subtotal (as shown):"
+
+#: src/components/Receipt/SummaryCard.tsx:27
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:36
+msgid "Summary"
+msgstr "Summary"
+
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:236
+msgid "Switch"
+msgstr "Switch"
+
+#: src/features/assignments/assignments-list.tsx:236
+#: src/features/assignments/assignments-list.tsx:243
+msgid "Switch to {displayName}"
+msgstr "Switch to {displayName}"
+
+#: src/components/ThemeToggle.tsx:16
+msgid "Switch to dark mode"
+msgstr "Switch to dark mode"
+
+#: src/components/ThemeToggle.tsx:16
+msgid "Switch to light mode"
+msgstr "Switch to light mode"
+
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:178
+msgid "Switch to this person"
+msgstr "Switch to this person"
+
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:236
+msgid "Switching…"
+msgstr "Switching…"
+
+#: src/pages/HomePage.tsx:48
+msgid "Take a photo and we extract every line item automatically — no manual entry."
+msgstr "Take a photo and we extract every line item automatically — no manual entry."
+
+#: src/features/receipt-upload/components/PreviewImage.tsx:49
+msgid "Tap to upload a receipt"
+msgstr "Tap to upload a receipt"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:295
+#: src/features/receipt-viewer/components/TipEditor.tsx:196
+#: src/features/summary-card/TipEditor.tsx:261
+msgid "Tax"
+msgstr "Tax"
+
+#: src/components/Receipt/SummaryCard.tsx:51
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:69
+msgid "Tax Calculation"
+msgstr "Tax Calculation"
+
+#: src/components/Receipt/SummaryCard.tsx:37
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:49
+msgid "Tax Included in Prices"
+msgstr "Tax Included in Prices"
+
+#. placeholder {0}: taxRate.toFixed(2)
+#: src/components/Receipt/SummaryCard.tsx:61
+msgid "Tax rate is approximately {0}% and has been distributed proportionally based on each person's items."
+msgstr "Tax rate is approximately {0}% and has been distributed proportionally based on each person's items."
+
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:81
+msgid "Tax rate is approximately {formattedRate}% and has been distributed proportionally based on each person's items."
+msgstr "Tax rate is approximately {formattedRate}% and has been distributed proportionally based on each person's items."
+
+#: src/components/Receipt/SummaryCard.tsx:109
+#: src/features/bill-split/components/BillBreakdownView.tsx:167
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:134
+msgid "Tax:"
+msgstr "Tax:"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:187
+msgid "The original receipt image might not be stored or is no longer accessible"
+msgstr "The original receipt image might not be stored or is no longer accessible"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:177
+msgid "The receipt image is only visible to the owner"
+msgstr "The receipt image is only visible to the owner"
+
+#: src/components/Receipt/SummaryCard.tsx:39
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:51
+msgid "The tax is already included in the individual item prices shown."
+msgstr "The tax is already included in the individual item prices shown."
+
+#: src/features/line-items/components/NoLineItemsMessage.tsx:22
+msgid "This document doesn't include detailed line items. The total amount has been equally divided among all people."
+msgstr "This document doesn't include detailed line items. The total amount has been equally divided among all people."
+
+#: src/features/line-items/components/NoLineItemsMessage.tsx:17
+msgid "This document from {merchant} doesn't include detailed line items. The total amount has been equally divided among all people."
+msgstr "This document from {merchant} doesn't include detailed line items. The total amount has been equally divided among all people."
+
+#: src/features/bill-split/components/EqualSplitBanner.tsx:21
+#: src/features/bill-split/components/EqualSplitBannerCollab.tsx:20
+msgid "This receipt doesn't contain detailed line items, so the total amount has been divided equally among all people."
+msgstr "This receipt doesn't contain detailed line items, so the total amount has been divided equally among all people."
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:306
+#: src/features/receipt-viewer/components/TipEditor.tsx:167
+#: src/features/summary-card/TipEditor.tsx:232
+msgid "Tip"
+msgstr "Tip"
+
+#: src/features/receipt-viewer/components/TipEditor.tsx:200
+#: src/features/summary-card/TipEditor.tsx:265
+msgid "Tip base"
+msgstr "Tip base"
+
+#: src/features/receipt-viewer/components/TipEditor.tsx:147
+#: src/features/summary-card/TipEditor.tsx:212
+msgid "Tip:"
+msgstr "Tip:"
+
+#: src/components/ThemeToggle.tsx:21
+msgid "Toggle theme"
+msgstr "Toggle theme"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:97
+#: src/features/bill-split/components/BillBreakdownView.tsx:326
+msgid "Total"
+msgstr "Total"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:174
+msgid "Total:"
+msgstr "Total:"
+
+#: src/pages/HomePage.tsx:57
+msgid "Track history"
+msgstr "Track history"
+
+#: src/pages/HomePage.tsx:35
+#: src/pages/ReceiptsPage.tsx:33
+msgid "Unable to load receipt history. Please try again later."
+msgstr "Unable to load receipt history. Please try again later."
+
+#: src/features/bill-split/components/AssignmentProgress.tsx:59
+#: src/features/bill-split/components/AssignmentProgressCollab.tsx:58
+msgid "Unassigned amount:"
+msgstr "Unassigned amount:"
+
+#: src/components/Footer.tsx:50
+msgid "unhealthy"
+msgstr "unhealthy"
+
+#: src/components/Receipt/LineItemForm.tsx:177
+msgid "Unit price"
+msgstr "Unit price"
+
+#: src/components/Receipt/LineItemForm.tsx:166
+msgid "Unit Price"
+msgstr "Unit Price"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:179
+msgid "Unit Price:"
+msgstr "Unit Price:"
+
+#: src/components/Receipt/ReceiptHistory.tsx:88
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:28
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:87
+msgid "Unknown"
+msgstr "Unknown"
+
+#: src/components/Receipt/ReceiptHistory.tsx:79
+msgid "Unknown date"
+msgstr "Unknown date"
+
+#: src/components/Receipt/ReceiptHistory.tsx:71
+#: src/components/Receipt/ReceiptHistory.tsx:98
+msgid "Unknown Merchant"
+msgstr "Unknown Merchant"
+
+#: src/features/summary-card/EditableDetail.tsx:34
+#: src/features/summary-card/EditableDetail.tsx:35
+msgid "Update {label}"
+msgstr "Update {label}"
+
+#: src/components/Receipt/ReceiptHistory.tsx:54
+msgid "Upload a receipt to get started"
+msgstr "Upload a receipt to get started"
+
+#: src/pages/SettingsPage.tsx:166
+msgid "Use new desktop table design for receipts."
+msgstr "Use new desktop table design for receipts."
+
+#: src/components/Receipt/ReceiptHistory.tsx:101
+msgid "View"
+msgstr "View"
+
+#. placeholder {0}: receipt.merchant || t`Unknown Merchant`
+#: src/components/Receipt/ReceiptHistory.tsx:98
+msgid "View receipt from {0}"
+msgstr "View receipt from {0}"
+
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:151
+msgid "Your original claim has been restored."
+msgstr "Your original claim has been restored."
+
+#: src/components/Receipt/ReceiptHistory.tsx:43
+msgid "Your previously analyzed receipts"
+msgstr "Your previously analyzed receipts"

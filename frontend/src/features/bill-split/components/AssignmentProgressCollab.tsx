@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { useAtomValue } from 'jotai';
 import { AlertCircle, Check } from 'lucide-react';
 
@@ -37,7 +38,11 @@ export const AssignmentProgressCollab = () => {
                 : 'text-amber-800 dark:text-amber-300'
             }`}
           >
-            {isFullyAssigned ? 'All items assigned' : 'Assignment in progress'}
+            {isFullyAssigned ? (
+              <Trans>All items assigned</Trans>
+            ) : (
+              <Trans>Assignment in progress</Trans>
+            )}
           </h3>
         </div>
         <span
@@ -54,7 +59,7 @@ export const AssignmentProgressCollab = () => {
       {!isFullyAssigned && (
         <div className="mt-1 flex items-center justify-between text-sm">
           <span className="text-amber-700 dark:text-amber-400">
-            Unassigned amount:
+            <Trans>Unassigned amount:</Trans>
           </span>
           <span className="font-medium text-amber-700 dark:text-amber-400">
             {formatCurrency(unassignedAmount)}

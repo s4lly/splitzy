@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { motion } from 'framer-motion';
 import { useAtomValue } from 'jotai';
 import { Plus, ShoppingBag } from 'lucide-react';
@@ -70,7 +71,11 @@ export const ReceiptCollabContent = () => {
     >
       <div className="mx-auto max-w-3xl px-4 py-5">
         <h1 className="sr-only">
-          Receipt{receipt.merchant ? ` — ${receipt.merchant}` : ' details'}
+          {receipt.merchant ? (
+            <Trans>Receipt — {receipt.merchant}</Trans>
+          ) : (
+            <Trans>Receipt details</Trans>
+          )}
         </h1>
         <div className="flex flex-col gap-4">
           <ReceiptImageViewer receipt={receipt} />
@@ -83,7 +88,7 @@ export const ReceiptCollabContent = () => {
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 font-display text-lg font-semibold">
                   <ShoppingBag className="h-5 w-5 text-muted-foreground" />
-                  Items
+                  <Trans>Items</Trans>
                 </CardTitle>
 
                 <Button
@@ -92,7 +97,7 @@ export const ReceiptCollabContent = () => {
                   onClick={() => setIsAddingItem(true)}
                 >
                   <Plus data-icon="inline-start" />
-                  Add Item
+                  <Trans>Add Item</Trans>
                 </Button>
               </div>
             </CardHeader>

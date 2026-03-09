@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery, useZero } from '@rocicorp/zero/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -27,6 +28,7 @@ export function ClaimReceiptUserDialog({
   receiptUserId,
   displayName,
 }: ClaimReceiptUserDialogProps) {
+  const { t } = useLingui();
   const zero = useZero();
   const [user] = useQuery(queries.users.receipts.byAuthUserId({}));
   const [isSaving, setIsSaving] = useState(false);
@@ -53,7 +55,7 @@ export function ClaimReceiptUserDialog({
           'Failed to claim receipt user:',
           clientResult.error.message
         );
-        toast.error('Failed to claim person', {
+        toast.error(t`Failed to claim person`, {
           description: clientResult.error.message,
         });
       } else {
@@ -61,9 +63,9 @@ export function ClaimReceiptUserDialog({
       }
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : 'Something went wrong';
+        error instanceof Error ? error.message : t`Something went wrong`;
       console.error('Error claiming receipt user:', error);
-      toast.error('Failed to claim person', { description: message });
+      toast.error(t`Failed to claim person`, { description: message });
     } finally {
       setIsSaving(false);
     }
@@ -73,10 +75,14 @@ export function ClaimReceiptUserDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Claim this person</DialogTitle>
+          <DialogTitle>
+            <Trans>Claim this person</Trans>
+          </DialogTitle>
           <DialogDescription>
-            Claim &quot;{displayName}&quot; as yourself? This will link this
-            user to your account.
+            <Trans>
+              Claim "{displayName}" as yourself? This will link this user to
+              your account.
+            </Trans>
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -86,14 +92,14 @@ export function ClaimReceiptUserDialog({
             onClick={() => onOpenChange(false)}
             disabled={isSaving}
           >
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
           <Button
             type="button"
             onClick={handleClaim}
             disabled={!canClaim || isSaving}
           >
-            {isSaving ? 'Claiming…' : 'Claim'}
+            {isSaving ? <Trans>Claiming…</Trans> : <Trans>Claim</Trans>}
           </Button>
         </DialogFooter>
       </DialogContent>

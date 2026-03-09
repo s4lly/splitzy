@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import { Pencil } from 'lucide-react';
 import React from 'react';
 
@@ -16,6 +17,8 @@ const EditableDetail: React.FC<EditableDetailProps> = ({
   onClick,
   className = '',
 }) => {
+  const { t } = useLingui();
+
   return (
     <div
       className={`flex w-full items-center justify-between rounded-sm p-2 text-left sm:py-2 ${className}`}
@@ -28,8 +31,8 @@ const EditableDetail: React.FC<EditableDetailProps> = ({
           onClick={onClick}
           variant="outline"
           type="button"
-          aria-label={`Update ${label}`}
-          title={`Update ${label}`}
+          aria-label={t`Update ${label}`}
+          title={t`Update ${label}`}
           className="size-8"
         >
           <Pencil aria-hidden="true" />

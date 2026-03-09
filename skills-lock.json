@@ -76,6 +76,11 @@
       "sourceType": "github",
       "computedHash": "6962db07127ee540a56e4677f65576d0727668a1d67f7da8bc978f10791c2bfe"
     },
+    "enhanced-message-context": {
+      "source": "lingui/skills",
+      "sourceType": "github",
+      "computedHash": "edc11060f1d6ad004d3db5e750bb1ccc1ddebdbf147ea1386e53ee57171f1dcf"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
@@ -85,6 +90,11 @@
       "source": "anthropics/skills",
       "sourceType": "github",
       "computedHash": "b36b333bee983462008af46d74689ae5832c2f79ae5f2c18680ee82f6e6bef56"
+    },
+    "lingui-best-practices": {
+      "source": "lingui/skills",
+      "sourceType": "github",
+      "computedHash": "2ebeb243fa39ca3b233d7fe618cfaea89f618b619ceea6a33b708faeca7efc94"
     },
     "mcp-builder": {
       "source": "anthropics/skills",

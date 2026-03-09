@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { motion } from 'framer-motion';
 import { Calendar, QrCode, ShoppingBag, Tag } from 'lucide-react';
 import { useState } from 'react';
@@ -19,11 +20,12 @@ export const ReceiptDetailsCard = ({
   merchant,
   date,
 }: ReceiptDetailsCardProps) => {
+  const { t } = useLingui();
   const [showQrCode, setShowQrCode] = useState(false);
 
   // Format date - handle both Date objects and timestamps (seconds or milliseconds)
   const formatDate = (): string => {
-    if (!date) return 'Unknown';
+    if (!date) return t`Unknown`;
 
     if (date instanceof Date) {
       return date.toLocaleDateString();
@@ -40,7 +42,7 @@ export const ReceiptDetailsCard = ({
 
     // Validate the date
     if (isNaN(dateObj.getTime())) {
-      return 'Invalid Date';
+      return t`Invalid Date`;
     }
 
     return dateObj.toLocaleDateString();
@@ -52,7 +54,7 @@ export const ReceiptDetailsCard = ({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 font-display text-lg font-semibold">
             <ShoppingBag className="h-5 w-5 text-muted-foreground" />
-            Document Details
+            <Trans>Document Details</Trans>
           </CardTitle>
           <Button
             variant="outline"
@@ -60,7 +62,11 @@ export const ReceiptDetailsCard = ({
             onClick={() => setShowQrCode(!showQrCode)}
           >
             <QrCode className="mr-1 h-4 w-4" />
-            {showQrCode ? 'Hide QR Code' : 'Show QR Code'}
+            {showQrCode ? (
+              <Trans>Hide QR Code</Trans>
+            ) : (
+              <Trans>Show QR Code</Trans>
+            )}
           </Button>
         </div>
       </CardHeader>
@@ -79,17 +85,17 @@ export const ReceiptDetailsCard = ({
           <div className="flex items-center gap-3 overflow-hidden">
             <Tag className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
             <span className="whitespace-nowrap text-base font-medium">
-              Merchant:
+              <Trans>Merchant:</Trans>
             </span>
             <span className="ml-auto truncate text-base font-semibold">
-              {merchant || 'Unknown'}
+              {merchant || t`Unknown`}
             </span>
           </div>
 
           <div className="flex items-center gap-3 overflow-hidden">
             <Calendar className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
             <span className="whitespace-nowrap text-base font-medium">
-              Date:
+              <Trans>Date:</Trans>
             </span>
             <span className="ml-auto truncate text-base font-semibold">
               {formatDate()}
