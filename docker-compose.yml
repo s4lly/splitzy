@@ -39,7 +39,8 @@ services:
   # Zero query server - handles queries and mutations via Hono API
   zero-query-local:
     build:
-      context: ./zero-query
+      context: .
+      dockerfile: zero-query/Dockerfile
       args:
         BUILD_VERSION: ${BUILD_VERSION:-local-dev}
     ports:

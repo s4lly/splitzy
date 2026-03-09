@@ -1,39 +1,49 @@
 # Build stage
 FROM node:24-alpine AS builder
 
-WORKDIR /app
+WORKDIR /workspace
 
-# Copy package files
-COPY package.json package-lock.json* ./
+RUN corepack enable
 
-# Install all dependencies (including dev deps for build)
-RUN npm ci
+# Copy workspace manifests for deterministic installs
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY zero-query/package.json ./zero-query/
+
+# Install only zero-query dependencies (including dev deps for build)
+RUN pnpm install --frozen-lockfile --filter zero-query...
 
 # Copy source files
-COPY tsconfig.json ./
-COPY src ./src
+COPY zero-query/tsconfig.json ./zero-query/
+COPY zero-query/src ./zero-query/src
+
+WORKDIR /workspace/zero-query
 
 # Build TypeScript
-RUN npm run build
+RUN pnpm run build
 
 # Production stage
 FROM node:24-alpine AS runner
 
-WORKDIR /app
+WORKDIR /workspace
 
 ENV NODE_ENV=production
+
+RUN corepack enable
 
 ARG BUILD_VERSION=unknown
 ENV BUILD_VERSION=$BUILD_VERSION
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy workspace manifests for production dependency install
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY zero-query/package.json ./zero-query/
 
-# Install production dependencies only
-RUN npm ci --omit=dev
+# Install production dependencies only for zero-query
+RUN pnpm install --frozen-lockfile --prod --filter zero-query...
+
+WORKDIR /workspace/zero-query
 
 # Copy built files from builder
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /workspace/zero-query/dist ./dist
 
 # Expose port
 EXPOSE 3000

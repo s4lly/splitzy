@@ -1,0 +1,15 @@
+# Reduce build context for docker-compose builds (context: .)
+# zero-query/Dockerfile only needs: package.json, pnpm-lock.yaml, pnpm-workspace.yaml, zero-query/
+# Root Dockerfile (zero-cache) copies nothing from context.
+
+.git
+.github
+.agents
+.claude
+.cursor
+.cursorrules
+frontend/
+backend/
+.env.example
+.gitignore
+README.md
