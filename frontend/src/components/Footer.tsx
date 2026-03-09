@@ -10,12 +10,8 @@ export default function Footer() {
 
   useEffect(() => {
     const checkApiHealth = async () => {
-      try {
-        const isHealthy = await receiptService.checkHealth();
-        setApiStatus(isHealthy ? 'healthy' : 'unhealthy');
-      } catch {
-        setApiStatus('unhealthy');
-      }
+      const isHealthy = await receiptService.checkHealth();
+      setApiStatus(isHealthy ? 'healthy' : 'unhealthy');
     };
 
     checkApiHealth();
