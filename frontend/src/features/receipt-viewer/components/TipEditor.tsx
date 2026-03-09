@@ -205,9 +205,7 @@ const TipEditor = ({
                     {formatCurrency(tipBase)} ×{' '}
                     {calculations.utils.formatPercentage(tip, tipBase)}
                   </span>
-                  <span className="font-medium">
-                    = {formatCurrency(tip)}
-                  </span>
+                  <span className="font-medium">= {formatCurrency(tip)}</span>
                 </div>
               </div>
             ) : (

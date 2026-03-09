@@ -100,9 +100,7 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      expect(
-        screen.getByRole('textbox', { name: /tip/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: /tip/i })).toBeInTheDocument();
       expect(screen.getByDisplayValue('5.00')).toBeInTheDocument();
       expect(
         screen.getByRole('button', { name: /cancel/i })
@@ -161,11 +159,13 @@ describe('TipEditor', () => {
       await user.click(editButton);
 
       // Should show input and before/after tax tabs
+      expect(screen.getByRole('textbox', { name: /tip/i })).toBeInTheDocument();
       expect(
-        screen.getByRole('textbox', { name: /tip/i })
+        screen.getByRole('tab', { name: /before tax/i })
       ).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: /before tax/i })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: /after tax/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('tab', { name: /after tax/i })
+      ).toBeInTheDocument();
     });
 
     it('shows percentage in header and calculation breakdown in edit mode', async () => {
