@@ -94,7 +94,9 @@ export default function LineItemsTableDesktop({
             <TableHead className="w-24">Price</TableHead>
             <TableHead className="w-24">Total</TableHead>
             <TableHead className="w-fit">Assigned To</TableHead>
-            <TableHead className="w-12"></TableHead>
+            <TableHead className="w-12">
+              <span className="sr-only">Actions</span>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -131,6 +133,7 @@ export default function LineItemsTableDesktop({
                   <AssignmentsContainer
                     clickCallback={() => handleAssignmentToggle(item.id)}
                     isSelected={assignmentItemId === item.id}
+                    ariaLabel={`Manage assignments for ${item.name ?? 'item'}`}
                   >
                     <PersonAssignmentSection
                       item={item}
@@ -143,11 +146,13 @@ export default function LineItemsTableDesktop({
                   <Toggle
                     onClick={() => handleEditOpen(item.id)}
                     pressed={editItemId === item.id}
+                    aria-expanded={editItemId === item.id}
                     className={cn(
                       editItemId === item.id && 'data-[state=on]:bg-gray-200'
                     )}
+                    aria-label={`Edit ${item.name ?? 'item'}`}
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil aria-hidden />
                   </Toggle>
                 </TableCell>
               </TableRow>

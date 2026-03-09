@@ -21,7 +21,9 @@ import { ReceiptImageViewer } from '@/features/receipt-image/ReceiptImageViewer'
 import { ReceiptDetailsCard } from '@/features/receipt-viewer/ReceiptDetailsCard';
 import { ReceiptSummaryCard } from '@/features/receipt-viewer/ReceiptSummaryCard';
 import { ReceiptViewer } from '@/features/receipt-viewer/ReceiptViewer';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useMobile } from '@/hooks/useMobile';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { isLocalDevelopment } from '@/utils/env';
 
 /**
@@ -37,6 +39,15 @@ export const ReceiptCollabContent = () => {
   const assignedUsers = useAtomValue(assignedUsersAtom);
   const receiptUserIds = assignedUsers.map((a) => a.receiptUserId);
   const [isAddingItem, setIsAddingItem] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
+
+  useDocumentTitle(
+    receipt
+      ? receipt.merchant
+        ? `Receipt #${receipt.id} — ${receipt.merchant}`
+        : `Receipt #${receipt.id}`
+      : undefined
+  );
 
   if (!receipt) {
     return null;
@@ -44,46 +55,50 @@ export const ReceiptCollabContent = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={
+        shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }
+      }
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={
+        shouldReduceMotion
+          ? { duration: 0 }
+          : {
+              duration: 0.4,
+              ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+            }
+      }
       className="w-full"
     >
-      <div className="mx-auto max-w-4xl space-y-4 py-8">
-        <div className="flex flex-col gap-6">
-          {/* Child components can now use:
-              - useReceiptContext() for direct receipt access
-              - useAtomValue(receiptTotalAtom) for derived values
-              - useAtom(personTotalsAtom) for modifiable derived values
-          */}
-
+      <div className="mx-auto max-w-3xl px-4 py-5">
+        <h1 className="sr-only">
+          Receipt{receipt.merchant ? ` — ${receipt.merchant}` : ' details'}
+        </h1>
+        <div className="flex flex-col gap-4">
           <ReceiptImageViewer receipt={receipt} />
 
           <ReceiptDetailsCard merchant={receipt.merchant} date={receipt.date} />
 
-          {/* Items Card - Second position */}
-          <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
-            <CardHeader className="px-3 pb-2 sm:px-6">
+          {/* Items Card */}
+          <Card className="overflow-hidden border-0 shadow-[0_2px_12px_0_rgba(0,0,0,0.06)]">
+            <CardHeader className="px-4 pb-2 sm:px-5">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-3 text-xl font-bold">
-                  <ShoppingBag className="h-6 w-6" />
+                <CardTitle className="flex items-center gap-2 font-display text-lg font-semibold">
+                  <ShoppingBag className="h-5 w-5 text-muted-foreground" />
                   Items
                 </CardTitle>
 
-                <div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsAddingItem(true)}
-                  >
-                    <Plus className="mr-1 h-4 w-4" />
-                    Add Item
-                  </Button>
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAddingItem(true)}
+                >
+                  <Plus data-icon="inline-start" />
+                  Add Item
+                </Button>
               </div>
             </CardHeader>
 
-            <CardContent className="px-3 sm:px-6">
+            <CardContent className="px-4 sm:px-5">
               {isAddingItem && (
                 <LineItemCard selected={true}>
                   <LineItemAddFormAdapter

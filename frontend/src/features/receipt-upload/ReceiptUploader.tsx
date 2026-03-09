@@ -2,7 +2,7 @@ import type { UseMutationResult } from '@tanstack/react-query';
 import { FileText, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { DropZone } from '@/features/receipt-upload/components/DropZone';
 import { ErrorMessage } from '@/features/receipt-upload/components/ErrorMessage';
 import { PreviewImage } from '@/features/receipt-upload/components/PreviewImage';
@@ -108,37 +108,36 @@ export const ReceiptUploader = ({
   };
 
   return (
-    <Card className="mx-auto w-full max-w-2xl">
-      <CardContent className="pt-6">
-        <div className="space-y-4">
+    <Card className="mx-auto w-full border-0 shadow-[0_2px_16px_0_rgba(0,0,0,0.07)]">
+      <CardContent className="px-4 pb-4 pt-4">
+        <div className="flex flex-col gap-3">
           <DropZone onDrop={onDrop}>
             <PreviewImage preview={preview} onClear={clearFile} />
           </DropZone>
 
           <ErrorMessage error={error} />
+
+          <Button
+            type="button"
+            className="w-full"
+            size="lg"
+            onClick={handleSubmit}
+            disabled={!file || mutation.isPending}
+          >
+            {mutation.isPending ? (
+              <>
+                <Loader2 data-icon="inline-start" className="animate-spin" />
+                Analyzing…
+              </>
+            ) : (
+              <>
+                <FileText data-icon="inline-start" />
+                Analyze Document
+              </>
+            )}
+          </Button>
         </div>
       </CardContent>
-
-      <CardFooter className="border-t border-border bg-muted/20 py-4">
-        <Button
-          className="w-full py-6 text-base font-medium"
-          size="lg"
-          onClick={handleSubmit}
-          disabled={!file || mutation.isPending}
-        >
-          {mutation.isPending ? (
-            <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Analyzing...
-            </>
-          ) : (
-            <>
-              <FileText className="mr-2 h-5 w-5" />
-              Analyze Document
-            </>
-          )}
-        </Button>
-      </CardFooter>
     </Card>
   );
 };

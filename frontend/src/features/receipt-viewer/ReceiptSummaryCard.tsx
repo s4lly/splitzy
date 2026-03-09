@@ -28,19 +28,22 @@ export const ReceiptSummaryCard = () => {
   }
 
   return (
-    <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
-      <CardHeader className="px-3 pb-2 sm:px-6">
-        <CardTitle className="flex items-center gap-3 text-xl font-bold">
-          <DollarSign className="h-6 w-6" />
+    <Card className="overflow-hidden border-0 shadow-[0_2px_12px_0_rgba(0,0,0,0.06)]">
+      <CardHeader className="px-4 pb-2 sm:px-5">
+        <CardTitle className="flex items-center gap-2 font-display text-lg font-semibold">
+          <DollarSign className="h-5 w-5 text-muted-foreground" />
           Summary
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-3 sm:px-6">
+      <CardContent className="px-4 sm:px-5">
         <div className="space-y-4">
           {/* Tax Information Alert */}
           {receipt.taxIncludedInItems && (
             <div className="mb-3 flex items-start rounded-md bg-blue-50 p-2 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 sm:p-3">
-              <AlertCircle className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0" />
+              <AlertCircle
+                className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0"
+                aria-hidden
+              />
               <div>
                 <p className="font-medium">Tax Included in Prices</p>
                 <p>
@@ -55,7 +58,10 @@ export const ReceiptSummaryCard = () => {
             receipt.tax &&
             receipt.tax.greaterThan(0) && (
               <div className="mb-3 flex items-start rounded-md bg-blue-50 p-2 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 sm:p-3">
-                <AlertCircle className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0" />
+                <AlertCircle
+                  className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0"
+                  aria-hidden
+                />
                 <div>
                   <p className="font-medium">Tax Calculation</p>
                   <p>
