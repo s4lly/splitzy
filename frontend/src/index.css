@@ -94,11 +94,7 @@
 
 body {
   margin: 0;
-  font-family:
-    'Plus Jakarta Sans Variable',
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  @apply font-sans;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
