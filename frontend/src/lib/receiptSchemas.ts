@@ -51,6 +51,7 @@ export const ReceiptDataSchema = z.object({
   subtotal: z.number().nullable(),
   tax: z.number().nullable(),
   tax_included_in_items: z.boolean(),
+  tip_after_tax: z.boolean().optional().default(false),
   tip: z.number().nullable(),
   total: z.number().nullable(),
 });

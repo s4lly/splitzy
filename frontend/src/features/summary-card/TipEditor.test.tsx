@@ -31,6 +31,8 @@ describe('TipEditor', () => {
     receiptId: 'test-receipt-123',
     receiptTip: new Decimal(5.0),
     itemsTotal: new Decimal(100.0),
+    receiptTax: new Decimal(8.0),
+    tipAfterTax: false,
   };
 
   beforeEach(() => {
@@ -72,6 +74,20 @@ describe('TipEditor', () => {
       ).toBeInTheDocument();
       expect(screen.getByText('Tip:')).toBeInTheDocument();
     });
+
+    it('shows percentage buttons in non-editing view', () => {
+      render(<TipEditor {...defaultProps} />);
+
+      expect(
+        screen.getByRole('button', { name: /set tip to 10%/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /set tip to 15%/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /set tip to 20%/i })
+      ).toBeInTheDocument();
+    });
   });
 
   describe('Edit Mode', () => {
@@ -84,10 +100,8 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      expect(
-        screen.getByRole('spinbutton', { name: /tip/i })
-      ).toBeInTheDocument();
-      expect(screen.getByDisplayValue('5')).toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: /tip/i })).toBeInTheDocument();
+      expect(screen.getByDisplayValue('5.00')).toBeInTheDocument();
       expect(
         screen.getByRole('button', { name: /cancel/i })
       ).toBeInTheDocument();
@@ -102,7 +116,7 @@ describe('TipEditor', () => {
       await user.click(addButton);
 
       expect(screen.getByLabelText(/tip/i)).toBeInTheDocument();
-      expect(screen.getByDisplayValue('0')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('0.00')).toBeInTheDocument();
       expect(
         screen.getByRole('button', { name: /cancel/i })
       ).toBeInTheDocument();
@@ -135,7 +149,7 @@ describe('TipEditor', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('shows tabs for exact and percentage input', async () => {
+    it('shows exact amount input with before/after tax toggle', async () => {
       const user = userEvent.setup();
       render(<TipEditor {...defaultProps} />);
 
@@ -144,13 +158,17 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      expect(screen.getByRole('tab', { name: /exact/i })).toBeInTheDocument();
+      // Should show input and before/after tax tabs
+      expect(screen.getByRole('textbox', { name: /tip/i })).toBeInTheDocument();
       expect(
-        screen.getByRole('tab', { name: /percentage/i })
+        screen.getByRole('tab', { name: /before tax/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('tab', { name: /after tax/i })
       ).toBeInTheDocument();
     });
 
-    it('shows percentage calculation in exact tab', async () => {
+    it('shows percentage in header and calculation breakdown in edit mode', async () => {
       const user = userEvent.setup();
       render(<TipEditor {...defaultProps} />);
 
@@ -159,32 +177,11 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      expect(screen.getByText(/percentage of total/)).toBeInTheDocument();
-      // formatPercentage correctly formats percentages: tip=5, itemsTotal=100 -> 5%
-      expect(screen.getByText(/5%/)).toBeInTheDocument();
-    });
-
-    it('shows percentage tip buttons in percentage tab', async () => {
-      const user = userEvent.setup();
-      render(<TipEditor {...defaultProps} />);
-
-      const editButton = screen.getByRole('button', {
-        name: /update tip/i,
-      });
-      await user.click(editButton);
-
-      const percentageTab = screen.getByRole('tab', { name: /percentage/i });
-      await user.click(percentageTab);
-
-      expect(
-        screen.getByRole('button', { name: /set tip to 10%/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /set tip to 15%/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /set tip to 20%/i })
-      ).toBeInTheDocument();
+      // Percentage shown in header
+      expect(screen.getAllByText(/5%/).length).toBeGreaterThanOrEqual(1);
+      // Calculation breakdown shows items total and result
+      expect(screen.getByText('Items total')).toBeInTheDocument();
+      expect(screen.getByText(/= \$5\.00/)).toBeInTheDocument();
     });
   });
 
@@ -198,14 +195,14 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      const input = screen.getByRole('spinbutton', { name: /tip/i });
+      const input = screen.getByRole('textbox', { name: /tip/i });
       await user.clear(input);
       await user.type(input, '12.50');
 
-      expect(input).toHaveValue(12.5);
+      expect(input).toHaveValue('12.50');
     });
 
-    it('handles empty input by setting to 0', async () => {
+    it('handles empty input by setting to empty string', async () => {
       const user = userEvent.setup();
       render(<TipEditor {...defaultProps} />);
 
@@ -214,13 +211,13 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      const input = screen.getByRole('spinbutton', { name: /tip/i });
+      const input = screen.getByRole('textbox', { name: /tip/i });
       await user.clear(input);
 
-      expect(input).toHaveValue(0);
+      expect(input).toHaveValue('');
     });
 
-    it('handles decimal point only input by setting to 0', async () => {
+    it('handles decimal point only input', async () => {
       const user = userEvent.setup();
       render(<TipEditor {...defaultProps} />);
 
@@ -229,14 +226,14 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      const input = screen.getByRole('spinbutton', { name: /tip/i });
+      const input = screen.getByRole('textbox', { name: /tip/i });
       await user.clear(input);
       await user.type(input, '.');
 
-      expect(input).toHaveValue(0);
+      expect(input).toHaveValue('.');
     });
 
-    it('handles negative value input gracefully', async () => {
+    it('rejects negative value input', async () => {
       const user = userEvent.setup();
       render(<TipEditor {...defaultProps} />);
 
@@ -245,21 +242,20 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      const input = screen.getByRole('spinbutton', { name: /tip/i });
+      const input = screen.getByRole('textbox', { name: /tip/i });
       await user.clear(input);
       await user.type(input, '-5.00');
 
-      // The component should still be functional and not crash
-      expect(
-        screen.getByRole('spinbutton', { name: /tip/i })
-      ).toBeInTheDocument();
+      // Negative sign is rejected, only "5.00" is accepted
+      expect(input).toHaveValue('5.00');
+      // The component should still be functional
       expect(
         screen.getByRole('button', { name: /cancel/i })
       ).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /done/i })).toBeInTheDocument();
     });
 
-    it('rounds to two decimal places', async () => {
+    it('limits to two decimal places', async () => {
       const user = userEvent.setup();
       render(<TipEditor {...defaultProps} />);
 
@@ -268,62 +264,42 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      const input = screen.getByRole('spinbutton', { name: /tip/i });
+      const input = screen.getByRole('textbox', { name: /tip/i });
       await user.clear(input);
       await user.type(input, '12.345');
 
-      // Should round to 2 decimal places
-      expect(input).toHaveValue(12.35);
+      // Should only accept up to 2 decimal places, rejecting the 3rd digit
+      expect(input).toHaveValue('12.34');
     });
   });
 
   describe('Percentage Tip Selection', () => {
-    it('sets tip amount when percentage button is clicked', async () => {
+    it('saves tip immediately when percentage button is clicked in non-editing view', async () => {
       const user = userEvent.setup();
       render(<TipEditor {...defaultProps} />);
 
-      const editButton = screen.getByRole('button', {
-        name: /update tip/i,
-      });
-      await user.click(editButton);
-
-      const percentageTab = screen.getByRole('tab', { name: /percentage/i });
-      await user.click(percentageTab);
-
       const tenPercentButton = screen.getByRole('button', {
         name: /set tip to 10%/i,
       });
       await user.click(tenPercentButton);
 
-      // Switch back to exact tab to see the value
-      const exactTab = screen.getByRole('tab', { name: /exact/i });
-      await user.click(exactTab);
-
-      expect(screen.getByDisplayValue('10')).toBeInTheDocument();
+      // Should save directly without entering edit mode
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', { name: /update tip/i })
+        ).toBeInTheDocument();
+      });
     });
 
-    it('calculates correct tip amounts for different percentages', async () => {
-      const user = userEvent.setup();
+    it('displays correct tip amounts for different percentages', () => {
       render(<TipEditor {...defaultProps} itemsTotal={new Decimal(200)} />);
 
-      const editButton = screen.getByRole('button', {
-        name: /update tip/i,
-      });
-      await user.click(editButton);
-
-      const percentageTab = screen.getByRole('tab', { name: /percentage/i });
-      await user.click(percentageTab);
-
-      // Test 10% of 200 = 20
-      const tenPercentButton = screen.getByRole('button', {
-        name: /set tip to 10%/i,
-      });
-      await user.click(tenPercentButton);
-
-      const exactTab = screen.getByRole('tab', { name: /exact/i });
-      await user.click(exactTab);
-
-      expect(screen.getByDisplayValue('20')).toBeInTheDocument();
+      // 10% of 200 = $20.00
+      expect(screen.getByText('$20.00')).toBeInTheDocument();
+      // 15% of 200 = $30.00
+      expect(screen.getByText('$30.00')).toBeInTheDocument();
+      // 20% of 200 = $40.00
+      expect(screen.getByText('$40.00')).toBeInTheDocument();
     });
   });
 
@@ -337,7 +313,7 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      const input = screen.getByRole('spinbutton', { name: /tip/i });
+      const input = screen.getByRole('textbox', { name: /tip/i });
       await user.clear(input);
       await user.type(input, '10.00');
 
@@ -392,7 +368,7 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      const input = screen.getByRole('spinbutton', { name: /tip/i });
+      const input = screen.getByRole('textbox', { name: /tip/i });
       await user.clear(input);
       await user.type(input, '10.00');
 
@@ -417,7 +393,7 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      const input = screen.getByRole('spinbutton', { name: /tip/i });
+      const input = screen.getByRole('textbox', { name: /tip/i });
       await user.clear(input);
       await user.type(input, '10.00');
 
@@ -506,7 +482,7 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      const input = screen.getByRole('spinbutton', { name: /tip/i });
+      const input = screen.getByRole('textbox', { name: /tip/i });
       await user.clear(input);
       await user.type(input, '10.00');
 
@@ -556,7 +532,8 @@ describe('TipEditor', () => {
 
       rerender(<TipEditor {...defaultProps} receiptTip={new Decimal(10.0)} />);
 
-      expect(screen.getByText('$10.00')).toBeInTheDocument();
+      // The tip value is shown in the EditableDetail (font-medium span)
+      expect(screen.getAllByText('$10.00').length).toBeGreaterThanOrEqual(1);
     });
 
     it('handles undefined receiptTip prop', () => {
@@ -579,53 +556,13 @@ describe('TipEditor', () => {
       await user.click(editButton);
 
       // Initial calculation: tip=5, itemsTotal=100 -> 5%
-      expect(screen.getByText(/percentage of total/)).toBeInTheDocument();
-      expect(screen.getByText(/5%/)).toBeInTheDocument();
+      expect(screen.getAllByText(/5%/).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText('Items total')).toBeInTheDocument();
 
       rerender(<TipEditor {...defaultProps} itemsTotal={new Decimal(200)} />);
 
       // After change: tip=5, itemsTotal=200 -> 0.025 = 3% (Intl.NumberFormat rounds to nearest integer by default)
-      expect(screen.getByText(/percentage of total/)).toBeInTheDocument();
-      expect(screen.getByText(/3%/)).toBeInTheDocument();
-    });
-  });
-
-  describe('Tab Navigation', () => {
-    it('switches between exact and percentage tabs', async () => {
-      const user = userEvent.setup();
-      render(<TipEditor {...defaultProps} />);
-
-      const editButton = screen.getByRole('button', {
-        name: /update tip/i,
-      });
-      await user.click(editButton);
-
-      // Should start on exact tab
-      expect(
-        screen.getByRole('spinbutton', { name: /tip/i })
-      ).toBeInTheDocument();
-
-      // Switch to percentage tab
-      const percentageTab = screen.getByRole('tab', { name: /percentage/i });
-      await user.click(percentageTab);
-
-      expect(
-        screen.queryByRole('spinbutton', { name: /tip/i })
-      ).not.toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /set tip to 10%/i })
-      ).toBeInTheDocument();
-
-      // Switch back to exact tab
-      const exactTab = screen.getByRole('tab', { name: /exact/i });
-      await user.click(exactTab);
-
-      expect(
-        screen.getByRole('spinbutton', { name: /tip/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.queryByRole('button', { name: /set tip to 10%/i })
-      ).not.toBeInTheDocument();
+      expect(screen.getAllByText(/3%/).length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -639,8 +576,7 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      expect(screen.getByText(/percentage of total/)).toBeInTheDocument();
-      expect(screen.getByText(/—/)).toBeInTheDocument();
+      expect(screen.getAllByText(/—/).length).toBeGreaterThanOrEqual(1);
     });
 
     it('handles very small tip amounts', async () => {

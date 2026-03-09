@@ -98,6 +98,7 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
     // Flags
     isReceipt: zeroReceipt.is_receipt ?? true,
     taxIncludedInItems: zeroReceipt.tax_included_in_items ?? false,
+    tipAfterTax: zeroReceipt.tip_after_tax ?? false,
 
     // Line items
     lineItems,

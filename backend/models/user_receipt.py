@@ -35,6 +35,7 @@ class UserReceipt(db.Model):
     total = db.Column(Numeric(12, 2), nullable=True, default=0)
     payment_method = db.Column(db.Text, nullable=True)
     tax_included_in_items = db.Column(db.Boolean, nullable=True, default=False)
+    tip_after_tax = db.Column(db.Boolean, nullable=False, default=False)
     display_subtotal = db.Column(Numeric(12, 2), nullable=True, default=0)
     items_total = db.Column(Numeric(12, 2), nullable=True, default=0)
     pretax_total = db.Column(Numeric(12, 2), nullable=True, default=0)
