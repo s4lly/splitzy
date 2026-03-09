@@ -177,6 +177,7 @@ const TipEditor = ({
 
   const handleTipAfterTaxChange = (value: string) => {
     const newValue = value === 'after';
+    const previous = tipAfterTax;
     setTipAfterTax(newValue);
     mutate(
       {
@@ -185,6 +186,7 @@ const TipEditor = ({
       },
       {
         onError: (error) => {
+          setTipAfterTax(previous);
           const errorMessage =
             error?.message || 'Failed to update setting. Please try again.';
           setError(errorMessage);
