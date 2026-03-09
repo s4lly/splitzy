@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
 import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
+import { Card } from '@/components/ui/card';
 import {
   ReceiptAnalysisResult,
   ReceiptUploader,
@@ -24,6 +25,17 @@ const ReceiptHistorySection = () => {
     [user?.receipts]
   );
   const isLoading = details.type === 'unknown';
+
+  if (details.type === 'error') {
+    return (
+      <Card className="p-6">
+        <p className="text-destructive">
+          Unable to load receipt history. Please try again later.
+        </p>
+      </Card>
+    );
+  }
+
   return <ReceiptHistory receipts={receipts} loading={isLoading} />;
 };
 
