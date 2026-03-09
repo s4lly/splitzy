@@ -7,8 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
 import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
 import {
-  ReceiptUploader,
   ReceiptAnalysisResult,
+  ReceiptUploader,
 } from '@/features/receipt-upload';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';

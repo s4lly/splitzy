@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Clock, Eye, Receipt, Store } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -12,8 +13,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import type { ReceiptHistoryItem } from '@/lib/receiptTypes';
-
-import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
 
 interface ReceiptHistoryProps {
   receipts: ReceiptHistoryItem[];
