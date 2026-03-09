@@ -39,9 +39,7 @@ export const ReceiptSummaryCard = () => {
         <div className="space-y-4">
           {/* Tax Information Alert */}
           {receipt.taxIncludedInItems && (
-            <div
-              className="mb-3 flex items-start rounded-md bg-blue-50 p-2 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 sm:p-3"
-            >
+            <div className="mb-3 flex items-start rounded-md bg-blue-50 p-2 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 sm:p-3">
               <AlertCircle
                 className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0"
                 aria-hidden
@@ -59,9 +57,7 @@ export const ReceiptSummaryCard = () => {
           {!receipt.taxIncludedInItems &&
             receipt.tax &&
             receipt.tax.greaterThan(0) && (
-              <div
-                className="mb-3 flex items-start rounded-md bg-blue-50 p-2 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 sm:p-3"
-              >
+              <div className="mb-3 flex items-start rounded-md bg-blue-50 p-2 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 sm:p-3">
                 <AlertCircle
                   className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0"
                   aria-hidden
