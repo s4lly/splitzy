@@ -1,6 +1,6 @@
 import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import PercentageTipButton from '@/components/Receipt/components/PercentageTipButton';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
@@ -8,7 +8,6 @@ import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useReceiptMutation } from '@/features/receipt-viewer/hooks/useReceiptMutation';
 import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
@@ -29,7 +28,9 @@ const TipEditor = ({
   receiptId,
 }: TipEditorProps) => {
   const [tip, setTip] = useState<Decimal>(receiptTip);
+  const [inputValue, setInputValue] = useState(receiptTip.toFixed(2));
   const [isEditing, setIsEditing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const hasValueToDelete = !receiptTip.isZero();
 
@@ -41,8 +42,20 @@ const TipEditor = ({
     setTip(receiptTip);
   }, [receiptTip]);
 
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [isEditing]);
+
+  const setTipAndInput = (value: Decimal) => {
+    setTip(value);
+    setInputValue(value.toFixed(2));
+  };
+
   const handleEditTip = () => {
-    setTip(receiptTip);
+    setTipAndInput(receiptTip);
     setIsEditing(true);
   };
 
@@ -56,27 +69,32 @@ const TipEditor = ({
   const handleTipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
 
-    // Treat empty or "." as 0
+    // Allow empty and partial decimal input for typing
     if (rawValue === '' || rawValue === '.') {
+      setInputValue(rawValue);
       setTip(new Decimal(0));
       return;
     }
 
-    // Parse with Decimal, fallback to current value on invalid input
-    let parsedValue: Decimal;
-    try {
-      parsedValue = new Decimal(rawValue);
-    } catch {
-      return; // Keep current value on invalid input
+    // Allow trailing dot or trailing dot-digits for mid-typing (e.g. "12." or "12.5")
+    if (/^\d*\.?\d{0,2}$/.test(rawValue)) {
+      setInputValue(rawValue);
+
+      let parsedValue: Decimal;
+      try {
+        parsedValue = new Decimal(rawValue);
+      } catch {
+        return;
+      }
+
+      const clampedValue = Decimal.max(0, parsedValue);
+      const roundedValue = clampedValue.toDP(2);
+      setTip(roundedValue);
     }
+  };
 
-    // Clamp to non-negative value
-    const clampedValue = Decimal.max(0, parsedValue);
-
-    // Round to two decimals
-    const roundedValue = clampedValue.toDP(2);
-
-    setTip(roundedValue);
+  const handleInputBlur = () => {
+    setInputValue(tip.toFixed(2));
   };
 
   const handleDeleteTip = async () => {
@@ -87,86 +105,49 @@ const TipEditor = ({
   };
 
   const handleCancelTip = () => {
-    setTip(receiptTip);
+    setTipAndInput(receiptTip);
     setIsEditing(false);
   };
 
-  const handlePercentageTipSelect = (amount: Decimal) => {
-    setTip(amount.toDP(2));
+  const handleQuickPercentageTip = (amount: Decimal) => {
+    const roundedAmount = amount.toDP(2);
+    mutate({ id: receiptId, tip: roundedAmount.toNumber() });
   };
-
-  if (!hasValueToDelete && !isEditing) {
-    return (
-      <div className="-ml-2 -mr-2 rounded-sm border">
-        <EditableDetail
-          label="Tip"
-          value={formatCurrency(0)}
-          onClick={handleEditTip}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="-ml-2 -mr-2 rounded-sm border">
       {isEditing ? (
         <div className="flex flex-col gap-4 bg-background px-2 py-2">
-          <Tabs defaultValue="exact">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="tip" className="text-sm font-medium">
-                Tip:
-              </Label>
-
-              <TabsList>
-                <TabsTrigger value="exact">Exact</TabsTrigger>
-                <TabsTrigger value="percentage">Percentage</TabsTrigger>
-              </TabsList>
+          <Label htmlFor="tip" className="text-sm font-medium">
+            Tip:
+          </Label>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="select-none pr-1 text-lg text-muted-foreground">
+                $
+              </span>
+              <Input
+                ref={inputRef}
+                type="text"
+                inputMode="decimal"
+                value={inputValue}
+                onChange={handleTipChange}
+                onBlur={handleInputBlur}
+                placeholder="Tip"
+                required
+                className="text-center"
+                id="tip"
+                disabled={isSaving}
+              />
             </div>
-            <TabsContent value="exact" className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="select-none pr-1 text-lg text-muted-foreground">
-                  $
-                </span>
-                <Input
-                  type="number"
-                  value={tip.toNumber()}
-                  onChange={handleTipChange}
-                  placeholder="Tip"
-                  min={0}
-                  step="0.01"
-                  required
-                  className="text-center"
-                  id="tip"
-                  disabled={isSaving}
-                />
-              </div>
-              <div className="flex justify-center text-sm text-muted-foreground">
-                percentage of total{' '}
-                {itemsTotal.gt(0)
-                  ? calculations.utils.formatPercentage(tip, itemsTotal)
-                  : '—'}
-              </div>
-            </TabsContent>
-            <TabsContent value="percentage">
-              <div className="grid grid-flow-col gap-2">
-                <PercentageTipButton
-                  percentage={10}
-                  itemsTotal={itemsTotal}
-                  onTipSelect={handlePercentageTipSelect}
-                />
-                <PercentageTipButton
-                  percentage={15}
-                  itemsTotal={itemsTotal}
-                  onTipSelect={handlePercentageTipSelect}
-                />
-                <PercentageTipButton
-                  percentage={20}
-                  itemsTotal={itemsTotal}
-                  onTipSelect={handlePercentageTipSelect}
-                />
-              </div>
-            </TabsContent>
-          </Tabs>
+            <div className="flex justify-center text-sm text-muted-foreground">
+              percentage of total{' '}
+              {itemsTotal.gt(0)
+                ? calculations.utils.formatPercentage(tip, itemsTotal)
+                : '—'}
+            </div>
+
+          </div>
 
           <div
             className={cn(
@@ -205,11 +186,30 @@ const TipEditor = ({
           </div>
         </div>
       ) : (
-        <EditableDetail
-          label="Tip"
-          value={formatCurrency(receiptTip)}
-          onClick={handleEditTip}
-        />
+        <>
+          <EditableDetail
+            label="Tip"
+            value={formatCurrency(receiptTip)}
+            onClick={handleEditTip}
+          />
+          <div className="grid grid-flow-col gap-2 px-2 pb-2">
+            <PercentageTipButton
+              percentage={10}
+              itemsTotal={itemsTotal}
+              onTipSelect={handleQuickPercentageTip}
+            />
+            <PercentageTipButton
+              percentage={15}
+              itemsTotal={itemsTotal}
+              onTipSelect={handleQuickPercentageTip}
+            />
+            <PercentageTipButton
+              percentage={20}
+              itemsTotal={itemsTotal}
+              onTipSelect={handleQuickPercentageTip}
+            />
+          </div>
+        </>
       )}
     </div>
   );

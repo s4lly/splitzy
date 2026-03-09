@@ -1,6 +1,6 @@
 import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import PercentageTipButton from '@/components/Receipt/components/PercentageTipButton';
 import { useReceiptDataUpdateMutation } from '@/components/Receipt/hooks/useReceiptDataUpdateMutation';
@@ -9,7 +9,6 @@ import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
 
@@ -25,8 +24,10 @@ const TipEditor = ({
   itemsTotal,
 }: TipEditorProps) => {
   const [tip, setTip] = useState<Decimal>(receiptTip);
+  const [inputValue, setInputValue] = useState(receiptTip.toFixed(2));
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const hasValueToDelete = !receiptTip.isZero();
 
@@ -34,10 +35,22 @@ const TipEditor = ({
     setTip(receiptTip);
   }, [receiptTip]);
 
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [isEditing]);
+
   const { mutate, isPending } = useReceiptDataUpdateMutation();
 
+  const setTipAndInput = (value: Decimal) => {
+    setTip(value);
+    setInputValue(value.toFixed(2));
+  };
+
   const handleEditTip = () => {
-    setTip(receiptTip);
+    setTipAndInput(receiptTip);
     setError(null);
     setIsEditing(true);
   };
@@ -74,22 +87,32 @@ const TipEditor = ({
   const handleTipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
 
-    // Treat empty or "." as 0
+    // Allow empty and partial decimal input for typing
     if (rawValue === '' || rawValue === '.') {
+      setInputValue(rawValue);
       setTip(new Decimal(0));
       return;
     }
 
-    // Parse with parseFloat, fallback to 0 on NaN
-    const parsedValue = new Decimal(rawValue);
+    // Allow trailing dot or trailing dot-digits for mid-typing (e.g. "12." or "12.5")
+    if (/^\d*\.?\d{0,2}$/.test(rawValue)) {
+      setInputValue(rawValue);
 
-    // Clamp to non-negative value
-    const clampedValue = Decimal.max(0, parsedValue);
+      let parsedValue: Decimal;
+      try {
+        parsedValue = new Decimal(rawValue);
+      } catch {
+        return;
+      }
 
-    // Round to two decimals
-    const roundedValue = clampedValue.toDP(2);
+      const clampedValue = Decimal.max(0, parsedValue);
+      const roundedValue = clampedValue.toDP(2);
+      setTip(roundedValue);
+    }
+  };
 
-    setTip(roundedValue);
+  const handleInputBlur = () => {
+    setInputValue(tip.toFixed(2));
   };
 
   const handleDeleteTip = () => {
@@ -114,26 +137,28 @@ const TipEditor = ({
   };
 
   const handleCancelTip = () => {
-    setTip(receiptTip ?? 0);
+    setTipAndInput(receiptTip ?? new Decimal(0));
     setError(null);
     setIsEditing(false);
   };
 
-  const handlePercentageTipSelect = (amount: Decimal) => {
-    setTip(amount.toDP(2));
-  };
-
-  if (!hasValueToDelete && !isEditing) {
-    return (
-      <div className="-ml-2 -mr-2 rounded-sm border">
-        <EditableDetail
-          label="Tip"
-          value={formatCurrency(0)}
-          onClick={handleEditTip}
-        />
-      </div>
+  const handleQuickPercentageTip = (amount: Decimal) => {
+    const roundedAmount = amount.toDP(2);
+    setError(null);
+    mutate(
+      {
+        receiptId,
+        tip: roundedAmount.toNumber(),
+      },
+      {
+        onError: (error) => {
+          const errorMessage =
+            error?.message || 'Failed to save tip. Please try again.';
+          setError(errorMessage);
+        },
+      }
     );
-  }
+  };
 
   return (
     <div className="-ml-2 -mr-2 rounded-sm border">
@@ -145,62 +170,36 @@ const TipEditor = ({
             </div>
           )}
 
-          <Tabs defaultValue="exact" className="">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="tip" className="text-sm font-medium">
-                Tip:
-              </Label>
-
-              <TabsList>
-                <TabsTrigger value="exact">Exact</TabsTrigger>
-                <TabsTrigger value="percentage">Percentage</TabsTrigger>
-              </TabsList>
+          <Label htmlFor="tip" className="text-sm font-medium">
+            Tip:
+          </Label>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="select-none pr-1 text-lg text-muted-foreground">
+                $
+              </span>
+              <Input
+                ref={inputRef}
+                type="text"
+                inputMode="decimal"
+                value={inputValue}
+                onChange={handleTipChange}
+                onBlur={handleInputBlur}
+                placeholder="Tip"
+                required
+                className="text-center"
+                id="tip"
+                disabled={isPending}
+              />
             </div>
-            <TabsContent value="exact" className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="select-none pr-1 text-lg text-muted-foreground">
-                  $
-                </span>
-                <Input
-                  type="number"
-                  value={tip.toNumber()}
-                  onChange={handleTipChange}
-                  placeholder="Tip"
-                  min={0}
-                  step="0.01"
-                  required
-                  className="text-center"
-                  id="tip"
-                  disabled={isPending}
-                />
-              </div>
-              <div className="flex justify-center text-sm text-muted-foreground">
-                percentage of total{' '}
-                {itemsTotal.gt(0)
-                  ? calculations.utils.formatPercentage(tip, itemsTotal)
-                  : '—'}
-              </div>
-            </TabsContent>
-            <TabsContent value="percentage">
-              <div className="grid grid-flow-col gap-2">
-                <PercentageTipButton
-                  percentage={10}
-                  itemsTotal={itemsTotal}
-                  onTipSelect={handlePercentageTipSelect}
-                />
-                <PercentageTipButton
-                  percentage={15}
-                  itemsTotal={itemsTotal}
-                  onTipSelect={handlePercentageTipSelect}
-                />
-                <PercentageTipButton
-                  percentage={20}
-                  itemsTotal={itemsTotal}
-                  onTipSelect={handlePercentageTipSelect}
-                />
-              </div>
-            </TabsContent>
-          </Tabs>
+            <div className="flex justify-center text-sm text-muted-foreground">
+              percentage of total{' '}
+              {itemsTotal.gt(0)
+                ? calculations.utils.formatPercentage(tip, itemsTotal)
+                : '—'}
+            </div>
+
+          </div>
 
           <div
             className={cn(
@@ -239,11 +238,30 @@ const TipEditor = ({
           </div>
         </div>
       ) : (
-        <EditableDetail
-          label="Tip"
-          value={formatCurrency(receiptTip ?? 0)}
-          onClick={handleEditTip}
-        />
+        <>
+          <EditableDetail
+            label="Tip"
+            value={formatCurrency(receiptTip ?? 0)}
+            onClick={handleEditTip}
+          />
+          <div className="grid grid-flow-col gap-2 px-2 pb-2">
+            <PercentageTipButton
+              percentage={10}
+              itemsTotal={itemsTotal}
+              onTipSelect={handleQuickPercentageTip}
+            />
+            <PercentageTipButton
+              percentage={15}
+              itemsTotal={itemsTotal}
+              onTipSelect={handleQuickPercentageTip}
+            />
+            <PercentageTipButton
+              percentage={20}
+              itemsTotal={itemsTotal}
+              onTipSelect={handleQuickPercentageTip}
+            />
+          </div>
+        </>
       )}
     </div>
   );
