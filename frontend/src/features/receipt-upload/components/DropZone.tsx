@@ -19,7 +19,10 @@ export const DropZone = ({ onDrop, children }: DropZoneProps) => {
 
   return (
     <div
-      {...getRootProps()}
+      {...getRootProps({
+        role: 'button',
+        'aria-label': 'Drop files here to upload',
+      })}
       className={`cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
         isDragActive
           ? 'border-primary/50 bg-primary/5'
