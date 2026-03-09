@@ -224,9 +224,9 @@ This works for any service: `db-splitzy-local`, `zero-query-local`, or `zero-cac
    flask db upgrade
    ```
 
-6. **Start the Flask application:**
+6. **Start the Flask application:** From the `backend/` directory with the virtual environment activated, run:
    ```bash
-   python app.py
+   gunicorn --bind localhost:5001 app:app
    ```
    The backend will start at http://localhost:5001
 

@@ -1,7 +1,7 @@
 # Cursor AI Assistant Rules for Splitzy
 
 ## Backend Development
-- **Always start the backend by running `python app.py` from the `backend/` directory**
+- **Always start the backend by activating the virtual environment and running `gunicorn --bind localhost:5001 app:app` from the `backend/` directory**
 - The virtual environment is located at `backend/venv/`
 - When running Python commands, always activate the virtual environment first: `cd backend && source venv/bin/activate && python ...`
 - When checking syntax or imports, use: `cd backend && source venv/bin/activate && python -m py_compile <file>`
