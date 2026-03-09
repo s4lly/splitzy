@@ -34,6 +34,7 @@ import type { ReceiptLineItem } from './ReceiptLineItem';
  *   finalTotal: new Decimal(59.50),
  *   isReceipt: true,
  *   taxIncludedInItems: false,
+ *   tipAfterTax: false,
  *   lineItems: []
  * };
  * ```
