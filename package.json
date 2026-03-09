@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "pnpm@10.17.1",
   "scripts": {
+    "dev": "pnpm --parallel --filter frontend --filter zero-query run dev",
     "format": "pnpm --filter frontend run format && pnpm --filter zero-query run format",
     "format:fix": "pnpm --filter frontend run format:fix && pnpm --filter zero-query run format:fix",
     "lint": "pnpm --filter frontend run lint && pnpm --filter zero-query run lint",
