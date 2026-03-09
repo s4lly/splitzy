@@ -152,7 +152,7 @@ export default function LineItemsTableDesktop({
                     )}
                     aria-label={`Edit ${item.name ?? 'item'}`}
                   >
-                    <Pencil className="h-4 w-4" aria-hidden />
+                    <Pencil aria-hidden />
                   </Toggle>
                 </TableCell>
               </TableRow>
