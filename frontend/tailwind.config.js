@@ -16,6 +16,15 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        display: ['Fraunces Variable', 'Georgia', 'serif'],
+        sans: [
+          'Plus Jakarta Sans Variable',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'sans-serif',
+        ],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

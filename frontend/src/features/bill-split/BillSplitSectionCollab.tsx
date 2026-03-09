@@ -6,7 +6,7 @@ import { ManualSplitTabCollab } from './components/ManualSplitTabCollab';
 
 export const BillSplitSectionCollab = () => {
   return (
-    <Card className="overflow-hidden rounded-none border-2 shadow-md sm:rounded-lg">
+    <Card className="overflow-hidden border-0 shadow-[0_2px_12px_0_rgba(0,0,0,0.06)]">
       <Tabs className="p-3" defaultValue="manual">
         <TabsList>
           <TabsTrigger value="manual">Manual</TabsTrigger>

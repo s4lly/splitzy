@@ -1,0 +1,4 @@
+/* Locally hosted fonts via @fontsource (no runtime calls to Google) */
+@import '@fontsource-variable/fraunces/wght.css';
+@import '@fontsource-variable/fraunces/wght-italic.css';
+@import '@fontsource-variable/plus-jakarta-sans/wght.css';

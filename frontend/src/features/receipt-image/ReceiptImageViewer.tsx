@@ -75,9 +75,9 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
 
   return (
     <animated.div style={mountAnimation}>
-      <Card className="overflow-hidden border shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between border-b pb-2">
-          <CardTitle className="flex items-center gap-2 text-lg font-medium">
+      <Card className="overflow-hidden border-0 shadow-[0_2px_12px_0_rgba(0,0,0,0.06)]">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-border/50 pb-2">
+          <CardTitle className="flex items-center gap-2 font-display text-lg font-semibold">
             <ImageIcon className="h-5 w-5 text-primary" />
             Receipt Image
           </CardTitle>
@@ -102,8 +102,9 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
                       size="sm"
                       className="h-8 w-8 p-0"
                       onClick={() => setSettingsOpen(true)}
+                      aria-label="Image settings"
                     >
-                      <Settings className="h-4 w-4" />
+                      <Settings className="h-4 w-4" aria-hidden />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -125,6 +126,7 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden
                   >
                     <path
                       strokeLinecap="round"
@@ -158,8 +160,9 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
                     size="sm"
                     className="rounded-full opacity-80 shadow-md hover:opacity-100"
                     onClick={resetImage}
+                    aria-label="Reset image zoom"
                   >
-                    <Undo className="h-4 w-4" />
+                    <Undo className="h-4 w-4" aria-hidden />
                   </Button>
                 </div>
               )}
