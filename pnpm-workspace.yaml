@@ -1,3 +1,7 @@
 packages:
-  - "frontend"
-  - "zero-query"
+  - frontend
+  - zero-query
+
+onlyBuiltDependencies:
+  - '@rocicorp/zero-sqlite3'
+  - esbuild
