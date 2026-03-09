@@ -147,12 +147,12 @@ export default function LineItemsTableMobile({
                       onClick={(e) => handleEditOpen(e, item.id)}
                       aria-expanded={showReducedAssignments}
                       aria-label={
-                        showReducedDetails
+                        showReducedAssignments
                           ? 'Collapse edit'
                           : `Edit ${item.name ?? 'item'}`
                       }
                     >
-                      {!showReducedDetails ? (
+                      {!showReducedAssignments ? (
                         <Pencil aria-hidden />
                       ) : (
                         <ChevronUp aria-hidden />
