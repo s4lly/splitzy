@@ -40,7 +40,6 @@ export const ReceiptSummaryCard = () => {
           {/* Tax Information Alert */}
           {receipt.taxIncludedInItems && (
             <div
-              role="status"
               className="mb-3 flex items-start rounded-md bg-blue-50 p-2 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 sm:p-3"
             >
               <AlertCircle
@@ -61,7 +60,6 @@ export const ReceiptSummaryCard = () => {
             receipt.tax &&
             receipt.tax.greaterThan(0) && (
               <div
-                role="status"
                 className="mb-3 flex items-start rounded-md bg-blue-50 p-2 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 sm:p-3"
               >
                 <AlertCircle
