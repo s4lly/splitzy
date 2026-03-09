@@ -17,7 +17,8 @@ export const AssignmentsContainer = ({
 }) => {
   const isMobile = useMobile();
 
-  const Container = isMobile ? 'div' : 'button';
+  const isButton = !isMobile;
+  const Container = isButton ? 'button' : 'div';
 
   const handleClick = (e: React.MouseEvent) => {
     clickCallback?.(e);
@@ -27,15 +28,13 @@ export const AssignmentsContainer = ({
     <Container
       className={cn(
         'flex w-full items-center gap-2 rounded-full',
-        !isMobile && 'bg-gray-100 p-2 dark:bg-muted',
+        isButton && 'bg-gray-100 p-2 dark:bg-muted',
         isSelected && 'bg-gray-200 dark:bg-accent',
         className
       )}
       onClick={handleClick}
-      {...(Container === 'button' && ariaLabel
-        ? { 'aria-label': ariaLabel }
-        : {})}
-      {...(Container === 'button' && typeof isSelected === 'boolean'
+      {...(isButton && ariaLabel ? { 'aria-label': ariaLabel } : {})}
+      {...(isButton && typeof isSelected === 'boolean'
         ? { 'aria-expanded': isSelected }
         : {})}
     >
