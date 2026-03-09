@@ -118,6 +118,7 @@ export const ReceiptUploader = ({
           <ErrorMessage error={error} />
 
           <Button
+            type="button"
             className="w-full"
             size="lg"
             onClick={handleSubmit}
