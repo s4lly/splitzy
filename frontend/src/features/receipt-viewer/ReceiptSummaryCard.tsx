@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import { useAtomValue } from 'jotai';
 import { AlertCircle, DollarSign } from 'lucide-react';
@@ -32,7 +33,7 @@ export const ReceiptSummaryCard = () => {
       <CardHeader className="px-4 pb-2 sm:px-5">
         <CardTitle className="flex items-center gap-2 font-display text-lg font-semibold">
           <DollarSign className="h-5 w-5 text-muted-foreground" />
-          Summary
+          <Trans>Summary</Trans>
         </CardTitle>
       </CardHeader>
       <CardContent className="px-4 sm:px-5">
@@ -45,10 +46,14 @@ export const ReceiptSummaryCard = () => {
                 aria-hidden
               />
               <div>
-                <p className="font-medium">Tax Included in Prices</p>
+                <p className="font-medium">
+                  <Trans>Tax Included in Prices</Trans>
+                </p>
                 <p>
-                  The tax is already included in the individual item prices
-                  shown.
+                  <Trans>
+                    The tax is already included in the individual item prices
+                    shown.
+                  </Trans>
                 </p>
               </div>
             </div>
@@ -63,7 +68,9 @@ export const ReceiptSummaryCard = () => {
                   aria-hidden
                 />
                 <div>
-                  <p className="font-medium">Tax Calculation</p>
+                  <p className="font-medium">
+                    <Trans>Tax Calculation</Trans>
+                  </p>
                   <p>
                     {(() => {
                       const pretaxTotal =
@@ -73,9 +80,14 @@ export const ReceiptSummaryCard = () => {
                       const taxRate = pretaxTotal.greaterThan(0)
                         ? receipt.tax.div(pretaxTotal).mul(100)
                         : new Decimal(0);
-                      return `Tax rate is approximately ${taxRate.toFixed(
-                        2
-                      )}% and has been distributed proportionally based on each person's items.`;
+                      const formattedRate = taxRate.toFixed(2);
+                      return (
+                        <Trans>
+                          Tax rate is approximately {formattedRate}% and has
+                          been distributed proportionally based on each person's
+                          items.
+                        </Trans>
+                      );
                     })()}
                   </p>
                 </div>
@@ -84,7 +96,9 @@ export const ReceiptSummaryCard = () => {
 
           {/* Items Total */}
           <div className="flex items-center justify-between py-2">
-            <span className="text-base">Items Total:</span>
+            <span className="text-base">
+              <Trans>Items Total:</Trans>
+            </span>
             <span className="text-base font-medium">
               {formatCurrency(itemsTotal)}
             </span>
@@ -98,7 +112,9 @@ export const ReceiptSummaryCard = () => {
               .abs()
               .greaterThan(new Decimal(0.01)) && (
               <div className="flex items-center justify-between py-1 sm:py-2">
-                <span className="text-base">Subtotal (as shown):</span>
+                <span className="text-base">
+                  <Trans>Subtotal (as shown):</Trans>
+                </span>
                 <span className="text-base font-medium">
                   {formatCurrency(receipt.displaySubtotal)}
                 </span>
@@ -113,7 +129,9 @@ export const ReceiptSummaryCard = () => {
               .abs()
               .greaterThan(new Decimal(0.01)) && (
               <div className="flex items-center justify-between py-1 sm:py-2">
-                <span className="text-base">Pre-tax Total:</span>
+                <span className="text-base">
+                  <Trans>Pre-tax Total:</Trans>
+                </span>
                 <span className="text-base font-medium">
                   {formatCurrency(receipt.pretaxTotal)}
                 </span>
@@ -123,10 +141,12 @@ export const ReceiptSummaryCard = () => {
           {/* Tax Amount */}
           <div className="flex items-center justify-between py-1 sm:py-2">
             <div className="flex items-center">
-              <span className="text-base">Tax:</span>
+              <span className="text-base">
+                <Trans>Tax:</Trans>
+              </span>
               {receipt.taxIncludedInItems && (
                 <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
-                  Included in prices
+                  <Trans>Included in prices</Trans>
                 </span>
               )}
             </div>
@@ -141,7 +161,9 @@ export const ReceiptSummaryCard = () => {
           {((receipt.tip && receipt.tip.greaterThan(0)) ||
             (receipt.gratuity && receipt.gratuity.greaterThan(0))) && (
             <div className="flex items-center justify-between py-1 sm:py-2">
-              <span className="text-base">Post-tax Total:</span>
+              <span className="text-base">
+                <Trans>Post-tax Total:</Trans>
+              </span>
               <span className="text-base font-medium">
                 {formatCurrency(
                   receipt.posttaxTotal ??
@@ -170,7 +192,9 @@ export const ReceiptSummaryCard = () => {
 
           {/* Final Total */}
           <div className="mt-2 flex items-center justify-between border-t-2 border-border pt-3">
-            <span className="text-base font-semibold">Final Total:</span>
+            <span className="text-base font-semibold">
+              <Trans>Final Total:</Trans>
+            </span>
             <span className="text-xl font-bold">
               {formatCurrency(receiptTotal)}
             </span>

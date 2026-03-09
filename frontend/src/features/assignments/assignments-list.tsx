@@ -1,4 +1,5 @@
 import { useAuth } from '@clerk/clerk-react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import { Check, GripVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
@@ -80,6 +81,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
   formQuantity,
   allAssignments,
 }) => {
+  const { t } = useLingui();
   const { userId: clerkUserId } = useAuth();
   const [newPerson, setNewPerson] = useState('');
   const [claimTarget, setClaimTarget] = useState<{
@@ -181,7 +183,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
         <div className="flex flex-1 flex-col gap-2">
           {item.assignments.length === 0 ? (
             <div className="text-sm text-muted-foreground">
-              No one assigned yet.
+              <Trans>No one assigned yet.</Trans>
             </div>
           ) : (
             <ul className="flex flex-col gap-2">
@@ -229,17 +231,17 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                           }}
                           aria-label={
                             action.type === 'sign-in'
-                              ? `Sign in to claim ${displayName}`
+                              ? t`Sign in to claim ${displayName}`
                               : action.type === 'switch'
-                                ? `Switch to ${displayName}`
-                                : `Claim ${displayName}`
+                                ? t`Switch to ${displayName}`
+                                : t`Claim ${displayName}`
                           }
                           title={
                             action.type === 'sign-in'
-                              ? `Sign in to claim ${displayName}`
+                              ? t`Sign in to claim ${displayName}`
                               : action.type === 'switch'
-                                ? `Switch to ${displayName}`
-                                : `Claim ${displayName}`
+                                ? t`Switch to ${displayName}`
+                                : t`Claim ${displayName}`
                           }
                         >
                           <Avatar
@@ -270,7 +272,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                             clerkUserId && (
                             <AvatarBadge
                               className="bg-green-600 text-white ring-2 ring-background dark:bg-green-700 dark:text-white"
-                              aria-label="Linked to your account"
+                              aria-label={t`Linked to your account`}
                             >
                               <Check className="size-2.5" aria-hidden />
                             </AvatarBadge>
@@ -299,8 +301,8 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                         size="icon"
                         variant="secondary"
                         onClick={() => onRemoveAssignment(assignment.id)}
-                        aria-label={`Remove ${displayName}`}
-                        title={`Remove ${displayName}`}
+                        aria-label={t`Remove ${displayName}`}
+                        title={t`Remove ${displayName}`}
                       >
                         <X />
                       </Button>
@@ -316,7 +318,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
         <div className="flex-1 space-y-2">
           <div className="flex flex-col gap-1">
             <Label htmlFor="new-item-assignment" className="font-semibold">
-              New:
+              <Trans>New:</Trans>
             </Label>
             <div className="flex items-center gap-2">
               <Input
@@ -325,7 +327,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                 value={newPerson}
                 onChange={(e) => setNewPerson(e.target.value)}
                 onKeyDown={handleInputKeyDown}
-                placeholder="Enter name..."
+                placeholder={t`Enter name...`}
                 className="flex-1"
               />
               <Button
@@ -343,7 +345,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                 }}
                 disabled={!newPersonSanitized}
               >
-                Create
+                <Trans>Create</Trans>
               </Button>
             </div>
           </div>
@@ -364,7 +366,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                     disabled={filteredReceiptUserIds.length === 0}
                     className="w-full"
                   >
-                    Assign All
+                    <Trans>Assign All</Trans>
                   </Button>
                 </li>
               )}
@@ -373,11 +375,11 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                 <div className="text-center">
                   {newPersonSanitized ? (
                     <span className="text-sm text-muted-foreground">
-                      No matching people. Press Enter to add.
+                      <Trans>No matching people. Press Enter to add.</Trans>
                     </span>
                   ) : (
                     <span className="text-sm text-muted-foreground">
-                      All people assigned.
+                      <Trans>All people assigned.</Trans>
                     </span>
                   )}
                 </div>
@@ -397,8 +399,8 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                       variant="outline"
                       onClick={() => handleAddExisting(receiptUserId)}
                       className="size-8 rounded-full"
-                      aria-label={`Assign ${displayName}`}
-                      title={`Assign ${displayName}`}
+                      aria-label={t`Assign ${displayName}`}
+                      title={t`Assign ${displayName}`}
                     >
                       <Plus />
                     </Button>

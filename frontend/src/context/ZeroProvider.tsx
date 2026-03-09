@@ -1,4 +1,5 @@
 import { useAuth } from '@clerk/react-router';
+import { Trans } from '@lingui/react/macro';
 import type { ZeroOptions } from '@rocicorp/zero';
 import { ZeroProvider } from '@rocicorp/zero/react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
@@ -121,11 +122,15 @@ export function AuthenticatedZeroProvider({
       <div className="flex min-h-screen items-center justify-center p-4">
         <Alert variant="destructive" className="max-w-md">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Authentication Error</AlertTitle>
+          <AlertTitle>
+            <Trans>Authentication Error</Trans>
+          </AlertTitle>
           <AlertDescription>
             <p className="mb-4">
-              Failed to fetch authentication token. Your requests may not be
-              properly authenticated.
+              <Trans>
+                Failed to fetch authentication token. Your requests may not be
+                properly authenticated.
+              </Trans>
             </p>
             {tokenError.message && (
               <p className="mb-4 text-xs opacity-80">{tokenError.message}</p>
@@ -140,12 +145,12 @@ export function AuthenticatedZeroProvider({
               {isRetrying ? (
                 <>
                   <Spinner className="mr-2 size-4" />
-                  Retrying...
+                  <Trans>Retrying...</Trans>
                 </>
               ) : (
                 <>
                   <RefreshCw className="mr-2 size-4" />
-                  Retry
+                  <Trans>Retry</Trans>
                 </>
               )}
             </Button>

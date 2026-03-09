@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { Receipt, Server } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -40,7 +41,15 @@ export default function Footer() {
                   : 'bg-red-500'
             }`}
           />
-          <span>{apiStatus}</span>
+          <span>
+            {apiStatus === 'healthy' ? (
+              <Trans>healthy</Trans>
+            ) : apiStatus === 'checking' ? (
+              <Trans>checking</Trans>
+            ) : (
+              <Trans>unhealthy</Trans>
+            )}
+          </span>
         </div>
       </div>
     </footer>

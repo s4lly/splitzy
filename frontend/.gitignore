@@ -22,3 +22,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .vercel
+
+# Lingui compiled catalogs
+src/locales/**/messages.ts

@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Pencil } from 'lucide-react';
 import { Fragment, useState } from 'react';
 
@@ -56,6 +57,7 @@ export default function LineItemsTableDesktop({
 }) {
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [assignmentItemId, setAssignmentItemId] = useState<string | null>(null);
+  const { t } = useLingui();
 
   const handleEditOpen = (itemId: string) => {
     setEditItemId(itemId);
@@ -89,13 +91,25 @@ export default function LineItemsTableDesktop({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-1/2">Item</TableHead>
-            <TableHead className="w-20">Qty</TableHead>
-            <TableHead className="w-24">Price</TableHead>
-            <TableHead className="w-24">Total</TableHead>
-            <TableHead className="w-fit">Assigned To</TableHead>
+            <TableHead className="w-1/2">
+              <Trans>Item</Trans>
+            </TableHead>
+            <TableHead className="w-20">
+              <Trans>Qty</Trans>
+            </TableHead>
+            <TableHead className="w-24">
+              <Trans>Price</Trans>
+            </TableHead>
+            <TableHead className="w-24">
+              <Trans>Total</Trans>
+            </TableHead>
+            <TableHead className="w-fit">
+              <Trans>Assigned To</Trans>
+            </TableHead>
             <TableHead className="w-12">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">
+                <Trans>Actions</Trans>
+              </span>
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -111,7 +125,7 @@ export default function LineItemsTableDesktop({
               >
                 <TableCell>
                   <span className="text-base font-medium">
-                    {item.name ?? '(Unnamed item)'}
+                    {item.name ?? t`(Unnamed item)`}
                   </span>
                 </TableCell>
                 <TableCell>
@@ -133,7 +147,7 @@ export default function LineItemsTableDesktop({
                   <AssignmentsContainer
                     clickCallback={() => handleAssignmentToggle(item.id)}
                     isSelected={assignmentItemId === item.id}
-                    ariaLabel={`Manage assignments for ${item.name ?? 'item'}`}
+                    ariaLabel={t`Manage assignments for ${item.name ?? t`item`}`}
                   >
                     <PersonAssignmentSection
                       item={item}
@@ -150,7 +164,7 @@ export default function LineItemsTableDesktop({
                     className={cn(
                       editItemId === item.id && 'data-[state=on]:bg-gray-200'
                     )}
-                    aria-label={`Edit ${item.name ?? 'item'}`}
+                    aria-label={t`Edit ${item.name ?? t`item`}`}
                   >
                     <Pencil aria-hidden />
                   </Toggle>
@@ -173,13 +187,13 @@ export default function LineItemsTableDesktop({
                           variant="outline"
                           className="border-red-500 text-red-500"
                         >
-                          Delete
+                          <Trans>Delete</Trans>
                         </Button>
                         <Button
                           onClick={() => setEditItemId(null)}
                           variant="outline"
                         >
-                          Done
+                          <Trans>Done</Trans>
                         </Button>
                       </div>
                     </div>
@@ -196,11 +210,13 @@ export default function LineItemsTableDesktop({
                       <div className="flex gap-4 p-2">
                         <div className="flex-1">
                           <h3 className="text-lg font-medium">
-                            Assigned Users
+                            <Trans>Assigned Users</Trans>
                           </h3>
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-lg font-medium">Add Users</h3>
+                          <h3 className="text-lg font-medium">
+                            <Trans>Add Users</Trans>
+                          </h3>
                         </div>
                       </div>
                       <AssignmentsList
@@ -227,13 +243,13 @@ export default function LineItemsTableDesktop({
                           variant="outline"
                           className="border-red-500 text-red-500"
                         >
-                          Delete
+                          <Trans>Delete</Trans>
                         </Button>
                         <Button
                           onClick={() => setAssignmentItemId(null)}
                           variant="outline"
                         >
-                          Done
+                          <Trans>Done</Trans>
                         </Button>
                       </div>
                     </div>

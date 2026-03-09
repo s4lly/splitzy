@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import { useDropzone } from 'react-dropzone';
 
 interface DropZoneProps {
@@ -6,6 +7,7 @@ interface DropZoneProps {
 }
 
 export const DropZone = ({ onDrop, children }: DropZoneProps) => {
+  const { t } = useLingui();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
@@ -21,7 +23,7 @@ export const DropZone = ({ onDrop, children }: DropZoneProps) => {
     <div
       {...getRootProps({
         role: 'button',
-        'aria-label': 'Drop files here to upload',
+        'aria-label': t`Drop files here to upload`,
       })}
       className={`cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
         isDragActive

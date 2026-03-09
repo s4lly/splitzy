@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useZero } from '@rocicorp/zero/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -26,6 +27,7 @@ export function ImageSettingsDialog({
   receiptId,
   imageVisibility,
 }: ImageSettingsDialogProps) {
+  const { t } = useLingui();
   const zero = useZero();
   const [isSaving, setIsSaving] = useState(false);
   const isPrivate = imageVisibility === 'owner_only';
@@ -50,14 +52,14 @@ export function ImageSettingsDialog({
           'Failed to update image visibility:',
           clientResult.error.message
         );
-        toast.error('Failed to update image visibility');
+        toast.error(t`Failed to update image visibility`);
       } else {
         console.info('Successfully updated image visibility');
-        toast.success('Image visibility updated');
+        toast.success(t`Image visibility updated`);
       }
     } catch (error) {
       console.error('Error updating image visibility:', error);
-      toast.error('Failed to update image visibility');
+      toast.error(t`Failed to update image visibility`);
     } finally {
       setIsSaving(false);
     }
@@ -67,16 +69,20 @@ export function ImageSettingsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Image Settings</DialogTitle>
+          <DialogTitle>
+            <Trans>Image Settings</Trans>
+          </DialogTitle>
           <DialogDescription>
-            Control who can see the receipt image.
+            <Trans>Control who can see the receipt image.</Trans>
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center justify-between space-x-2 py-4">
           <Label htmlFor="image-visibility" className="flex flex-col space-y-1">
-            <span>Private Image</span>
+            <span>
+              <Trans>Private Image</Trans>
+            </span>
             <span className="text-xs font-normal text-muted-foreground">
-              Only you can see the image when enabled
+              <Trans>Only you can see the image when enabled</Trans>
             </span>
           </Label>
           <Switch

@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import { useState } from 'react';
 
@@ -96,14 +97,14 @@ export default function LineItemAddForm({
 
       <div className="flex justify-end gap-2 p-2">
         <Button onClick={onAddCancel} variant="outline" disabled={isPending}>
-          Cancel
+          <Trans>Cancel</Trans>
         </Button>
         <Button
           onClick={handleAddItem}
           variant="outline"
           disabled={isPending || isStringEmpty(formData.name)}
         >
-          Add
+          <Trans>Add</Trans>
         </Button>
       </div>
     </div>

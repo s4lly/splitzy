@@ -1,4 +1,6 @@
 import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
+import { msg } from '@lingui/core/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery } from '@rocicorp/zero/react';
 import { motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
@@ -30,7 +32,7 @@ const ReceiptHistorySection = () => {
     return (
       <Card className="p-6">
         <p className="text-destructive">
-          Unable to load receipt history. Please try again later.
+          <Trans>Unable to load receipt history. Please try again later.</Trans>
         </p>
       </Card>
     );
@@ -42,20 +44,18 @@ const ReceiptHistorySection = () => {
 const features = [
   {
     emoji: '📸',
-    title: 'Scan any receipt',
-    description:
-      'Take a photo and we extract every line item automatically — no manual entry.',
+    title: msg`Scan any receipt`,
+    description: msg`Take a photo and we extract every line item automatically — no manual entry.`,
   },
   {
     emoji: '🤝',
-    title: 'Split fairly',
-    description:
-      'Assign items to people, split shared costs, and handle tips. No awkward math.',
+    title: msg`Split fairly`,
+    description: msg`Assign items to people, split shared costs, and handle tips. No awkward math.`,
   },
   {
     emoji: '📂',
-    title: 'Track history',
-    description: 'Every split is saved. Review, adjust, or settle up any time.',
+    title: msg`Track history`,
+    description: msg`Every split is saved. Review, adjust, or settle up any time.`,
     signInCta: true,
   },
 ];
@@ -79,6 +79,7 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [apiStatus, setApiStatus] = useState('checking');
   const shouldReduceMotion = useReducedMotion();
+  const { t } = useLingui();
 
   useDocumentTitle('Home');
 
@@ -121,7 +122,9 @@ const HomePage = () => {
               aria-hidden="true"
             />
             <p className="text-destructive">
-              Service temporarily unavailable. Please try again later.
+              <Trans>
+                Service temporarily unavailable. Please try again later.
+              </Trans>
             </p>
           </div>
         )}
@@ -131,11 +134,13 @@ const HomePage = () => {
       <motion.section {...fadeUp(0, shouldReduceMotion)}>
         <div className="mb-4 flex justify-center">
           <span className="rounded-full bg-accent px-3.5 py-1 text-xs font-medium tracking-wide text-accent-foreground">
-            receipt splitting, simplified
+            <Trans>receipt splitting, simplified</Trans>
           </span>
         </div>
         <p className="text-center text-sm leading-relaxed text-muted-foreground">
-          Scan a receipt, divide costs fairly, settle up in seconds.
+          <Trans>
+            Scan a receipt, divide costs fairly, settle up in seconds.
+          </Trans>
         </p>
       </motion.section>
 
@@ -154,18 +159,20 @@ const HomePage = () => {
         className="border-t border-border pt-6"
       >
         <p className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          how it works
+          <Trans>how it works</Trans>
         </p>
         <h2 className="mb-6 text-center font-display text-[1.4rem] font-semibold leading-snug tracking-[-0.01em] text-foreground">
-          From receipt to settled,
-          <br />
-          <span className="font-light italic">in a few taps.</span>
+          <Trans>
+            From receipt to settled,
+            <br />
+            <span className="font-light italic">in a few taps.</span>
+          </Trans>
         </h2>
 
         <div className="flex flex-col gap-3">
           {features.map((feature, i) => (
             <motion.div
-              key={feature.title}
+              key={t(feature.title)}
               initial={
                 shouldReduceMotion
                   ? { opacity: 1, y: 0 }
@@ -191,16 +198,16 @@ const HomePage = () => {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-foreground">
-                  {feature.title}
+                  {t(feature.title)}
                 </h3>
                 <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-                  {feature.description}
+                  {t(feature.description)}
                 </p>
                 {feature.signInCta && (
                   <SignedOut>
                     <SignInButton>
                       <button className="mt-2 min-h-[24px] min-w-[24px] text-xs font-semibold text-primary underline-offset-2 hover:underline">
-                        Sign in to see your history →
+                        <Trans>Sign in to see your history →</Trans>
                       </button>
                     </SignInButton>
                   </SignedOut>

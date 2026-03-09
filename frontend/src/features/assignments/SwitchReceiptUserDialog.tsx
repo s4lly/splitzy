@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery, useZero } from '@rocicorp/zero/react';
 import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
@@ -68,6 +69,7 @@ export function SwitchReceiptUserDialog({
   receiptId,
   possiblePeople,
 }: SwitchReceiptUserDialogProps) {
+  const { t } = useLingui();
   const zero = useZero();
   const [user] = useQuery(queries.users.receipts.byAuthUserId({}));
   const [isSaving, setIsSaving] = useState(false);
@@ -110,7 +112,7 @@ export function SwitchReceiptUserDialog({
           'Failed to unclaim previous receipt user:',
           unclaimClient.error.message
         );
-        toast.error('Failed to switch person', {
+        toast.error(t`Failed to switch person`, {
           description: unclaimClient.error.message,
         });
         return;
@@ -140,13 +142,12 @@ export function SwitchReceiptUserDialog({
           const rollbackClient = await rollbackResult.client;
           if (rollbackClient.type === 'error') {
             console.error('Rollback failed:', rollbackClient.error.message);
-            toast.error('Failed to switch person', {
-              description:
-                'Could not restore your original claim. Please try claiming again manually.',
+            toast.error(t`Failed to switch person`, {
+              description: t`Could not restore your original claim. Please try claiming again manually.`,
             });
           } else {
-            toast.error('Failed to switch person', {
-              description: 'Your original claim has been restored.',
+            toast.error(t`Failed to switch person`, {
+              description: t`Your original claim has been restored.`,
             });
           }
         } catch (rollbackError) {
@@ -161,31 +162,27 @@ export function SwitchReceiptUserDialog({
       }
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : 'Something went wrong';
+        error instanceof Error ? error.message : t`Something went wrong`;
       console.error('Error switching receipt user:', error);
-      toast.error('Failed to switch person', { description: message });
+      toast.error(t`Failed to switch person`, { description: message });
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Button label reflects in-progress state for accessibility and clarity.
-  let switchButtonLabel: string;
-  if (isSaving) {
-    switchButtonLabel = 'Switching…';
-  } else {
-    switchButtonLabel = 'Switch';
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Switch to this person</DialogTitle>
+          <DialogTitle>
+            <Trans>Switch to this person</Trans>
+          </DialogTitle>
           <DialogDescription>
-            Move your claim from &quot;{previousReceiptUser.name}&quot; to
-            &quot;{newReceiptUser.name}&quot;? Your account will be linked to
-            the new receipt user.
+            <Trans>
+              Move your claim from "{previousReceiptUser.name}" to "
+              {newReceiptUser.name}"? Your account will be linked to the new
+              receipt user.
+            </Trans>
           </DialogDescription>
         </DialogHeader>
         {/* Previous and new receipt user avatars with arrow indicating the switch direction. */}
@@ -230,14 +227,14 @@ export function SwitchReceiptUserDialog({
             onClick={() => onOpenChange(false)}
             disabled={isSaving}
           >
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
           <Button
             type="button"
             onClick={handleSwitch}
             disabled={!canSwitch || isSaving}
           >
-            {switchButtonLabel}
+            {isSaving ? <Trans>Switching…</Trans> : <Trans>Switch</Trans>}
           </Button>
         </DialogFooter>
       </DialogContent>

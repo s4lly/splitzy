@@ -2,6 +2,7 @@
 // Imports
 // -----------------------------------------------------------------------------
 
+import { Trans, useLingui } from '@lingui/react/macro';
 import { ChevronUp, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
 
@@ -65,6 +66,7 @@ export default function LineItemsTableMobile({
 
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [assignmentItemId, setAssignmentItemId] = useState<string | null>(null);
+  const { t } = useLingui();
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -134,7 +136,7 @@ export default function LineItemsTableMobile({
                 {/* Header: Name + Price + Edit Toggle */}
                 <div className="flex items-center justify-between border-b border-border/40 bg-muted/10 p-2">
                   <span className="text-base font-medium">
-                    {item.name ?? '(Unnamed item)'}
+                    {item.name ?? t`(Unnamed item)`}
                   </span>
                   <div className="flex items-center gap-2">
                     <div className="text-right font-semibold">
@@ -148,8 +150,8 @@ export default function LineItemsTableMobile({
                       aria-expanded={showReducedAssignments}
                       aria-label={
                         showReducedAssignments
-                          ? 'Collapse edit'
-                          : `Edit ${item.name ?? 'item'}`
+                          ? t`Collapse edit`
+                          : t`Edit ${item.name ?? t`item`}`
                       }
                     >
                       {!showReducedAssignments ? (
@@ -165,13 +167,17 @@ export default function LineItemsTableMobile({
                 {!showReducedDetails && (
                   <div className="flex flex-col gap-2 p-2">
                     <div className="flex items-baseline gap-2 text-sm">
-                      <span className="text-muted-foreground">Quantity:</span>
+                      <span className="text-muted-foreground">
+                        <Trans>Quantity:</Trans>
+                      </span>
                       <span className="flex-1 text-right text-base font-medium">
                         {item.quantity.toNumber()}
                       </span>
                     </div>
                     <div className="flex items-baseline gap-2 text-sm">
-                      <span className="text-muted-foreground">Unit Price:</span>
+                      <span className="text-muted-foreground">
+                        <Trans>Unit Price:</Trans>
+                      </span>
                       <span className="flex-1 text-right text-base font-medium">
                         {formatCurrency(item.pricePerItem)}
                       </span>
@@ -217,7 +223,7 @@ export default function LineItemsTableMobile({
                 {/* Label + Toggle */}
                 <div className={cn('flex items-center justify-between')}>
                   <span className="text-nowrap text-sm font-medium">
-                    Assigned to:
+                    <Trans>Assigned to:</Trans>
                   </span>
 
                   {!showReducedAssignments && (
@@ -226,8 +232,8 @@ export default function LineItemsTableMobile({
                       aria-expanded={showReducedDetails}
                       aria-label={
                         item.assignments.length === 0
-                          ? `Assign ${item.name ?? 'item'}`
-                          : `Manage assignments for ${item.name ?? 'item'}`
+                          ? t`Assign ${item.name ?? t`item`}`
+                          : t`Manage assignments for ${item.name ?? t`item`}`
                       }
                     >
                       {item.assignments.length === 0 ? (
@@ -256,7 +262,7 @@ export default function LineItemsTableMobile({
                   <Toggle
                     onClick={(e) => handleAssignmentOpen(e, item.id)}
                     aria-expanded={showReducedDetails}
-                    aria-label="Collapse assignments"
+                    aria-label={t`Collapse assignments`}
                   >
                     <ChevronUp aria-hidden />
                   </Toggle>
@@ -276,10 +282,14 @@ export default function LineItemsTableMobile({
                   className="border-red-500 text-red-500"
                   disabled={isDeleting}
                 >
-                  {isDeleting ? 'Deleting...' : 'Delete'}
+                  {isDeleting ? (
+                    <Trans>Deleting...</Trans>
+                  ) : (
+                    <Trans>Delete</Trans>
+                  )}
                 </Button>
                 <Button onClick={handleEditClose} variant="outline">
-                  Done
+                  <Trans>Done</Trans>
                 </Button>
               </div>
             )}

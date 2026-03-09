@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useAtomValue } from 'jotai';
 import { Plus, X } from 'lucide-react';
 import { useState } from 'react';
@@ -16,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { getUserDisplayName } from '@/utils/user-display';
 
 export const PeopleManagerFormCollab = () => {
+  const { t } = useLingui();
   const isMobile = useMobile();
   const assignedUsers = useAtomValue(assignedUsersAtom);
   const receiptUserIds = assignedUsers.map((a) => a.receiptUserId);
@@ -42,10 +44,12 @@ export const PeopleManagerFormCollab = () => {
 
   return (
     <div className="mb-4 rounded-lg border bg-muted/20 p-3">
-      <h3 className="mb-2 font-medium">Add People to Split With</h3>
+      <h3 className="mb-2 font-medium">
+        <Trans>Add People to Split With</Trans>
+      </h3>
       <div className="mb-3 flex flex-col gap-2 sm:flex-row">
         <Input
-          placeholder="Enter name"
+          placeholder={t`Enter name`}
           value={newPersonName}
           onChange={(e) => setNewPersonName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAddPerson()}
@@ -57,7 +61,7 @@ export const PeopleManagerFormCollab = () => {
           className="w-full sm:w-auto"
         >
           <Plus className="mr-1 h-4 w-4" />
-          Add
+          <Trans>Add</Trans>
         </Button>
       </div>
 
@@ -90,7 +94,7 @@ export const PeopleManagerFormCollab = () => {
         })}
         {receiptUserIds.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            No people added yet. Add people to split the bill.
+            <Trans>No people added yet. Add people to split the bill.</Trans>
           </p>
         )}
       </div>
