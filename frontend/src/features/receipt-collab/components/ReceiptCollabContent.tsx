@@ -6,7 +6,6 @@ import { useState } from 'react';
 import LineItemCard from '@/components/Receipt/components/LineItemCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { BillSplitSectionCollab } from '@/features/bill-split/BillSplitSectionCollab';
 import { LineItemAddFormAdapter } from '@/features/line-items/adapters/zero/LineItemAddFormAdapter';
 import { LineItemsTableDesktopAdapter } from '@/features/line-items/adapters/zero/LineItemsTableDesktopAdapter';
@@ -124,8 +123,6 @@ export const ReceiptCollabContent = () => {
           <ReceiptSummaryCard />
 
           <BillSplitSectionCollab />
-
-          <Separator />
 
           {isLocalDevelopment() && <ReceiptViewer />}
         </div>

@@ -1,23 +1,42 @@
 import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
+import { useQuery } from '@rocicorp/zero/react';
 import { motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
 import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
+import { Card } from '@/components/ui/card';
 import {
   ReceiptAnalysisResult,
   ReceiptUploader,
 } from '@/features/receipt-upload';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { useUserReceiptsQuery } from '@/hooks/useUserReceiptsQuery';
+import { fromZeroReceipt } from '@/lib/receiptTypes';
 import receiptService from '@/services/receiptService';
+import { queries } from '@/zero/queries';
 
 const ReceiptHistorySection = () => {
-  const { receipts } = useUserReceiptsQuery();
-  return <ReceiptHistory receipts={receipts} loading={false} />;
+  const [user, details] = useQuery(queries.users.receipts.byAuthUserId({}));
+  const receipts = useMemo(
+    () => (user?.receipts ? user.receipts.map(fromZeroReceipt) : []),
+    [user?.receipts]
+  );
+  const isLoading = details.type === 'unknown';
+
+  if (details.type === 'error') {
+    return (
+      <Card className="p-6">
+        <p className="text-destructive">
+          Unable to load receipt history. Please try again later.
+        </p>
+      </Card>
+    );
+  }
+
+  return <ReceiptHistory receipts={receipts} loading={isLoading} />;
 };
 
 const features = [
@@ -85,22 +104,11 @@ const HomePage = () => {
   };
 
   return (
-    <div className="mx-auto max-w-md px-4">
+    <div className="mx-auto flex max-w-md flex-col gap-6 px-4 pb-10 pt-8">
       <h1 className="sr-only">Splitzy</h1>
-      {/* ── Hero ── */}
-      <motion.section {...fadeUp(0, shouldReduceMotion)} className="pb-4 pt-8">
-        <div className="mb-4 flex justify-center">
-          <span className="rounded-full bg-accent px-3.5 py-1 text-xs font-medium tracking-wide text-accent-foreground">
-            receipt splitting, simplified
-          </span>
-        </div>
-        <p className="text-center text-sm leading-relaxed text-muted-foreground">
-          Scan a receipt, divide costs fairly, settle up in seconds.
-        </p>
-      </motion.section>
 
       {/* ── Upload ── */}
-      <motion.section {...fadeUp(0.1, shouldReduceMotion)} className="pb-5">
+      <motion.section {...fadeUp(0.1, shouldReduceMotion)}>
         <ReceiptUploader onAnalysisComplete={handleAnalysisComplete} />
 
         {apiStatus === 'unhealthy' && (
@@ -119,9 +127,21 @@ const HomePage = () => {
         )}
       </motion.section>
 
+      {/* ── Hero ── */}
+      <motion.section {...fadeUp(0, shouldReduceMotion)}>
+        <div className="mb-4 flex justify-center">
+          <span className="rounded-full bg-accent px-3.5 py-1 text-xs font-medium tracking-wide text-accent-foreground">
+            receipt splitting, simplified
+          </span>
+        </div>
+        <p className="text-center text-sm leading-relaxed text-muted-foreground">
+          Scan a receipt, divide costs fairly, settle up in seconds.
+        </p>
+      </motion.section>
+
       {/* ── Receipt history (signed-in only) ── */}
       <SignedIn>
-        <motion.section {...fadeUp(0.2, shouldReduceMotion)} className="pb-6">
+        <motion.section {...fadeUp(0.2, shouldReduceMotion)}>
           <Suspense fallback={<ReceiptHistorySkeleton />}>
             <ReceiptHistorySection />
           </Suspense>
@@ -131,7 +151,7 @@ const HomePage = () => {
       {/* ── How it works (below fold) ── */}
       <motion.section
         {...fadeUp(0.25, shouldReduceMotion)}
-        className="border-t border-border pb-20 pt-8"
+        className="border-t border-border pt-6"
       >
         <p className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           how it works
@@ -164,12 +184,12 @@ const HomePage = () => {
               className="flex items-start gap-4 rounded-2xl bg-card p-5 shadow-[0_1px_4px_0_rgba(0,0,0,0.06)] ring-1 ring-border/70"
             >
               <div
-                className="flex size-11 flex-shrink-0 items-center justify-center rounded-xl bg-accent text-xl"
+                className="mt-1 flex size-11 flex-shrink-0 items-center justify-center rounded-xl bg-accent text-xl"
                 aria-hidden="true"
               >
                 {feature.emoji}
               </div>
-              <div className="pt-0.5">
+              <div>
                 <h3 className="text-sm font-semibold text-foreground">
                   {feature.title}
                 </h3>

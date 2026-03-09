@@ -29,27 +29,3 @@ export function fromZeroReceipt(receipt: UserReceipt): ReceiptHistoryItem {
     created_at: new Date(receipt.created_at),
   };
 }
-
-/**
- * Transform legacy API receipt (with nested receipt_data) to ReceiptHistoryItem
- * Legacy API uses nested receipt_data and created_at is already an ISO string
- */
-export function fromLegacyReceipt(receipt: {
-  id: number;
-  receipt_data?: {
-    merchant?: string | null;
-    total?: number | null;
-    date?: string | null;
-  } | null;
-  created_at: string;
-}): ReceiptHistoryItem {
-  return {
-    id: receipt.id,
-    merchant: receipt.receipt_data?.merchant ?? null,
-    total: receipt.receipt_data?.total ?? null,
-    date: receipt.receipt_data?.date
-      ? new Date(receipt.receipt_data.date)
-      : null,
-    created_at: new Date(receipt.created_at),
-  };
-}

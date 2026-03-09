@@ -1,3 +1,4 @@
+import { Separator } from '@/components/ui/separator';
 import { useReceipt } from '@/context/ReceiptContext';
 
 /**
@@ -8,8 +9,11 @@ export const ReceiptViewer = () => {
   const receipt = useReceipt();
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
+      <Separator />
+
       <h1>Receipt Viewer</h1>
+
       <pre className="max-w-full overflow-x-auto">
         {JSON.stringify(receipt, null, 2)}
       </pre>
