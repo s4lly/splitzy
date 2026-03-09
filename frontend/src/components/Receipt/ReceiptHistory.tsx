@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import type { ReceiptHistoryItem } from '@/lib/receiptTypes';
 
-import ReceiptHistorySkeleton from './ReceiptHistorySkeleton';
+import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
 
 interface ReceiptHistoryProps {
   receipts: ReceiptHistoryItem[];
