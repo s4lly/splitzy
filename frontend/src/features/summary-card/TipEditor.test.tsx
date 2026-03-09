@@ -31,6 +31,8 @@ describe('TipEditor', () => {
     receiptId: 'test-receipt-123',
     receiptTip: new Decimal(5.0),
     itemsTotal: new Decimal(100.0),
+    receiptTax: new Decimal(8.0),
+    tipAfterTax: false,
   };
 
   beforeEach(() => {
@@ -149,7 +151,7 @@ describe('TipEditor', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('shows exact amount input directly without tabs', async () => {
+    it('shows exact amount input with before/after tax toggle', async () => {
       const user = userEvent.setup();
       render(<TipEditor {...defaultProps} />);
 
@@ -158,14 +160,15 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      // Should show input directly, no tabs
+      // Should show input and before/after tax tabs
       expect(
         screen.getByRole('textbox', { name: /tip/i })
       ).toBeInTheDocument();
-      expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /before tax/i })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /after tax/i })).toBeInTheDocument();
     });
 
-    it('shows percentage calculation in edit mode', async () => {
+    it('shows percentage in header and calculation breakdown in edit mode', async () => {
       const user = userEvent.setup();
       render(<TipEditor {...defaultProps} />);
 
@@ -174,9 +177,11 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      expect(screen.getByText(/percentage of total/)).toBeInTheDocument();
-      // formatPercentage correctly formats percentages: tip=5, itemsTotal=100 -> 5%
-      expect(screen.getByText(/5%/)).toBeInTheDocument();
+      // Percentage shown in header
+      expect(screen.getAllByText(/5%/).length).toBeGreaterThanOrEqual(1);
+      // Calculation breakdown shows items total and result
+      expect(screen.getByText('Items total')).toBeInTheDocument();
+      expect(screen.getByText(/= \$5\.00/)).toBeInTheDocument();
     });
   });
 
@@ -551,14 +556,13 @@ describe('TipEditor', () => {
       await user.click(editButton);
 
       // Initial calculation: tip=5, itemsTotal=100 -> 5%
-      expect(screen.getByText(/percentage of total/)).toBeInTheDocument();
-      expect(screen.getByText(/5%/)).toBeInTheDocument();
+      expect(screen.getAllByText(/5%/).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText('Items total')).toBeInTheDocument();
 
       rerender(<TipEditor {...defaultProps} itemsTotal={new Decimal(200)} />);
 
       // After change: tip=5, itemsTotal=200 -> 0.025 = 3% (Intl.NumberFormat rounds to nearest integer by default)
-      expect(screen.getByText(/percentage of total/)).toBeInTheDocument();
-      expect(screen.getByText(/3%/)).toBeInTheDocument();
+      expect(screen.getAllByText(/3%/).length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -572,8 +576,7 @@ describe('TipEditor', () => {
       });
       await user.click(editButton);
 
-      expect(screen.getByText(/percentage of total/)).toBeInTheDocument();
-      expect(screen.getByText(/—/)).toBeInTheDocument();
+      expect(screen.getAllByText(/—/).length).toBeGreaterThanOrEqual(1);
     });
 
     it('handles very small tip amounts', async () => {

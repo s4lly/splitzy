@@ -97,6 +97,7 @@ export function fromTanStackResponse(
     // Flags
     isReceipt: receipt_data.is_receipt,
     taxIncludedInItems: receipt_data.tax_included_in_items,
+    tipAfterTax: receipt_data.tip_after_tax ?? false,
 
     // Line items
     lineItems,

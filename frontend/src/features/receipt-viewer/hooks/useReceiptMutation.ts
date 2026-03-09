@@ -7,6 +7,7 @@ interface ReceiptUpdateArgs {
   id: number;
   tip?: number;
   gratuity?: number;
+  tip_after_tax?: boolean;
 }
 
 interface UseReceiptMutationOptions {

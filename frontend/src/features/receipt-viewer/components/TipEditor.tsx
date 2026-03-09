@@ -8,6 +8,7 @@ import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useReceiptMutation } from '@/features/receipt-viewer/hooks/useReceiptMutation';
 import EditableDetail from '@/features/summary-card/EditableDetail';
 import { cn } from '@/lib/utils';
@@ -15,6 +16,8 @@ import { cn } from '@/lib/utils';
 interface TipEditorProps {
   receiptTip: Decimal;
   itemsTotal: Decimal;
+  receiptTax: Decimal;
+  tipAfterTax: boolean;
   receiptId: number;
 }
 
@@ -25,14 +28,19 @@ interface TipEditorProps {
 const TipEditor = ({
   receiptTip = new Decimal(0),
   itemsTotal,
+  receiptTax,
+  tipAfterTax: propTipAfterTax,
   receiptId,
 }: TipEditorProps) => {
   const [tip, setTip] = useState<Decimal>(receiptTip);
   const [inputValue, setInputValue] = useState(receiptTip.toFixed(2));
   const [isEditing, setIsEditing] = useState(false);
+  const [tipAfterTax, setTipAfterTax] = useState(propTipAfterTax);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const hasValueToDelete = !receiptTip.isZero();
+
+  const tipBase = tipAfterTax ? itemsTotal.plus(receiptTax) : itemsTotal;
 
   const { mutate, isSaving } = useReceiptMutation({
     onSuccess: () => setIsEditing(false),
@@ -41,6 +49,10 @@ const TipEditor = ({
   useEffect(() => {
     setTip(receiptTip);
   }, [receiptTip]);
+
+  useEffect(() => {
+    setTipAfterTax(propTipAfterTax);
+  }, [propTipAfterTax]);
 
   useEffect(() => {
     if (isEditing) {
@@ -63,6 +75,7 @@ const TipEditor = ({
     await mutate({
       id: receiptId,
       tip: tip.toNumber(),
+      tip_after_tax: tipAfterTax,
     });
   };
 
@@ -106,21 +119,39 @@ const TipEditor = ({
 
   const handleCancelTip = () => {
     setTipAndInput(receiptTip);
+    setTipAfterTax(propTipAfterTax);
     setIsEditing(false);
   };
 
   const handleQuickPercentageTip = (amount: Decimal) => {
     const roundedAmount = amount.toDP(2);
-    mutate({ id: receiptId, tip: roundedAmount.toNumber() });
+    mutate({
+      id: receiptId,
+      tip: roundedAmount.toNumber(),
+      tip_after_tax: tipAfterTax,
+    });
+  };
+
+  const handleTipAfterTaxChange = (value: string) => {
+    const newValue = value === 'after';
+    setTipAfterTax(newValue);
+    mutate({ id: receiptId, tip_after_tax: newValue });
   };
 
   return (
     <div className="-ml-2 -mr-2 rounded-sm border">
       {isEditing ? (
         <div className="flex flex-col gap-4 bg-background px-2 py-2">
-          <Label htmlFor="tip" className="text-sm font-medium">
-            Tip:
-          </Label>
+          <div className="flex items-baseline justify-between">
+            <Label htmlFor="tip" className="text-sm font-medium">
+              Tip:
+            </Label>
+            <span className="text-sm text-muted-foreground">
+              {tipBase.gt(0)
+                ? calculations.utils.formatPercentage(tip, tipBase)
+                : '—'}
+            </span>
+          </div>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="select-none pr-1 text-lg text-muted-foreground">
@@ -140,13 +171,50 @@ const TipEditor = ({
                 disabled={isSaving}
               />
             </div>
-            <div className="flex justify-center text-sm text-muted-foreground">
-              percentage of total{' '}
-              {itemsTotal.gt(0)
-                ? calculations.utils.formatPercentage(tip, itemsTotal)
-                : '—'}
-            </div>
-
+            <Tabs
+              value={tipAfterTax ? 'after' : 'before'}
+              onValueChange={handleTipAfterTaxChange}
+            >
+              <TabsList className="w-full">
+                <TabsTrigger value="before" className="flex-1">
+                  Before tax
+                </TabsTrigger>
+                <TabsTrigger value="after" className="flex-1">
+                  After tax
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {tipBase.gt(0) ? (
+              <div className="space-y-1 rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+                <div className="flex justify-between">
+                  <span>Items total</span>
+                  <span>{formatCurrency(itemsTotal)}</span>
+                </div>
+                {tipAfterTax && (
+                  <>
+                    <div className="flex justify-between">
+                      <span>Tax</span>
+                      <span>+ {formatCurrency(receiptTax)}</span>
+                    </div>
+                    <div className="flex justify-between border-t border-border pt-1 font-medium">
+                      <span>Tip base</span>
+                      <span>{formatCurrency(tipBase)}</span>
+                    </div>
+                  </>
+                )}
+                <div className="flex justify-between border-t border-border pt-1">
+                  <span>
+                    {formatCurrency(tipBase)} ×{' '}
+                    {calculations.utils.formatPercentage(tip, tipBase)}
+                  </span>
+                  <span className="font-medium">
+                    = {formatCurrency(tip)}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">—</div>
+            )}
           </div>
 
           <div
@@ -195,17 +263,17 @@ const TipEditor = ({
           <div className="grid grid-flow-col gap-2 px-2 pb-2">
             <PercentageTipButton
               percentage={10}
-              itemsTotal={itemsTotal}
+              itemsTotal={tipBase}
               onTipSelect={handleQuickPercentageTip}
             />
             <PercentageTipButton
               percentage={15}
-              itemsTotal={itemsTotal}
+              itemsTotal={tipBase}
               onTipSelect={handleQuickPercentageTip}
             />
             <PercentageTipButton
               percentage={20}
-              itemsTotal={itemsTotal}
+              itemsTotal={tipBase}
               onTipSelect={handleQuickPercentageTip}
             />
           </div>

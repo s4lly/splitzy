@@ -202,6 +202,7 @@ class RegularReceiptBase(
     total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     payment_method: Optional[str] = None
     tax_included_in_items: Optional[bool] = False
+    tip_after_tax: Optional[bool] = Field(False)
     display_subtotal: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     items_total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     pretax_total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
