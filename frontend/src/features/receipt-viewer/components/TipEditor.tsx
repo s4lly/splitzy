@@ -133,9 +133,7 @@ const TipEditor = ({
   };
 
   const handleTipAfterTaxChange = (value: string) => {
-    const newValue = value === 'after';
-    setTipAfterTax(newValue);
-    mutate({ id: receiptId, tip_after_tax: newValue });
+    setTipAfterTax(value === 'after');
   };
 
   return (
