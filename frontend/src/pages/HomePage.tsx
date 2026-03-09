@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
 import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
-import { ReceiptUploader } from '@/features/receipt-upload';
+import { ReceiptUploader, ReceiptAnalysisResult } from '@/features/receipt-upload';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useUserReceiptsQuery } from '@/hooks/useUserReceiptsQuery';
@@ -73,7 +73,7 @@ const HomePage = () => {
     checkApiHealth();
   }, []);
 
-  const handleAnalysisComplete = (result: any) => {
+  const handleAnalysisComplete = (result: ReceiptAnalysisResult) => {
     if (result?.success && result?.receipt_data?.id) {
       navigate(`/receipt/${result.receipt_data.id}`);
     } else {
@@ -107,7 +107,7 @@ const HomePage = () => {
           >
             <AlertCircle
               className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive"
-              aria-hidden
+              aria-hidden="true"
             />
             <p className="text-destructive">
               Service temporarily unavailable. Please try again later.
@@ -162,7 +162,7 @@ const HomePage = () => {
             >
               <div
                 className="flex size-11 flex-shrink-0 items-center justify-center rounded-xl bg-accent text-xl"
-                aria-hidden
+                aria-hidden="true"
               >
                 {feature.emoji}
               </div>
