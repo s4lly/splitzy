@@ -9,6 +9,7 @@ const config: LinguiConfig = {
       include: ['src/'],
     },
   ],
+  compileNamespace: 'ts',
   format: 'po',
 };
 
