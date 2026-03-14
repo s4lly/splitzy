@@ -268,12 +268,12 @@ export const BillBreakdownView = ({
                                 </div>
                                 {item.shared && (
                                   <div className="mt-0.5 text-xs text-muted-foreground">
-                                    <Trans>
-                                      Shared with{' '}
-                                      {item.sharedWith
+                                    {(() => {
+                                      const sharedWithNames = item.sharedWith
                                         .map((id) => idToName.get(id) ?? id)
-                                        .join(', ')}
-                                    </Trans>
+                                        .join(', ');
+                                      return <Trans>Shared with {sharedWithNames}</Trans>;
+                                    })()}
                                   </div>
                                 )}
                               </td>

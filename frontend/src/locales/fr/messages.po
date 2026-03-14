@@ -15,7 +15,7 @@ msgstr ""
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:128
 #: src/components/Receipt/LineItemsTableMobile.tsx:139
-#: src/features/bill-split/components/BillBreakdownView.tsx:262
+#: src/features/bill-split/components/BillBreakdownView.tsx:267
 msgid "(Unnamed item)"
 msgstr "(Article sans nom)"
 
@@ -35,7 +35,7 @@ msgid "{0} of total"
 msgstr "{0} du total"
 
 #. placeholder {0}: person.displayName
-#: src/features/bill-split/components/BillBreakdownView.tsx:224
+#: src/features/bill-split/components/BillBreakdownView.tsx:229
 msgid "{0}'s Items"
 msgstr "Articles de {0}"
 
@@ -221,7 +221,7 @@ msgid "Click \"Manage People\" to add friends and assign items to them. Then tag
 msgstr "Cliquez sur « Gérer les personnes » pour ajouter des amis et leur assigner des articles. Puis indiquez qui doit payer chaque article."
 
 #: src/features/assignments/SignInToClaimDialog.tsx:53
-#: src/features/bill-split/components/BillBreakdownView.tsx:364
+#: src/features/bill-split/components/BillBreakdownView.tsx:369
 msgid "Close"
 msgstr "Fermer"
 
@@ -293,7 +293,7 @@ msgid "Deleting..."
 msgstr "Suppression..."
 
 #. placeholder {0}: person.displayName
-#: src/features/bill-split/components/BillBreakdownView.tsx:228
+#: src/features/bill-split/components/BillBreakdownView.tsx:233
 msgid "Detailed breakdown of items assigned to {0}."
 msgstr "Détail des articles attribués à {0}."
 
@@ -346,7 +346,7 @@ msgstr "Saisir un nom"
 msgid "Enter name..."
 msgstr "Saisir un nom..."
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:213
+#: src/features/bill-split/components/BillBreakdownView.tsx:218
 msgid "Equal amount split"
 msgstr "Partage équitable"
 
@@ -354,7 +354,7 @@ msgstr "Partage équitable"
 msgid "Equal split"
 msgstr "Partage égal"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:350
+#: src/features/bill-split/components/BillBreakdownView.tsx:355
 msgid "Equal split - no specific items assigned"
 msgstr "Partage équitable — aucun article spécifique attribué"
 
@@ -441,7 +441,6 @@ msgid "healthy"
 msgstr "opérationnel"
 
 #: src/features/bill-split/components/ManualSplitTab.tsx:64
-#: src/features/bill-split/components/ManualSplitTabCollab.tsx:38
 msgid "Hide"
 msgstr "Masquer"
 
@@ -492,7 +491,7 @@ msgid "item"
 msgstr "article"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:95
-#: src/features/bill-split/components/BillBreakdownView.tsx:242
+#: src/features/bill-split/components/BillBreakdownView.tsx:247
 msgid "Item"
 msgstr "Article"
 
@@ -536,7 +535,7 @@ msgstr "Gérer les attributions de {0}"
 
 #: src/features/bill-split/components/BillBreakdownView.tsx:70
 #: src/features/bill-split/components/ManualSplitTab.tsx:66
-#: src/features/bill-split/components/ManualSplitTabCollab.tsx:40
+#: src/features/bill-split/components/ManualSplitTabCollab.tsx:37
 msgid "Manage People"
 msgstr "Gérer les personnes"
 
@@ -579,7 +578,7 @@ msgstr "Nouveau :"
 msgid "No Item Details Available"
 msgstr "Aucun détail d'article disponible"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:354
+#: src/features/bill-split/components/BillBreakdownView.tsx:359
 msgid "No items assigned yet"
 msgstr "Aucun article attribué"
 
@@ -601,7 +600,7 @@ msgstr "Personne n'est encore attribué."
 msgid "No people added yet. Add people to split the bill."
 msgstr "Aucune personne ajoutée. Ajoutez des personnes pour partager l'addition."
 
-#: src/components/Receipt/ReceiptHistory.tsx:51
+#: src/components/Receipt/ReceiptHistory.tsx:52
 msgid "No receipt history found"
 msgstr "Aucun historique de reçus trouvé"
 
@@ -625,7 +624,7 @@ msgid "Number of people"
 msgstr "Nombre de personnes"
 
 #. placeholder {0}: formatCurrency(item.originalPrice)
-#: src/features/bill-split/components/BillBreakdownView.tsx:284
+#: src/features/bill-split/components/BillBreakdownView.tsx:289
 msgid "of {0}"
 msgstr "de {0}"
 
@@ -657,7 +656,7 @@ msgid "Preview"
 msgstr "Aperçu"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:101
-#: src/features/bill-split/components/BillBreakdownView.tsx:248
+#: src/features/bill-split/components/BillBreakdownView.tsx:253
 msgid "Price"
 msgstr "Prix"
 
@@ -674,7 +673,7 @@ msgid "Private Image"
 msgstr "Image privée"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:98
-#: src/features/bill-split/components/BillBreakdownView.tsx:245
+#: src/features/bill-split/components/BillBreakdownView.tsx:250
 msgid "Qty"
 msgstr "Qté"
 
@@ -715,7 +714,7 @@ msgstr "Tableau de reçus bureau"
 msgid "Receipt details"
 msgstr "Détails du reçu"
 
-#: src/components/Receipt/ReceiptHistory.tsx:40
+#: src/components/Receipt/ReceiptHistory.tsx:41
 msgid "Receipt History"
 msgstr "Historique des reçus"
 
@@ -776,10 +775,13 @@ msgstr "Service temporairement indisponible. Veuillez réessayer plus tard."
 msgid "Settings"
 msgstr "Paramètres"
 
-#. placeholder {0}: item.sharedWith .map((id) => idToName.get(id) ?? id) .join(', ')
 #: src/features/bill-split/components/BillBreakdownView.tsx:266
-msgid "Shared with {0}"
-msgstr "Partagé avec {0}"
+#~ msgid "Shared with {0}"
+#~ msgstr "Partagé avec {0}"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:275
+msgid "Shared with {sharedWithNames}"
+msgstr "Partagé avec {sharedWithNames}"
 
 #: src/features/receipt-viewer/ReceiptDetailsCard.tsx:68
 msgid "Show QR Code"
@@ -826,7 +828,7 @@ msgstr "Partagez équitablement"
 msgid "Split with Friends"
 msgstr "Partager avec des amis"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:296
+#: src/features/bill-split/components/BillBreakdownView.tsx:301
 msgid "Subtotal"
 msgstr "Sous-total"
 
@@ -873,7 +875,7 @@ msgstr "Prenez une photo et nous extrayons chaque article automatiquement — au
 msgid "Tap to upload a receipt"
 msgstr "Appuyez pour télécharger un reçu"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:306
+#: src/features/bill-split/components/BillBreakdownView.tsx:311
 #: src/features/receipt-viewer/components/TipEditor.tsx:199
 #: src/features/summary-card/TipEditor.tsx:264
 msgid "Tax"
@@ -930,7 +932,7 @@ msgstr "Ce document de {merchant} ne contient pas d'articles détaillés. Le mon
 msgid "This receipt doesn't contain detailed line items, so the total amount has been divided equally among all people."
 msgstr "Ce reçu ne contient pas d'articles détaillés, le montant total a donc été réparti également entre toutes les personnes."
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:317
+#: src/features/bill-split/components/BillBreakdownView.tsx:322
 #: src/features/receipt-viewer/components/TipEditor.tsx:167
 #: src/features/summary-card/TipEditor.tsx:232
 msgid "Tip"
@@ -951,7 +953,7 @@ msgid "Toggle theme"
 msgstr "Changer de thème"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:104
-#: src/features/bill-split/components/BillBreakdownView.tsx:337
+#: src/features/bill-split/components/BillBreakdownView.tsx:342
 msgid "Total"
 msgstr "Total"
 
@@ -989,18 +991,18 @@ msgstr "Prix unitaire"
 msgid "Unit Price:"
 msgstr "Prix unitaire :"
 
-#: src/components/Receipt/ReceiptHistory.tsx:88
+#: src/components/Receipt/ReceiptHistory.tsx:89
 #: src/features/receipt-viewer/ReceiptDetailsCard.tsx:28
 #: src/features/receipt-viewer/ReceiptDetailsCard.tsx:91
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: src/components/Receipt/ReceiptHistory.tsx:79
+#: src/components/Receipt/ReceiptHistory.tsx:80
 msgid "Unknown date"
 msgstr "Date inconnue"
 
-#: src/components/Receipt/ReceiptHistory.tsx:71
-#: src/components/Receipt/ReceiptHistory.tsx:98
+#: src/components/Receipt/ReceiptHistory.tsx:72
+#: src/components/Receipt/ReceiptHistory.tsx:99
 msgid "Unknown Merchant"
 msgstr "Commerçant inconnu"
 
@@ -1009,7 +1011,7 @@ msgstr "Commerçant inconnu"
 msgid "Update {label}"
 msgstr "Mettre à jour {label}"
 
-#: src/components/Receipt/ReceiptHistory.tsx:54
+#: src/components/Receipt/ReceiptHistory.tsx:55
 msgid "Upload a receipt to get started"
 msgstr "Téléchargez un reçu pour commencer"
 
@@ -1017,12 +1019,12 @@ msgstr "Téléchargez un reçu pour commencer"
 msgid "Use new desktop table design for receipts."
 msgstr "Utiliser le nouveau design de tableau bureau pour les reçus."
 
-#: src/components/Receipt/ReceiptHistory.tsx:101
+#: src/components/Receipt/ReceiptHistory.tsx:102
 msgid "View"
 msgstr "Voir"
 
 #. placeholder {0}: receipt.merchant || t`Unknown Merchant`
-#: src/components/Receipt/ReceiptHistory.tsx:98
+#: src/components/Receipt/ReceiptHistory.tsx:99
 msgid "View receipt from {0}"
 msgstr "Voir le reçu de {0}"
 
@@ -1030,6 +1032,6 @@ msgstr "Voir le reçu de {0}"
 msgid "Your original claim has been restored."
 msgstr "Votre revendication d'origine a été restaurée."
 
-#: src/components/Receipt/ReceiptHistory.tsx:43
+#: src/components/Receipt/ReceiptHistory.tsx:44
 msgid "Your previously analyzed receipts"
 msgstr "Vos reçus précédemment analysés"
