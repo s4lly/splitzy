@@ -20,7 +20,7 @@ export const ReceiptDetailsCard = ({
   merchant,
   date,
 }: ReceiptDetailsCardProps) => {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const [showQrCode, setShowQrCode] = useState(false);
 
   // Format date - handle both Date objects and timestamps (seconds or milliseconds)
@@ -28,7 +28,7 @@ export const ReceiptDetailsCard = ({
     if (!date) return t`Unknown`;
 
     if (date instanceof Date) {
-      return date.toLocaleDateString();
+      return date.toLocaleDateString(i18n.locale);
     }
 
     // Handle numeric timestamp
@@ -45,7 +45,7 @@ export const ReceiptDetailsCard = ({
       return t`Invalid Date`;
     }
 
-    return dateObj.toLocaleDateString();
+    return dateObj.toLocaleDateString(i18n.locale);
   };
 
   return (
