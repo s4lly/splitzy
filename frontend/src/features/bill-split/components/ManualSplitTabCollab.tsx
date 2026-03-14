@@ -34,11 +34,7 @@ export const ManualSplitTabCollab = () => {
             size="sm"
             // onClick={() => setShowPeopleManager(!showPeopleManager)}
           >
-            {showPeopleManager ? (
-              <Trans>Hide</Trans>
-            ) : (
-              <Trans>Manage People</Trans>
-            )}
+            <Trans>Manage People</Trans>
           </Button>
         </CardTitle>
       </CardHeader>
