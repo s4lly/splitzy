@@ -1,5 +1,7 @@
 import Decimal from 'decimal.js';
 
+import { i18n } from '@/i18n';
+
 /**
  * Truncate a numeric value to exactly two decimal places using string slicing.
  *
@@ -24,38 +26,41 @@ export function truncateToTwoDecimals(val: Decimal | number): string {
   }
 }
 
-// TODO localize
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-});
+const formatterCache = new Map<string, Intl.NumberFormat>();
+
+function getFormatter(locale: string, currency: string): Intl.NumberFormat {
+  const key = `${locale}:${currency}`;
+  let formatter = formatterCache.get(key);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+    });
+    formatterCache.set(key, formatter);
+  }
+  return formatter;
+}
 
 /**
- * Format a numeric value as USD currency (e.g., "$12.34").
+ * Format a numeric value as currency using the app's active locale.
  *
  * Formats the input using `Intl.NumberFormat` for proper currency display including:
- * - Currency symbol ($)
- * - Thousands separators (commas)
+ * - Locale-appropriate currency symbol
+ * - Locale-appropriate thousands/decimal separators
  * - Proper negative number formatting
  * - Exactly two decimal places
  *
- * Note: The locale is currently hardcoded to 'en-US' with USD currency.
- * Future enhancement: localize based on user preferences.
- *
  * @param val - The numeric value to format as currency. Can be a number or Decimal.
+ * @param currency - ISO 4217 currency code (defaults to 'USD').
  * @returns A formatted currency string (e.g., "$1,234.56" or "-$0.99").
- *
- * @example
- * ```ts
- * formatCurrency(1234.56)  // "$1,234.56"
- * formatCurrency(new Decimal('1234.56'))  // "$1,234.56"
- * formatCurrency(-0.99)  // "-$0.99"
- * formatCurrency(1000000)  // "$1,000,000.00"
- * ```
  */
-export function formatCurrency(val: Decimal): string;
-export function formatCurrency(val: number): string;
-export function formatCurrency(val: Decimal | number): string {
+export function formatCurrency(val: Decimal, currency?: string): string;
+export function formatCurrency(val: number, currency?: string): string;
+export function formatCurrency(
+  val: Decimal | number,
+  currency: string = 'USD'
+): string {
   const num = val instanceof Decimal ? val.toNumber() : val;
-  return currencyFormatter.format(num);
+  const locale = i18n.locale || 'en-US';
+  return getFormatter(locale, currency).format(num);
 }

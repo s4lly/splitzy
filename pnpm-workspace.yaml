@@ -3,5 +3,6 @@ packages:
   - zero-query
 
 onlyBuiltDependencies:
+  - '@clerk/shared'
   - '@rocicorp/zero-sqlite3'
   - esbuild

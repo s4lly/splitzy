@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import type { UseMutationResult } from '@tanstack/react-query';
 import { FileText, Loader2 } from 'lucide-react';
 
@@ -35,40 +36,18 @@ function parseReceiptAnalysisError(
     unknown
   >
 ): string | null {
-  // State 1: Network or API-level error occurred
-  // This happens when the request fails at the network level (no connection,
-  // server down, timeout, etc.) or when the API returns a non-2xx status.
-  // TanStack Query sets mutation.error in these cases.
-  // We show a generic error because network errors don't provide specific
-  // feedback about what went wrong with the document itself.
   if (mutation.error) {
     return 'An error occurred while analyzing the document. Please try again.';
   }
 
-  // State 2: Request succeeded but analysis failed
-  // The backend received the request and processed it, but the analysis
-  // was unsuccessful. This could happen if the file format is invalid,
-  // the image is corrupted, or the backend encountered an internal error
-  // during processing. The backend returns success: false with an error message.
-  // We prefer the backend's error message if available, otherwise use a generic one.
   if (mutation.data && !mutation.data.success) {
     return mutation.data.error || 'Failed to analyze document';
   }
 
-  // State 3: Analysis succeeded but document is not a receipt
-  // The LLM successfully analyzed the image but determined it's not a
-  // payment document (receipt, invoice, bill, etc.). This is a validation
-  // error - the user uploaded something that doesn't match what we're looking for.
-  // We provide a helpful message explaining what we're looking for so the user
-  // can upload a more appropriate document.
   if (mutation.data && mutation.data.success && !mutation.data.is_receipt) {
     return 'The uploaded image does not appear to be a payment document (receipt, invoice, bill, etc.). Please upload an image that contains items, prices, and totals.';
   }
 
-  // State 4 & 5: Success or no data yet
-  // Either the analysis succeeded and it's a valid receipt (State 4),
-  // or the mutation hasn't been called yet or is still pending (State 5).
-  // In both cases, there's no error to display.
   return null;
 }
 
@@ -127,12 +106,12 @@ export const ReceiptUploader = ({
             {mutation.isPending ? (
               <>
                 <Loader2 data-icon="inline-start" className="animate-spin" />
-                Analyzing…
+                <Trans>Analyzing…</Trans>
               </>
             ) : (
               <>
                 <FileText data-icon="inline-start" />
-                Analyze Document
+                <Trans>Analyze Document</Trans>
               </>
             )}
           </Button>

@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Clock, Eye, Receipt, Store } from 'lucide-react';
@@ -21,6 +22,8 @@ interface ReceiptHistoryProps {
 
 const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
   const navigate = useNavigate();
+  const { t, i18n } = useLingui();
+  const locale = i18n.locale || navigator.language;
 
   const handleViewReceipt = (receiptId: number) => {
     navigate(`/receipts/${receiptId}`);
@@ -35,16 +38,22 @@ const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Receipt className="h-5 w-5" />
-          Receipt History
+          <Trans>Receipt History</Trans>
         </CardTitle>
-        <CardDescription>Your previously analyzed receipts</CardDescription>
+        <CardDescription>
+          <Trans>Your previously analyzed receipts</Trans>
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {receipts.length === 0 ? (
           <div className="py-6 text-center text-muted-foreground">
             <Receipt className="mx-auto mb-3 h-12 w-12 opacity-20" />
-            <p>No receipt history found</p>
-            <p className="mt-1 text-sm">Upload a receipt to get started</p>
+            <p>
+              <Trans>No receipt history found</Trans>
+            </p>
+            <p className="mt-1 text-sm">
+              <Trans>Upload a receipt to get started</Trans>
+            </p>
           </div>
         ) : (
           <ul className="m-0 list-none space-y-4 p-0">
@@ -60,15 +69,15 @@ const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
                   <div>
                     <h3 className="flex items-center gap-1 font-medium">
                       <Store className="h-4 w-4" aria-hidden />
-                      {receipt.merchant || 'Unknown Merchant'}
+                      {receipt.merchant || t`Unknown Merchant`}
                     </h3>
                     <p className="text-sm text-muted-foreground">
                       ${receipt.total?.toFixed(2) || '0.00'} •{' '}
                       {receipt.date
-                        ? new Intl.DateTimeFormat('en-US', {
+                        ? new Intl.DateTimeFormat(locale, {
                             dateStyle: 'medium',
                           }).format(receipt.date)
-                        : 'Unknown date'}
+                        : t`Unknown date`}
                     </p>
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground">
@@ -77,7 +86,7 @@ const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
                       ? formatDistanceToNow(receipt.created_at, {
                           addSuffix: true,
                         })
-                      : 'Unknown'}
+                      : t`Unknown`}
                   </div>
                 </div>
 
@@ -87,10 +96,14 @@ const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
                     size="sm"
                     onClick={() => handleViewReceipt(receipt.id)}
                     className="h-8"
-                    aria-label={`View receipt from ${receipt.merchant || 'Unknown Merchant'}`}
+                    aria-label={
+                      receipt.merchant
+                        ? t`View receipt from ${receipt.merchant}`
+                        : t`View receipt from Unknown Merchant`
+                    }
                   >
                     <Eye className="mr-1 h-3.5 w-3.5" aria-hidden />
-                    View
+                    <Trans>View</Trans>
                   </Button>
                 </div>
               </motion.li>

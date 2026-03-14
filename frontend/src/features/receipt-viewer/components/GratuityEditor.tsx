@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -23,6 +24,7 @@ const GratuityEditor = ({
   receiptGratuity = new Decimal(0),
   receiptId,
 }: GratuityEditorProps) => {
+  const { t } = useLingui();
   const [gratuity, setGratuity] = useState<Decimal>(receiptGratuity);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -94,7 +96,7 @@ const GratuityEditor = ({
     return (
       <div className="-ml-2 -mr-2 rounded-sm border">
         <EditableDetail
-          label="Gratuity"
+          label={t`Gratuity`}
           value={formatCurrency(0)}
           onClick={handleEditGratuity}
         />
@@ -108,7 +110,7 @@ const GratuityEditor = ({
         <div className="flex flex-col gap-4 bg-background px-2 py-2">
           <div className="flex items-center justify-between gap-2">
             <Label htmlFor="gratuity" className="text-sm font-medium">
-              Gratuity:
+              <Trans>Gratuity:</Trans>
             </Label>
           </div>
 
@@ -120,7 +122,7 @@ const GratuityEditor = ({
               type="number"
               value={gratuity.toNumber()}
               onChange={handleGratuityChange}
-              placeholder="Gratuity"
+              placeholder={t`Gratuity`}
               min={0}
               step="0.01"
               required
@@ -142,8 +144,8 @@ const GratuityEditor = ({
                 size="icon"
                 className="border-red-500 text-red-500"
                 onClick={handleDeleteGratuity}
-                aria-label="Delete gratuity"
-                title="Delete gratuity"
+                aria-label={t`Delete gratuity`}
+                title={t`Delete gratuity`}
                 disabled={isSaving}
               >
                 <Trash className="size-4" />
@@ -155,21 +157,21 @@ const GratuityEditor = ({
                 variant="outline"
                 disabled={isSaving}
               >
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Button
                 onClick={handleSaveGratuity}
                 variant="outline"
                 disabled={isSaving}
               >
-                Done
+                <Trans>Done</Trans>
               </Button>
             </div>
           </div>
         </div>
       ) : (
         <EditableDetail
-          label="Gratuity"
+          label={t`Gratuity`}
           value={formatCurrency(receiptGratuity)}
           onClick={handleEditGratuity}
         />

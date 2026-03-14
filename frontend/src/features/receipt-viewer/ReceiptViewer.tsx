@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/react/macro';
+
 import { Separator } from '@/components/ui/separator';
 import { useReceipt } from '@/context/ReceiptContext';
 
@@ -12,7 +14,9 @@ export const ReceiptViewer = () => {
     <div className="flex flex-col gap-4">
       <Separator />
 
-      <h1>Receipt Viewer</h1>
+      <h1>
+        <Trans>Receipt Viewer</Trans>
+      </h1>
 
       <pre className="max-w-full overflow-x-auto">
         {JSON.stringify(receipt, null, 2)}

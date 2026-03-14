@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { useAtomValue } from 'jotai';
 import { Users } from 'lucide-react';
 import { useState } from 'react';
@@ -25,7 +26,7 @@ export const ManualSplitTabCollab = () => {
         <CardTitle className="flex items-center justify-between text-xl font-bold">
           <div className="flex items-center gap-3">
             <Users className="h-6 w-6" />
-            Split with Friends
+            <Trans>Split with Friends</Trans>
           </div>
           <Button
             variant="outline"
@@ -33,7 +34,7 @@ export const ManualSplitTabCollab = () => {
             size="sm"
             // onClick={() => setShowPeopleManager(!showPeopleManager)}
           >
-            {showPeopleManager ? 'Hide' : 'Manage People'}
+            <Trans>Manage People</Trans>
           </Button>
         </CardTitle>
       </CardHeader>

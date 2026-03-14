@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -32,6 +33,7 @@ const TipEditor = ({
   tipAfterTax: propTipAfterTax,
   receiptId,
 }: TipEditorProps) => {
+  const { t } = useLingui();
   const [tip, setTip] = useState<Decimal>(receiptTip);
   const [inputValue, setInputValue] = useState(receiptTip.toFixed(2));
   const [isEditing, setIsEditing] = useState(false);
@@ -142,7 +144,7 @@ const TipEditor = ({
         <div className="flex flex-col gap-4 bg-background px-2 py-2">
           <div className="flex items-baseline justify-between">
             <Label htmlFor="tip" className="text-sm font-medium">
-              Tip:
+              <Trans>Tip:</Trans>
             </Label>
             <span className="text-sm text-muted-foreground">
               {tipBase.gt(0)
@@ -162,7 +164,7 @@ const TipEditor = ({
                 value={inputValue}
                 onChange={handleTipChange}
                 onBlur={handleInputBlur}
-                placeholder="Tip"
+                placeholder={t`Tip`}
                 required
                 className="text-center"
                 id="tip"
@@ -175,27 +177,33 @@ const TipEditor = ({
             >
               <TabsList className="w-full">
                 <TabsTrigger value="before" className="flex-1">
-                  Before tax
+                  <Trans>Before tax</Trans>
                 </TabsTrigger>
                 <TabsTrigger value="after" className="flex-1">
-                  After tax
+                  <Trans>After tax</Trans>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
             {tipBase.gt(0) ? (
               <div className="space-y-1 rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
                 <div className="flex justify-between">
-                  <span>Items total</span>
+                  <span>
+                    <Trans>Items total</Trans>
+                  </span>
                   <span>{formatCurrency(itemsTotal)}</span>
                 </div>
                 {tipAfterTax && (
                   <>
                     <div className="flex justify-between">
-                      <span>Tax</span>
+                      <span>
+                        <Trans>Tax</Trans>
+                      </span>
                       <span>+ {formatCurrency(receiptTax)}</span>
                     </div>
                     <div className="flex justify-between border-t border-border pt-1 font-medium">
-                      <span>Tip base</span>
+                      <span>
+                        <Trans>Tip base</Trans>
+                      </span>
                       <span>{formatCurrency(tipBase)}</span>
                     </div>
                   </>
@@ -225,7 +233,7 @@ const TipEditor = ({
                 size="icon"
                 className="border-red-500 text-red-500"
                 onClick={handleDeleteTip}
-                aria-label="Delete tip"
+                aria-label={t`Delete tip`}
                 disabled={isSaving}
               >
                 <Trash className="size-4" />
@@ -237,14 +245,14 @@ const TipEditor = ({
                 variant="outline"
                 disabled={isSaving}
               >
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Button
                 onClick={handleSaveTip}
                 variant="outline"
                 disabled={isSaving}
               >
-                Done
+                <Trans>Done</Trans>
               </Button>
             </div>
           </div>
@@ -252,7 +260,7 @@ const TipEditor = ({
       ) : (
         <>
           <EditableDetail
-            label="Tip"
+            label={t`Tip`}
             value={formatCurrency(receiptTip)}
             onClick={handleEditTip}
           />

@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -18,6 +19,7 @@ const GratuityEditor = ({
   receiptId,
   receiptGratuity,
 }: GratuityEditorProps) => {
+  const { t } = useLingui();
   const [gratuity, setGratuity] = useState(receiptGratuity ?? 0);
   const [gratuityInput, setGratuityInput] = useState(
     receiptGratuity ? receiptGratuity.toFixed(2) : '0.00'
@@ -56,7 +58,7 @@ const GratuityEditor = ({
           },
           onError: (error) => {
             const errorMessage =
-              error?.message || 'Failed to save gratuity. Please try again.';
+              error?.message || t`Failed to save gratuity. Please try again.`;
             setError(errorMessage);
           },
         }
@@ -109,7 +111,7 @@ const GratuityEditor = ({
         },
         onError: (error) => {
           const errorMessage =
-            error?.message || 'Failed to delete gratuity. Please try again.';
+            error?.message || t`Failed to delete gratuity. Please try again.`;
           setError(errorMessage);
         },
       }
@@ -120,7 +122,7 @@ const GratuityEditor = ({
     return (
       <div className="-ml-2 -mr-2 rounded-sm border">
         <EditableDetail
-          label="Gratuity"
+          label={t`Gratuity`}
           value={formatCurrency(0)}
           onClick={handleEditGratuity}
         />
@@ -140,7 +142,7 @@ const GratuityEditor = ({
 
           <div className="flex items-center justify-between gap-2">
             <Label htmlFor="gratuity" className="text-sm font-medium">
-              Gratuity:
+              <Trans>Gratuity:</Trans>
             </Label>
           </div>
 
@@ -152,7 +154,7 @@ const GratuityEditor = ({
               type="number"
               value={gratuityInput}
               onChange={handleGratuityChange}
-              placeholder="Gratuity"
+              placeholder={t`Gratuity`}
               min="0"
               step="0.01"
               inputMode="decimal"
@@ -177,8 +179,8 @@ const GratuityEditor = ({
                 className="border-red-500 text-red-500"
                 onClick={handleDeleteGratuity}
                 disabled={isPending}
-                aria-label="Delete gratuity"
-                title="Delete gratuity"
+                aria-label={t`Delete gratuity`}
+                title={t`Delete gratuity`}
               >
                 <Trash className="size-4" />
               </Button>
@@ -189,21 +191,21 @@ const GratuityEditor = ({
                 variant="outline"
                 disabled={isPending}
               >
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Button
                 onClick={handleSaveGratuity}
                 variant="outline"
                 disabled={isPending}
               >
-                Done
+                <Trans>Done</Trans>
               </Button>
             </div>
           </div>
         </div>
       ) : (
         <EditableDetail
-          label="Gratuity"
+          label={t`Gratuity`}
           value={formatCurrency(receiptGratuity ?? 0)}
           onClick={handleEditGratuity}
         />

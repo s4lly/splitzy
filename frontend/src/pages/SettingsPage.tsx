@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { ArrowLeft, ChevronRight, TriangleAlert } from 'lucide-react';
 import { useContext, useState } from 'react';
 
@@ -16,15 +17,9 @@ export default function SettingsPage() {
   const [selectedCategory, setSelectedCategory] = useState('feature-flags');
   const [showDetails, setShowDetails] = useState(false);
   const isMobile = useMobile();
+  const { t } = useLingui();
 
-  const categories = [
-    { id: 'feature-flags', name: 'Feature Flags' },
-    // { id: "account", name: "Account" },
-    // { id: "notifications", name: "Notifications" },
-    // { id: "privacy", name: "Privacy & Security" },
-    // { id: "appearance", name: "Appearance" },
-    // { id: "billing", name: "Billing" },
-  ];
+  const categories = [{ id: 'feature-flags', name: t`Feature Flags` }];
 
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -39,7 +34,9 @@ export default function SettingsPage() {
 
   return (
     <div className="container mx-auto px-4 py-6 md:px-6">
-      <h1 className="mb-6 text-2xl font-bold">Settings</h1>
+      <h1 className="mb-6 text-2xl font-bold">
+        <Trans>Settings</Trans>
+      </h1>
 
       <div className="flex flex-col gap-6 md:flex-row">
         {/* Categories List - Hidden on mobile when details are shown */}
@@ -80,7 +77,7 @@ export default function SettingsPage() {
                     className="mb-2"
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Settings
+                    <Trans>Back to Settings</Trans>
                   </Button>
                 </div>
               )}
@@ -114,7 +111,11 @@ function SettingsContent({ categoryId }: SettingsContentProps) {
     case 'billing':
       return <BillingSettings />;
     default:
-      return <div>Select a category</div>;
+      return (
+        <div>
+          <Trans>Select a category</Trans>
+        </div>
+      );
   }
 }
 
@@ -128,9 +129,11 @@ function FeatureFlagsSettings() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-medium">Feature Flags</h3>
+          <h3 className="text-lg font-medium">
+            <Trans>Feature Flags</Trans>
+          </h3>
           <p className="text-sm text-muted-foreground">
-            Enable or disable features in your application.
+            <Trans>Enable or disable features in your application.</Trans>
           </p>
         </div>
         {isOverridden && (
@@ -145,7 +148,7 @@ function FeatureFlagsSettings() {
               }}
             >
               <TriangleAlert className="h-4 w-4" />
-              Reset All Flags
+              <Trans>Reset All Flags</Trans>
             </Button>
           </div>
         )}
@@ -154,9 +157,11 @@ function FeatureFlagsSettings() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <Label htmlFor="beta-features">Receipt Desktop Table</Label>
+            <Label htmlFor="beta-features">
+              <Trans>Receipt Desktop Table</Trans>
+            </Label>
             <p className="text-sm text-muted-foreground">
-              Use new desktop table design for receipts.
+              <Trans>Use new desktop table design for receipts.</Trans>
             </p>
           </div>
           <Switch
@@ -183,13 +188,17 @@ function AccountSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">Account Settings</h3>
+        <h3 className="text-lg font-medium">
+          <Trans>Account Settings</Trans>
+        </h3>
         <p className="text-sm text-muted-foreground">
-          Manage your account information and preferences.
+          <Trans>Manage your account information and preferences.</Trans>
         </p>
       </div>
       <Separator />
-      <p className="text-sm">Account settings content would go here.</p>
+      <p className="text-sm">
+        <Trans>Account settings content would go here.</Trans>
+      </p>
     </div>
   );
 }
@@ -198,13 +207,17 @@ function NotificationSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">Notification Settings</h3>
+        <h3 className="text-lg font-medium">
+          <Trans>Notification Settings</Trans>
+        </h3>
         <p className="text-sm text-muted-foreground">
-          Control how and when you receive notifications.
+          <Trans>Control how and when you receive notifications.</Trans>
         </p>
       </div>
       <Separator />
-      <p className="text-sm">Notification settings content would go here.</p>
+      <p className="text-sm">
+        <Trans>Notification settings content would go here.</Trans>
+      </p>
     </div>
   );
 }
@@ -213,13 +226,17 @@ function PrivacySettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">Privacy & Security</h3>
+        <h3 className="text-lg font-medium">
+          <Trans>Privacy & Security</Trans>
+        </h3>
         <p className="text-sm text-muted-foreground">
-          Manage your privacy and security settings.
+          <Trans>Manage your privacy and security settings.</Trans>
         </p>
       </div>
       <Separator />
-      <p className="text-sm">Privacy settings content would go here.</p>
+      <p className="text-sm">
+        <Trans>Privacy settings content would go here.</Trans>
+      </p>
     </div>
   );
 }
@@ -228,13 +245,17 @@ function AppearanceSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">Appearance</h3>
+        <h3 className="text-lg font-medium">
+          <Trans>Appearance</Trans>
+        </h3>
         <p className="text-sm text-muted-foreground">
-          Customize the look and feel of the application.
+          <Trans>Customize the look and feel of the application.</Trans>
         </p>
       </div>
       <Separator />
-      <p className="text-sm">Appearance settings content would go here.</p>
+      <p className="text-sm">
+        <Trans>Appearance settings content would go here.</Trans>
+      </p>
     </div>
   );
 }
@@ -243,13 +264,17 @@ function BillingSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">Billing</h3>
+        <h3 className="text-lg font-medium">
+          <Trans>Billing</Trans>
+        </h3>
         <p className="text-sm text-muted-foreground">
-          Manage your subscription and payment methods.
+          <Trans>Manage your subscription and payment methods.</Trans>
         </p>
       </div>
       <Separator />
-      <p className="text-sm">Billing settings content would go here.</p>
+      <p className="text-sm">
+        <Trans>Billing settings content would go here.</Trans>
+      </p>
     </div>
   );
 }

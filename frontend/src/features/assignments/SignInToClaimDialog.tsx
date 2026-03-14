@@ -1,4 +1,5 @@
 import { SignInButton } from '@clerk/clerk-react';
+import { Trans } from '@lingui/react/macro';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -25,16 +26,22 @@ export function SignInToClaimDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Claim this person</DialogTitle>
+          <DialogTitle>
+            <Trans>Claim this person</Trans>
+          </DialogTitle>
           <DialogDescription>
-            Create an account or sign in to claim &quot;{displayName}&quot; as
-            yourself. You can then link this receipt user to your account and
-            keep your receipt history in one place.
+            <Trans>
+              Create an account or sign in to claim "{displayName}" as yourself.
+              You can then link this receipt user to your account and keep your
+              receipt history in one place.
+            </Trans>
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-center py-2">
           <SignInButton mode="modal">
-            <Button>Sign in or create account</Button>
+            <Button>
+              <Trans>Sign in or create account</Trans>
+            </Button>
           </SignInButton>
         </div>
         <DialogFooter>
@@ -43,7 +50,7 @@ export function SignInToClaimDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            Close
+            <Trans>Close</Trans>
           </Button>
         </DialogFooter>
       </DialogContent>

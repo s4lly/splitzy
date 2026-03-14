@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import { AlertCircle, DollarSign } from 'lucide-react';
 
@@ -15,6 +16,7 @@ interface SummaryCardProps {
 }
 
 const SummaryCard = ({ receiptId, receipt }: SummaryCardProps) => {
+  const { t } = useLingui();
   const itemsTotal = calculations.pretax.getTotalForAllItems(receipt);
 
   return (
@@ -22,7 +24,7 @@ const SummaryCard = ({ receiptId, receipt }: SummaryCardProps) => {
       <CardHeader className="px-3 pb-2 sm:px-6">
         <CardTitle className="flex items-center gap-3 text-xl font-bold">
           <DollarSign className="h-6 w-6" />
-          Summary
+          <Trans>Summary</Trans>
         </CardTitle>
       </CardHeader>
       <CardContent className="px-3 sm:px-6">
@@ -32,10 +34,14 @@ const SummaryCard = ({ receiptId, receipt }: SummaryCardProps) => {
             <div className="mb-3 flex items-start rounded-md bg-blue-50 p-2 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 sm:p-3">
               <AlertCircle className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0" />
               <div>
-                <p className="font-medium">Tax Included in Prices</p>
+                <p className="font-medium">
+                  <Trans>Tax Included in Prices</Trans>
+                </p>
                 <p>
-                  The tax is already included in the individual item prices
-                  shown.
+                  <Trans>
+                    The tax is already included in the individual item prices
+                    shown.
+                  </Trans>
                 </p>
               </div>
             </div>
@@ -47,7 +53,9 @@ const SummaryCard = ({ receiptId, receipt }: SummaryCardProps) => {
               <div className="mb-3 flex items-start rounded-md bg-blue-50 p-2 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 sm:p-3">
                 <AlertCircle className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0" />
                 <div>
-                  <p className="font-medium">Tax Calculation</p>
+                  <p className="font-medium">
+                    <Trans>Tax Calculation</Trans>
+                  </p>
                   <p>
                     {(() => {
                       const pretaxTotal =
@@ -57,9 +65,7 @@ const SummaryCard = ({ receiptId, receipt }: SummaryCardProps) => {
                       const taxRate = pretaxTotal.gt(0)
                         ? receipt.tax.div(pretaxTotal).mul(100)
                         : new Decimal(0);
-                      return `Tax rate is approximately ${taxRate.toFixed(
-                        2
-                      )}% and has been distributed proportionally based on each person's items.`;
+                      return t`Tax rate is approximately ${taxRate.toFixed(2)}% and has been distributed proportionally based on each person's items.`;
                     })()}
                   </p>
                 </div>
@@ -68,7 +74,9 @@ const SummaryCard = ({ receiptId, receipt }: SummaryCardProps) => {
 
           {/* Items Total */}
           <div className="flex items-center justify-between py-2">
-            <span className="text-base">Items Total:</span>
+            <span className="text-base">
+              <Trans>Items Total:</Trans>
+            </span>
             <span className="text-base font-medium">
               {formatCurrency(itemsTotal)}
             </span>
@@ -82,7 +90,9 @@ const SummaryCard = ({ receiptId, receipt }: SummaryCardProps) => {
               .abs()
               .gt(0.01) && (
               <div className="flex items-center justify-between py-1 sm:py-2">
-                <span className="text-base">Subtotal (as shown):</span>
+                <span className="text-base">
+                  <Trans>Subtotal (as shown):</Trans>
+                </span>
                 <span className="text-base font-medium">
                   {formatCurrency(receipt.displaySubtotal)}
                 </span>
@@ -97,7 +107,9 @@ const SummaryCard = ({ receiptId, receipt }: SummaryCardProps) => {
               .abs()
               .gt(0.01) && (
               <div className="flex items-center justify-between py-1 sm:py-2">
-                <span className="text-base">Pre-tax Total:</span>
+                <span className="text-base">
+                  <Trans>Pre-tax Total:</Trans>
+                </span>
                 <span className="text-base font-medium">
                   {formatCurrency(receipt.pretaxTotal)}
                 </span>
@@ -107,10 +119,12 @@ const SummaryCard = ({ receiptId, receipt }: SummaryCardProps) => {
           {/* Tax Amount */}
           <div className="flex items-center justify-between py-1 sm:py-2">
             <div className="flex items-center">
-              <span className="text-base">Tax:</span>
+              <span className="text-base">
+                <Trans>Tax:</Trans>
+              </span>
               {receipt.taxIncludedInItems && (
                 <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
-                  Included in prices
+                  <Trans>Included in prices</Trans>
                 </span>
               )}
             </div>
@@ -125,7 +139,9 @@ const SummaryCard = ({ receiptId, receipt }: SummaryCardProps) => {
           {(receipt.tip !== null && receipt.tip.gt(0)) ||
           (receipt.gratuity !== null && receipt.gratuity.gt(0)) ? (
             <div className="flex items-center justify-between py-1 sm:py-2">
-              <span className="text-base">Post-tax Total:</span>
+              <span className="text-base">
+                <Trans>Post-tax Total:</Trans>
+              </span>
               <span className="text-base font-medium">
                 {formatCurrency(
                   itemsTotal.plus(
@@ -153,7 +169,9 @@ const SummaryCard = ({ receiptId, receipt }: SummaryCardProps) => {
 
           {/* Final Total */}
           <div className="mt-2 flex items-center justify-between border-t-2 border-border pt-3">
-            <span className="text-base font-semibold">Final Total:</span>
+            <span className="text-base font-semibold">
+              <Trans>Final Total:</Trans>
+            </span>
             <span className="text-xl font-bold">
               {formatCurrency(calculations.final.getReceiptTotal(receipt))}
             </span>

@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import { motion } from 'framer-motion';
 import { Plus, Receipt as ReceiptIcon, ShoppingBag } from 'lucide-react';
@@ -128,7 +129,9 @@ const ReceiptAnalysisDisplay = ({
     >
       <div className="mb-2 flex items-center gap-3 px-2 sm:px-0">
         <ReceiptIcon className="h-6 w-6" />
-        <h2 className="text-2xl font-bold">Document Analysis</h2>
+        <h2 className="text-2xl font-bold">
+          <Trans>Document Analysis</Trans>
+        </h2>
       </div>
 
       {/* Document Details Card - Now first */}
@@ -140,7 +143,7 @@ const ReceiptAnalysisDisplay = ({
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-3 text-xl font-bold">
               <ShoppingBag className="h-6 w-6" />
-              Items
+              <Trans>Items</Trans>
             </CardTitle>
             <div>
               <Button
@@ -149,7 +152,7 @@ const ReceiptAnalysisDisplay = ({
                 onClick={() => setIsAddingItem(true)}
               >
                 <Plus className="mr-1 h-4 w-4" />
-                Add Item
+                <Trans>Add Item</Trans>
               </Button>
             </div>
           </div>

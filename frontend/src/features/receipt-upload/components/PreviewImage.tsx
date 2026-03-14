@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Upload, X } from 'lucide-react';
 
@@ -7,6 +8,8 @@ interface PreviewImageProps {
 }
 
 export const PreviewImage = ({ preview, onClear }: PreviewImageProps) => {
+  const { t } = useLingui();
+
   return (
     <AnimatePresence>
       {preview ? (
@@ -18,7 +21,7 @@ export const PreviewImage = ({ preview, onClear }: PreviewImageProps) => {
         >
           <img
             src={preview}
-            alt="Preview"
+            alt={t`Preview`}
             className="mx-auto max-h-[300px] rounded-lg"
           />
           <button
@@ -28,7 +31,7 @@ export const PreviewImage = ({ preview, onClear }: PreviewImageProps) => {
               onClear();
             }}
             className="absolute right-2 top-2 flex min-h-[24px] min-w-[24px] items-center justify-center rounded-full bg-background/80 p-1 backdrop-blur-sm hover:bg-background"
-            aria-label="Clear preview"
+            aria-label={t`Clear preview`}
           >
             <X className="h-4 w-4" aria-hidden />
           </button>
@@ -43,10 +46,10 @@ export const PreviewImage = ({ preview, onClear }: PreviewImageProps) => {
           <Upload className="h-8 w-8 text-muted-foreground/50" />
           <div>
             <p className="text-sm font-medium text-foreground">
-              Tap to upload a receipt
+              <Trans>Tap to upload a receipt</Trans>
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              or drag & drop · JPEG, PNG
+              <Trans>or drag & drop · JPEG, PNG</Trans>
             </p>
           </div>
         </motion.div>
