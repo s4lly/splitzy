@@ -2,7 +2,8 @@ import { Trans } from '@lingui/react/macro';
 import { Receipt, Server } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import receiptService from '@/services/receiptService';
+const API_URL =
+  import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 export default function Footer() {
   const [apiStatus, setApiStatus] = useState<
@@ -11,8 +12,13 @@ export default function Footer() {
 
   useEffect(() => {
     const checkApiHealth = async () => {
-      const isHealthy = await receiptService.checkHealth();
-      setApiStatus(isHealthy ? 'healthy' : 'unhealthy');
+      try {
+        const response = await fetch(`${API_URL}/health`);
+        const data = await response.json();
+        setApiStatus(data.status === 'healthy' ? 'healthy' : 'unhealthy');
+      } catch {
+        setApiStatus('unhealthy');
+      }
     };
 
     checkApiHealth();

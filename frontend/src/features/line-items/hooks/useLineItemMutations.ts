@@ -14,7 +14,7 @@ import {
 } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { mutators } from '@/zero/mutators';
 
-export function useZeroLineItemMutations() {
+export function useLineItemMutations() {
   const zero = useZero();
   const receipt = useAtomValue(receiptAtom);
   const receiptId = useAtomValue(receiptIdAtom);

@@ -124,18 +124,9 @@ def create_app():
         )
 
     # ============================================================================
-    # Paths & Directories
-    # ============================================================================
-    BASE_DIR = Path(__file__).resolve().parent
-    UPLOAD_FOLDER = str(BASE_DIR / "uploads")
-    app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-
-    # Create uploads folder if it doesn't exist
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-    # ============================================================================
     # Database Configuration
     # ============================================================================
+    BASE_DIR = Path(__file__).resolve().parent
     database_url = os.environ.get("DATABASE_URL") or os.environ.get("NEON_DATABASE_URL")
     if database_url:
         # Use Neon/PostgreSQL

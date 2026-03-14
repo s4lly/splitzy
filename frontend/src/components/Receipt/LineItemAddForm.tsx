@@ -1,31 +1,30 @@
 import { Trans } from '@lingui/react/macro';
+import { useZero } from '@rocicorp/zero/react';
 import Decimal from 'decimal.js';
+import { useAtomValue } from 'jotai';
 import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 import LineItemForm from '@/components/Receipt/LineItemForm';
-import type {
-  AddLineItemData,
-  UpdateLineItemData,
-} from '@/features/line-items/types';
+import { Button } from '@/components/ui/button';
+import type { UpdateLineItemData } from '@/features/line-items/types';
+import { receiptIdAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-
-import { Button } from '../ui/button';
+import { mutators } from '@/zero/mutators';
 
 function isStringEmpty(str: string) {
   return str == null || str.trim() === '';
 }
 
 export default function LineItemAddForm({
-  receiptId,
   onAddCancel,
-  onAddLineItem,
-  isPending,
 }: {
-  receiptId: string;
   onAddCancel: () => void;
-  onAddLineItem: (data: AddLineItemData) => void;
-  isPending?: boolean;
 }) {
+  const zero = useZero();
+  const receiptId = useAtomValue(receiptIdAtom);
+  const [isPending, setIsPending] = useState(false);
+
   // Local state for form values with default values
   const [formData, setFormData] = useState({
     name: '',
@@ -33,11 +32,43 @@ export default function LineItemAddForm({
     price_per_item: 0,
   });
 
-  const handleAddItem = () => {
-    onAddLineItem({
-      receiptId,
-      lineItemData: formData,
-    });
+  const handleAddItem = async () => {
+    if (!receiptId) {
+      console.error('Cannot add line item: receiptId is missing');
+      return;
+    }
+
+    setIsPending(true);
+
+    try {
+      const id = uuidv4();
+      const quantity = formData.quantity ?? 1;
+      const pricePerItem = formData.price_per_item ?? 0;
+      const totalPrice = quantity * pricePerItem;
+
+      const result = zero.mutate(
+        mutators.lineItems.insert({
+          id,
+          receipt_id: Number(receiptId),
+          name: formData.name,
+          quantity,
+          price_per_item: pricePerItem,
+          total_price: totalPrice,
+          created_at: Date.now(),
+        })
+      );
+
+      const clientResult = await result.client;
+
+      if (clientResult.type === 'error') {
+        console.error('Failed to add line item:', clientResult.error.message);
+      } else {
+        console.info('Successfully added line item');
+        onAddCancel();
+      }
+    } finally {
+      setIsPending(false);
+    }
   };
 
   const handleNameChange = (name: string) => {
@@ -84,6 +115,10 @@ export default function LineItemAddForm({
     deletedAt: null,
     assignments: [],
   };
+
+  if (!receiptId) {
+    return null;
+  }
 
   return (
     <div className="w-full">

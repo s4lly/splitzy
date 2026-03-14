@@ -1,4 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useAtomValue } from 'jotai';
 import { Pencil } from 'lucide-react';
 import { Fragment, useState } from 'react';
 
@@ -19,45 +20,36 @@ import {
 import { Toggle } from '@/components/ui/toggle';
 import { AssignmentsContainer } from '@/features/assignments/assignments-container';
 import AssignmentsList from '@/features/assignments/assignments-list';
-import type {
-  DeleteLineItemData,
-  MutationCallbackOptions,
-  UpdateLineItemData,
-} from '@/features/line-items/types';
+import { useLineItemMutations } from '@/features/line-items/hooks/useLineItemMutations';
+import {
+  assignedUsersAtom,
+  receiptAtom,
+} from '@/features/receipt-collab/atoms/receiptAtoms';
 import { cn } from '@/lib/utils';
-import type { Assignment } from '@/models/Assignment';
-import type { Receipt } from '@/models/Receipt';
-import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 
-export default function LineItemsTableDesktop({
-  line_items,
-  people,
-  receipt,
-  addExistingPersonAssignment,
-  addNewPersonAssignment,
-  removePersonAssignment,
-  onUpdateLineItem,
-  onDeleteLineItem,
-  isDeleting,
-  allAssignments = [],
-}: {
-  line_items: readonly ReceiptLineItem[];
-  people: string[]; // ULID receipt user IDs
-  receipt: Receipt;
-  addExistingPersonAssignment: (itemId: string, receiptUserId: string) => void;
-  addNewPersonAssignment: (itemId: string, displayName: string) => void;
-  removePersonAssignment: (itemId: string, assignmentId: string) => void;
-  onUpdateLineItem: (data: UpdateLineItemData) => void;
-  onDeleteLineItem: (
-    data: DeleteLineItemData,
-    options?: MutationCallbackOptions
-  ) => void;
-  isDeleting?: boolean;
-  allAssignments?: readonly Assignment[];
-}) {
+export default function LineItemsTableDesktop() {
+  const receipt = useAtomValue(receiptAtom);
+  const assignedUsers = useAtomValue(assignedUsersAtom);
+  const people = assignedUsers.map((a) => a.receiptUserId);
+  const {
+    addExistingPersonAssignment,
+    addNewPersonAssignment,
+    removePersonAssignment,
+    handleUpdateLineItem: onUpdateLineItem,
+    handleDeleteLineItem: onDeleteLineItem,
+    isDeleting,
+  } = useLineItemMutations();
+
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [assignmentItemId, setAssignmentItemId] = useState<string | null>(null);
   const { t } = useLingui();
+
+  if (!receipt) {
+    return null;
+  }
+
+  const line_items = receipt.lineItems;
+  const allAssignments = receipt.lineItems.flatMap((item) => item.assignments);
 
   const handleEditOpen = (itemId: string) => {
     setEditItemId(itemId);
@@ -234,7 +226,7 @@ export default function LineItemsTableDesktop({
                         item={item}
                         formPricePerItem={item.pricePerItem}
                         formQuantity={item.quantity}
-                        allAssignments={allAssignments ?? []}
+                        allAssignments={allAssignments}
                       />
                       <Separator />
                       <div className="flex justify-between gap-2 p-2">

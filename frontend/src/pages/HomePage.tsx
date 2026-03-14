@@ -17,8 +17,10 @@ import {
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { fromZeroReceipt } from '@/lib/receiptTypes';
-import receiptService from '@/services/receiptService';
 import { queries } from '@/zero/queries';
+
+const API_URL =
+  import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const ReceiptHistorySection = () => {
   const [user, details] = useQuery(queries.users.receipts.byAuthUserId({}));
@@ -86,8 +88,9 @@ const HomePage = () => {
   React.useEffect(() => {
     const checkApiHealth = async () => {
       try {
-        const isHealthy = await receiptService.checkHealth();
-        setApiStatus(isHealthy ? 'healthy' : 'unhealthy');
+        const response = await fetch(`${API_URL}/health`);
+        const data = await response.json();
+        setApiStatus(data.status === 'healthy' ? 'healthy' : 'unhealthy');
       } catch {
         setApiStatus('unhealthy');
       }
