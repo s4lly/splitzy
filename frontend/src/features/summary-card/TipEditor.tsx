@@ -89,7 +89,7 @@ const TipEditor = ({
           },
           onError: (error) => {
             const errorMessage =
-              error?.message || 'Failed to save tip. Please try again.';
+              error?.message || t`Failed to save tip. Please try again.`;
             setError(errorMessage);
           },
         }
@@ -144,7 +144,7 @@ const TipEditor = ({
         },
         onError: (error) => {
           const errorMessage =
-            error?.message || 'Failed to delete tip. Please try again.';
+            error?.message || t`Failed to delete tip. Please try again.`;
           setError(errorMessage);
         },
       }
@@ -170,7 +170,7 @@ const TipEditor = ({
       {
         onError: (error) => {
           const errorMessage =
-            error?.message || 'Failed to save tip. Please try again.';
+            error?.message || t`Failed to save tip. Please try again.`;
           setError(errorMessage);
         },
       }
@@ -190,7 +190,7 @@ const TipEditor = ({
         onError: (error) => {
           setTipAfterTax(previous);
           const errorMessage =
-            error?.message || 'Failed to update setting. Please try again.';
+            error?.message || t`Failed to update setting. Please try again.`;
           setError(errorMessage);
         },
       }

@@ -224,7 +224,7 @@ msgid "Click \"Manage People\" to add friends and assign items to them. Then tag
 msgstr "Klicke auf „Personen verwalten\", um Freunde hinzuzufügen und ihnen Artikel zuzuweisen. Markiere dann jeden Artikel mit der Person, die dafür bezahlen soll."
 
 #: src/features/assignments/SignInToClaimDialog.tsx:53
-#: src/features/bill-split/components/BillBreakdownView.tsx:369
+#: src/features/bill-split/components/BillBreakdownView.tsx:373
 msgid "Close"
 msgstr "Schließen"
 
@@ -364,7 +364,7 @@ msgstr "Gleichmäßige Aufteilung"
 msgid "Equal split"
 msgstr "Gleichmäßige Teilung"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:355
+#: src/features/bill-split/components/BillBreakdownView.tsx:359
 msgid "Equal split - no specific items assigned"
 msgstr "Gleichmäßige Aufteilung — keine bestimmten Artikel zugewiesen"
 
@@ -391,6 +391,10 @@ msgstr "Person konnte nicht beansprucht werden"
 msgid "Failed to delete gratuity. Please try again."
 msgstr "Trinkgeld konnte nicht gelöscht werden. Bitte versuche es erneut."
 
+#: src/features/summary-card/TipEditor.tsx:147
+msgid "Failed to delete tip. Please try again."
+msgstr "Trinkgeld konnte nicht gelöscht werden. Bitte versuche es erneut."
+
 #: src/features/receipt-image/ReceiptImageViewer.tsx:62
 msgid "Failed to download image"
 msgstr "Bild konnte nicht heruntergeladen werden"
@@ -407,6 +411,11 @@ msgstr "Belegbild konnte nicht geladen werden"
 msgid "Failed to save gratuity. Please try again."
 msgstr "Trinkgeld konnte nicht gespeichert werden. Bitte versuche es erneut."
 
+#: src/features/summary-card/TipEditor.tsx:92
+#: src/features/summary-card/TipEditor.tsx:173
+msgid "Failed to save tip. Please try again."
+msgstr "Trinkgeld konnte nicht gespeichert werden. Bitte versuche es erneut."
+
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:115
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:145
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:149
@@ -419,6 +428,10 @@ msgstr "Person konnte nicht gewechselt werden"
 #: src/features/receipt-image/components/ImageSettingsDialog.tsx:62
 msgid "Failed to update image visibility"
 msgstr "Bildsichtbarkeit konnte nicht aktualisiert werden"
+
+#: src/features/summary-card/TipEditor.tsx:193
+msgid "Failed to update setting. Please try again."
+msgstr "Einstellung konnte nicht aktualisiert werden. Bitte versuche es erneut."
 
 #: src/pages/SettingsPage.tsx:22
 #: src/pages/SettingsPage.tsx:133
@@ -434,7 +447,9 @@ msgstr "Endsumme:"
 msgid "From receipt to settled,<0/><1>in a few taps.</1>"
 msgstr "Vom Beleg zur Abrechnung,<0/><1>in wenigen Klicks.</1>"
 
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:99
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:125
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:174
 #: src/features/summary-card/GratuityEditor.tsx:125
 #: src/features/summary-card/GratuityEditor.tsx:157
 #: src/features/summary-card/GratuityEditor.tsx:208
@@ -503,7 +518,8 @@ msgstr "Artikel"
 msgid "Item"
 msgstr "Artikel"
 
-#: src/components/Receipt/LineItemForm.tsx:121
+#: src/components/Receipt/LineItemForm.tsx:117
+#: src/components/Receipt/LineItemForm.tsx:125
 msgid "Item name"
 msgstr "Artikelname"
 
@@ -589,7 +605,7 @@ msgstr "Neu:"
 msgid "No Item Details Available"
 msgstr "Keine Artikeldetails verfügbar"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:359
+#: src/features/bill-split/components/BillBreakdownView.tsx:363
 msgid "No items assigned yet"
 msgstr "Noch keine Artikel zugewiesen"
 
@@ -635,7 +651,7 @@ msgid "Number of people"
 msgstr "Anzahl der Personen"
 
 #. placeholder {0}: formatCurrency(item.originalPrice)
-#: src/features/bill-split/components/BillBreakdownView.tsx:289
+#: src/features/bill-split/components/BillBreakdownView.tsx:293
 msgid "of {0}"
 msgstr "von {0}"
 
@@ -688,8 +704,8 @@ msgstr "Privates Bild"
 msgid "Qty"
 msgstr "Anz."
 
-#: src/components/Receipt/LineItemForm.tsx:157
-#: src/components/Receipt/LineItemForm.tsx:163
+#: src/components/Receipt/LineItemForm.tsx:164
+#: src/components/Receipt/LineItemForm.tsx:171
 msgid "Quantity"
 msgstr "Menge"
 
@@ -790,7 +806,7 @@ msgstr "Einstellungen"
 #~ msgid "Shared with {0}"
 #~ msgstr "Geteilt mit {0}"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:275
+#: src/features/bill-split/components/BillBreakdownView.tsx:276
 msgid "Shared with {sharedWithNames}"
 msgstr "Geteilt mit {sharedWithNames}"
 
@@ -839,7 +855,7 @@ msgstr "Fair aufteilen"
 msgid "Split with Friends"
 msgstr "Mit Freunden teilen"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:301
+#: src/features/bill-split/components/BillBreakdownView.tsx:305
 msgid "Subtotal"
 msgstr "Zwischensumme"
 
@@ -886,7 +902,7 @@ msgstr "Mache ein Foto und wir extrahieren jeden Posten automatisch — keine ma
 msgid "Tap to upload a receipt"
 msgstr "Tippen, um einen Beleg hochzuladen"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:311
+#: src/features/bill-split/components/BillBreakdownView.tsx:315
 #: src/features/receipt-viewer/components/TipEditor.tsx:199
 #: src/features/summary-card/TipEditor.tsx:264
 msgid "Tax"
@@ -943,9 +959,11 @@ msgstr "Dieses Dokument von {merchant} enthält keine detaillierten Posten. Der 
 msgid "This receipt doesn't contain detailed line items, so the total amount has been divided equally among all people."
 msgstr "Dieser Beleg enthält keine detaillierten Posten, daher wurde der Gesamtbetrag gleichmäßig auf alle Personen aufgeteilt."
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:322
+#: src/features/bill-split/components/BillBreakdownView.tsx:326
 #: src/features/receipt-viewer/components/TipEditor.tsx:167
+#: src/features/receipt-viewer/components/TipEditor.tsx:263
 #: src/features/summary-card/TipEditor.tsx:232
+#: src/features/summary-card/TipEditor.tsx:328
 msgid "Tip"
 msgstr "Trinkgeld"
 
@@ -964,7 +982,7 @@ msgid "Toggle theme"
 msgstr "Design wechseln"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:104
-#: src/features/bill-split/components/BillBreakdownView.tsx:342
+#: src/features/bill-split/components/BillBreakdownView.tsx:346
 msgid "Total"
 msgstr "Gesamt"
 
@@ -990,11 +1008,11 @@ msgstr "Nicht zugewiesener Betrag:"
 msgid "unhealthy"
 msgstr "nicht verfügbar"
 
-#: src/components/Receipt/LineItemForm.tsx:181
+#: src/components/Receipt/LineItemForm.tsx:193
 msgid "Unit price"
 msgstr "Stückpreis"
 
-#: src/components/Receipt/LineItemForm.tsx:169
+#: src/components/Receipt/LineItemForm.tsx:180
 msgid "Unit Price"
 msgstr "Stückpreis"
 
@@ -1029,16 +1047,16 @@ msgstr "Lade einen Beleg hoch, um zu beginnen"
 msgid "Use new desktop table design for receipts."
 msgstr "Neues Desktop-Tabellendesign für Belege verwenden."
 
-#: src/components/Receipt/ReceiptHistory.tsx:102
+#: src/components/Receipt/ReceiptHistory.tsx:106
 msgid "View"
 msgstr "Ansehen"
 
 #. placeholder {0}: receipt.merchant
-#: src/components/Receipt/ReceiptHistory.tsx:99
+#: src/components/Receipt/ReceiptHistory.tsx:101
 msgid "View receipt from {0}"
 msgstr "Beleg von {0} ansehen"
 
-#: src/components/Receipt/ReceiptHistory.tsx:99
+#: src/components/Receipt/ReceiptHistory.tsx:102
 msgid "View receipt from Unknown Merchant"
 msgstr "Beleg von unbekanntem Händler anzeigen"
 
