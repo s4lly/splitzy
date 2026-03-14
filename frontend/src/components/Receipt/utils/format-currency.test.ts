@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { i18n } from '@lingui/core';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { formatCurrency, truncateToTwoDecimals } from './format-currency';
 
@@ -37,6 +38,11 @@ describe('truncateToTwoDecimals', () => {
 });
 
 describe('formatCurrency', () => {
+  beforeEach(() => {
+    i18n.load('en', {});
+    i18n.activate('en');
+  });
+
   it('formats positive numbers as $X.XX with proper currency symbol', () => {
     expect(formatCurrency(12.34)).toBe('$12.34');
     expect(formatCurrency(0)).toBe('$0.00');
@@ -90,6 +96,28 @@ describe('formatCurrency', () => {
   it('formats numbers correctly', () => {
     expect(formatCurrency(32.98)).toBe('$32.98');
     expect(formatCurrency(1.005)).toBe('$1.01'); // rounds to nearest cent
+  });
+
+  it('respects the active locale for formatting', () => {
+    i18n.load('de', {});
+    i18n.activate('de');
+    // German locale uses period for thousands and comma for decimals
+    const result = formatCurrency(1234.56);
+    expect(result).toContain('1.234,56');
+  });
+
+  it('accepts a custom currency code', () => {
+    const result = formatCurrency(1234.56, 'GBP');
+    expect(result).toContain('1,234.56');
+    // Should contain pound symbol
+    expect(result).toContain('£');
+  });
+
+  it('uses locale-appropriate currency symbol placement', () => {
+    i18n.load('ja', {});
+    i18n.activate('ja');
+    const result = formatCurrency(1234, 'JPY');
+    expect(result).toContain('￥');
   });
 });
 
