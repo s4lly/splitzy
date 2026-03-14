@@ -233,7 +233,7 @@ msgstr "Close assignments"
 msgid "Collapse assignments"
 msgstr "Collapse assignments"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:153
+#: src/components/Receipt/LineItemsTableMobile.tsx:152
 msgid "Collapse edit"
 msgstr "Collapse edit"
 
@@ -329,9 +329,12 @@ msgstr "Drop files here to upload"
 
 #. placeholder {0}: item.name ?? t`item`
 #: src/components/Receipt/LineItemsTableDesktop.tsx:167
-#: src/components/Receipt/LineItemsTableMobile.tsx:154
 msgid "Edit {0}"
 msgstr "Edit {0}"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:154
+msgid "Edit {name}"
+msgstr "Edit {name}"
 
 #: src/pages/SettingsPage.tsx:136
 msgid "Enable or disable features in your application."
@@ -484,7 +487,7 @@ msgstr "Invalid Date"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:150
 #: src/components/Receipt/LineItemsTableDesktop.tsx:167
-#: src/components/Receipt/LineItemsTableMobile.tsx:154
+#: src/components/Receipt/LineItemsTableMobile.tsx:153
 #: src/components/Receipt/LineItemsTableMobile.tsx:235
 #: src/components/Receipt/LineItemsTableMobile.tsx:236
 msgid "item"

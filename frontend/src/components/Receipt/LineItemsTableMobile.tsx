@@ -148,11 +148,11 @@ export default function LineItemsTableMobile({
                     <Toggle
                       onClick={(e) => handleEditOpen(e, item.id)}
                       aria-expanded={showReducedAssignments}
-                      aria-label={
-                        showReducedAssignments
-                          ? t`Collapse edit`
-                          : t`Edit ${item.name ?? t`item`}`
-                      }
+                      aria-label={(() => {
+                        if (showReducedAssignments) return t`Collapse edit`;
+                        const name = item.name ?? t`item`;
+                        return t`Edit ${name}`;
+                      })()}
                     >
                       {!showReducedAssignments ? (
                         <Pencil aria-hidden />

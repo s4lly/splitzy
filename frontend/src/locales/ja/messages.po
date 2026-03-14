@@ -233,7 +233,7 @@ msgstr "割り当てを閉じる"
 msgid "Collapse assignments"
 msgstr "割り当てを折りたたむ"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:153
+#: src/components/Receipt/LineItemsTableMobile.tsx:152
 msgid "Collapse edit"
 msgstr "編集を折りたたむ"
 
@@ -329,9 +329,12 @@ msgstr "ファイルをここにドロップしてアップロード"
 
 #. placeholder {0}: item.name ?? t`item`
 #: src/components/Receipt/LineItemsTableDesktop.tsx:167
-#: src/components/Receipt/LineItemsTableMobile.tsx:154
 msgid "Edit {0}"
 msgstr "{0}を編集"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:154
+msgid "Edit {name}"
+msgstr "{name}を編集"
 
 #: src/pages/SettingsPage.tsx:136
 msgid "Enable or disable features in your application."
@@ -484,7 +487,7 @@ msgstr "無効な日付"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:150
 #: src/components/Receipt/LineItemsTableDesktop.tsx:167
-#: src/components/Receipt/LineItemsTableMobile.tsx:154
+#: src/components/Receipt/LineItemsTableMobile.tsx:153
 #: src/components/Receipt/LineItemsTableMobile.tsx:235
 #: src/components/Receipt/LineItemsTableMobile.tsx:236
 msgid "item"

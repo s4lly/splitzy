@@ -233,7 +233,7 @@ msgstr "Zuweisungen schließen"
 msgid "Collapse assignments"
 msgstr "Zuweisungen einklappen"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:153
+#: src/components/Receipt/LineItemsTableMobile.tsx:152
 msgid "Collapse edit"
 msgstr "Bearbeitung einklappen"
 
@@ -329,9 +329,12 @@ msgstr "Dateien hier ablegen zum Hochladen"
 
 #. placeholder {0}: item.name ?? t`item`
 #: src/components/Receipt/LineItemsTableDesktop.tsx:167
-#: src/components/Receipt/LineItemsTableMobile.tsx:154
 msgid "Edit {0}"
 msgstr "{0} bearbeiten"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:154
+msgid "Edit {name}"
+msgstr "{name} bearbeiten"
 
 #: src/pages/SettingsPage.tsx:136
 msgid "Enable or disable features in your application."
@@ -484,7 +487,7 @@ msgstr "Ungültiges Datum"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:150
 #: src/components/Receipt/LineItemsTableDesktop.tsx:167
-#: src/components/Receipt/LineItemsTableMobile.tsx:154
+#: src/components/Receipt/LineItemsTableMobile.tsx:153
 #: src/components/Receipt/LineItemsTableMobile.tsx:235
 #: src/components/Receipt/LineItemsTableMobile.tsx:236
 msgid "item"
