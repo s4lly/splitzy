@@ -1013,7 +1013,6 @@ msgid "Unknown date"
 msgstr "日付不明"
 
 #: src/components/Receipt/ReceiptHistory.tsx:72
-#: src/components/Receipt/ReceiptHistory.tsx:99
 msgid "Unknown Merchant"
 msgstr "不明な店舗"
 
@@ -1034,10 +1033,14 @@ msgstr "レシートに新しいデスクトップテーブルデザインを使
 msgid "View"
 msgstr "表示"
 
-#. placeholder {0}: receipt.merchant || t`Unknown Merchant`
+#. placeholder {0}: receipt.merchant
 #: src/components/Receipt/ReceiptHistory.tsx:99
 msgid "View receipt from {0}"
 msgstr "{0}のレシートを表示"
+
+#: src/components/Receipt/ReceiptHistory.tsx:99
+msgid "View receipt from Unknown Merchant"
+msgstr "不明な店舗のレシートを表示"
 
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:150
 msgid "Your original claim has been restored."

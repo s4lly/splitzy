@@ -1013,7 +1013,6 @@ msgid "Unknown date"
 msgstr "Unknown date"
 
 #: src/components/Receipt/ReceiptHistory.tsx:72
-#: src/components/Receipt/ReceiptHistory.tsx:99
 msgid "Unknown Merchant"
 msgstr "Unknown Merchant"
 
@@ -1034,10 +1033,14 @@ msgstr "Use new desktop table design for receipts."
 msgid "View"
 msgstr "View"
 
-#. placeholder {0}: receipt.merchant || t`Unknown Merchant`
+#. placeholder {0}: receipt.merchant
 #: src/components/Receipt/ReceiptHistory.tsx:99
 msgid "View receipt from {0}"
 msgstr "View receipt from {0}"
+
+#: src/components/Receipt/ReceiptHistory.tsx:99
+msgid "View receipt from Unknown Merchant"
+msgstr "View receipt from Unknown Merchant"
 
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:150
 msgid "Your original claim has been restored."
