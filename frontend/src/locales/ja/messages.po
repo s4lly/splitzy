@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:128
-#: src/components/Receipt/LineItemsTableMobile.tsx:139
+#: src/components/Receipt/LineItemsTableMobile.tsx:140
 #: src/features/bill-split/components/BillBreakdownView.tsx:267
 msgid "(Unnamed item)"
 msgstr "（名前なし）"
@@ -110,15 +110,18 @@ msgstr "外観"
 msgid "Appearance settings content would go here."
 msgstr "外観設定の内容がここに表示されます。"
 
-#. placeholder {0}: item.name ?? t`item`
 #: src/components/Receipt/LineItemsTableMobile.tsx:235
-msgid "Assign {0}"
-msgstr "{0}を割り当て"
+#~ msgid "Assign {0}"
+#~ msgstr "{0}を割り当て"
 
 #: src/features/assignments/assignments-list.tsx:402
 #: src/features/assignments/assignments-list.tsx:403
 msgid "Assign {displayName}"
 msgstr "{displayName}を割り当て"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:236
+msgid "Assign {itemLabel}"
+msgstr "{itemLabel}を割り当て"
 
 #: src/features/assignments/assignments-list.tsx:369
 msgid "Assign All"
@@ -132,7 +135,7 @@ msgstr "アイテムを割り当て、共有費用を分割し、チップを管
 msgid "Assigned To"
 msgstr "割り当て先"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:226
+#: src/components/Receipt/LineItemsTableMobile.tsx:227
 #: src/features/assignments/assignments-header.tsx:19
 msgid "Assigned to:"
 msgstr "割り当て先："
@@ -229,11 +232,11 @@ msgstr "閉じる"
 msgid "Close assignments"
 msgstr "割り当てを閉じる"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:265
+#: src/components/Receipt/LineItemsTableMobile.tsx:266
 msgid "Collapse assignments"
 msgstr "割り当てを折りたたむ"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:152
+#: src/components/Receipt/LineItemsTableMobile.tsx:154
 msgid "Collapse edit"
 msgstr "編集を折りたたむ"
 
@@ -272,7 +275,7 @@ msgstr "日付："
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:190
 #: src/components/Receipt/LineItemsTableDesktop.tsx:246
-#: src/components/Receipt/LineItemsTableMobile.tsx:288
+#: src/components/Receipt/LineItemsTableMobile.tsx:289
 msgid "Delete"
 msgstr "削除"
 
@@ -288,7 +291,7 @@ msgstr "チップを削除"
 msgid "Delete tip"
 msgstr "チップを削除"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:286
+#: src/components/Receipt/LineItemsTableMobile.tsx:287
 msgid "Deleting..."
 msgstr "削除中..."
 
@@ -307,7 +310,7 @@ msgstr "ドキュメント詳細"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:196
 #: src/components/Receipt/LineItemsTableDesktop.tsx:252
-#: src/components/Receipt/LineItemsTableMobile.tsx:292
+#: src/components/Receipt/LineItemsTableMobile.tsx:293
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:167
 #: src/features/receipt-viewer/components/TipEditor.tsx:255
 #: src/features/summary-card/GratuityEditor.tsx:201
@@ -332,9 +335,13 @@ msgstr "ファイルをここにドロップしてアップロード"
 msgid "Edit {0}"
 msgstr "{0}を編集"
 
+#: src/components/Receipt/LineItemsTableMobile.tsx:155
+msgid "Edit {itemLabel}"
+msgstr "{itemLabel}を編集"
+
 #: src/components/Receipt/LineItemsTableMobile.tsx:154
-msgid "Edit {name}"
-msgstr "{name}を編集"
+#~ msgid "Edit {name}"
+#~ msgstr "{name}を編集"
 
 #: src/pages/SettingsPage.tsx:136
 msgid "Enable or disable features in your application."
@@ -487,9 +494,7 @@ msgstr "無効な日付"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:150
 #: src/components/Receipt/LineItemsTableDesktop.tsx:167
-#: src/components/Receipt/LineItemsTableMobile.tsx:153
-#: src/components/Receipt/LineItemsTableMobile.tsx:235
-#: src/components/Receipt/LineItemsTableMobile.tsx:236
+#: src/components/Receipt/LineItemsTableMobile.tsx:118
 msgid "item"
 msgstr "アイテム"
 
@@ -532,9 +537,12 @@ msgstr "メインナビゲーション"
 
 #. placeholder {0}: item.name ?? t`item`
 #: src/components/Receipt/LineItemsTableDesktop.tsx:150
-#: src/components/Receipt/LineItemsTableMobile.tsx:236
 msgid "Manage assignments for {0}"
 msgstr "{0}の割り当てを管理"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:237
+msgid "Manage assignments for {itemLabel}"
+msgstr "{itemLabel}の割り当てを管理"
 
 #: src/features/bill-split/components/BillBreakdownView.tsx:70
 #: src/features/bill-split/components/ManualSplitTab.tsx:66
@@ -685,7 +693,7 @@ msgstr "数量"
 msgid "Quantity"
 msgstr "数量"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:171
+#: src/components/Receipt/LineItemsTableMobile.tsx:172
 msgid "Quantity:"
 msgstr "数量："
 
@@ -990,7 +998,7 @@ msgstr "単価"
 msgid "Unit Price"
 msgstr "単価"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:179
+#: src/components/Receipt/LineItemsTableMobile.tsx:180
 msgid "Unit Price:"
 msgstr "単価："
 

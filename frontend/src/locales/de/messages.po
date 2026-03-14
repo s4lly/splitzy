@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:128
-#: src/components/Receipt/LineItemsTableMobile.tsx:139
+#: src/components/Receipt/LineItemsTableMobile.tsx:140
 #: src/features/bill-split/components/BillBreakdownView.tsx:267
 msgid "(Unnamed item)"
 msgstr "(Unbenannter Artikel)"
@@ -110,15 +110,18 @@ msgstr "Erscheinungsbild"
 msgid "Appearance settings content would go here."
 msgstr "Hier würden die Erscheinungsbild-Einstellungen stehen."
 
-#. placeholder {0}: item.name ?? t`item`
 #: src/components/Receipt/LineItemsTableMobile.tsx:235
-msgid "Assign {0}"
-msgstr "{0} zuweisen"
+#~ msgid "Assign {0}"
+#~ msgstr "{0} zuweisen"
 
 #: src/features/assignments/assignments-list.tsx:402
 #: src/features/assignments/assignments-list.tsx:403
 msgid "Assign {displayName}"
 msgstr "{displayName} zuweisen"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:236
+msgid "Assign {itemLabel}"
+msgstr "{itemLabel} zuweisen"
 
 #: src/features/assignments/assignments-list.tsx:369
 msgid "Assign All"
@@ -132,7 +135,7 @@ msgstr "Weise Artikel Personen zu, teile gemeinsame Kosten und verwalte Trinkgel
 msgid "Assigned To"
 msgstr "Zugewiesen an"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:226
+#: src/components/Receipt/LineItemsTableMobile.tsx:227
 #: src/features/assignments/assignments-header.tsx:19
 msgid "Assigned to:"
 msgstr "Zugewiesen an:"
@@ -229,11 +232,11 @@ msgstr "Schließen"
 msgid "Close assignments"
 msgstr "Zuweisungen schließen"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:265
+#: src/components/Receipt/LineItemsTableMobile.tsx:266
 msgid "Collapse assignments"
 msgstr "Zuweisungen einklappen"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:152
+#: src/components/Receipt/LineItemsTableMobile.tsx:154
 msgid "Collapse edit"
 msgstr "Bearbeitung einklappen"
 
@@ -272,7 +275,7 @@ msgstr "Datum:"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:190
 #: src/components/Receipt/LineItemsTableDesktop.tsx:246
-#: src/components/Receipt/LineItemsTableMobile.tsx:288
+#: src/components/Receipt/LineItemsTableMobile.tsx:289
 msgid "Delete"
 msgstr "Löschen"
 
@@ -288,7 +291,7 @@ msgstr "Trinkgeld löschen"
 msgid "Delete tip"
 msgstr "Trinkgeld löschen"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:286
+#: src/components/Receipt/LineItemsTableMobile.tsx:287
 msgid "Deleting..."
 msgstr "Wird gelöscht..."
 
@@ -307,7 +310,7 @@ msgstr "Dokumentdetails"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:196
 #: src/components/Receipt/LineItemsTableDesktop.tsx:252
-#: src/components/Receipt/LineItemsTableMobile.tsx:292
+#: src/components/Receipt/LineItemsTableMobile.tsx:293
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:167
 #: src/features/receipt-viewer/components/TipEditor.tsx:255
 #: src/features/summary-card/GratuityEditor.tsx:201
@@ -332,9 +335,13 @@ msgstr "Dateien hier ablegen zum Hochladen"
 msgid "Edit {0}"
 msgstr "{0} bearbeiten"
 
+#: src/components/Receipt/LineItemsTableMobile.tsx:155
+msgid "Edit {itemLabel}"
+msgstr "{itemLabel} bearbeiten"
+
 #: src/components/Receipt/LineItemsTableMobile.tsx:154
-msgid "Edit {name}"
-msgstr "{name} bearbeiten"
+#~ msgid "Edit {name}"
+#~ msgstr "{name} bearbeiten"
 
 #: src/pages/SettingsPage.tsx:136
 msgid "Enable or disable features in your application."
@@ -487,9 +494,7 @@ msgstr "Ungültiges Datum"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:150
 #: src/components/Receipt/LineItemsTableDesktop.tsx:167
-#: src/components/Receipt/LineItemsTableMobile.tsx:153
-#: src/components/Receipt/LineItemsTableMobile.tsx:235
-#: src/components/Receipt/LineItemsTableMobile.tsx:236
+#: src/components/Receipt/LineItemsTableMobile.tsx:118
 msgid "item"
 msgstr "Artikel"
 
@@ -532,9 +537,12 @@ msgstr "Hauptnavigation"
 
 #. placeholder {0}: item.name ?? t`item`
 #: src/components/Receipt/LineItemsTableDesktop.tsx:150
-#: src/components/Receipt/LineItemsTableMobile.tsx:236
 msgid "Manage assignments for {0}"
 msgstr "Zuweisungen für {0} verwalten"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:237
+msgid "Manage assignments for {itemLabel}"
+msgstr "Zuweisungen für {itemLabel} verwalten"
 
 #: src/features/bill-split/components/BillBreakdownView.tsx:70
 #: src/features/bill-split/components/ManualSplitTab.tsx:66
@@ -685,7 +693,7 @@ msgstr "Anz."
 msgid "Quantity"
 msgstr "Menge"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:171
+#: src/components/Receipt/LineItemsTableMobile.tsx:172
 msgid "Quantity:"
 msgstr "Menge:"
 
@@ -990,7 +998,7 @@ msgstr "Stückpreis"
 msgid "Unit Price"
 msgstr "Stückpreis"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:179
+#: src/components/Receipt/LineItemsTableMobile.tsx:180
 msgid "Unit Price:"
 msgstr "Stückpreis:"
 

@@ -115,6 +115,7 @@ export default function LineItemsTableMobile({
         // Derived state for this item
         const showReducedDetails = assignmentItemId === item.id;
         const showReducedAssignments = editItemId === item.id;
+        const itemLabel = item.name ?? t`item`;
 
         return (
           <LineItemCard
@@ -148,11 +149,11 @@ export default function LineItemsTableMobile({
                     <Toggle
                       onClick={(e) => handleEditOpen(e, item.id)}
                       aria-expanded={showReducedAssignments}
-                      aria-label={(() => {
-                        if (showReducedAssignments) return t`Collapse edit`;
-                        const name = item.name ?? t`item`;
-                        return t`Edit ${name}`;
-                      })()}
+                      aria-label={
+                        showReducedAssignments
+                          ? t`Collapse edit`
+                          : t`Edit ${itemLabel}`
+                      }
                     >
                       {!showReducedAssignments ? (
                         <Pencil aria-hidden />
@@ -232,8 +233,8 @@ export default function LineItemsTableMobile({
                       aria-expanded={showReducedDetails}
                       aria-label={
                         item.assignments.length === 0
-                          ? t`Assign ${item.name ?? t`item`}`
-                          : t`Manage assignments for ${item.name ?? t`item`}`
+                          ? t`Assign ${itemLabel}`
+                          : t`Manage assignments for ${itemLabel}`
                       }
                     >
                       {item.assignments.length === 0 ? (
