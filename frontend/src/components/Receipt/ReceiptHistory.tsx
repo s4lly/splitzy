@@ -22,7 +22,8 @@ interface ReceiptHistoryProps {
 
 const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
   const navigate = useNavigate();
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
+  const locale = i18n.locale || navigator.language;
 
   const handleViewReceipt = (receiptId: number) => {
     navigate(`/receipts/${receiptId}`);
@@ -73,7 +74,7 @@ const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
                     <p className="text-sm text-muted-foreground">
                       ${receipt.total?.toFixed(2) || '0.00'} •{' '}
                       {receipt.date
-                        ? new Intl.DateTimeFormat('en-US', {
+                        ? new Intl.DateTimeFormat(locale, {
                             dateStyle: 'medium',
                           }).format(receipt.date)
                         : t`Unknown date`}
