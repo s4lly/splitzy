@@ -113,7 +113,11 @@ export default function LineItemForm({
             },
           }}
         >
+          <label htmlFor={`item-name-${item.id}`} className="sr-only">
+            <Trans>Item name</Trans>
+          </label>
           <Input
+            id={`item-name-${item.id}`}
             value={formName}
             onChange={handleNameChange}
             onFocus={() => setIsNameFocused(true)}
@@ -153,10 +157,11 @@ export default function LineItemForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">
+        <label htmlFor={`item-quantity-${item.id}`} className="text-sm font-medium">
           <Trans>Quantity</Trans>
         </label>
         <NumericInput
+          id={`item-quantity-${item.id}`}
           value={formQuantity}
           onChange={handleNumericQuantityChange}
           min={1}
@@ -165,7 +170,7 @@ export default function LineItemForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">
+        <label htmlFor={`item-price-${item.id}`} className="text-sm font-medium">
           <Trans>Unit Price</Trans>
         </label>
         <div className="flex items-center gap-2">
@@ -173,6 +178,7 @@ export default function LineItemForm({
             $
           </span>
           <Input
+            id={`item-price-${item.id}`}
             type="number"
             value={formPricePerItem}
             onChange={handlePriceChange}
