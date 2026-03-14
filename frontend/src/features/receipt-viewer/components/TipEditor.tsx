@@ -260,7 +260,7 @@ const TipEditor = ({
       ) : (
         <>
           <EditableDetail
-            label="Tip"
+            label={t`Tip`}
             value={formatCurrency(receiptTip)}
             onClick={handleEditTip}
           />

@@ -96,7 +96,7 @@ const GratuityEditor = ({
     return (
       <div className="-ml-2 -mr-2 rounded-sm border">
         <EditableDetail
-          label="Gratuity"
+          label={t`Gratuity`}
           value={formatCurrency(0)}
           onClick={handleEditGratuity}
         />
@@ -171,7 +171,7 @@ const GratuityEditor = ({
         </div>
       ) : (
         <EditableDetail
-          label="Gratuity"
+          label={t`Gratuity`}
           value={formatCurrency(receiptGratuity)}
           onClick={handleEditGratuity}
         />
