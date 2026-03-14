@@ -1,4 +1,4 @@
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import { Check, FileText, UserPlus } from 'lucide-react';
 
@@ -206,7 +206,12 @@ export const BillBreakdownView = ({
                         <FileText className="h-3 w-3" />
                         <Trans>
                           {personItems.length}{' '}
-                          {personItems.length !== 1 ? 'items' : 'item'} assigned
+                          <Plural
+                            value={personItems.length}
+                            one="item"
+                            other="items"
+                          />{' '}
+                          assigned
                         </Trans>
                       </>
                     ) : (

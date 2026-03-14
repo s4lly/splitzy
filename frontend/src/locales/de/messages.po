@@ -20,10 +20,14 @@ msgid "(Unnamed item)"
 msgstr "(Unbenannter Artikel)"
 
 #. placeholder {0}: personItems.length
-#. placeholder {1}: personItems.length !== 1 ? 'items' : 'item'
+#. placeholder {1}: personItems.length
 #: src/features/bill-split/components/BillBreakdownView.tsx:207
-msgid "{0} {1} assigned"
-msgstr "{0} {1} zugewiesen"
+msgid "{0} {1, plural, one {item} other {items}} assigned"
+msgstr "{0} {1, plural, one {Artikel zugewiesen} other {Artikel zugewiesen}}"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:207
+#~ msgid "{0} {1} assigned"
+#~ msgstr "{0} {1} zugewiesen"
 
 #. placeholder {0}: calculations.utils.formatPercentage( personFairTotal, receiptTotal )
 #: src/features/bill-split/components/BillBreakdownView.tsx:192
