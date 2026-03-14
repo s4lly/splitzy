@@ -21,7 +21,8 @@ export function LocalizedClerkProvider({
   children,
 }: LocalizedClerkProviderProps) {
   const { i18n } = useLingui();
-  const localization = CLERK_LOCALIZATIONS[i18n.locale] ?? CLERK_LOCALIZATIONS['en'];
+  const localization =
+    CLERK_LOCALIZATIONS[i18n.locale] ?? CLERK_LOCALIZATIONS['en'];
 
   return (
     <ClerkProvider publishableKey={publishableKey} localization={localization}>
