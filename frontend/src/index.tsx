@@ -1,6 +1,5 @@
 import '@/index.css';
 
-import { LocalizedClerkProvider } from '@/components/LocalizedClerkProvider';
 import { I18nProvider } from '@lingui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -11,6 +10,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
 import App from '@/App';
+import { LocalizedClerkProvider } from '@/components/LocalizedClerkProvider';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { FeatureFlagProvider } from '@/context/FeatureFlagProvider';
 import { AuthenticatedZeroProvider } from '@/context/ZeroProvider';
@@ -54,7 +54,10 @@ async function main() {
   try {
     await activateLocale(getDefaultLocale());
   } catch (err) {
-    console.error('Failed to activate locale, continuing without localization:', err);
+    console.error(
+      'Failed to activate locale, continuing without localization:',
+      err
+    );
   }
 
   const container = document.getElementById('root');

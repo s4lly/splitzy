@@ -96,7 +96,11 @@ const ReceiptHistory = ({ receipts, loading = false }: ReceiptHistoryProps) => {
                     size="sm"
                     onClick={() => handleViewReceipt(receipt.id)}
                     className="h-8"
-                    aria-label={receipt.merchant ? t`View receipt from ${receipt.merchant}` : t`View receipt from Unknown Merchant`}
+                    aria-label={
+                      receipt.merchant
+                        ? t`View receipt from ${receipt.merchant}`
+                        : t`View receipt from Unknown Merchant`
+                    }
                   >
                     <Eye className="mr-1 h-3.5 w-3.5" aria-hidden />
                     <Trans>View</Trans>

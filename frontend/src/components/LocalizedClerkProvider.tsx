@@ -1,5 +1,5 @@
-import { ClerkProvider } from '@clerk/react-router';
 import { deDE, enGB, esES, frFR, jaJP } from '@clerk/localizations';
+import { ClerkProvider } from '@clerk/react-router';
 import { useLingui } from '@lingui/react';
 import type { ReactNode } from 'react';
 
@@ -24,10 +24,7 @@ export function LocalizedClerkProvider({
   const localization = CLERK_LOCALIZATIONS[i18n.locale];
 
   return (
-    <ClerkProvider
-      publishableKey={publishableKey}
-      localization={localization}
-    >
+    <ClerkProvider publishableKey={publishableKey} localization={localization}>
       {children}
     </ClerkProvider>
   );

@@ -272,7 +272,11 @@ export const BillBreakdownView = ({
                                       const sharedWithNames = item.sharedWith
                                         .map((id) => idToName.get(id) ?? id)
                                         .join(', ');
-                                      return <Trans>Shared with {sharedWithNames}</Trans>;
+                                      return (
+                                        <Trans>
+                                          Shared with {sharedWithNames}
+                                        </Trans>
+                                      );
                                     })()}
                                   </div>
                                 )}

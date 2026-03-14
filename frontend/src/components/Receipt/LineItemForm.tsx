@@ -157,7 +157,10 @@ export default function LineItemForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor={`item-quantity-${item.id}`} className="text-sm font-medium">
+        <label
+          htmlFor={`item-quantity-${item.id}`}
+          className="text-sm font-medium"
+        >
           <Trans>Quantity</Trans>
         </label>
         <NumericInput
@@ -170,7 +173,10 @@ export default function LineItemForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor={`item-price-${item.id}`} className="text-sm font-medium">
+        <label
+          htmlFor={`item-price-${item.id}`}
+          className="text-sm font-medium"
+        >
           <Trans>Unit Price</Trans>
         </label>
         <div className="flex items-center gap-2">
