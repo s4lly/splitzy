@@ -152,9 +152,8 @@ export function SwitchReceiptUserDialog({
           }
         } catch (rollbackError) {
           console.error('Rollback threw an exception:', rollbackError);
-          toast.error('Failed to switch person', {
-            description:
-              'Could not restore your original claim. Please try claiming again manually.',
+          toast.error(t`Failed to switch person`, {
+            description: t`Could not restore your original claim. Please try claiming again manually.`,
           });
         }
       } else {

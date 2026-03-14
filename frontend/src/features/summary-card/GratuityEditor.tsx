@@ -58,7 +58,7 @@ const GratuityEditor = ({
           },
           onError: (error) => {
             const errorMessage =
-              error?.message || 'Failed to save gratuity. Please try again.';
+              error?.message || t`Failed to save gratuity. Please try again.`;
             setError(errorMessage);
           },
         }
@@ -111,7 +111,7 @@ const GratuityEditor = ({
         },
         onError: (error) => {
           const errorMessage =
-            error?.message || 'Failed to delete gratuity. Please try again.';
+            error?.message || t`Failed to delete gratuity. Please try again.`;
           setError(errorMessage);
         },
       }
@@ -122,7 +122,7 @@ const GratuityEditor = ({
     return (
       <div className="-ml-2 -mr-2 rounded-sm border">
         <EditableDetail
-          label="Gratuity"
+          label={t`Gratuity`}
           value={formatCurrency(0)}
           onClick={handleEditGratuity}
         />
@@ -205,7 +205,7 @@ const GratuityEditor = ({
         </div>
       ) : (
         <EditableDetail
-          label="Gratuity"
+          label={t`Gratuity`}
           value={formatCurrency(receiptGratuity ?? 0)}
           onClick={handleEditGratuity}
         />

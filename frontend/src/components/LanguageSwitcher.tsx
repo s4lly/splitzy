@@ -1,4 +1,4 @@
-import { useLingui } from '@lingui/react';
+import { useLingui } from '@lingui/react/macro';
 import { Globe } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -11,14 +11,14 @@ import {
 import { activateLocale, SUPPORTED_LOCALES } from '@/i18n';
 
 export function LanguageSwitcher() {
-  const { i18n } = useLingui();
+  const { i18n, t } = useLingui();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" title="Change language">
+        <Button variant="ghost" size="icon" title={t`Change language`}>
           <Globe className="h-5 w-5" />
-          <span className="sr-only">Change language</span>
+          <span className="sr-only">{t`Change language`}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

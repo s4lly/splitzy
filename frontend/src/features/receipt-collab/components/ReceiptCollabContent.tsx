@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { motion } from 'framer-motion';
 import { useAtomValue } from 'jotai';
 import { Plus, ShoppingBag } from 'lucide-react';
@@ -34,6 +34,7 @@ export const ReceiptCollabContent = () => {
   // Sync receipt from Context into Jotai atoms
   useReceiptSync();
 
+  const { t } = useLingui();
   const isMobile = useMobile();
   const receipt = useAtomValue(receiptAtom);
   const assignedUsers = useAtomValue(assignedUsersAtom);
@@ -44,8 +45,8 @@ export const ReceiptCollabContent = () => {
   useDocumentTitle(
     receipt
       ? receipt.merchant
-        ? `Receipt #${receipt.id} — ${receipt.merchant}`
-        : `Receipt #${receipt.id}`
+        ? t`Receipt #${receipt.id} — ${receipt.merchant}`
+        : t`Receipt #${receipt.id}`
       : undefined
   );
 
