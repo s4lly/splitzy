@@ -51,7 +51,11 @@ const queryClient = new QueryClient();
 // ----
 
 async function main() {
-  await activateLocale(getDefaultLocale());
+  try {
+    await activateLocale(getDefaultLocale());
+  } catch (err) {
+    console.error('Failed to activate locale, continuing without localization:', err);
+  }
 
   const container = document.getElementById('root');
   if (!container) {
