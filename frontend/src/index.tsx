@@ -1,6 +1,6 @@
 import '@/index.css';
 
-import { ClerkProvider } from '@clerk/react-router';
+import { LocalizedClerkProvider } from '@/components/LocalizedClerkProvider';
 import { I18nProvider } from '@lingui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -71,11 +71,11 @@ async function main() {
             <PostHogProvider apiKey={POSTHOG_PROJECT_API_KEY} options={options}>
               <FeatureFlagProvider>
                 <BrowserRouter>
-                  <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+                  <LocalizedClerkProvider publishableKey={PUBLISHABLE_KEY}>
                     <AuthenticatedZeroProvider>
                       <App />
                     </AuthenticatedZeroProvider>
-                  </ClerkProvider>
+                  </LocalizedClerkProvider>
                 </BrowserRouter>
               </FeatureFlagProvider>
             </PostHogProvider>
