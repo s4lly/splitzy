@@ -89,6 +89,10 @@ const HomePage = () => {
     const checkApiHealth = async () => {
       try {
         const response = await fetch(`${API_URL}/health`);
+        if (!response.ok) {
+          setApiStatus('unhealthy');
+          return;
+        }
         const data = await response.json();
         setApiStatus(data.status === 'healthy' ? 'healthy' : 'unhealthy');
       } catch {
