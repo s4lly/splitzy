@@ -62,7 +62,15 @@ export function useReceiptAnalysisMutation() {
       });
 
       if (!response.ok) {
-        throw new Error(`Receipt analysis failed: ${response.statusText}`);
+        let body: string;
+        try {
+          body = await response.text();
+        } catch {
+          body = '';
+        }
+        throw new Error(
+          `Receipt analysis failed: ${response.status} ${response.statusText}${body ? ` — ${body}` : ''}`
+        );
       }
 
       return response.json();
