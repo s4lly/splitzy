@@ -128,6 +128,21 @@ export function useLineItemMutations() {
         'Failed to create assignment:',
         assignmentClientResult.error.message
       );
+      // Rollback: soft-delete the orphaned receipt_user
+      try {
+        const rollbackResult = zero.mutate(
+          mutators.receiptUsers.delete({ id: receiptUserId })
+        );
+        const rollbackClientResult = await rollbackResult.client;
+        if (rollbackClientResult.type === 'error') {
+          console.error(
+            'Failed to rollback receipt user:',
+            rollbackClientResult.error.message
+          );
+        }
+      } catch (rollbackError) {
+        console.error('Error during receipt user rollback:', rollbackError);
+      }
     } else {
       console.info('Successfully created receipt user and assignment');
     }
