@@ -176,10 +176,15 @@ export default function LineItemsTableDesktop() {
                       <div className="flex justify-between p-2">
                         <Button
                           onClick={() => handleDeleteItem(item.id)}
+                          disabled={isDeleting}
                           variant="outline"
                           className="border-red-500 text-red-500"
                         >
-                          <Trans>Delete</Trans>
+                          {isDeleting ? (
+                            <Trans>Deleting...</Trans>
+                          ) : (
+                            <Trans>Delete</Trans>
+                          )}
                         </Button>
                         <Button
                           onClick={() => setEditItemId(null)}
@@ -232,10 +237,15 @@ export default function LineItemsTableDesktop() {
                       <div className="flex justify-between gap-2 p-2">
                         <Button
                           onClick={() => handleDeleteItem(item.id)}
+                          disabled={isDeleting}
                           variant="outline"
                           className="border-red-500 text-red-500"
                         >
-                          <Trans>Delete</Trans>
+                          {isDeleting ? (
+                            <Trans>Deleting...</Trans>
+                          ) : (
+                            <Trans>Delete</Trans>
+                          )}
                         </Button>
                         <Button
                           onClick={() => setAssignmentItemId(null)}
