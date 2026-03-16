@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useMutation } from '@tanstack/react-query';
 
-import type { ReceiptAnalysisResult } from '../types';
+import type { ReceiptAnalysisResult } from '@/features/receipt-upload/types';
 
 const API_URL =
   import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
