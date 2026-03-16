@@ -1,9 +1,10 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useMutation } from '@tanstack/react-query';
 
-import receiptService from '@/services/receiptService';
+import type { ReceiptAnalysisResult } from '@/features/receipt-upload/types';
 
-import type { ReceiptAnalysisResult } from '../types';
+const API_URL =
+  import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 export function useReceiptAnalysisMutation() {
   const { getToken } = useAuth();
@@ -47,7 +48,32 @@ export function useReceiptAnalysisMutation() {
         tokenLength: tokenToUse?.length || 0,
       });
 
-      return receiptService.analyzeReceipt(file, { token: tokenToUse });
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const headers: Record<string, string> = tokenToUse
+        ? { Authorization: `Bearer ${tokenToUse}` }
+        : {};
+
+      const response = await fetch(`${API_URL}/analyze-receipt`, {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
+
+      if (!response.ok) {
+        let body: string;
+        try {
+          body = await response.text();
+        } catch {
+          body = '';
+        }
+        throw new Error(
+          `Receipt analysis failed: ${response.status} ${response.statusText}${body ? ` — ${body}` : ''}`
+        );
+      }
+
+      return response.json();
     },
     retry: false, // No retries for LLM calls
   });

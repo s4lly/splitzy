@@ -1,6 +1,6 @@
 import { Plus } from 'lucide-react';
 
-import { DropdownMenuItem } from '../ui/dropdown-menu';
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
 export default function AddAllMenuItem({
   people,

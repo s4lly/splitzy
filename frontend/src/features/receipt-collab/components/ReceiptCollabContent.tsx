@@ -5,17 +5,14 @@ import { Plus, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
 
 import LineItemCard from '@/components/Receipt/components/LineItemCard';
+import LineItemAddForm from '@/components/Receipt/LineItemAddForm';
+import LineItemsTableDesktop from '@/components/Receipt/LineItemsTableDesktop';
+import LineItemsTableMobile from '@/components/Receipt/LineItemsTableMobile';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BillSplitSectionCollab } from '@/features/bill-split/BillSplitSectionCollab';
-import { LineItemAddFormAdapter } from '@/features/line-items/adapters/zero/LineItemAddFormAdapter';
-import { LineItemsTableDesktopAdapter } from '@/features/line-items/adapters/zero/LineItemsTableDesktopAdapter';
-import { LineItemsTableMobileAdapter } from '@/features/line-items/adapters/zero/LineItemsTableMobileAdapter';
 import { NoLineItemsMessage } from '@/features/line-items/components/NoLineItemsMessage';
-import {
-  assignedUsersAtom,
-  receiptAtom,
-} from '@/features/receipt-collab/atoms/receiptAtoms';
+import { receiptAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { useReceiptSync } from '@/features/receipt-collab/hooks/useReceiptSync';
 import { ReceiptImageViewer } from '@/features/receipt-image/ReceiptImageViewer';
 import { ReceiptDetailsCard } from '@/features/receipt-viewer/ReceiptDetailsCard';
@@ -37,8 +34,6 @@ export const ReceiptCollabContent = () => {
   const { t } = useLingui();
   const isMobile = useMobile();
   const receipt = useAtomValue(receiptAtom);
-  const assignedUsers = useAtomValue(assignedUsersAtom);
-  const receiptUserIds = assignedUsers.map((a) => a.receiptUserId);
   const [isAddingItem, setIsAddingItem] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
@@ -106,18 +101,16 @@ export const ReceiptCollabContent = () => {
             <CardContent className="px-4 sm:px-5">
               {isAddingItem && (
                 <LineItemCard selected={true}>
-                  <LineItemAddFormAdapter
-                    onAddCancel={() => setIsAddingItem(false)}
-                  />
+                  <LineItemAddForm onAddCancel={() => setIsAddingItem(false)} />
                 </LineItemCard>
               )}
 
               {receipt.lineItems && receipt.lineItems.length > 0 ? (
                 <>
                   {isMobile ? (
-                    <LineItemsTableMobileAdapter people={receiptUserIds} />
+                    <LineItemsTableMobile />
                   ) : (
-                    <LineItemsTableDesktopAdapter people={receiptUserIds} />
+                    <LineItemsTableDesktop />
                   )}
                 </>
               ) : (

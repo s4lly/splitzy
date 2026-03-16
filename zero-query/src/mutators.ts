@@ -154,6 +154,15 @@ export const mutators = defineMutators({
         }
       }
     ),
+    delete: defineMutator(
+      z.object({ id: z.string() }), // ULID
+      async ({ tx, args }) => {
+        await tx.mutate.receipt_users.update({
+          id: args.id,
+          deleted_at: Date.now(),
+        });
+      }
+    ),
   },
   assignments: {
     insert: defineMutator(

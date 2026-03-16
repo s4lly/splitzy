@@ -3,6 +3,7 @@
 // -----------------------------------------------------------------------------
 
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useAtomValue } from 'jotai';
 import { ChevronUp, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
 
@@ -17,49 +18,34 @@ import { Toggle } from '@/components/ui/toggle';
 import { AssignmentsContainer } from '@/features/assignments/assignments-container';
 import { AssignmentsHeader } from '@/features/assignments/assignments-header';
 import AssignmentsList from '@/features/assignments/assignments-list';
-import type {
-  DeleteLineItemData,
-  MutationCallbackOptions,
-  UpdateLineItemData,
-} from '@/features/line-items/types';
+import { useLineItemMutations } from '@/features/line-items/hooks/useLineItemMutations';
+import {
+  assignedUsersAtom,
+  receiptAtom,
+} from '@/features/receipt-collab/atoms/receiptAtoms';
 import { cn } from '@/lib/utils';
-import type { Assignment } from '@/models/Assignment';
-import type { Receipt } from '@/models/Receipt';
-import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 
 // -----------------------------------------------------------------------------
 // Component
 // -----------------------------------------------------------------------------
 
-export default function LineItemsTableMobile({
-  // --- Data ---
-  line_items,
-  receipt,
-  people,
-  allAssignments,
-  // --- Assignment Callbacks ---
-  addExistingPersonAssignment,
-  addNewPersonAssignment,
-  removePersonAssignment,
-  // --- Line Item Callbacks ---
-  onUpdateLineItem,
-  onDeleteLineItem,
-  isDeleting,
-}: {
-  line_items: readonly ReceiptLineItem[];
-  receipt: Receipt;
-  people: string[]; // ULID receipt user IDs
-  allAssignments?: readonly Assignment[];
-  addExistingPersonAssignment: (itemId: string, receiptUserId: string) => void;
-  addNewPersonAssignment: (itemId: string, displayName: string) => void;
-  removePersonAssignment: (itemId: string, assignmentId: string) => void;
-  onUpdateLineItem: (data: UpdateLineItemData) => void;
-  onDeleteLineItem: (
-    data: DeleteLineItemData,
-    options?: MutationCallbackOptions
-  ) => void;
-  isDeleting?: boolean;
-}) {
+export default function LineItemsTableMobile() {
+  // ---------------------------------------------------------------------------
+  // Data & Mutations
+  // ---------------------------------------------------------------------------
+
+  const receipt = useAtomValue(receiptAtom);
+  const assignedUsers = useAtomValue(assignedUsersAtom);
+  const people = assignedUsers.map((a) => a.receiptUserId);
+  const {
+    addExistingPersonAssignment,
+    addNewPersonAssignment,
+    removePersonAssignment,
+    handleUpdateLineItem: onUpdateLineItem,
+    handleDeleteLineItem: onDeleteLineItem,
+    isDeleting,
+  } = useLineItemMutations();
+
   // ---------------------------------------------------------------------------
   // State
   // ---------------------------------------------------------------------------
@@ -67,6 +53,13 @@ export default function LineItemsTableMobile({
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [assignmentItemId, setAssignmentItemId] = useState<string | null>(null);
   const { t } = useLingui();
+
+  if (!receipt) {
+    return null;
+  }
+
+  const line_items = receipt.lineItems;
+  const allAssignments = receipt.lineItems.flatMap((item) => item.assignments);
 
   // ---------------------------------------------------------------------------
   // Handlers
