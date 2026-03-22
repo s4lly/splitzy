@@ -1,4 +1,4 @@
-import { deDE, enGB, esES, frFR, jaJP } from '@clerk/localizations';
+import { deDE, enGB, esES, frFR, jaJP, zhCN } from '@clerk/localizations';
 import { ClerkProvider } from '@clerk/react-router';
 import { useLingui } from '@lingui/react';
 import type { ReactNode } from 'react';
@@ -9,6 +9,7 @@ const CLERK_LOCALIZATIONS: Record<string, typeof enGB> = {
   fr: frFR,
   de: deDE,
   ja: jaJP,
+  zh: zhCN,
 };
 
 interface LocalizedClerkProviderProps {

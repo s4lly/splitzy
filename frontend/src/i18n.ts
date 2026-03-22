@@ -11,6 +11,7 @@ export const SUPPORTED_LOCALES: Record<
   fr: { label: 'Français', flag: '🇫🇷' },
   de: { label: 'Deutsch', flag: '🇩🇪' },
   ja: { label: '日本語', flag: '🇯🇵' },
+  zh: { label: '中文', flag: '🇨🇳' },
 };
 
 const LOCALE_STORAGE_KEY = 'splitzy-locale';
