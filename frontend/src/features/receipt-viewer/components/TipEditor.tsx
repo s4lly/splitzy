@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 
 interface TipEditorProps {
   receiptTip: Decimal;
+  originalTip: Decimal | null;
   itemsTotal: Decimal;
   receiptTax: Decimal;
   tipAfterTax: boolean;
@@ -28,6 +29,7 @@ interface TipEditorProps {
  */
 const TipEditor = ({
   receiptTip = new Decimal(0),
+  originalTip,
   itemsTotal,
   receiptTax,
   tipAfterTax: propTipAfterTax,
@@ -43,6 +45,19 @@ const TipEditor = ({
   const hasValueToDelete = !receiptTip.isZero();
 
   const tipBase = tipAfterTax ? itemsTotal.plus(receiptTax) : itemsTotal;
+
+  const isOriginalTip =
+    originalTip != null && receiptTip.eq(originalTip) && !receiptTip.isZero();
+
+  const activePercentage = tipBase.gt(0)
+    ? (() => {
+        const ratio = receiptTip.div(tipBase).toNumber();
+        for (const pct of [10, 15, 20]) {
+          if (Math.abs(ratio - pct / 100) < 0.005) return pct;
+        }
+        return null;
+      })()
+    : null;
 
   const { mutate, isSaving } = useReceiptMutation({
     onSuccess: () => setIsEditing(false),
@@ -264,21 +279,29 @@ const TipEditor = ({
             value={formatCurrency(receiptTip)}
             onClick={handleEditTip}
           />
+          {isOriginalTip && (
+            <div className="px-2 pb-1 text-xs text-muted-foreground">
+              <Trans>Tip from original receipt</Trans>
+            </div>
+          )}
           <div className="grid grid-flow-col gap-2 px-2 pb-2">
             <PercentageTipButton
               percentage={10}
               itemsTotal={tipBase}
               onTipSelect={handleQuickPercentageTip}
+              isActive={activePercentage === 10}
             />
             <PercentageTipButton
               percentage={15}
               itemsTotal={tipBase}
               onTipSelect={handleQuickPercentageTip}
+              isActive={activePercentage === 15}
             />
             <PercentageTipButton
               percentage={20}
               itemsTotal={tipBase}
               onTipSelect={handleQuickPercentageTip}
+              isActive={activePercentage === 20}
             />
           </div>
         </>

@@ -166,10 +166,9 @@ export const ReceiptSummaryCard = () => {
               </span>
               <span className="text-base font-medium">
                 {formatCurrency(
-                  receipt.posttaxTotal ??
-                    itemsTotal.plus(
-                      itemsTotal.mul(calculations.tax.getRate(receipt))
-                    )
+                  itemsTotal.plus(
+                    itemsTotal.mul(calculations.tax.getRate(receipt))
+                  )
                 )}
               </span>
             </div>
@@ -178,8 +177,9 @@ export const ReceiptSummaryCard = () => {
           {/* Tip */}
           <TipEditor
             receiptTip={receipt.tip ?? new Decimal(0)}
+            originalTip={receipt.originalTip}
             itemsTotal={itemsTotal}
-            receiptTax={receipt.tax ?? new Decimal(0)}
+            receiptTax={itemsTotal.mul(calculations.tax.getRate(receipt))}
             tipAfterTax={receipt.tipAfterTax ?? false}
             receiptId={receipt.id}
           />

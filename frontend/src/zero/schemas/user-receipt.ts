@@ -30,6 +30,7 @@ export const userReceipt = table('user_receipts')
     subtotal: number().optional(),
     tax: number().optional(),
     tip: number().optional(),
+    original_tip: number().optional(),
     gratuity: number().optional(),
     total: number().optional(),
     payment_method: string().optional(),

@@ -79,6 +79,9 @@ export interface Receipt {
   /** The tip amount, using Decimal.js for precision */
   readonly tip: Decimal | null;
 
+  /** The original tip amount from the receipt image, using Decimal.js for precision */
+  readonly originalTip: Decimal | null;
+
   /** The gratuity amount, using Decimal.js for precision */
   readonly gratuity: Decimal | null;
 

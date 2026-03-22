@@ -186,6 +186,7 @@ def analyze_receipt():
                 current_user.id if current_user is not None else None
             )
             receipt_create_data.image_path = blob_url
+            receipt_create_data.original_tip = receipt_create_data.tip
 
             # Create the SQLAlchemy model instance
             new_receipt = UserReceipt(**receipt_create_data.model_dump())
