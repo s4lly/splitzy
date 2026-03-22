@@ -2,6 +2,7 @@ import { Trans } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import { useAtomValue } from 'jotai';
 import { AlertCircle, DollarSign } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
@@ -23,6 +24,16 @@ export const ReceiptSummaryCard = () => {
   const receipt = useAtomValue(receiptAtom);
   const itemsTotal = useAtomValue(itemsTotalAtom);
   const receiptTotal = useAtomValue(receiptTotalAtom);
+  const [previewTip, setPreviewTip] = useState<Decimal | null>(null);
+
+  const handleTipPreview = useCallback((tip: Decimal | null) => {
+    setPreviewTip(tip);
+  }, []);
+
+  const displayTotal =
+    previewTip != null
+      ? receiptTotal.minus(receipt?.tip ?? 0).plus(previewTip)
+      : receiptTotal;
 
   if (!receipt) {
     return null;
@@ -182,6 +193,7 @@ export const ReceiptSummaryCard = () => {
             receiptTax={itemsTotal.mul(calculations.tax.getRate(receipt))}
             tipAfterTax={receipt.tipAfterTax ?? false}
             receiptId={receipt.id}
+            onTipPreview={handleTipPreview}
           />
 
           {/* Gratuity */}
@@ -196,7 +208,7 @@ export const ReceiptSummaryCard = () => {
               <Trans>Final Total:</Trans>
             </span>
             <span className="text-xl font-bold">
-              {formatCurrency(receiptTotal)}
+              {formatCurrency(displayTotal)}
             </span>
           </div>
         </div>

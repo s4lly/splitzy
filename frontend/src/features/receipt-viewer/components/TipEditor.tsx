@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import PercentageTipButton from '@/components/Receipt/components/PercentageTipButton';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +22,7 @@ interface TipEditorProps {
   receiptTax: Decimal;
   tipAfterTax: boolean;
   receiptId: number;
+  onTipPreview?: (tip: Decimal | null) => void;
 }
 
 /**
@@ -34,6 +36,7 @@ const TipEditor = ({
   receiptTax,
   tipAfterTax: propTipAfterTax,
   receiptId,
+  onTipPreview,
 }: TipEditorProps) => {
   const { t } = useLingui();
   const [tip, setTip] = useState<Decimal>(receiptTip);
@@ -60,7 +63,10 @@ const TipEditor = ({
     : null;
 
   const { mutate, isSaving } = useReceiptMutation({
-    onSuccess: () => setIsEditing(false),
+    onSuccess: () => {
+      setIsEditing(false);
+      onTipPreview?.(null);
+    },
   });
 
   useEffect(() => {
@@ -81,6 +87,7 @@ const TipEditor = ({
   const setTipAndInput = (value: Decimal) => {
     setTip(value);
     setInputValue(value.toFixed(2));
+    onTipPreview?.(value);
   };
 
   const handleEditTip = () => {
@@ -103,6 +110,7 @@ const TipEditor = ({
     if (rawValue === '' || rawValue === '.') {
       setInputValue(rawValue);
       setTip(new Decimal(0));
+      onTipPreview?.(new Decimal(0));
       return;
     }
 
@@ -120,6 +128,7 @@ const TipEditor = ({
       const clampedValue = Decimal.max(0, parsedValue);
       const roundedValue = clampedValue.toDP(2);
       setTip(roundedValue);
+      onTipPreview?.(roundedValue);
     }
   };
 
@@ -138,6 +147,7 @@ const TipEditor = ({
     setTipAndInput(receiptTip);
     setTipAfterTax(propTipAfterTax);
     setIsEditing(false);
+    onTipPreview?.(null);
   };
 
   const handleQuickPercentageTip = (amount: Decimal) => {
@@ -150,7 +160,18 @@ const TipEditor = ({
   };
 
   const handleTipAfterTaxChange = (value: string) => {
-    setTipAfterTax(value === 'after');
+    const newTipAfterTax = value === 'after';
+    setTipAfterTax(newTipAfterTax);
+
+    // Recalculate tip amount preserving the percentage
+    const oldBase = tipAfterTax ? itemsTotal.plus(receiptTax) : itemsTotal;
+    const newBase = newTipAfterTax ? itemsTotal.plus(receiptTax) : itemsTotal;
+
+    if (oldBase.gt(0)) {
+      const ratio = tip.div(oldBase);
+      const newTip = newBase.mul(ratio).toDP(2);
+      setTipAndInput(newTip);
+    }
   };
 
   return (
@@ -279,11 +300,6 @@ const TipEditor = ({
             value={formatCurrency(receiptTip)}
             onClick={handleEditTip}
           />
-          {isOriginalTip && (
-            <div className="px-2 pb-1 text-xs text-muted-foreground">
-              <Trans>Tip from original receipt</Trans>
-            </div>
-          )}
           <div className="grid grid-flow-col gap-2 px-2 pb-2">
             <PercentageTipButton
               percentage={10}
@@ -303,6 +319,20 @@ const TipEditor = ({
               onTipSelect={handleQuickPercentageTip}
               isActive={activePercentage === 20}
             />
+          </div>
+          <div className="flex justify-end gap-1.5 px-2 pb-2">
+            {isOriginalTip && (
+              <Badge variant="outline" className="font-normal">
+                <Trans>Original</Trans>
+              </Badge>
+            )}
+            <Badge variant="outline" className="font-normal">
+              {tipAfterTax ? (
+                <Trans>After tax</Trans>
+              ) : (
+                <Trans>Before tax</Trans>
+              )}
+            </Badge>
           </div>
         </>
       )}
