@@ -13,8 +13,8 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/Receipt/LineItemsTableDesktop.tsx:128
-#: src/components/Receipt/LineItemsTableMobile.tsx:140
+#: src/components/Receipt/LineItemsTableDesktop.tsx:120
+#: src/components/Receipt/LineItemsTableMobile.tsx:133
 #: src/features/bill-split/components/BillBreakdownView.tsx:267
 msgid "(Unnamed item)"
 msgstr "（名前なし）"
@@ -52,18 +52,16 @@ msgstr "アカウント設定"
 msgid "Account settings content would go here."
 msgstr "アカウント設定の内容がここに表示されます。"
 
-#: src/components/Receipt/LineItemsTableDesktop.tsx:111
+#: src/components/Receipt/LineItemsTableDesktop.tsx:103
 msgid "Actions"
 msgstr "操作"
 
-#: src/components/Receipt/LineItemAddForm.tsx:107
-#: src/features/bill-split/components/PeopleManagerForm.tsx:49
+#: src/components/Receipt/LineItemAddForm.tsx:142
 #: src/features/bill-split/components/PeopleManagerFormCollab.tsx:64
 msgid "Add"
 msgstr "追加"
 
-#: src/components/Receipt/ReceiptAnalysisDisplay.tsx:155
-#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:101
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:96
 msgid "Add Item"
 msgstr "アイテムを追加"
 
@@ -71,21 +69,19 @@ msgstr "アイテムを追加"
 msgid "Add People to Split the Bill"
 msgstr "割り勘する人を追加"
 
-#: src/features/bill-split/components/PeopleManagerForm.tsx:37
 #: src/features/bill-split/components/PeopleManagerFormCollab.tsx:48
 msgid "Add People to Split With"
 msgstr "割り勘する人を追加"
 
-#: src/components/Receipt/LineItemsTableDesktop.tsx:218
+#: src/components/Receipt/LineItemsTableDesktop.tsx:215
 msgid "Add Users"
 msgstr "ユーザーを追加"
 
-#: src/features/receipt-viewer/components/TipEditor.tsx:183
-#: src/features/summary-card/TipEditor.tsx:248
+#: src/features/receipt-viewer/components/TipEditor.tsx:219
+#: src/features/receipt-viewer/components/TipEditor.tsx:331
 msgid "After tax"
 msgstr "税込"
 
-#: src/features/bill-split/components/AssignmentProgress.tsx:43
 #: src/features/bill-split/components/AssignmentProgressCollab.tsx:42
 msgid "All items assigned"
 msgstr "すべてのアイテムが割り当て済み"
@@ -119,7 +115,7 @@ msgstr "外観設定の内容がここに表示されます。"
 msgid "Assign {displayName}"
 msgstr "{displayName}を割り当て"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:236
+#: src/components/Receipt/LineItemsTableMobile.tsx:229
 msgid "Assign {itemLabel}"
 msgstr "{itemLabel}を割り当て"
 
@@ -127,24 +123,23 @@ msgstr "{itemLabel}を割り当て"
 msgid "Assign All"
 msgstr "すべて割り当て"
 
-#: src/pages/HomePage.tsx:53
+#: src/pages/HomePage.tsx:55
 msgid "Assign items to people, split shared costs, and handle tips. No awkward math."
 msgstr "アイテムを割り当て、共有費用を分割し、チップを管理。面倒な計算は不要です。"
 
-#: src/components/Receipt/LineItemsTableDesktop.tsx:107
+#: src/components/Receipt/LineItemsTableDesktop.tsx:99
 msgid "Assigned To"
 msgstr "割り当て先"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:227
+#: src/components/Receipt/LineItemsTableMobile.tsx:220
 #: src/features/assignments/assignments-header.tsx:19
 msgid "Assigned to:"
 msgstr "割り当て先："
 
-#: src/components/Receipt/LineItemsTableDesktop.tsx:213
+#: src/components/Receipt/LineItemsTableDesktop.tsx:210
 msgid "Assigned Users"
 msgstr "割り当て済みユーザー"
 
-#: src/features/bill-split/components/AssignmentProgress.tsx:45
 #: src/features/bill-split/components/AssignmentProgressCollab.tsx:44
 msgid "Assignment in progress"
 msgstr "割り当て中"
@@ -157,8 +152,8 @@ msgstr "認証エラー"
 msgid "Back to Settings"
 msgstr "設定に戻る"
 
-#: src/features/receipt-viewer/components/TipEditor.tsx:180
-#: src/features/summary-card/TipEditor.tsx:245
+#: src/features/receipt-viewer/components/TipEditor.tsx:216
+#: src/features/receipt-viewer/components/TipEditor.tsx:333
 msgid "Before tax"
 msgstr "税抜"
 
@@ -174,22 +169,20 @@ msgstr "請求"
 msgid "Billing settings content would go here."
 msgstr "請求設定の内容がここに表示されます。"
 
-#: src/components/Receipt/LineItemAddForm.tsx:100
+#: src/components/Receipt/LineItemAddForm.tsx:135
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:95
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:229
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:160
-#: src/features/receipt-viewer/components/TipEditor.tsx:248
-#: src/features/summary-card/GratuityEditor.tsx:194
-#: src/features/summary-card/TipEditor.tsx:313
+#: src/features/receipt-viewer/components/TipEditor.tsx:284
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: src/components/LanguageSwitcher.tsx:19
-#: src/components/LanguageSwitcher.tsx:21
+#: src/components/LanguageSwitcher.tsx:39
+#: src/components/LanguageSwitcher.tsx:41
 msgid "Change language"
 msgstr "言語を変更"
 
-#: src/components/Footer.tsx:48
+#: src/components/Footer.tsx:54
 msgid "checking"
 msgstr "確認中"
 
@@ -232,11 +225,11 @@ msgstr "閉じる"
 msgid "Close assignments"
 msgstr "割り当てを閉じる"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:266
+#: src/components/Receipt/LineItemsTableMobile.tsx:259
 msgid "Collapse assignments"
 msgstr "割り当てを折りたたむ"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:154
+#: src/components/Receipt/LineItemsTableMobile.tsx:147
 msgid "Collapse edit"
 msgstr "編集を折りたたむ"
 
@@ -273,25 +266,24 @@ msgstr "アプリケーションの外観をカスタマイズします。"
 msgid "Date:"
 msgstr "日付："
 
-#: src/components/Receipt/LineItemsTableDesktop.tsx:190
-#: src/components/Receipt/LineItemsTableDesktop.tsx:246
-#: src/components/Receipt/LineItemsTableMobile.tsx:289
+#: src/components/Receipt/LineItemsTableDesktop.tsx:186
+#: src/components/Receipt/LineItemsTableDesktop.tsx:247
+#: src/components/Receipt/LineItemsTableMobile.tsx:282
 msgid "Delete"
 msgstr "削除"
 
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:147
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:148
-#: src/features/summary-card/GratuityEditor.tsx:182
-#: src/features/summary-card/GratuityEditor.tsx:183
 msgid "Delete gratuity"
 msgstr "チップを削除"
 
-#: src/features/receipt-viewer/components/TipEditor.tsx:236
-#: src/features/summary-card/TipEditor.tsx:302
+#: src/features/receipt-viewer/components/TipEditor.tsx:272
 msgid "Delete tip"
 msgstr "チップを削除"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:287
+#: src/components/Receipt/LineItemsTableDesktop.tsx:184
+#: src/components/Receipt/LineItemsTableDesktop.tsx:245
+#: src/components/Receipt/LineItemsTableMobile.tsx:280
 msgid "Deleting..."
 msgstr "削除中..."
 
@@ -301,20 +293,18 @@ msgid "Detailed breakdown of items assigned to {0}."
 msgstr "{0}に割り当てられたアイテムの詳細内訳。"
 
 #: src/components/Receipt/ReceiptAnalysisDisplay.tsx:133
-msgid "Document Analysis"
-msgstr "ドキュメント分析"
+#~ msgid "Document Analysis"
+#~ msgstr "ドキュメント分析"
 
 #: src/features/receipt-viewer/ReceiptDetailsCard.tsx:57
 msgid "Document Details"
 msgstr "ドキュメント詳細"
 
-#: src/components/Receipt/LineItemsTableDesktop.tsx:196
-#: src/components/Receipt/LineItemsTableDesktop.tsx:252
-#: src/components/Receipt/LineItemsTableMobile.tsx:293
+#: src/components/Receipt/LineItemsTableDesktop.tsx:193
+#: src/components/Receipt/LineItemsTableDesktop.tsx:254
+#: src/components/Receipt/LineItemsTableMobile.tsx:286
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:167
-#: src/features/receipt-viewer/components/TipEditor.tsx:255
-#: src/features/summary-card/GratuityEditor.tsx:201
-#: src/features/summary-card/TipEditor.tsx:320
+#: src/features/receipt-viewer/components/TipEditor.tsx:291
 msgid "Done"
 msgstr "完了"
 
@@ -331,11 +321,11 @@ msgid "Drop files here to upload"
 msgstr "ファイルをここにドロップしてアップロード"
 
 #. placeholder {0}: item.name ?? t`item`
-#: src/components/Receipt/LineItemsTableDesktop.tsx:167
+#: src/components/Receipt/LineItemsTableDesktop.tsx:159
 msgid "Edit {0}"
 msgstr "{0}を編集"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:155
+#: src/components/Receipt/LineItemsTableMobile.tsx:148
 msgid "Edit {itemLabel}"
 msgstr "{itemLabel}を編集"
 
@@ -347,7 +337,6 @@ msgstr "{itemLabel}を編集"
 msgid "Enable or disable features in your application."
 msgstr "アプリケーションの機能を有効または無効にします。"
 
-#: src/features/bill-split/components/PeopleManagerForm.tsx:41
 #: src/features/bill-split/components/PeopleManagerFormCollab.tsx:52
 msgid "Enter name"
 msgstr "名前を入力"
@@ -368,17 +357,15 @@ msgstr "均等分割"
 msgid "Equal split - no specific items assigned"
 msgstr "均等割り — 特定のアイテムなし"
 
-#: src/features/bill-split/components/EqualSplitBanner.tsx:17
 #: src/features/bill-split/components/EqualSplitBannerCollab.tsx:16
 msgid "Equal Split Mode"
 msgstr "均等分割モード"
 
-#: src/features/bill-split/BillSplitSection.tsx:30
 #: src/features/bill-split/BillSplitSectionCollab.tsx:18
 msgid "Evenly"
 msgstr "均等"
 
-#: src/pages/HomePage.tsx:58
+#: src/pages/HomePage.tsx:60
 msgid "Every split is saved. Review, adjust, or settle up any time."
 msgstr "すべての分割が保存されます。いつでも確認、調整、精算できます。"
 
@@ -388,12 +375,12 @@ msgid "Failed to claim person"
 msgstr "紐付けに失敗しました"
 
 #: src/features/summary-card/GratuityEditor.tsx:114
-msgid "Failed to delete gratuity. Please try again."
-msgstr "チップの削除に失敗しました。もう一度お試しください。"
+#~ msgid "Failed to delete gratuity. Please try again."
+#~ msgstr "チップの削除に失敗しました。もう一度お試しください。"
 
 #: src/features/summary-card/TipEditor.tsx:147
-msgid "Failed to delete tip. Please try again."
-msgstr "チップの削除に失敗しました。もう一度お試しください。"
+#~ msgid "Failed to delete tip. Please try again."
+#~ msgstr "チップの削除に失敗しました。もう一度お試しください。"
 
 #: src/features/receipt-image/ReceiptImageViewer.tsx:62
 msgid "Failed to download image"
@@ -408,13 +395,13 @@ msgid "Failed to load receipt image"
 msgstr "レシート画像の読み込みに失敗しました"
 
 #: src/features/summary-card/GratuityEditor.tsx:61
-msgid "Failed to save gratuity. Please try again."
-msgstr "チップの保存に失敗しました。もう一度お試しください。"
+#~ msgid "Failed to save gratuity. Please try again."
+#~ msgstr "チップの保存に失敗しました。もう一度お試しください。"
 
 #: src/features/summary-card/TipEditor.tsx:92
 #: src/features/summary-card/TipEditor.tsx:173
-msgid "Failed to save tip. Please try again."
-msgstr "チップの保存に失敗しました。もう一度お試しください。"
+#~ msgid "Failed to save tip. Please try again."
+#~ msgstr "チップの保存に失敗しました。もう一度お試しください。"
 
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:115
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:145
@@ -430,50 +417,45 @@ msgid "Failed to update image visibility"
 msgstr "画像の公開設定の更新に失敗しました"
 
 #: src/features/summary-card/TipEditor.tsx:193
-msgid "Failed to update setting. Please try again."
-msgstr "設定の更新に失敗しました。もう一度お試しください。"
+#~ msgid "Failed to update setting. Please try again."
+#~ msgstr "設定の更新に失敗しました。もう一度お試しください。"
 
 #: src/pages/SettingsPage.tsx:22
 #: src/pages/SettingsPage.tsx:133
 msgid "Feature Flags"
 msgstr "実験的機能"
 
-#: src/components/Receipt/SummaryCard.tsx:173
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:196
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:208
 msgid "Final Total:"
 msgstr "最終合計："
 
-#: src/pages/HomePage.tsx:165
+#: src/pages/HomePage.tsx:172
 msgid "From receipt to settled,<0/><1>in a few taps.</1>"
 msgstr "レシートから精算まで、<0/><1>数タップで完了。</1>"
 
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:99
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:125
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:174
-#: src/features/summary-card/GratuityEditor.tsx:125
-#: src/features/summary-card/GratuityEditor.tsx:157
-#: src/features/summary-card/GratuityEditor.tsx:208
 msgid "Gratuity"
 msgstr "チップ"
 
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:113
-#: src/features/summary-card/GratuityEditor.tsx:145
 msgid "Gratuity:"
 msgstr "チップ："
 
-#: src/components/Footer.tsx:46
+#: src/components/Footer.tsx:52
 msgid "healthy"
 msgstr "正常"
 
 #: src/features/bill-split/components/ManualSplitTab.tsx:64
-msgid "Hide"
-msgstr "非表示"
+#~ msgid "Hide"
+#~ msgstr "非表示"
 
 #: src/features/receipt-viewer/ReceiptDetailsCard.tsx:66
 msgid "Hide QR Code"
 msgstr "QRコードを非表示"
 
-#: src/pages/HomePage.tsx:162
+#: src/pages/HomePage.tsx:169
 msgid "how it works"
 msgstr "使い方"
 
@@ -498,8 +480,7 @@ msgstr "画像設定"
 msgid "Image visibility updated"
 msgstr "画像の公開設定を更新しました"
 
-#: src/components/Receipt/SummaryCard.tsx:127
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:149
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:160
 msgid "Included in prices"
 msgstr "価格に含まれています"
 
@@ -507,13 +488,13 @@ msgstr "価格に含まれています"
 msgid "Invalid Date"
 msgstr "無効な日付"
 
-#: src/components/Receipt/LineItemsTableDesktop.tsx:150
-#: src/components/Receipt/LineItemsTableDesktop.tsx:167
-#: src/components/Receipt/LineItemsTableMobile.tsx:118
+#: src/components/Receipt/LineItemsTableDesktop.tsx:142
+#: src/components/Receipt/LineItemsTableDesktop.tsx:159
+#: src/components/Receipt/LineItemsTableMobile.tsx:111
 msgid "item"
 msgstr "アイテム"
 
-#: src/components/Receipt/LineItemsTableDesktop.tsx:95
+#: src/components/Receipt/LineItemsTableDesktop.tsx:87
 #: src/features/bill-split/components/BillBreakdownView.tsx:247
 msgid "Item"
 msgstr "アイテム"
@@ -523,8 +504,7 @@ msgstr "アイテム"
 msgid "Item name"
 msgstr "アイテム名"
 
-#: src/components/Receipt/ReceiptAnalysisDisplay.tsx:146
-#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:92
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:87
 msgid "Items"
 msgstr "アイテム"
 
@@ -532,13 +512,11 @@ msgstr "アイテム"
 msgid "Items subtotal:"
 msgstr "アイテム小計："
 
-#: src/features/receipt-viewer/components/TipEditor.tsx:191
-#: src/features/summary-card/TipEditor.tsx:256
+#: src/features/receipt-viewer/components/TipEditor.tsx:227
 msgid "Items total"
 msgstr "アイテム合計"
 
-#: src/components/Receipt/SummaryCard.tsx:78
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:100
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:111
 msgid "Items Total:"
 msgstr "アイテム合計："
 
@@ -552,16 +530,15 @@ msgid "Main navigation"
 msgstr "メインナビゲーション"
 
 #. placeholder {0}: item.name ?? t`item`
-#: src/components/Receipt/LineItemsTableDesktop.tsx:150
+#: src/components/Receipt/LineItemsTableDesktop.tsx:142
 msgid "Manage assignments for {0}"
 msgstr "{0}の割り当てを管理"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:237
+#: src/components/Receipt/LineItemsTableMobile.tsx:230
 msgid "Manage assignments for {itemLabel}"
 msgstr "{itemLabel}の割り当てを管理"
 
 #: src/features/bill-split/components/BillBreakdownView.tsx:70
-#: src/features/bill-split/components/ManualSplitTab.tsx:66
 #: src/features/bill-split/components/ManualSplitTabCollab.tsx:37
 msgid "Manage People"
 msgstr "人を管理"
@@ -578,7 +555,6 @@ msgstr "プライバシーとセキュリティの設定を管理します。"
 msgid "Manage your subscription and payment methods."
 msgstr "サブスクリプションと支払い方法を管理します。"
 
-#: src/features/bill-split/BillSplitSection.tsx:27
 #: src/features/bill-split/BillSplitSectionCollab.tsx:15
 msgid "Manual"
 msgstr "手動"
@@ -609,7 +585,6 @@ msgstr "アイテムの詳細がありません"
 msgid "No items assigned yet"
 msgstr "まだアイテムが割り当てられていません"
 
-#: src/features/bill-split/components/EqualSplitBanner.tsx:26
 #: src/features/bill-split/components/EqualSplitBannerCollab.tsx:25
 msgid "No items have been assigned yet. The total has been divided equally among all people by default."
 msgstr "まだアイテムが割り当てられていません。デフォルトで合計が全員に均等に分割されています。"
@@ -622,7 +597,6 @@ msgstr "一致する人がいません。Enterキーで追加できます。"
 msgid "No one assigned yet."
 msgstr "まだ誰も割り当てられていません。"
 
-#: src/features/bill-split/components/PeopleManagerForm.tsx:80
 #: src/features/bill-split/components/PeopleManagerFormCollab.tsx:97
 msgid "No people added yet. Add people to split the bill."
 msgstr "まだ人が追加されていません。割り勘する人を追加してください。"
@@ -632,7 +606,6 @@ msgid "No receipt history found"
 msgstr "レシート履歴が見つかりません"
 
 #. placeholder {0}: formatCurrency( Math.abs( calculatedTotal .minus(evenlySplitTotalRounded.mul(numberOfPeople)) .toNumber() ) )
-#: src/features/bill-split/components/EvenSplitTab.tsx:67
 #: src/features/bill-split/components/EvenSplitTabCollab.tsx:78
 msgid "Note: One person will pay an additional {0} to cover the rounding difference"
 msgstr "注意：端数の差額をカバーするため、1人が追加で{0}を支払います"
@@ -645,7 +618,6 @@ msgstr "通知設定"
 msgid "Notification settings content would go here."
 msgstr "通知設定の内容がここに表示されます。"
 
-#: src/features/bill-split/components/EvenSplitTab.tsx:54
 #: src/features/bill-split/components/EvenSplitTabCollab.tsx:65
 msgid "Number of people"
 msgstr "人数"
@@ -663,18 +635,19 @@ msgstr "有効時はあなただけが画像を閲覧できます"
 msgid "or drag & drop · JPEG, PNG"
 msgstr "またはドラッグ＆ドロップ · JPEG、PNG"
 
-#: src/features/bill-split/components/EvenSplitTab.tsx:59
+#: src/features/receipt-viewer/components/TipEditor.tsx:326
+msgid "Original"
+msgstr "オリジナル"
+
 #: src/features/bill-split/components/EvenSplitTabCollab.tsx:70
 msgid "Per Person:"
 msgstr "1人あたり："
 
-#: src/components/Receipt/SummaryCard.tsx:143
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:165
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:176
 msgid "Post-tax Total:"
 msgstr "税込合計："
 
-#: src/components/Receipt/SummaryCard.tsx:111
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:133
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:144
 msgid "Pre-tax Total:"
 msgstr "税抜合計："
 
@@ -682,7 +655,7 @@ msgstr "税抜合計："
 msgid "Preview"
 msgstr "プレビュー"
 
-#: src/components/Receipt/LineItemsTableDesktop.tsx:101
+#: src/components/Receipt/LineItemsTableDesktop.tsx:93
 #: src/features/bill-split/components/BillBreakdownView.tsx:253
 msgid "Price"
 msgstr "価格"
@@ -699,7 +672,7 @@ msgstr "プライバシー設定の内容がここに表示されます。"
 msgid "Private Image"
 msgstr "プライベート画像"
 
-#: src/components/Receipt/LineItemsTableDesktop.tsx:98
+#: src/components/Receipt/LineItemsTableDesktop.tsx:90
 #: src/features/bill-split/components/BillBreakdownView.tsx:250
 msgid "Qty"
 msgstr "数量"
@@ -709,7 +682,7 @@ msgstr "数量"
 msgid "Quantity"
 msgstr "数量"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:172
+#: src/components/Receipt/LineItemsTableMobile.tsx:165
 msgid "Quantity:"
 msgstr "数量："
 
@@ -718,18 +691,18 @@ msgid "Receipt"
 msgstr "レシート"
 
 #. placeholder {0}: receipt.merchant
-#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:76
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:71
 msgid "Receipt — {0}"
 msgstr "レシート — {0}"
 
 #. placeholder {0}: receipt.id
-#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:49
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:44
 msgid "Receipt #{0}"
 msgstr "領収書 #{0}"
 
 #. placeholder {0}: receipt.id
 #. placeholder {1}: receipt.merchant
-#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:48
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:43
 msgid "Receipt #{0} — {1}"
 msgstr "領収書 #{0} — {1}"
 
@@ -737,7 +710,7 @@ msgstr "領収書 #{0} — {1}"
 msgid "Receipt Desktop Table"
 msgstr "レシートデスクトップテーブル"
 
-#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:78
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:73
 msgid "Receipt details"
 msgstr "レシート詳細"
 
@@ -753,7 +726,7 @@ msgstr "レシート画像"
 msgid "Receipt image not available"
 msgstr "レシート画像がありません"
 
-#: src/pages/HomePage.tsx:137
+#: src/pages/HomePage.tsx:144
 msgid "receipt splitting, simplified"
 msgstr "レシート割り勘、もっとシンプルに"
 
@@ -782,11 +755,11 @@ msgstr "再試行"
 msgid "Retrying..."
 msgstr "再試行中..."
 
-#: src/pages/HomePage.tsx:141
+#: src/pages/HomePage.tsx:148
 msgid "Scan a receipt, divide costs fairly, settle up in seconds."
 msgstr "レシートをスキャンして、公平にコストを分割、数秒で精算。"
 
-#: src/pages/HomePage.tsx:47
+#: src/pages/HomePage.tsx:49
 msgid "Scan any receipt"
 msgstr "レシートをスキャン"
 
@@ -794,7 +767,7 @@ msgstr "レシートをスキャン"
 msgid "Select a category"
 msgstr "カテゴリを選択"
 
-#: src/pages/HomePage.tsx:125
+#: src/pages/HomePage.tsx:132
 msgid "Service temporarily unavailable. Please try again later."
 msgstr "サービスが一時的に利用できません。後でもう一度お試しください。"
 
@@ -827,7 +800,7 @@ msgstr "ログインして{displayName}を紐付け"
 msgid "Sign in to continue"
 msgstr "続けるにはサインイン"
 
-#: src/pages/HomePage.tsx:210
+#: src/pages/HomePage.tsx:217
 msgid "Sign in to see your history →"
 msgstr "サインインして履歴を見る →"
 
@@ -836,21 +809,18 @@ msgstr "サインインして履歴を見る →"
 msgid "Something went wrong"
 msgstr "エラーが発生しました"
 
-#: src/features/bill-split/components/EvenSplitTab.tsx:47
 #: src/features/bill-split/components/EvenSplitTabCollab.tsx:58
 msgid "Split between how many people?"
 msgstr "何人で割りますか？"
 
-#: src/features/bill-split/components/EvenSplitTab.tsx:39
 #: src/features/bill-split/components/EvenSplitTabCollab.tsx:50
 msgid "Split Evenly"
 msgstr "均等に割る"
 
-#: src/pages/HomePage.tsx:52
+#: src/pages/HomePage.tsx:54
 msgid "Split fairly"
 msgstr "公平に分割"
 
-#: src/features/bill-split/components/ManualSplitTab.tsx:55
 #: src/features/bill-split/components/ManualSplitTabCollab.tsx:29
 msgid "Split with Friends"
 msgstr "友達と割り勘"
@@ -859,13 +829,11 @@ msgstr "友達と割り勘"
 msgid "Subtotal"
 msgstr "小計"
 
-#: src/components/Receipt/SummaryCard.tsx:94
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:116
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:127
 msgid "Subtotal (as shown):"
 msgstr "小計（表示通り）："
 
-#: src/components/Receipt/SummaryCard.tsx:27
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:36
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:47
 msgid "Summary"
 msgstr "概要"
 
@@ -894,7 +862,7 @@ msgstr "この人に切り替え"
 msgid "Switching…"
 msgstr "切り替え中…"
 
-#: src/pages/HomePage.tsx:48
+#: src/pages/HomePage.tsx:50
 msgid "Take a photo and we extract every line item automatically — no manual entry."
 msgstr "写真を撮るだけで全アイテムを自動抽出 — 手入力は不要です。"
 
@@ -903,33 +871,28 @@ msgid "Tap to upload a receipt"
 msgstr "タップしてレシートをアップロード"
 
 #: src/features/bill-split/components/BillBreakdownView.tsx:315
-#: src/features/receipt-viewer/components/TipEditor.tsx:199
-#: src/features/summary-card/TipEditor.tsx:264
+#: src/features/receipt-viewer/components/TipEditor.tsx:235
 msgid "Tax"
 msgstr "税金"
 
-#: src/components/Receipt/SummaryCard.tsx:57
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:72
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:83
 msgid "Tax Calculation"
 msgstr "税金の計算"
 
-#: src/components/Receipt/SummaryCard.tsx:38
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:50
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:61
 msgid "Tax Included in Prices"
 msgstr "税込価格"
 
-#. placeholder {0}: taxRate.toFixed(2)
 #: src/components/Receipt/SummaryCard.tsx:68
-msgid "Tax rate is approximately {0}% and has been distributed proportionally based on each person's items."
-msgstr "税率は約{0}%で、各人のアイテムに基づいて按分されています。"
+#~ msgid "Tax rate is approximately {0}% and has been distributed proportionally based on each person's items."
+#~ msgstr "税率は約{0}%で、各人のアイテムに基づいて按分されています。"
 
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:85
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:96
 msgid "Tax rate is approximately {formattedRate}% and has been distributed proportionally based on each person's items."
 msgstr "税率は約{formattedRate}%で、各人のアイテムに基づいて按分されています。"
 
-#: src/components/Receipt/SummaryCard.tsx:123
 #: src/features/bill-split/components/BillBreakdownView.tsx:170
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:145
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:156
 msgid "Tax:"
 msgstr "税金："
 
@@ -941,8 +904,7 @@ msgstr "元のレシート画像が保存されていないか、アクセスで
 msgid "The receipt image is only visible to the owner"
 msgstr "レシート画像はオーナーのみ閲覧可能です"
 
-#: src/components/Receipt/SummaryCard.tsx:41
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:53
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:64
 msgid "The tax is already included in the individual item prices shown."
 msgstr "税金は表示されている個別のアイテム価格にすでに含まれています。"
 
@@ -954,26 +916,21 @@ msgstr "このドキュメントには詳細なアイテムが含まれていま
 msgid "This document from {merchant} doesn't include detailed line items. The total amount has been equally divided among all people."
 msgstr "{merchant}のこのドキュメントには詳細なアイテムが含まれていません。合計金額が全員に均等に分割されています。"
 
-#: src/features/bill-split/components/EqualSplitBanner.tsx:21
 #: src/features/bill-split/components/EqualSplitBannerCollab.tsx:20
 msgid "This receipt doesn't contain detailed line items, so the total amount has been divided equally among all people."
 msgstr "このレシートには詳細なアイテムが含まれていないため、合計金額が全員に均等に分割されています。"
 
 #: src/features/bill-split/components/BillBreakdownView.tsx:326
-#: src/features/receipt-viewer/components/TipEditor.tsx:167
-#: src/features/receipt-viewer/components/TipEditor.tsx:263
-#: src/features/summary-card/TipEditor.tsx:232
-#: src/features/summary-card/TipEditor.tsx:328
+#: src/features/receipt-viewer/components/TipEditor.tsx:203
+#: src/features/receipt-viewer/components/TipEditor.tsx:299
 msgid "Tip"
 msgstr "チップ"
 
-#: src/features/receipt-viewer/components/TipEditor.tsx:205
-#: src/features/summary-card/TipEditor.tsx:270
+#: src/features/receipt-viewer/components/TipEditor.tsx:241
 msgid "Tip base"
 msgstr "チップの基準額"
 
-#: src/features/receipt-viewer/components/TipEditor.tsx:147
-#: src/features/summary-card/TipEditor.tsx:212
+#: src/features/receipt-viewer/components/TipEditor.tsx:183
 msgid "Tip:"
 msgstr "チップ："
 
@@ -981,7 +938,7 @@ msgstr "チップ："
 msgid "Toggle theme"
 msgstr "テーマを切り替え"
 
-#: src/components/Receipt/LineItemsTableDesktop.tsx:104
+#: src/components/Receipt/LineItemsTableDesktop.tsx:96
 #: src/features/bill-split/components/BillBreakdownView.tsx:346
 msgid "Total"
 msgstr "合計"
@@ -990,21 +947,20 @@ msgstr "合計"
 msgid "Total:"
 msgstr "合計："
 
-#: src/pages/HomePage.tsx:57
+#: src/pages/HomePage.tsx:59
 msgid "Track history"
 msgstr "履歴を追跡"
 
-#: src/pages/HomePage.tsx:35
+#: src/pages/HomePage.tsx:37
 #: src/pages/ReceiptsPage.tsx:33
 msgid "Unable to load receipt history. Please try again later."
 msgstr "レシート履歴を読み込めませんでした。後でもう一度お試しください。"
 
-#: src/features/bill-split/components/AssignmentProgress.tsx:63
 #: src/features/bill-split/components/AssignmentProgressCollab.tsx:62
 msgid "Unassigned amount:"
 msgstr "未割り当て金額："
 
-#: src/components/Footer.tsx:50
+#: src/components/Footer.tsx:56
 msgid "unhealthy"
 msgstr "利用不可"
 
@@ -1016,7 +972,7 @@ msgstr "単価"
 msgid "Unit Price"
 msgstr "単価"
 
-#: src/components/Receipt/LineItemsTableMobile.tsx:180
+#: src/components/Receipt/LineItemsTableMobile.tsx:173
 msgid "Unit Price:"
 msgstr "単価："
 
