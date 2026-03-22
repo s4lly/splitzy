@@ -1,0 +1,970 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-03-21 23:26-0700\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: zh\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:120
+#: src/components/Receipt/LineItemsTableMobile.tsx:133
+#: src/features/bill-split/components/BillBreakdownView.tsx:267
+msgid "(Unnamed item)"
+msgstr "（未命名项目）"
+
+#. placeholder {0}: personItems.length
+#. placeholder {1}: personItems.length
+#: src/features/bill-split/components/BillBreakdownView.tsx:207
+msgid "{0} {1, plural, one {item} other {items}} assigned"
+msgstr "{0} 个项目已分配"
+
+#. placeholder {0}: calculations.utils.formatPercentage( personFairTotal, receiptTotal )
+#: src/features/bill-split/components/BillBreakdownView.tsx:192
+msgid "{0} of total"
+msgstr "占总额的{0}"
+
+#. placeholder {0}: person.displayName
+#: src/features/bill-split/components/BillBreakdownView.tsx:229
+msgid "{0}'s Items"
+msgstr "{0}的项目"
+
+#. placeholder {0}: people.length
+#: src/features/bill-split/components/BillBreakdownView.tsx:153
+msgid "1/{0} of the total"
+msgstr "总额的1/{0}"
+
+#: src/pages/SettingsPage.tsx:192
+msgid "Account Settings"
+msgstr "账户设置"
+
+#: src/pages/SettingsPage.tsx:200
+msgid "Account settings content would go here."
+msgstr "账户设置内容将显示在此处。"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:103
+msgid "Actions"
+msgstr "操作"
+
+#: src/components/Receipt/LineItemAddForm.tsx:142
+#: src/features/bill-split/components/PeopleManagerFormCollab.tsx:64
+msgid "Add"
+msgstr "添加"
+
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:96
+msgid "Add Item"
+msgstr "添加项目"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:54
+msgid "Add People to Split the Bill"
+msgstr "添加人员来分摊账单"
+
+#: src/features/bill-split/components/PeopleManagerFormCollab.tsx:48
+msgid "Add People to Split With"
+msgstr "添加分摊人员"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:215
+msgid "Add Users"
+msgstr "添加用户"
+
+#: src/features/receipt-viewer/components/TipEditor.tsx:183
+msgid "After tax"
+msgstr "税后"
+
+#: src/features/bill-split/components/AssignmentProgressCollab.tsx:42
+msgid "All items assigned"
+msgstr "所有项目已分配"
+
+#: src/features/assignments/assignments-list.tsx:382
+msgid "All people assigned."
+msgstr "所有人员已分配。"
+
+#: src/features/receipt-upload/ReceiptUploader.tsx:114
+msgid "Analyze Document"
+msgstr "分析单据"
+
+#: src/features/receipt-upload/ReceiptUploader.tsx:109
+msgid "Analyzing…"
+msgstr "分析中…"
+
+#: src/pages/SettingsPage.tsx:249
+msgid "Appearance"
+msgstr "外观"
+
+#: src/pages/SettingsPage.tsx:257
+msgid "Appearance settings content would go here."
+msgstr "外观设置内容将显示在此处。"
+
+#: src/features/assignments/assignments-list.tsx:402
+#: src/features/assignments/assignments-list.tsx:403
+msgid "Assign {displayName}"
+msgstr "分配给{displayName}"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:229
+msgid "Assign {itemLabel}"
+msgstr "分配{itemLabel}"
+
+#: src/features/assignments/assignments-list.tsx:369
+msgid "Assign All"
+msgstr "全部分配"
+
+#: src/pages/HomePage.tsx:55
+msgid "Assign items to people, split shared costs, and handle tips. No awkward math."
+msgstr "将项目分配给每个人，分摊共同费用并处理小费。无需复杂计算。"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:99
+msgid "Assigned To"
+msgstr "分配给"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:220
+#: src/features/assignments/assignments-header.tsx:19
+msgid "Assigned to:"
+msgstr "分配给："
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:210
+msgid "Assigned Users"
+msgstr "已分配用户"
+
+#: src/features/bill-split/components/AssignmentProgressCollab.tsx:44
+msgid "Assignment in progress"
+msgstr "分配进行中"
+
+#: src/context/ZeroProvider.tsx:126
+msgid "Authentication Error"
+msgstr "身份验证错误"
+
+#: src/pages/SettingsPage.tsx:80
+msgid "Back to Settings"
+msgstr "返回设置"
+
+#: src/features/receipt-viewer/components/TipEditor.tsx:180
+msgid "Before tax"
+msgstr "税前"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:84
+msgid "Bill Breakdown"
+msgstr "账单明细"
+
+#: src/pages/SettingsPage.tsx:268
+msgid "Billing"
+msgstr "账单"
+
+#: src/pages/SettingsPage.tsx:276
+msgid "Billing settings content would go here."
+msgstr "账单设置内容将显示在此处。"
+
+#: src/components/Receipt/LineItemAddForm.tsx:135
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:95
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:229
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:160
+#: src/features/receipt-viewer/components/TipEditor.tsx:248
+msgid "Cancel"
+msgstr "取消"
+
+#: src/components/LanguageSwitcher.tsx:39
+#: src/components/LanguageSwitcher.tsx:41
+msgid "Change language"
+msgstr "切换语言"
+
+#: src/components/Footer.tsx:54
+msgid "checking"
+msgstr "检查中"
+
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:102
+msgid "Claim"
+msgstr "认领"
+
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:82
+msgid "Claim \"{displayName}\" as yourself? This will link this user to your account."
+msgstr "将\"{displayName}\"认领为自己？这将把此用户关联到您的账户。"
+
+#: src/features/assignments/assignments-list.tsx:237
+#: src/features/assignments/assignments-list.tsx:244
+msgid "Claim {displayName}"
+msgstr "认领{displayName}"
+
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:79
+#: src/features/assignments/SignInToClaimDialog.tsx:30
+msgid "Claim this person"
+msgstr "认领此人"
+
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:102
+msgid "Claiming…"
+msgstr "认领中…"
+
+#: src/features/receipt-upload/components/PreviewImage.tsx:34
+msgid "Clear preview"
+msgstr "清除预览"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:57
+msgid "Click \"Manage People\" to add friends and assign items to them. Then tag each item with who should pay for it."
+msgstr "点击\"管理人员\"添加朋友并将项目分配给他们。然后标记每个项目由谁付款。"
+
+#: src/features/assignments/SignInToClaimDialog.tsx:53
+#: src/features/bill-split/components/BillBreakdownView.tsx:373
+msgid "Close"
+msgstr "关闭"
+
+#: src/features/assignments/assignments-header.tsx:24
+msgid "Close assignments"
+msgstr "关闭分配"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:259
+msgid "Collapse assignments"
+msgstr "收起分配"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:147
+msgid "Collapse edit"
+msgstr "收起编辑"
+
+#: src/pages/SettingsPage.tsx:214
+msgid "Control how and when you receive notifications."
+msgstr "控制接收通知的方式和时间。"
+
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:76
+msgid "Control who can see the receipt image."
+msgstr "控制谁可以查看收据图片。"
+
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:146
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:156
+msgid "Could not restore your original claim. Please try claiming again manually."
+msgstr "无法恢复您的原始认领。请尝试手动重新认领。"
+
+#: src/features/assignments/assignments-list.tsx:348
+msgid "Create"
+msgstr "创建"
+
+#: src/features/assignments/SignInToClaimDialog.tsx:33
+msgid "Create an account or sign in to claim \"{displayName}\" as yourself. You can then link this receipt user to your account and keep your receipt history in one place."
+msgstr "创建账户或登录以将\"{displayName}\"认领为自己。然后您可以将此收据用户关联到您的账户，将收据历史集中管理。"
+
+#: src/features/auth/SignInPromptCard.tsx:32
+msgid "Create an account or sign in to see your receipt analysis history and manage your documents."
+msgstr "创建账户或登录以查看您的收据分析历史并管理您的文档。"
+
+#: src/pages/SettingsPage.tsx:252
+msgid "Customize the look and feel of the application."
+msgstr "自定义应用的外观和风格。"
+
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:98
+msgid "Date:"
+msgstr "日期："
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:186
+#: src/components/Receipt/LineItemsTableDesktop.tsx:247
+#: src/components/Receipt/LineItemsTableMobile.tsx:282
+msgid "Delete"
+msgstr "删除"
+
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:147
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:148
+msgid "Delete gratuity"
+msgstr "删除小费"
+
+#: src/features/receipt-viewer/components/TipEditor.tsx:236
+msgid "Delete tip"
+msgstr "删除小费"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:184
+#: src/components/Receipt/LineItemsTableDesktop.tsx:245
+#: src/components/Receipt/LineItemsTableMobile.tsx:280
+msgid "Deleting..."
+msgstr "删除中..."
+
+#. placeholder {0}: person.displayName
+#: src/features/bill-split/components/BillBreakdownView.tsx:233
+msgid "Detailed breakdown of items assigned to {0}."
+msgstr "{0}分配项目的详细明细。"
+
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:57
+msgid "Document Details"
+msgstr "文档详情"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:193
+#: src/components/Receipt/LineItemsTableDesktop.tsx:254
+#: src/components/Receipt/LineItemsTableMobile.tsx:286
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:167
+#: src/features/receipt-viewer/components/TipEditor.tsx:255
+msgid "Done"
+msgstr "完成"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:95
+msgid "Download"
+msgstr "下载"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:63
+msgid "Download failed"
+msgstr "下载失败"
+
+#: src/features/receipt-upload/components/DropZone.tsx:26
+msgid "Drop files here to upload"
+msgstr "将文件拖放到此处上传"
+
+#. placeholder {0}: item.name ?? t`item`
+#: src/components/Receipt/LineItemsTableDesktop.tsx:159
+msgid "Edit {0}"
+msgstr "编辑{0}"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:148
+msgid "Edit {itemLabel}"
+msgstr "编辑{itemLabel}"
+
+#: src/pages/SettingsPage.tsx:136
+msgid "Enable or disable features in your application."
+msgstr "启用或禁用应用中的功能。"
+
+#: src/features/bill-split/components/PeopleManagerFormCollab.tsx:52
+msgid "Enter name"
+msgstr "输入姓名"
+
+#: src/features/assignments/assignments-list.tsx:330
+msgid "Enter name..."
+msgstr "输入姓名..."
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:218
+msgid "Equal amount split"
+msgstr "平均分摊"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:149
+msgid "Equal split"
+msgstr "平均分摊"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:359
+msgid "Equal split - no specific items assigned"
+msgstr "平均分摊 - 未分配具体项目"
+
+#: src/features/bill-split/components/EqualSplitBannerCollab.tsx:16
+msgid "Equal Split Mode"
+msgstr "平均分摊模式"
+
+#: src/features/bill-split/BillSplitSectionCollab.tsx:18
+msgid "Evenly"
+msgstr "平均"
+
+#: src/pages/HomePage.tsx:60
+msgid "Every split is saved. Review, adjust, or settle up any time."
+msgstr "每次分摊都会保存。随时查看、调整或结算。"
+
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:58
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:68
+msgid "Failed to claim person"
+msgstr "认领失败"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:62
+msgid "Failed to download image"
+msgstr "下载图片失败"
+
+#: src/context/ZeroProvider.tsx:130
+msgid "Failed to fetch authentication token. Your requests may not be properly authenticated."
+msgstr "获取身份验证令牌失败。您的请求可能未正确验证。"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:143
+msgid "Failed to load receipt image"
+msgstr "加载收据图片失败"
+
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:115
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:145
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:149
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:155
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:166
+msgid "Failed to switch person"
+msgstr "切换人员失败"
+
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:55
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:62
+msgid "Failed to update image visibility"
+msgstr "更新图片可见性失败"
+
+#: src/pages/SettingsPage.tsx:22
+#: src/pages/SettingsPage.tsx:133
+msgid "Feature Flags"
+msgstr "功能开关"
+
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:196
+msgid "Final Total:"
+msgstr "最终总额："
+
+#: src/pages/HomePage.tsx:172
+msgid "From receipt to settled,<0/><1>in a few taps.</1>"
+msgstr "从收据到结清，<0/><1>只需几步。</1>"
+
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:99
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:125
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:174
+msgid "Gratuity"
+msgstr "小费"
+
+#: src/features/receipt-viewer/components/GratuityEditor.tsx:113
+msgid "Gratuity:"
+msgstr "小费："
+
+#: src/components/Footer.tsx:52
+msgid "healthy"
+msgstr "正常"
+
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:66
+msgid "Hide QR Code"
+msgstr "隐藏二维码"
+
+#: src/pages/HomePage.tsx:169
+msgid "how it works"
+msgstr "使用方法"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:59
+msgid "Image downloaded successfully"
+msgstr "图片下载成功"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:178
+msgid "Image hidden by owner"
+msgstr "图片已被所有者隐藏"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:107
+msgid "Image settings"
+msgstr "图片设置"
+
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:73
+#: src/features/receipt-image/ReceiptImageViewer.tsx:114
+msgid "Image Settings"
+msgstr "图片设置"
+
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:58
+msgid "Image visibility updated"
+msgstr "图片可见性已更新"
+
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:149
+msgid "Included in prices"
+msgstr "已含在价格中"
+
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:45
+msgid "Invalid Date"
+msgstr "无效日期"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:142
+#: src/components/Receipt/LineItemsTableDesktop.tsx:159
+#: src/components/Receipt/LineItemsTableMobile.tsx:111
+msgid "item"
+msgstr "项目"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:87
+#: src/features/bill-split/components/BillBreakdownView.tsx:247
+msgid "Item"
+msgstr "项目"
+
+#: src/components/Receipt/LineItemForm.tsx:117
+#: src/components/Receipt/LineItemForm.tsx:125
+msgid "Item name"
+msgstr "项目名称"
+
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:87
+msgid "Items"
+msgstr "项目"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:161
+msgid "Items subtotal:"
+msgstr "项目小计："
+
+#: src/features/receipt-viewer/components/TipEditor.tsx:191
+msgid "Items total"
+msgstr "项目总计"
+
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:100
+msgid "Items Total:"
+msgstr "项目总计："
+
+#: src/features/assignments/assignments-list.tsx:275
+#: src/features/bill-split/components/BillBreakdownView.tsx:120
+msgid "Linked to your account"
+msgstr "已关联到您的账户"
+
+#: src/components/Header.tsx:21
+msgid "Main navigation"
+msgstr "主导航"
+
+#. placeholder {0}: item.name ?? t`item`
+#: src/components/Receipt/LineItemsTableDesktop.tsx:142
+msgid "Manage assignments for {0}"
+msgstr "管理{0}的分配"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:230
+msgid "Manage assignments for {itemLabel}"
+msgstr "管理{itemLabel}的分配"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:70
+#: src/features/bill-split/components/ManualSplitTabCollab.tsx:37
+msgid "Manage People"
+msgstr "管理人员"
+
+#: src/pages/SettingsPage.tsx:195
+msgid "Manage your account information and preferences."
+msgstr "管理您的账户信息和偏好设置。"
+
+#: src/pages/SettingsPage.tsx:233
+msgid "Manage your privacy and security settings."
+msgstr "管理您的隐私和安全设置。"
+
+#: src/pages/SettingsPage.tsx:271
+msgid "Manage your subscription and payment methods."
+msgstr "管理您的订阅和付款方式。"
+
+#: src/features/bill-split/BillSplitSectionCollab.tsx:15
+msgid "Manual"
+msgstr "手动"
+
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:88
+msgid "Merchant:"
+msgstr "商家："
+
+#. placeholder {0}: previousReceiptUser.name
+#. placeholder {1}: newReceiptUser.name
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:180
+msgid "Move your claim from \"{0}\" to \"{1}\"? Your account will be linked to the new receipt user."
+msgstr "将您的认领从\"{0}\"转移到\"{1}\"？您的账户将关联到新的收据用户。"
+
+#: src/components/Header.tsx:42
+msgid "My Receipts"
+msgstr "我的收据"
+
+#: src/features/assignments/assignments-list.tsx:321
+msgid "New:"
+msgstr "新建："
+
+#: src/features/line-items/components/NoLineItemsMessage.tsx:13
+msgid "No Item Details Available"
+msgstr "无项目详情"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:363
+msgid "No items assigned yet"
+msgstr "尚未分配项目"
+
+#: src/features/bill-split/components/EqualSplitBannerCollab.tsx:25
+msgid "No items have been assigned yet. The total has been divided equally among all people by default."
+msgstr "尚未分配任何项目。默认将总额在所有人之间平均分配。"
+
+#: src/features/assignments/assignments-list.tsx:378
+msgid "No matching people. Press Enter to add."
+msgstr "没有匹配的人员。按回车键添加。"
+
+#: src/features/assignments/assignments-list.tsx:186
+msgid "No one assigned yet."
+msgstr "尚未分配给任何人。"
+
+#: src/features/bill-split/components/PeopleManagerFormCollab.tsx:97
+msgid "No people added yet. Add people to split the bill."
+msgstr "尚未添加人员。添加人员来分摊账单。"
+
+#: src/components/Receipt/ReceiptHistory.tsx:52
+msgid "No receipt history found"
+msgstr "未找到收据历史"
+
+#. placeholder {0}: formatCurrency( Math.abs( calculatedTotal .minus(evenlySplitTotalRounded.mul(numberOfPeople)) .toNumber() ) )
+#: src/features/bill-split/components/EvenSplitTabCollab.tsx:78
+msgid "Note: One person will pay an additional {0} to cover the rounding difference"
+msgstr "注意：一人将额外支付{0}以弥补四舍五入的差额"
+
+#: src/pages/SettingsPage.tsx:211
+msgid "Notification Settings"
+msgstr "通知设置"
+
+#: src/pages/SettingsPage.tsx:219
+msgid "Notification settings content would go here."
+msgstr "通知设置内容将显示在此处。"
+
+#: src/features/bill-split/components/EvenSplitTabCollab.tsx:65
+msgid "Number of people"
+msgstr "人数"
+
+#. placeholder {0}: formatCurrency(item.originalPrice)
+#: src/features/bill-split/components/BillBreakdownView.tsx:293
+msgid "of {0}"
+msgstr "共{0}"
+
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:85
+msgid "Only you can see the image when enabled"
+msgstr "启用后仅您可以查看图片"
+
+#: src/features/receipt-upload/components/PreviewImage.tsx:52
+msgid "or drag & drop · JPEG, PNG"
+msgstr "或拖放文件 · JPEG、PNG"
+
+#: src/features/bill-split/components/EvenSplitTabCollab.tsx:70
+msgid "Per Person:"
+msgstr "每人："
+
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:165
+msgid "Post-tax Total:"
+msgstr "税后总额："
+
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:133
+msgid "Pre-tax Total:"
+msgstr "税前总额："
+
+#: src/features/receipt-upload/components/PreviewImage.tsx:24
+msgid "Preview"
+msgstr "预览"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:93
+#: src/features/bill-split/components/BillBreakdownView.tsx:253
+msgid "Price"
+msgstr "价格"
+
+#: src/pages/SettingsPage.tsx:230
+msgid "Privacy & Security"
+msgstr "隐私与安全"
+
+#: src/pages/SettingsPage.tsx:238
+msgid "Privacy settings content would go here."
+msgstr "隐私设置内容将显示在此处。"
+
+#: src/features/receipt-image/components/ImageSettingsDialog.tsx:82
+msgid "Private Image"
+msgstr "私密图片"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:90
+#: src/features/bill-split/components/BillBreakdownView.tsx:250
+msgid "Qty"
+msgstr "数量"
+
+#: src/components/Receipt/LineItemForm.tsx:164
+#: src/components/Receipt/LineItemForm.tsx:171
+msgid "Quantity"
+msgstr "数量"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:165
+msgid "Quantity:"
+msgstr "数量："
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:154
+msgid "Receipt"
+msgstr "收据"
+
+#. placeholder {0}: receipt.merchant
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:71
+msgid "Receipt — {0}"
+msgstr "收据 — {0}"
+
+#. placeholder {0}: receipt.id
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:44
+msgid "Receipt #{0}"
+msgstr "收据 #{0}"
+
+#. placeholder {0}: receipt.id
+#. placeholder {1}: receipt.merchant
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:43
+msgid "Receipt #{0} — {1}"
+msgstr "收据 #{0} — {1}"
+
+#: src/pages/SettingsPage.tsx:161
+msgid "Receipt Desktop Table"
+msgstr "收据桌面表格"
+
+#: src/features/receipt-collab/components/ReceiptCollabContent.tsx:73
+msgid "Receipt details"
+msgstr "收据详情"
+
+#: src/components/Receipt/ReceiptHistory.tsx:41
+msgid "Receipt History"
+msgstr "收据历史"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:84
+msgid "Receipt Image"
+msgstr "收据图片"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:188
+msgid "Receipt image not available"
+msgstr "收据图片不可用"
+
+#: src/pages/HomePage.tsx:144
+msgid "receipt splitting, simplified"
+msgstr "轻松分摊账单"
+
+#: src/features/receipt-viewer/ReceiptViewer.tsx:18
+msgid "Receipt Viewer"
+msgstr "收据查看器"
+
+#: src/features/assignments/assignments-list.tsx:304
+#: src/features/assignments/assignments-list.tsx:305
+msgid "Remove {displayName}"
+msgstr "移除{displayName}"
+
+#: src/pages/SettingsPage.tsx:151
+msgid "Reset All Flags"
+msgstr "重置所有标记"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:167
+msgid "Reset image zoom"
+msgstr "重置图片缩放"
+
+#: src/context/ZeroProvider.tsx:153
+msgid "Retry"
+msgstr "重试"
+
+#: src/context/ZeroProvider.tsx:148
+msgid "Retrying..."
+msgstr "重试中..."
+
+#: src/pages/HomePage.tsx:148
+msgid "Scan a receipt, divide costs fairly, settle up in seconds."
+msgstr "扫描收据，公平分摊费用，几秒内完成结算。"
+
+#: src/pages/HomePage.tsx:49
+msgid "Scan any receipt"
+msgstr "扫描任意收据"
+
+#: src/pages/SettingsPage.tsx:116
+msgid "Select a category"
+msgstr "选择分类"
+
+#: src/pages/HomePage.tsx:132
+msgid "Service temporarily unavailable. Please try again later."
+msgstr "服务暂时不可用。请稍后再试。"
+
+#: src/pages/SettingsPage.tsx:38
+msgid "Settings"
+msgstr "设置"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:276
+msgid "Shared with {sharedWithNames}"
+msgstr "与{sharedWithNames}共享"
+
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:68
+msgid "Show QR Code"
+msgstr "显示二维码"
+
+#: src/features/assignments/SignInToClaimDialog.tsx:43
+msgid "Sign in or create account"
+msgstr "登录或创建账户"
+
+#: src/features/assignments/assignments-list.tsx:234
+#: src/features/assignments/assignments-list.tsx:241
+msgid "Sign in to claim {displayName}"
+msgstr "登录以认领{displayName}"
+
+#: src/features/auth/SignInPromptCard.tsx:29
+msgid "Sign in to continue"
+msgstr "登录以继续"
+
+#: src/pages/HomePage.tsx:217
+msgid "Sign in to see your history →"
+msgstr "登录查看您的历史记录 →"
+
+#: src/features/assignments/ClaimReceiptUserDialog.tsx:66
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:164
+msgid "Something went wrong"
+msgstr "出了点问题"
+
+#: src/features/bill-split/components/EvenSplitTabCollab.tsx:58
+msgid "Split between how many people?"
+msgstr "在几个人之间分摊？"
+
+#: src/features/bill-split/components/EvenSplitTabCollab.tsx:50
+msgid "Split Evenly"
+msgstr "平均分摊"
+
+#: src/pages/HomePage.tsx:54
+msgid "Split fairly"
+msgstr "公平分摊"
+
+#: src/features/bill-split/components/ManualSplitTabCollab.tsx:29
+msgid "Split with Friends"
+msgstr "与朋友分摊"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:305
+msgid "Subtotal"
+msgstr "小计"
+
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:116
+msgid "Subtotal (as shown):"
+msgstr "小计（如所示）："
+
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:36
+msgid "Summary"
+msgstr "摘要"
+
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:236
+msgid "Switch"
+msgstr "切换"
+
+#: src/features/assignments/assignments-list.tsx:236
+#: src/features/assignments/assignments-list.tsx:243
+msgid "Switch to {displayName}"
+msgstr "切换到{displayName}"
+
+#: src/components/ThemeToggle.tsx:17
+msgid "Switch to dark mode"
+msgstr "切换到深色模式"
+
+#: src/components/ThemeToggle.tsx:17
+msgid "Switch to light mode"
+msgstr "切换到浅色模式"
+
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:177
+msgid "Switch to this person"
+msgstr "切换到此人"
+
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:236
+msgid "Switching…"
+msgstr "切换中…"
+
+#: src/pages/HomePage.tsx:50
+msgid "Take a photo and we extract every line item automatically — no manual entry."
+msgstr "拍张照片，我们会自动提取每个项目——无需手动输入。"
+
+#: src/features/receipt-upload/components/PreviewImage.tsx:49
+msgid "Tap to upload a receipt"
+msgstr "点击上传收据"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:315
+#: src/features/receipt-viewer/components/TipEditor.tsx:199
+msgid "Tax"
+msgstr "税费"
+
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:72
+msgid "Tax Calculation"
+msgstr "税费计算"
+
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:50
+msgid "Tax Included in Prices"
+msgstr "价格已含税"
+
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:85
+msgid "Tax rate is approximately {formattedRate}% and has been distributed proportionally based on each person's items."
+msgstr "税率约为{formattedRate}%，已根据每人的项目按比例分配。"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:170
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:145
+msgid "Tax:"
+msgstr "税费："
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:191
+msgid "The original receipt image might not be stored or is no longer accessible"
+msgstr "原始收据图片可能未保存或已无法访问"
+
+#: src/features/receipt-image/ReceiptImageViewer.tsx:181
+msgid "The receipt image is only visible to the owner"
+msgstr "收据图片仅对所有者可见"
+
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:53
+msgid "The tax is already included in the individual item prices shown."
+msgstr "税费已包含在所显示的各项目价格中。"
+
+#: src/features/line-items/components/NoLineItemsMessage.tsx:22
+msgid "This document doesn't include detailed line items. The total amount has been equally divided among all people."
+msgstr "此文档不包含详细的项目明细。总金额已在所有人之间平均分配。"
+
+#: src/features/line-items/components/NoLineItemsMessage.tsx:17
+msgid "This document from {merchant} doesn't include detailed line items. The total amount has been equally divided among all people."
+msgstr "来自{merchant}的此文档不包含详细的项目明细。总金额已在所有人之间平均分配。"
+
+#: src/features/bill-split/components/EqualSplitBannerCollab.tsx:20
+msgid "This receipt doesn't contain detailed line items, so the total amount has been divided equally among all people."
+msgstr "此收据不包含详细项目明细，因此总金额已在所有人之间平均分配。"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:326
+#: src/features/receipt-viewer/components/TipEditor.tsx:167
+#: src/features/receipt-viewer/components/TipEditor.tsx:263
+msgid "Tip"
+msgstr "小费"
+
+#: src/features/receipt-viewer/components/TipEditor.tsx:205
+msgid "Tip base"
+msgstr "小费基数"
+
+#: src/features/receipt-viewer/components/TipEditor.tsx:147
+msgid "Tip:"
+msgstr "小费："
+
+#: src/components/ThemeToggle.tsx:23
+msgid "Toggle theme"
+msgstr "切换主题"
+
+#: src/components/Receipt/LineItemsTableDesktop.tsx:96
+#: src/features/bill-split/components/BillBreakdownView.tsx:346
+msgid "Total"
+msgstr "总计"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:179
+msgid "Total:"
+msgstr "总计："
+
+#: src/pages/HomePage.tsx:59
+msgid "Track history"
+msgstr "追踪历史"
+
+#: src/pages/HomePage.tsx:37
+#: src/pages/ReceiptsPage.tsx:33
+msgid "Unable to load receipt history. Please try again later."
+msgstr "无法加载收据历史。请稍后再试。"
+
+#: src/features/bill-split/components/AssignmentProgressCollab.tsx:62
+msgid "Unassigned amount:"
+msgstr "未分配金额："
+
+#: src/components/Footer.tsx:56
+msgid "unhealthy"
+msgstr "异常"
+
+#: src/components/Receipt/LineItemForm.tsx:193
+msgid "Unit price"
+msgstr "单价"
+
+#: src/components/Receipt/LineItemForm.tsx:180
+msgid "Unit Price"
+msgstr "单价"
+
+#: src/components/Receipt/LineItemsTableMobile.tsx:173
+msgid "Unit Price:"
+msgstr "单价："
+
+#: src/components/Receipt/ReceiptHistory.tsx:89
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:28
+#: src/features/receipt-viewer/ReceiptDetailsCard.tsx:91
+msgid "Unknown"
+msgstr "未知"
+
+#: src/components/Receipt/ReceiptHistory.tsx:80
+msgid "Unknown date"
+msgstr "未知日期"
+
+#: src/components/Receipt/ReceiptHistory.tsx:72
+msgid "Unknown Merchant"
+msgstr "未知商家"
+
+#: src/features/summary-card/EditableDetail.tsx:34
+#: src/features/summary-card/EditableDetail.tsx:35
+msgid "Update {label}"
+msgstr "更新{label}"
+
+#: src/components/Receipt/ReceiptHistory.tsx:55
+msgid "Upload a receipt to get started"
+msgstr "上传收据以开始"
+
+#: src/pages/SettingsPage.tsx:164
+msgid "Use new desktop table design for receipts."
+msgstr "使用新的桌面表格设计显示收据。"
+
+#: src/components/Receipt/ReceiptHistory.tsx:106
+msgid "View"
+msgstr "查看"
+
+#. placeholder {0}: receipt.merchant
+#: src/components/Receipt/ReceiptHistory.tsx:101
+msgid "View receipt from {0}"
+msgstr "查看来自{0}的收据"
+
+#: src/components/Receipt/ReceiptHistory.tsx:102
+msgid "View receipt from Unknown Merchant"
+msgstr "查看来自未知商家的收据"
+
+#: src/features/assignments/SwitchReceiptUserDialog.tsx:150
+msgid "Your original claim has been restored."
+msgstr "您的原始认领已恢复。"
+
+#: src/components/Receipt/ReceiptHistory.tsx:44
+msgid "Your previously analyzed receipts"
+msgstr "您之前分析过的收据"
