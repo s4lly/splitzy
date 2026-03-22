@@ -887,7 +887,10 @@ export namespace calculations {
      */
     export function formatPercentage(partial: Decimal, total: Decimal): string {
       // TODO internationalize
-      const formatter = new Intl.NumberFormat('en-US', { style: 'percent' });
+      const formatter = new Intl.NumberFormat('en-US', {
+        style: 'percent',
+        maximumFractionDigits: 2,
+      });
 
       if (!total.gt(0)) {
         // TODO use observability library to log this

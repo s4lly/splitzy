@@ -54,6 +54,7 @@ class ReceiptDecimalSerializerMixin:
         "subtotal",
         "tax",
         "tip",
+        "original_tip",
         "gratuity",
         "total",
         "display_subtotal",
@@ -198,6 +199,7 @@ class RegularReceiptBase(
     subtotal: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     tax: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     tip: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    original_tip: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     gratuity: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     payment_method: Optional[str] = None
@@ -252,6 +254,7 @@ class RegularReceiptBase(
             "subtotal",
             "tax",
             "tip",
+            "original_tip",
             "gratuity",
             "total",
             "display_subtotal",

@@ -31,6 +31,7 @@ class UserReceipt(db.Model):
     subtotal = db.Column(Numeric(12, 2), nullable=True, default=0)
     tax = db.Column(Numeric(12, 2), nullable=True, default=0)
     tip = db.Column(Numeric(12, 2), nullable=True, default=0)
+    original_tip = db.Column(Numeric(12, 2), nullable=True, default=0)
     gratuity = db.Column(Numeric(12, 2), nullable=True, default=0)
     total = db.Column(Numeric(12, 2), nullable=True, default=0)
     payment_method = db.Column(db.Text, nullable=True)
