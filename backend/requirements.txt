@@ -41,12 +41,12 @@ packaging==25.0
 pluggy==1.6.0
 proto-plus==1.26.1
 protobuf==5.29.5
-psycopg2-binary==2.9.10
+psycopg2-binary==2.9.11
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
 pycparser==2.23
-pydantic==2.11.7
-pydantic_core==2.33.2
+pydantic==2.12.5
+pydantic_core==2.41.5
 Pygments==2.19.2
 PyJWT==2.10.1
 pyparsing==3.2.3
@@ -66,7 +66,7 @@ types-MarkupSafe==1.1.10
 types-requests==2.32.4.20250913
 types-SQLAlchemy==1.4.53.38
 types-Werkzeug==1.0.9
-typing-inspection==0.4.1
+typing-inspection>=0.4.2
 typing_extensions==4.14.1
 uritemplate==4.2.0
 urllib3>=2.6.0
