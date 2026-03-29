@@ -151,6 +151,7 @@ def create_app():
     # This must happen after db.init_app() but before blueprints are registered
     from models.assignment import Assignment  # noqa: F401
     from models.receipt_line_item import ReceiptLineItem  # noqa: F401
+    from models.receipt_user import ReceiptUser  # noqa: F401
     from models.user import User  # noqa: F401
     from models.user_receipt import UserReceipt  # noqa: F401
 
