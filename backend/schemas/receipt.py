@@ -124,6 +124,12 @@ class FieldMetadata(BaseModel):
     is_pii: bool = False
     pii_category: Optional[PIICategory] = None
 
+    @model_validator(mode="after")
+    def _check_pii_category_consistency(self) -> "FieldMetadata":
+        if self.is_pii and self.pii_category is None:
+            raise ValueError("pii_category must be set when is_pii is True")
+        return self
+
 
 class ReceiptFieldsMetadata(BaseModel):
     """Container for all field-level bounding box and PII metadata from a receipt analysis."""
