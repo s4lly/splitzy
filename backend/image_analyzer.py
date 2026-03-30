@@ -433,8 +433,6 @@ class ImageAnalyzer:
                     if match:
                         analysis_text = match.group(1).strip()
 
-            print(f"JSON response: {analysis_text}")
-
             # Use structured output validation
             return self._with_structured_output(analysis_text)
 
