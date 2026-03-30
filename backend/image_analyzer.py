@@ -8,7 +8,6 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 
 from schemas.receipt import (
-    FieldMetadata,
     NotAReceipt,
     ReceiptFieldsMetadata,
     RegularReceipt,
