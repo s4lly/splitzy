@@ -265,6 +265,8 @@ class ImageAnalyzer:
         valid_fields = []
         for entry in json_response["fields_metadata"]["fields"]:
             try:
+                if isinstance(entry, dict) and entry.get("field_name", "").startswith("items."):
+                    entry = {**entry, "field_name": "line_items." + entry["field_name"][len("items."):]}
                 FieldMetadata.model_validate(entry)
                 valid_fields.append(entry)
             except Exception as e:
