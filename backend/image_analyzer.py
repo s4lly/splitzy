@@ -247,12 +247,18 @@ class ImageAnalyzer:
         if not raw:
             json_response.pop("fields_metadata", None)
             return
-        try:
-            if isinstance(raw, list):
-                json_response["fields_metadata"] = {"fields": raw}
-            # If it's already a dict with a "fields" key, leave it as-is
-        except Exception:
-            logger.warning("Failed to process fields_metadata; ignoring metadata")
+        if isinstance(raw, list):
+            json_response["fields_metadata"] = {"fields": raw}
+        elif isinstance(raw, dict):
+            if isinstance(raw.get("fields"), list):
+                pass  # already the expected shape
+            else:
+                logger.warning(
+                    "fields_metadata is a dict without a 'fields' list; wrapping as single element"
+                )
+                json_response["fields_metadata"] = {"fields": [raw]}
+        else:
+            logger.warning("fields_metadata has an unrecognised shape; ignoring metadata")
             json_response.pop("fields_metadata", None)
 
     def _get_system_prompt(self):
