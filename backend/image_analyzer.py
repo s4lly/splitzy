@@ -8,6 +8,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 
 from schemas.receipt import (
+    FieldMetadata,
     NotAReceipt,
     ReceiptFieldsMetadata,
     RegularReceipt,
@@ -261,10 +262,17 @@ class ImageAnalyzer:
             logger.warning("fields_metadata has an unrecognised shape; ignoring metadata")
             json_response.pop("fields_metadata", None)
             return
-        try:
-            ReceiptFieldsMetadata.model_validate(json_response["fields_metadata"])
-        except Exception as e:
-            logger.warning("fields_metadata failed validation; ignoring metadata: %s", e)
+        valid_fields = []
+        for entry in json_response["fields_metadata"]["fields"]:
+            try:
+                FieldMetadata.model_validate(entry)
+                valid_fields.append(entry)
+            except Exception as e:
+                logger.warning("Dropping invalid fields_metadata entry: %s — %s", entry, e)
+        if valid_fields:
+            json_response["fields_metadata"] = {"fields": valid_fields}
+        else:
+            logger.warning("No valid fields_metadata entries; ignoring metadata")
             json_response.pop("fields_metadata", None)
 
     def _get_system_prompt(self):
