@@ -393,12 +393,12 @@ class ImageAnalyzer:
         PII category definitions — use these to classify PII fields:
         - "payment_card_details": Full or partial credit/debit card numbers, cardholder name when shown on a card line, card expiry dates, CVV/security codes
         - "personal_names": Customer names, passenger names, server names, cashier names, or any other named individual visible on the document
-        - "contact_info": Phone numbers, email addresses, physical street addresses (merchant address or customer address)
+        - "contact_info": Phone numbers, email addresses, or physical addresses belonging to a private individual (e.g. customer delivery address, cardholder address). Do NOT use this category for public business contact details such as a merchant's printed phone number, website, or store address — those are public information and should be marked is_pii: false.
         - "account_identifiers": Loyalty program numbers, rewards membership IDs, frequent flyer numbers, order IDs, confirmation numbers, ticket numbers, account numbers
 
         Rules for fields_metadata:
         1. Include an entry for EVERY standard field you extract (e.g. merchant, date, each line item sub-field, subtotal, tax, total, payment_method, etc.) — even fields that are not PII.
-        2. Also include entries for any additional PII you detect on the document that falls outside the standard extracted fields (e.g. a cardholder name printed near the payment section, a phone number in the merchant header, a loyalty card number).
+        2. Also include entries for any additional PII you detect on the document that falls outside the standard extracted fields (e.g. a cardholder name printed near the payment section, a customer phone number or delivery address, a loyalty card number). Note: a merchant's own phone number, address, or website printed in the receipt header is public business information — mark it is_pii: false and omit pii_category.
         3. If a field is not visible or was not present on the document, omit it from fields_metadata rather than guessing a location.
         4. For line items, provide separate metadata entries for name, quantity, price_per_item, and total_price of each item — they may appear in different columns.
 
