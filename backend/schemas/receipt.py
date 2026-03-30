@@ -92,10 +92,10 @@ class BoundingBox(BaseModel):
     """Pixel coordinates for a detected field on the receipt image.
     Origin (0, 0) is the top-left corner of the image."""
 
-    x: int = Field(..., description="Left edge x-coordinate in pixels")
-    y: int = Field(..., description="Top edge y-coordinate in pixels")
-    width: int = Field(..., description="Width in pixels")
-    height: int = Field(..., description="Height in pixels")
+    x: int = Field(..., ge=0, description="Left edge x-coordinate in pixels")
+    y: int = Field(..., ge=0, description="Top edge y-coordinate in pixels")
+    width: int = Field(..., gt=0, description="Width in pixels")
+    height: int = Field(..., gt=0, description="Height in pixels")
 
 
 class PIICategory(str, Enum):
