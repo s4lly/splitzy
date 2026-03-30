@@ -270,7 +270,8 @@ class ImageAnalyzer:
                 FieldMetadata.model_validate(entry)
                 valid_fields.append(entry)
             except Exception as e:
-                logger.warning("Dropping invalid fields_metadata entry: %s — %s", entry, e)
+                field_name = entry.get("field_name", "<unknown>") if isinstance(entry, dict) else "<non-dict>"
+                logger.warning("Dropping invalid fields_metadata entry field_name=%r: %s", field_name, e)
         if valid_fields:
             json_response["fields_metadata"] = {"fields": valid_fields}
         else:
