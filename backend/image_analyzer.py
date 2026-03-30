@@ -260,6 +260,12 @@ class ImageAnalyzer:
         else:
             logger.warning("fields_metadata has an unrecognised shape; ignoring metadata")
             json_response.pop("fields_metadata", None)
+            return
+        try:
+            ReceiptFieldsMetadata.model_validate(json_response["fields_metadata"])
+        except Exception as e:
+            logger.warning("fields_metadata failed validation; ignoring metadata: %s", e)
+            json_response.pop("fields_metadata", None)
 
     def _get_system_prompt(self):
         """Get the system prompt for receipt analysis"""
