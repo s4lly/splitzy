@@ -27,13 +27,12 @@ class Assignment(db.Model):
     deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
 
     receipt_user = db.relationship(
-        "ReceiptUser", backref=db.backref("assignments", lazy=True)
+        "ReceiptUser", backref=db.backref("assignments", lazy=True), lazy="joined"
     )
-    user = db.relationship(
-        "ReceiptUser",
-        foreign_keys=[receipt_user_id],
-        lazy="joined",
-    )
+
+    @property
+    def user(self):
+        return self.receipt_user.user if self.receipt_user else None
 
     def __repr__(self):
         return f"<Assignment {self.receipt_user_id} {self.receipt_line_item_id}>"

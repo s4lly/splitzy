@@ -97,6 +97,16 @@ class BoundingBox(BaseModel):
     width: int = Field(..., gt=0, description="Width in pixels")
     height: int = Field(..., gt=0, description="Height in pixels")
 
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_list_to_dict(cls, data):
+        """Accept [x1, y1, x2, y2] corner-coordinate arrays from the model and
+        convert them to the {x, y, width, height} dict format Pydantic expects."""
+        if isinstance(data, (list, tuple)) and len(data) == 4:
+            x1, y1, x2, y2 = data
+            return {"x": x1, "y": y1, "width": max(1, x2 - x1), "height": max(1, y2 - y1)}
+        return data
+
 
 class PIICategory(str, Enum):
     """Categories of personally identifiable information found on receipts."""

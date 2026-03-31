@@ -1,11 +1,12 @@
 # Cursor AI Assistant Rules for Splitzy
 
 ## Backend Development
-- **Always start the backend by activating the virtual environment and running `gunicorn --bind localhost:5001 app:app` from the `backend/` directory**
-- The virtual environment is located at `backend/venv/`
-- When running Python commands, always activate the virtual environment first: `cd backend && source venv/bin/activate && python ...`
-- When checking syntax or imports, use: `cd backend && source venv/bin/activate && python -m py_compile <file>`
+- **Always start the backend by activating the virtual environment and running `OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES gunicorn --bind localhost:5001 app:app` from the `backend/` directory** (or use the convenience script `./start.sh`)
+- The virtual environment is located at `backend/.venv/`
+- When running Python commands, always activate the virtual environment first: `cd backend && source .venv/bin/activate && python ...`
+- When checking syntax or imports, use: `cd backend && source .venv/bin/activate && python -m py_compile <file>`
 - The backend uses the original imports (no try/except import handling needed)
+- `OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES` **must be a shell-level env var** (not set from Python) — it prevents the macOS fork() crash caused by httpx/clerk_backend_api initializing Objective-C / GCD resources before Gunicorn forks workers. Setting it via `os.environ` inside Python is too late.
 
 ## Project Structure
 - Backend code is in the `backend/` directory

@@ -93,3 +93,4 @@ nosetests.xml
 coverage.xml
 *,cover 
 .vercel
+.env*.local
