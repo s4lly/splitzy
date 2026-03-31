@@ -7,7 +7,13 @@ from pathlib import Path
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-from schemas.receipt import NotAReceipt, RegularReceipt, TransportationTicket
+from schemas.receipt import (
+    FieldMetadata,
+    NotAReceipt,
+    ReceiptFieldsMetadata,
+    RegularReceipt,
+    TransportationTicket,
+)
 
 
 # Set up module-level logger
@@ -141,6 +147,7 @@ class ImageAnalyzer:
                 if "total" not in json_response or json_response["total"] is None:
                     json_response["total"] = json_response.get("fare", 0)
 
+                self._wrap_fields_metadata(json_response)
                 return TransportationTicket(**json_response)
             else:
                 # Regular receipt - add processing logic
@@ -182,6 +189,8 @@ class ImageAnalyzer:
 
                     cleaned_line_items.append(cleaned_item)
                 json_response["line_items"] = cleaned_line_items
+
+                self._wrap_fields_metadata(json_response)
 
                 # Calculate totals
                 items_total = sum(
@@ -227,6 +236,47 @@ class ImageAnalyzer:
             ) from e
         except Exception as e:
             raise ImageAnalysisError(f"Schema validation failed: {str(e)}") from e
+
+    def _wrap_fields_metadata(self, json_response: dict) -> None:
+        """
+        Convert a raw fields_metadata list from the Gemini response into the
+        nested ReceiptFieldsMetadata shape that Pydantic expects.
+        Mutates json_response in place. Silently clears the key on any parse
+        error so that core receipt extraction is never blocked by metadata issues.
+        """
+        raw = json_response.get("fields_metadata")
+        if not raw:
+            json_response.pop("fields_metadata", None)
+            return
+        if isinstance(raw, list):
+            json_response["fields_metadata"] = {"fields": raw}
+        elif isinstance(raw, dict):
+            if isinstance(raw.get("fields"), list):
+                pass  # already the expected shape
+            else:
+                logger.warning(
+                    "fields_metadata is a dict without a 'fields' list; wrapping as single element"
+                )
+                json_response["fields_metadata"] = {"fields": [raw]}
+        else:
+            logger.warning("fields_metadata has an unrecognised shape; ignoring metadata")
+            json_response.pop("fields_metadata", None)
+            return
+        valid_fields = []
+        for entry in json_response["fields_metadata"]["fields"]:
+            try:
+                if isinstance(entry, dict) and entry.get("field_name", "").startswith("items."):
+                    entry = {**entry, "field_name": "line_items." + entry["field_name"][len("items."):]}
+                FieldMetadata.model_validate(entry)
+                valid_fields.append(entry)
+            except Exception as e:
+                field_name = entry.get("field_name", "<unknown>") if isinstance(entry, dict) else "<non-dict>"
+                logger.warning("Dropping invalid fields_metadata entry field_name=%r: %s", field_name, e)
+        if valid_fields:
+            json_response["fields_metadata"] = {"fields": valid_fields}
+        else:
+            logger.warning("No valid fields_metadata entries; ignoring metadata")
+            json_response.pop("fields_metadata", None)
 
     def _get_system_prompt(self):
         """Get the system prompt for receipt analysis"""
@@ -327,6 +377,47 @@ class ImageAnalyzer:
         Note: Use 'line_items' (not 'items') as the key for the list of purchased items.
         Note: For restaurant receipts, the line item can spread across multiple lines. For example Curry Chicken Sandwich with a side of salada can be in two lines because the side of salad was a part of the item itself. You can combine these two into one.
         Please use your best judgement to combine these into one line item.
+
+        BOUNDING BOX AND PII DETECTION:
+        For every field you extract, also provide its pixel-level bounding box on the image and whether it contains personally identifiable information (PII).
+
+        Add a "fields_metadata" array at the top level of your JSON response (alongside all the other fields). Each entry in the array has:
+        - "field_name": The field path using dot notation.
+          - Top-level fields use the field name directly: "merchant", "date", "subtotal", "tax", "tip", "gratuity", "total", "payment_method"
+          - Line item sub-fields: "line_items.<index>.<field>" (e.g. "line_items.0.name", "line_items.0.quantity", "line_items.0.price_per_item", "line_items.0.total_price", "line_items.1.name", etc.)
+          - Transportation ticket fields: "carrier", "ticket_number", "origin", "destination", "passenger", "fare", "currency"
+          - For PII detected on the document that does NOT map to any standard extracted field, use a descriptive name such as "cardholder_name", "card_number_partial", "server_name", "cashier_name", "phone_number", "email", "address", "loyalty_number", "membership_id"
+        - "bbox": An object with "x", "y", "width", "height" in pixels representing the bounding box of that field's text on the image. The origin (0, 0) is the top-left corner of the image. Provide your best estimate — exact pixel-perfect accuracy is not required.
+        - "is_pii": Boolean. true if the field contains personally identifiable information, false otherwise.
+        - "pii_category": If is_pii is true, exactly one of the following strings: "payment_card_details", "personal_names", "contact_info", "account_identifiers". Set to null if is_pii is false.
+
+        PII category definitions — use these to classify PII fields:
+        - "payment_card_details": Full or partial credit/debit card numbers, cardholder name when shown on a card line, card expiry dates, CVV/security codes
+        - "personal_names": Customer names, passenger names, server names, cashier names, or any other named individual visible on the document
+        - "contact_info": Phone numbers, email addresses, or physical addresses belonging to a private individual (e.g. customer delivery address, cardholder address). Do NOT use this category for public business contact details such as a merchant's printed phone number, website, or store address — those are public information and should be marked is_pii: false.
+        - "account_identifiers": Loyalty program numbers, rewards membership IDs, frequent flyer numbers, order IDs, confirmation numbers, ticket numbers, account numbers
+
+        Rules for fields_metadata:
+        1. Include an entry for EVERY standard field you extract (e.g. merchant, date, each line item sub-field, subtotal, tax, total, payment_method, etc.) — even fields that are not PII.
+        2. Also include entries for any additional PII you detect on the document that falls outside the standard extracted fields (e.g. a cardholder name printed near the payment section, a customer phone number or delivery address, a loyalty card number). Note: a merchant's own phone number, address, or website printed in the receipt header is public business information — mark it is_pii: false and omit pii_category.
+        3. If a field is not visible or was not present on the document, omit it from fields_metadata rather than guessing a location.
+        4. For line items, provide separate metadata entries for name, quantity, price_per_item, and total_price of each item — they may appear in different columns.
+
+        Example fields_metadata for a regular receipt:
+        "fields_metadata": [
+          {"field_name": "merchant", "bbox": {"x": 100, "y": 20, "width": 220, "height": 28}, "is_pii": false, "pii_category": null},
+          {"field_name": "date", "bbox": {"x": 50, "y": 60, "width": 140, "height": 20}, "is_pii": false, "pii_category": null},
+          {"field_name": "line_items.0.name", "bbox": {"x": 40, "y": 110, "width": 180, "height": 20}, "is_pii": false, "pii_category": null},
+          {"field_name": "line_items.0.quantity", "bbox": {"x": 230, "y": 110, "width": 30, "height": 20}, "is_pii": false, "pii_category": null},
+          {"field_name": "line_items.0.price_per_item", "bbox": {"x": 270, "y": 110, "width": 50, "height": 20}, "is_pii": false, "pii_category": null},
+          {"field_name": "line_items.0.total_price", "bbox": {"x": 330, "y": 110, "width": 55, "height": 20}, "is_pii": false, "pii_category": null},
+          {"field_name": "subtotal", "bbox": {"x": 280, "y": 300, "width": 60, "height": 20}, "is_pii": false, "pii_category": null},
+          {"field_name": "tax", "bbox": {"x": 280, "y": 325, "width": 60, "height": 20}, "is_pii": false, "pii_category": null},
+          {"field_name": "total", "bbox": {"x": 280, "y": 355, "width": 60, "height": 20}, "is_pii": false, "pii_category": null},
+          {"field_name": "payment_method", "bbox": {"x": 40, "y": 390, "width": 200, "height": 20}, "is_pii": false, "pii_category": null},
+          {"field_name": "card_number_partial", "bbox": {"x": 40, "y": 415, "width": 130, "height": 20}, "is_pii": true, "pii_category": "payment_card_details"},
+          {"field_name": "server_name", "bbox": {"x": 40, "y": 440, "width": 120, "height": 18}, "is_pii": true, "pii_category": "personal_names"}
+        ]
         """
 
     def _process_response(self, analysis_text):
@@ -344,8 +435,6 @@ class ImageAnalyzer:
                     match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", analysis_text)
                     if match:
                         analysis_text = match.group(1).strip()
-
-            print(f"JSON response: {analysis_text}")
 
             # Use structured output validation
             return self._with_structured_output(analysis_text)

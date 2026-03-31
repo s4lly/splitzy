@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date as date_type
 from datetime import datetime
 from decimal import Decimal
+from enum import Enum
 from typing import List, Literal, Optional
 from uuid import UUID
 
@@ -80,6 +81,60 @@ class TransportationDecimalSerializerMixin:
         if v is None:
             return 0.0
         return float(v)
+
+
+# ============================================================================
+# BOUNDING BOX AND PII METADATA MODELS
+# ============================================================================
+
+
+class BoundingBox(BaseModel):
+    """Pixel coordinates for a detected field on the receipt image.
+    Origin (0, 0) is the top-left corner of the image."""
+
+    x: int = Field(..., ge=0, description="Left edge x-coordinate in pixels")
+    y: int = Field(..., ge=0, description="Top edge y-coordinate in pixels")
+    width: int = Field(..., gt=0, description="Width in pixels")
+    height: int = Field(..., gt=0, description="Height in pixels")
+
+
+class PIICategory(str, Enum):
+    """Categories of personally identifiable information found on receipts."""
+
+    PAYMENT_CARD_DETAILS = "payment_card_details"
+    PERSONAL_NAMES = "personal_names"
+    CONTACT_INFO = "contact_info"
+    ACCOUNT_IDENTIFIERS = "account_identifiers"
+
+
+class FieldMetadata(BaseModel):
+    """Bounding box and PII classification for a single extracted field."""
+
+    field_name: str = Field(
+        ...,
+        description=(
+            "Dot-path field name. Top-level fields use the field name directly "
+            "(e.g. 'merchant', 'date', 'total'). Line item sub-fields use "
+            "'line_items.<index>.<field>' (e.g. 'line_items.0.name'). "
+            "Extra PII not in standard fields uses a descriptive name "
+            "(e.g. 'cardholder_name', 'phone_number')."
+        ),
+    )
+    bbox: BoundingBox
+    is_pii: bool = False
+    pii_category: Optional[PIICategory] = None
+
+    @model_validator(mode="after")
+    def _check_pii_category_consistency(self) -> "FieldMetadata":
+        if self.is_pii and self.pii_category is None:
+            raise ValueError("pii_category must be set when is_pii is True")
+        return self
+
+
+class ReceiptFieldsMetadata(BaseModel):
+    """Container for all field-level bounding box and PII metadata from a receipt analysis."""
+
+    fields: List[FieldMetadata] = Field(default_factory=list)
 
 
 # ============================================================================
@@ -277,6 +332,7 @@ class RegularReceipt(RegularReceiptBase):
 
     # Override line_items to include them in API responses
     line_items: List[LineItem] = Field(default_factory=list)
+    fields_metadata: Optional[ReceiptFieldsMetadata] = None
 
 
 class RegularReceiptResponse(RegularReceipt):
@@ -342,7 +398,7 @@ class TransportationTicket(TransportationTicketBase):
     Used for flight, train, and other transportation receipts.
     """
 
-    pass
+    fields_metadata: Optional[ReceiptFieldsMetadata] = None
 
 
 # ============================================================================
