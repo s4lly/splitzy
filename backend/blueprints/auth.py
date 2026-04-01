@@ -1,5 +1,9 @@
+import os
+
 from clerk_backend_api.security.types import AuthenticateRequestOptions
 from flask import current_app, request
+
+_is_dev = os.environ.get("VERCEL_ENV", "production") != "production"
 
 from models.user import User
 
@@ -38,13 +42,13 @@ def get_current_user():
             "[auth.get_current_user] Attempting Clerk authentication"
         )
 
-        # Log request method and all headers for debugging
         current_app.logger.debug(
-            f"[auth.get_current_user] Request method: {request.method}"
+            "[auth.get_current_user] Request: %s %s", request.method, request.path
         )
-        current_app.logger.debug(
-            f"[auth.get_current_user] All request headers: {dict(request.headers)}"
-        )
+        if _is_dev:
+            current_app.logger.debug(
+                "[auth.get_current_user] All request headers: %s", dict(request.headers)
+            )
 
         # Check if Authorization header is present
         # Try multiple ways to access the header (case-insensitive)
@@ -63,9 +67,14 @@ def get_current_user():
             return None
         else:
             current_app.logger.debug(
-                f"[auth.get_current_user] Authorization header present: "
-                f"{auth_header[:20]}..."
+                "[auth.get_current_user] Authorization header present, length=%d",
+                len(auth_header),
             )
+            if _is_dev:
+                current_app.logger.debug(
+                    "[auth.get_current_user] Authorization header prefix: %s...",
+                    auth_header[:20],
+                )
 
         try:
             request_state = sdk.authenticate_request(

@@ -19,6 +19,8 @@ from schemas.receipt import (
 # Set up module-level logger
 logger = logging.getLogger(__name__)
 
+_is_dev = os.environ.get("VERCEL_ENV", "production") != "production"
+
 
 class ImageAnalysisError(Exception):
     """Domain-specific exception for image analysis failures"""
@@ -126,10 +128,12 @@ class ImageAnalyzer:
         # Generate content
         response = model.generate_content(content_parts)
 
-        logger.debug(
-            "[analyzer] Raw Gemini response (first 2000 chars): %s",
-            response.text[:2000],
-        )
+        logger.debug("[analyzer] Gemini response length: %d", len(response.text))
+        if _is_dev:
+            logger.debug(
+                "[analyzer] Raw Gemini response (first 2000 chars): %s",
+                response.text[:2000],
+            )
 
         return self._process_response(response.text)
 
@@ -146,9 +150,15 @@ class ImageAnalyzer:
             if json_response.get("is_receipt", False) == False:
                 # Not a receipt
                 logger.debug(
-                    "[analyzer] NotAReceipt. Reason: %s",
-                    json_response.get("reason", "none provided"),
+                    "[analyzer] is_receipt=%s keys=%d",
+                    json_response.get("is_receipt"),
+                    len(json_response.keys()),
                 )
+                if _is_dev:
+                    logger.debug(
+                        "[analyzer] NotAReceipt reason: %s",
+                        json_response.get("reason", "none provided"),
+                    )
                 return NotAReceipt(**json_response)
             elif json_response.get("document_type") == "transportation_ticket":
                 # Transportation ticket - add processing logic
