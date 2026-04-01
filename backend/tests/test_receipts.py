@@ -2,8 +2,62 @@ import json
 import os
 from unittest.mock import patch
 
+import pytest
+from pydantic import ValidationError
+
 from models import db
-from schemas.receipt import RegularReceipt
+from schemas.receipt import BoundingBox, FieldMetadata, RegularReceipt
+
+
+class TestBoundingBoxCoercion:
+    """BoundingBox should accept both dict and [x1,y1,x2,y2] list forms."""
+
+    def test_dict_form_accepted(self):
+        bb = BoundingBox(x=10, y=20, width=100, height=50)
+        assert bb.x == 10 and bb.y == 20 and bb.width == 100 and bb.height == 50
+
+    def test_list_form_converted(self):
+        """Gemini sometimes returns [x1, y1, x2, y2] corner coordinates."""
+        bb = BoundingBox.model_validate([67, 70, 397, 135])
+        assert bb.x == 67
+        assert bb.y == 70
+        assert bb.width == 330   # 397 - 67
+        assert bb.height == 65   # 135 - 70
+
+    def test_tuple_form_converted(self):
+        bb = BoundingBox.model_validate((10, 5, 15, 30))
+        assert bb.x == 10 and bb.y == 5
+        assert bb.width == 5 and bb.height == 25  # corner coercion: 15-10, 30-5
+
+    def test_ambiguous_list_treated_as_origin_size(self):
+        """When values don't unambiguously represent corners, treat as [x, y, w, h]."""
+        bb = BoundingBox.model_validate([100, 100, 100, 100])
+        assert bb.x == 100 and bb.y == 100
+        assert bb.width == 100 and bb.height == 100
+
+    def test_origin_size_list_not_corrupted(self):
+        """A list already in [x, y, width, height] where w < x should pass through."""
+        bb = BoundingBox.model_validate([200, 300, 80, 20])
+        assert bb.x == 200 and bb.y == 300
+        assert bb.width == 80 and bb.height == 20
+
+    def test_list_wrong_length_raises(self):
+        with pytest.raises(ValidationError):
+            BoundingBox.model_validate([10, 20, 30])
+
+    def test_field_metadata_with_list_bbox(self):
+        """End-to-end: FieldMetadata should validate when bbox is a list."""
+        entry = {
+            "field_name": "merchant",
+            "bbox": [67, 70, 397, 135],
+            "is_pii": False,
+            "pii_category": None,
+        }
+        fm = FieldMetadata.model_validate(entry)
+        assert fm.bbox.x == 67
+        assert fm.bbox.y == 70
+        assert fm.bbox.width == 330   # 397 - 67
+        assert fm.bbox.height == 65   # 135 - 70
 
 
 def test_health_check(test_client):

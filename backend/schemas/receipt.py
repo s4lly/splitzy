@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import date as date_type
 from datetime import datetime
 from decimal import Decimal
@@ -15,6 +16,8 @@ from pydantic import (
     field_serializer,
     model_validator,
 )
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
@@ -96,6 +99,48 @@ class BoundingBox(BaseModel):
     y: int = Field(..., ge=0, description="Top edge y-coordinate in pixels")
     width: int = Field(..., gt=0, description="Width in pixels")
     height: int = Field(..., gt=0, description="Height in pixels")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_list_to_dict(cls, data):
+        """Accept 4-element lists and convert them to the {x, y, width, height}
+        dict that Pydantic expects.
+
+        The image_analyzer prompt (see ``image_analyzer.py``) asks the model to
+        return bounding boxes as ``{"x", "y", "width", "height"}`` dicts, but
+        some models occasionally return a flat list instead.  A list can mean
+        either ``[x1, y1, x2, y2]`` (corner coordinates) or
+        ``[x, y, width, height]`` (origin + size).
+
+        Heuristic – treat as corner coordinates **only** when the values
+        unambiguously represent two corners:
+        * ``v[2] > v[0]`` and ``v[3] > v[1]`` (second corner is down-right)
+        * computed ``width > 1`` and ``height > 1``
+
+        If these conditions are not met the list is assumed to already be in
+        origin + size order and is mapped positionally.  A warning is logged
+        whenever corner-coordinate coercion is applied so that unexpected
+        formats are discoverable in production.
+        """
+        if isinstance(data, (list, tuple)) and len(data) == 4:
+            a, b, c, d = data
+            is_corners = (c > a and d > b and (c - a) > 1 and (d - b) > 1)
+            if is_corners:
+                logger.warning(
+                    "BoundingBox received corner-coordinate list %s; "
+                    "coercing to origin+size dict. The image_analyzer prompt "
+                    "expects {x, y, width, height} dicts — see image_analyzer.py.",
+                    data,
+                )
+                return {
+                    "x": a,
+                    "y": b,
+                    "width": c - a,
+                    "height": d - b,
+                }
+            # Assume [x, y, width, height] order
+            return {"x": a, "y": b, "width": c, "height": d}
+        return data
 
 
 class PIICategory(str, Enum):

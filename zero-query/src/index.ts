@@ -93,24 +93,24 @@ const clerkClient = createClerkClient({
   publishableKey: CLERK_PUBLISHABLE_KEY,
 });
 
-// Parse authorized parties from FRONTEND_ORIGINS
+// Parse authorized parties from CLERK_AUTHORIZED_PARTIES
 // This must be non-empty to ensure azp validation is always enforced
-const FRONTEND_ORIGINS = process.env.FRONTEND_ORIGINS;
+const CLERK_AUTHORIZED_PARTIES = process.env.CLERK_AUTHORIZED_PARTIES;
 
-if (!FRONTEND_ORIGINS) {
+if (!CLERK_AUTHORIZED_PARTIES) {
   const errorMessage =
-    'Missing required environment variable: FRONTEND_ORIGINS. This must be set to a comma-separated list of allowed origins for Clerk azp validation. Add it to your .env file.';
+    'Missing required environment variable: CLERK_AUTHORIZED_PARTIES. This must be set to a comma-separated list of allowed origins for Clerk azp validation. Add it to your .env file.';
   log('error', errorMessage);
   throw new Error(errorMessage);
 }
 
-const authorizedParties = FRONTEND_ORIGINS.split(',')
+const authorizedParties = CLERK_AUTHORIZED_PARTIES.split(',')
   .map((o) => o.trim())
   .filter(Boolean);
 
 if (authorizedParties.length === 0) {
   const errorMessage =
-    'FRONTEND_ORIGINS must contain at least one valid origin. The current value results in an empty allowlist, which would disable Clerk azp validation. Please provide a comma-separated list of allowed origins.';
+    'CLERK_AUTHORIZED_PARTIES must contain at least one valid origin. The current value results in an empty allowlist, which would disable Clerk azp validation. Please provide a comma-separated list of allowed origins.';
   log('error', errorMessage);
   throw new Error(errorMessage);
 }
