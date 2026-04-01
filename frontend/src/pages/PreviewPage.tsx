@@ -6,15 +6,15 @@ import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import {
+  pendingImageAtom,
+  processedImageAtom,
+} from '@/features/image-prep/atoms/imagePrepAtoms';
+import {
   completedCropAtom,
   cropAtom,
   eraseRectsAtom,
   imageDimsAtom,
 } from '@/features/image-prep/atoms/imagePrepStateAtoms';
-import {
-  pendingImageAtom,
-  processedImageAtom,
-} from '@/features/image-prep/atoms/imagePrepAtoms';
 import { useReceiptAnalysisMutation } from '@/features/receipt-upload/hooks/useReceiptAnalysis';
 import type { ReceiptAnalysisResult } from '@/features/receipt-upload/types';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';

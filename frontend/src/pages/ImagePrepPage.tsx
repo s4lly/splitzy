@@ -7,15 +7,15 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+  pendingImageAtom,
+  processedImageAtom,
+} from '@/features/image-prep/atoms/imagePrepAtoms';
+import {
   completedCropAtom,
   cropAtom,
   eraseRectsAtom,
   imageDimsAtom,
 } from '@/features/image-prep/atoms/imagePrepStateAtoms';
-import {
-  pendingImageAtom,
-  processedImageAtom,
-} from '@/features/image-prep/atoms/imagePrepAtoms';
 import { CropTool } from '@/features/image-prep/components/CropTool';
 import { EraseTool } from '@/features/image-prep/components/EraseTool';
 import {

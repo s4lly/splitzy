@@ -11,13 +11,13 @@ import { useNavigate } from 'react-router-dom';
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
 import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
 import { Card } from '@/components/ui/card';
+import { pendingImageAtom } from '@/features/image-prep/atoms/imagePrepAtoms';
 import {
   completedCropAtom,
   cropAtom,
   eraseRectsAtom,
   imageDimsAtom,
 } from '@/features/image-prep/atoms/imagePrepStateAtoms';
-import { pendingImageAtom } from '@/features/image-prep/atoms/imagePrepAtoms';
 import { ReceiptUploader } from '@/features/receipt-upload/ReceiptUploader';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';

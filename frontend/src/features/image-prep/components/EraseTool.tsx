@@ -3,9 +3,8 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useCallback, useId, useRef } from 'react';
 
 import { Button } from '@/components/ui/button';
-
-import type { EraseRect } from '@/features/image-prep/utils/canvasOperations';
 import { EraseRectangle } from '@/features/image-prep/components/EraseRectangle';
+import type { EraseRect } from '@/features/image-prep/utils/canvasOperations';
 
 interface Props {
   preview: string;
