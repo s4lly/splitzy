@@ -64,6 +64,7 @@ const ImagePrepPage = () => {
 
   const handleBack = useCallback(() => {
     setPendingImage(null);
+    setProcessedImage(null);
     setCrop(undefined);
     setCompletedCrop(null);
     setImageDims(null);
@@ -72,6 +73,7 @@ const ImagePrepPage = () => {
   }, [
     navigate,
     setPendingImage,
+    setProcessedImage,
     setCrop,
     setCompletedCrop,
     setImageDims,
