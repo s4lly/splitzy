@@ -25,8 +25,9 @@ class TestBoundingBoxCoercion:
         assert bb.height == 65   # 135 - 70
 
     def test_tuple_form_converted(self):
-        bb = BoundingBox.model_validate((0, 0, 50, 25))
-        assert bb.x == 0 and bb.y == 0 and bb.width == 50 and bb.height == 25
+        bb = BoundingBox.model_validate((10, 5, 15, 30))
+        assert bb.x == 10 and bb.y == 5
+        assert bb.width == 5 and bb.height == 25  # corner coercion: 15-10, 30-5
 
     def test_ambiguous_list_treated_as_origin_size(self):
         """When values don't unambiguously represent corners, treat as [x, y, w, h]."""
@@ -54,7 +55,9 @@ class TestBoundingBoxCoercion:
         }
         fm = FieldMetadata.model_validate(entry)
         assert fm.bbox.x == 67
-        assert fm.bbox.width == 330
+        assert fm.bbox.y == 70
+        assert fm.bbox.width == 330   # 397 - 67
+        assert fm.bbox.height == 65   # 135 - 70
 
 
 def test_health_check(test_client):
