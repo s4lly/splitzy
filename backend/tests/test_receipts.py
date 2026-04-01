@@ -28,10 +28,17 @@ class TestBoundingBoxCoercion:
         bb = BoundingBox.model_validate((0, 0, 50, 25))
         assert bb.x == 0 and bb.y == 0 and bb.width == 50 and bb.height == 25
 
-    def test_inverted_coordinates_clamped_to_one(self):
-        """width/height must be > 0; clamp to 1 if x2<=x1 or y2<=y1."""
+    def test_ambiguous_list_treated_as_origin_size(self):
+        """When values don't unambiguously represent corners, treat as [x, y, w, h]."""
         bb = BoundingBox.model_validate([100, 100, 100, 100])
-        assert bb.width == 1 and bb.height == 1
+        assert bb.x == 100 and bb.y == 100
+        assert bb.width == 100 and bb.height == 100
+
+    def test_origin_size_list_not_corrupted(self):
+        """A list already in [x, y, width, height] where w < x should pass through."""
+        bb = BoundingBox.model_validate([200, 300, 80, 20])
+        assert bb.x == 200 and bb.y == 300
+        assert bb.width == 80 and bb.height == 20
 
     def test_list_wrong_length_raises(self):
         with pytest.raises(ValidationError):
