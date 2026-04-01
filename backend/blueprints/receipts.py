@@ -230,8 +230,11 @@ def analyze_receipt():
             db.session.commit()
 
             current_app.logger.info(
-                "[receipt] Receipt saved successfully: id=%s, store=%s, total=%s, user_id=%s",
+                "[receipt] Receipt saved successfully: id=%s",
                 new_receipt.id,
+            )
+            current_app.logger.debug(
+                "[receipt] Receipt details: store=%s, total=%s, user_id=%s",
                 getattr(new_receipt, "store_name", None),
                 getattr(new_receipt, "total", None),
                 getattr(new_receipt, "user_id", None),
