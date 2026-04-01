@@ -460,6 +460,7 @@ class NotAReceipt(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     is_receipt: bool = False
+    reason: Optional[str] = None
 
 
 # ============================================================================

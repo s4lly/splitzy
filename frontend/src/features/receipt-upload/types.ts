@@ -1,5 +1,5 @@
 export interface ReceiptUploaderProps {
-  onAnalysisComplete?: (result: ReceiptAnalysisResult) => void;
+  onContinue?: (file: File) => void;
 }
 
 export interface ReceiptAnalysisResult {

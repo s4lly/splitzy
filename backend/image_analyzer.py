@@ -78,17 +78,18 @@ class ImageAnalyzer:
         if not _configured:
             configure_image_analyzer()
 
-    def analyze_image(self, image_data_or_path):
+    def analyze_image(self, image_data_or_path, mime_type="image/jpeg"):
         """
         Analyze a receipt image using Google Gemini
         Args:
             image_data_or_path: Either binary image data (bytes) or file path (str)
+            mime_type: MIME type of the image (default: image/jpeg)
         Returns a Pydantic model (RegularReceipt, TransportationTicket, or NotAReceipt)
         Raises:
             ImageAnalysisError: When image analysis fails
         """
         try:
-            return self._analyze_image_with_gemini(image_data_or_path)
+            return self._analyze_image_with_gemini(image_data_or_path, mime_type)
         except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
             # Handle expected exceptions with specific error messages
             logger.error(f"Image analysis failed: {str(e)}")
@@ -100,7 +101,7 @@ class ImageAnalyzer:
                 f"Analysis failed due to unexpected error: {str(e)}"
             ) from e
 
-    def _analyze_image_with_gemini(self, image_data_or_path):
+    def _analyze_image_with_gemini(self, image_data_or_path, mime_type="image/jpeg"):
         """Analyze image using Google Gemini"""
         # Handle both binary data and file path
         if isinstance(image_data_or_path, bytes):
@@ -119,11 +120,16 @@ class ImageAnalyzer:
         content_parts = [
             self._get_system_prompt(),
             "Analyze this image and extract all relevant payment information. This might be a receipt, invoice, or transportation ticket. Pay special attention to any monetary amounts shown.",
-            {"mime_type": "image/jpeg", "data": image_data},
+            {"mime_type": mime_type, "data": image_data},
         ]
 
         # Generate content
         response = model.generate_content(content_parts)
+
+        logger.debug(
+            "[analyzer] Raw Gemini response (first 2000 chars): %s",
+            response.text[:2000],
+        )
 
         return self._process_response(response.text)
 
@@ -139,6 +145,10 @@ class ImageAnalyzer:
             # Determine the document type and validate with appropriate schema
             if json_response.get("is_receipt", False) == False:
                 # Not a receipt
+                logger.debug(
+                    "[analyzer] NotAReceipt. Reason: %s",
+                    json_response.get("reason", "none provided"),
+                )
                 return NotAReceipt(**json_response)
             elif json_response.get("document_type") == "transportation_ticket":
                 # Transportation ticket - add processing logic
@@ -301,7 +311,7 @@ class ImageAnalyzer:
           "total": 20.0  # Total amount paid
         }
         
-        If the image is NOT any payment document (contains no prices or payment information), respond with just: {"is_receipt": false}
+        If the image is NOT any payment document (contains no prices or payment information), respond with: {"is_receipt": false, "reason": "Brief explanation of what the image appears to contain and why it is not a receipt or payment document"}
         
         If it IS a REGULAR payment document (receipt, bill, invoice, order, etc.), extract the following information in JSON format:
         1. Store or merchant name

@@ -7,7 +7,7 @@ const API_URL =
   import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 export function useReceiptAnalysisMutation() {
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
 
   return useMutation({
     mutationFn: async ({
@@ -15,44 +15,20 @@ export function useReceiptAnalysisMutation() {
     }: {
       file: File;
     }): Promise<ReceiptAnalysisResult> => {
-      console.log('[useReceiptAnalysis] Attempting to retrieve Clerk token...');
-
       let token: string | null = null;
-      try {
-        token = await getToken();
-
-        if (token) {
-          console.log('[useReceiptAnalysis] Token retrieved successfully', {
-            tokenLength: token.length,
-            tokenPrefix: token.substring(0, 20) + '...',
-          });
-        } else {
-          console.warn(
-            '[useReceiptAnalysis] getToken() returned null or undefined'
-          );
+      if (isSignedIn) {
+        try {
+          token = await getToken();
+        } catch (error) {
+          console.error('[useReceiptAnalysis] Error retrieving token:', error);
         }
-      } catch (error) {
-        console.error('[useReceiptAnalysis] Error retrieving token:', error);
-        if (error instanceof Error) {
-          console.error('[useReceiptAnalysis] Error details:', {
-            message: error.message,
-            stack: error.stack,
-          });
-        }
-        // Continue without token - let the backend handle authentication
       }
-
-      const tokenToUse = token || undefined;
-      console.log('[useReceiptAnalysis] Calling analyzeReceipt with token:', {
-        hasToken: !!tokenToUse,
-        tokenLength: tokenToUse?.length || 0,
-      });
 
       const formData = new FormData();
       formData.append('file', file);
 
-      const headers: Record<string, string> = tokenToUse
-        ? { Authorization: `Bearer ${tokenToUse}` }
+      const headers: Record<string, string> = token
+        ? { Authorization: `Bearer ${token}` }
         : {};
 
       const response = await fetch(`${API_URL}/analyze-receipt`, {
