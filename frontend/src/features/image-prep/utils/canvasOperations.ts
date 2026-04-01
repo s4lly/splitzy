@@ -42,14 +42,17 @@ export function cropImage(
   const sw = crop.width * scaleX;
   const sh = crop.height * scaleY;
 
+  const outW = Math.max(1, Math.round(sw));
+  const outH = Math.max(1, Math.round(sh));
+
   const canvas = document.createElement('canvas');
-  canvas.width = sw;
-  canvas.height = sh;
+  canvas.width = outW;
+  canvas.height = outH;
 
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Could not get canvas context');
 
-  ctx.drawImage(image, sx, sy, sw, sh, 0, 0, sw, sh);
+  ctx.drawImage(image, sx, sy, sw, sh, 0, 0, outW, outH);
 
   return canvas;
 }
