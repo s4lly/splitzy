@@ -161,6 +161,7 @@ const ImagePrepPage = () => {
           onClick={handleBack}
           aria-label="Back"
           className="-ml-2 shrink-0"
+          disabled={isProcessing}
         >
           <ArrowLeft className="size-5" />
         </Button>
