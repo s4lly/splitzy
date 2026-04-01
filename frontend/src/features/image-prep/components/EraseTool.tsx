@@ -4,8 +4,8 @@ import { useCallback, useId, useRef } from 'react';
 
 import { Button } from '@/components/ui/button';
 
-import type { EraseRect } from '../utils/canvasOperations';
-import { EraseRectangle } from './EraseRectangle';
+import type { EraseRect } from '@/features/image-prep/utils/canvasOperations';
+import { EraseRectangle } from '@/features/image-prep/components/EraseRectangle';
 
 interface Props {
   preview: string;

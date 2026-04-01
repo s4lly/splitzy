@@ -1,7 +1,7 @@
 import { X } from 'lucide-react';
 import { useCallback, useRef } from 'react';
 
-import type { EraseRect } from '../utils/canvasOperations';
+import type { EraseRect } from '@/features/image-prep/utils/canvasOperations';
 
 interface Props {
   rect: EraseRect;

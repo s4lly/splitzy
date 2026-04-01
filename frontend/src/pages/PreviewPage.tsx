@@ -14,7 +14,7 @@ import {
 import {
   pendingImageAtom,
   processedImageAtom,
-} from '@/features/image-prep/atoms/pendingImageAtom';
+} from '@/features/image-prep/atoms/imagePrepAtoms';
 import { useReceiptAnalysisMutation } from '@/features/receipt-upload/hooks/useReceiptAnalysis';
 import type { ReceiptAnalysisResult } from '@/features/receipt-upload/types';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -29,7 +29,7 @@ function parseError(
     return mutation.data.error || 'Failed to analyze document';
   }
   if (mutation.data && mutation.data.success && !mutation.data.is_receipt) {
-    const reason = mutation.data.receipt_data?.reason as string | undefined;
+    const reason = mutation.data.receipt_data?.reason;
     return reason
       ? `The image does not appear to be a receipt: ${reason}`
       : 'The uploaded image does not appear to be a payment document. Please upload a receipt, invoice, or bill.';
@@ -79,7 +79,7 @@ const PreviewPage = () => {
       { file: processedImage },
       {
         onSuccess: (result: ReceiptAnalysisResult) => {
-          if (result.success && result.is_receipt && result.receipt_data?.id) {
+          if (result.success && result.is_receipt) {
             setProcessedImage(null);
             setPendingImage(null);
             setCrop(undefined);

@@ -17,8 +17,8 @@ import {
   eraseRectsAtom,
   imageDimsAtom,
 } from '@/features/image-prep/atoms/imagePrepStateAtoms';
-import { pendingImageAtom } from '@/features/image-prep/atoms/pendingImageAtom';
-import { ReceiptUploader } from '@/features/receipt-upload';
+import { pendingImageAtom } from '@/features/image-prep/atoms/imagePrepAtoms';
+import { ReceiptUploader } from '@/features/receipt-upload/ReceiptUploader';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { fromZeroReceipt } from '@/lib/receiptTypes';

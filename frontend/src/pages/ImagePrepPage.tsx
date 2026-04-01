@@ -15,7 +15,7 @@ import {
 import {
   pendingImageAtom,
   processedImageAtom,
-} from '@/features/image-prep/atoms/pendingImageAtom';
+} from '@/features/image-prep/atoms/imagePrepAtoms';
 import { CropTool } from '@/features/image-prep/components/CropTool';
 import { EraseTool } from '@/features/image-prep/components/EraseTool';
 import {
