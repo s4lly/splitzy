@@ -115,16 +115,16 @@ export function EraseRectangle({
       let newH = rectH;
 
       if (corner === 'tl') {
-        newX = Math.min(rectX + dx, rectX + rectW - MIN);
-        newY = Math.min(rectY + dy, rectY + rectH - MIN);
+        newX = Math.max(0, Math.min(rectX + dx, rectX + rectW - MIN));
+        newY = Math.max(0, Math.min(rectY + dy, rectY + rectH - MIN));
         newW = rectW - (newX - rectX);
         newH = rectH - (newY - rectY);
       } else if (corner === 'tr') {
-        newY = Math.min(rectY + dy, rectY + rectH - MIN);
+        newY = Math.max(0, Math.min(rectY + dy, rectY + rectH - MIN));
         newW = Math.max(MIN, rectW + dx);
         newH = rectH - (newY - rectY);
       } else if (corner === 'bl') {
-        newX = Math.min(rectX + dx, rectX + rectW - MIN);
+        newX = Math.max(0, Math.min(rectX + dx, rectX + rectW - MIN));
         newW = rectW - (newX - rectX);
         newH = Math.max(MIN, rectH + dy);
       } else {
