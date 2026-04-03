@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useAtom, useSetAtom } from 'jotai';
 import { ArrowLeft, FileSearch, Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -19,25 +19,8 @@ import { useReceiptAnalysisMutation } from '@/features/receipt-upload/hooks/useR
 import type { ReceiptAnalysisResult } from '@/features/receipt-upload/types';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
-function parseError(
-  mutation: ReturnType<typeof useReceiptAnalysisMutation>
-): string | null {
-  if (mutation.error) {
-    return 'An error occurred while analyzing the document. Please try again.';
-  }
-  if (mutation.data && !mutation.data.success) {
-    return mutation.data.error || 'Failed to analyze document';
-  }
-  if (mutation.data && mutation.data.success && !mutation.data.is_receipt) {
-    const reason = mutation.data.receipt_data?.reason;
-    return reason
-      ? `The image does not appear to be a receipt: ${reason}`
-      : 'The uploaded image does not appear to be a payment document. Please upload a receipt, invoice, or bill.';
-  }
-  return null;
-}
-
 const PreviewPage = () => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const [processedImage, setProcessedImage] = useAtom(processedImageAtom);
   const setPendingImage = useSetAtom(pendingImageAtom);
@@ -105,7 +88,21 @@ const PreviewPage = () => {
 
   if (!processedImage || !localPreview) return null;
 
-  const error = parseError(mutation);
+  const error = (() => {
+    if (mutation.error) {
+      return t`An error occurred while analyzing the document. Please try again.`;
+    }
+    if (mutation.data && !mutation.data.success) {
+      return mutation.data.error || t`Failed to analyze document`;
+    }
+    if (mutation.data && mutation.data.success && !mutation.data.is_receipt) {
+      const reason = mutation.data.receipt_data?.reason;
+      return reason
+        ? t`The image does not appear to be a receipt: ${reason}`
+        : t`The uploaded image does not appear to be a payment document. Please upload a receipt, invoice, or bill.`;
+    }
+    return null;
+  })();
 
   return (
     <div className="mx-auto flex max-w-md flex-col gap-4 px-4 pb-10 pt-6">
