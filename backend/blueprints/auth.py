@@ -1,5 +1,9 @@
+import os
+
 from clerk_backend_api.security.types import AuthenticateRequestOptions
 from flask import current_app, request
+
+_is_dev = os.environ.get("VERCEL_ENV", "production") != "production"
 
 from models.user import User
 
@@ -9,7 +13,7 @@ def get_current_user():
     Authenticate the current request using Clerk and return the associated User.
     Returns the User object if authenticated, None otherwise.
     """
-    current_app.logger.warning(
+    current_app.logger.debug(
         f"[auth.get_current_user] Starting authentication for {request.method} request"
     )
 
@@ -22,7 +26,7 @@ def get_current_user():
             )
             return None
 
-        current_app.logger.warning(
+        current_app.logger.debug(
             f"[auth.get_current_user] Using authorized parties: {authorized_parties}"
         )
 
@@ -34,17 +38,17 @@ def get_current_user():
             )
             return None
 
-        current_app.logger.warning(
+        current_app.logger.debug(
             "[auth.get_current_user] Attempting Clerk authentication"
         )
 
-        # Log request method and all headers for warningging
-        current_app.logger.warning(
-            f"[auth.get_current_user] Request method: {request.method}"
+        current_app.logger.debug(
+            "[auth.get_current_user] Request: %s %s", request.method, request.path
         )
-        current_app.logger.warning(
-            f"[auth.get_current_user] All request headers: {dict(request.headers)}"
-        )
+        if _is_dev:
+            current_app.logger.debug(
+                "[auth.get_current_user] All request headers: %s", dict(request.headers)
+            )
 
         # Check if Authorization header is present
         # Try multiple ways to access the header (case-insensitive)
@@ -54,7 +58,7 @@ def get_current_user():
             or request.headers.get("AUTHORIZATION")
         )
         if not auth_header:
-            current_app.logger.warning(
+            current_app.logger.debug(
                 f"[auth.get_current_user] No Authorization header found for "
                 f"{request.method} request to {request.path}"
             )
@@ -62,17 +66,22 @@ def get_current_user():
             # Return None early to avoid calling authenticate_request
             return None
         else:
-            current_app.logger.warning(
-                f"[auth.get_current_user] Authorization header present: "
-                f"{auth_header[:20]}..."
+            current_app.logger.debug(
+                "[auth.get_current_user] Authorization header present, length=%d",
+                len(auth_header),
             )
+            if _is_dev:
+                current_app.logger.debug(
+                    "[auth.get_current_user] Authorization header prefix: %s...",
+                    auth_header[:20],
+                )
 
         try:
             request_state = sdk.authenticate_request(
                 request,
                 AuthenticateRequestOptions(authorized_parties=authorized_parties),
             )
-            current_app.logger.warning(
+            current_app.logger.debug(
                 "[auth.get_current_user] Clerk authentication successful"
             )
         except Exception as clerk_error:
@@ -84,7 +93,7 @@ def get_current_user():
 
         # Extract the user ID from the authenticated request
         payload = getattr(request_state, "payload", None) or {}
-        current_app.logger.warning(
+        current_app.logger.debug(
             f"[auth.get_current_user] Extracted payload keys: {list(payload.keys())}"
         )
 
@@ -96,7 +105,7 @@ def get_current_user():
             )
             return None
 
-        current_app.logger.warning(
+        current_app.logger.debug(
             f"[auth.get_current_user] Found Clerk user ID: {clerk_user_id}"
         )
 
@@ -109,7 +118,7 @@ def get_current_user():
             )
             return None
 
-        current_app.logger.warning(
+        current_app.logger.debug(
             f"[auth.get_current_user] User authenticated successfully: "
             f"user_id={user.id}, auth_user_id={user.auth_user_id}"
         )

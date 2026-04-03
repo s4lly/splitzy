@@ -61,6 +61,10 @@ msgstr "Acciones"
 msgid "Add"
 msgstr "Añadir"
 
+#: src/features/image-prep/components/EraseTool.tsx:86
+msgid "Add area"
+msgstr "Añadir área"
+
 #: src/features/receipt-collab/components/ReceiptCollabContent.tsx:96
 msgid "Add Item"
 msgstr "Añadir artículo"
@@ -72,6 +76,10 @@ msgstr "Añadir personas para dividir la cuenta"
 #: src/features/bill-split/components/PeopleManagerFormCollab.tsx:48
 msgid "Add People to Split With"
 msgstr "Añadir personas para dividir"
+
+#: src/features/image-prep/components/EraseTool.tsx:47
+msgid "Add rectangles over areas you want removed before analysis. Useful for hiding sensitive information."
+msgstr "Añada rectángulos sobre las áreas que desea eliminar antes del análisis. Útil para ocultar información confidencial."
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:215
 msgid "Add Users"
@@ -90,11 +98,19 @@ msgstr "Todos los artículos asignados"
 msgid "All people assigned."
 msgstr "Todas las personas asignadas."
 
-#: src/features/receipt-upload/ReceiptUploader.tsx:114
-msgid "Analyze Document"
-msgstr "Analizar documento"
+#: src/pages/PreviewPage.tsx:93
+msgid "An error occurred while analyzing the document. Please try again."
+msgstr "Se produjo un error al analizar el documento. Por favor, inténtelo de nuevo."
 
-#: src/features/receipt-upload/ReceiptUploader.tsx:109
+#: src/features/receipt-upload/ReceiptUploader.tsx:114
+#~ msgid "Analyze Document"
+#~ msgstr "Analizar documento"
+
+#: src/pages/PreviewPage.tsx:166
+msgid "Analyze receipt"
+msgstr "Analizar recibo"
+
+#: src/pages/PreviewPage.tsx:161
 msgid "Analyzing…"
 msgstr "Analizando…"
 
@@ -123,7 +139,7 @@ msgstr "Asignar {itemLabel}"
 msgid "Assign All"
 msgstr "Asignar todo"
 
-#: src/pages/HomePage.tsx:55
+#: src/pages/HomePage.tsx:60
 msgid "Assign items to people, split shared costs, and handle tips. No awkward math."
 msgstr "Asigna artículos a personas, divide costos compartidos y gestiona propinas. Sin cálculos complicados."
 
@@ -208,6 +224,10 @@ msgstr "Reclamar esta persona"
 msgid "Claiming…"
 msgstr "Reclamando…"
 
+#: src/features/image-prep/components/EraseTool.tsx:97
+msgid "Clear all"
+msgstr "Borrar todo"
+
 #: src/features/receipt-upload/components/PreviewImage.tsx:34
 msgid "Clear preview"
 msgstr "Borrar vista previa"
@@ -233,6 +253,10 @@ msgstr "Contraer asignaciones"
 msgid "Collapse edit"
 msgstr "Contraer edición"
 
+#: src/features/receipt-upload/ReceiptUploader.tsx:34
+msgid "Continue"
+msgstr "Continuar"
+
 #: src/pages/SettingsPage.tsx:214
 msgid "Control how and when you receive notifications."
 msgstr "Controla cómo y cuándo recibes notificaciones."
@@ -257,6 +281,14 @@ msgstr "Crea una cuenta o inicia sesión para reclamar \"{displayName}\". Podrá
 #: src/features/auth/SignInPromptCard.tsx:32
 msgid "Create an account or sign in to see your receipt analysis history and manage your documents."
 msgstr "Crea una cuenta o inicia sesión para ver tu historial de análisis de recibos y gestionar tus documentos."
+
+#: src/pages/ImagePrepPage.tsx:193
+msgid "Crop"
+msgstr "Recortar"
+
+#: src/pages/ImagePrepPage.tsx:184
+msgid "Crop or erase areas before analyzing"
+msgstr "Recortar o borrar áreas antes de analizar"
 
 #: src/pages/SettingsPage.tsx:252
 msgid "Customize the look and feel of the application."
@@ -316,6 +348,10 @@ msgstr "Descargar"
 msgid "Download failed"
 msgstr "Descarga fallida"
 
+#: src/features/image-prep/components/CropTool.tsx:58
+msgid "Drag to select the area you want to keep. Crop out anything that isn't part of the receipt to improve accuracy."
+msgstr "Arrastre para seleccionar el área que desea conservar. Recorte todo lo que no forme parte del recibo para mejorar la precisión."
+
 #: src/features/receipt-upload/components/DropZone.tsx:26
 msgid "Drop files here to upload"
 msgstr "Arrastra archivos aquí para subir"
@@ -361,13 +397,21 @@ msgstr "División equitativa — sin artículos específicos asignados"
 msgid "Equal Split Mode"
 msgstr "Modo de división equitativa"
 
+#: src/pages/ImagePrepPage.tsx:203
+msgid "Erase areas"
+msgstr "Borrar áreas"
+
 #: src/features/bill-split/BillSplitSectionCollab.tsx:18
 msgid "Evenly"
 msgstr "Equitativo"
 
-#: src/pages/HomePage.tsx:60
+#: src/pages/HomePage.tsx:65
 msgid "Every split is saved. Review, adjust, or settle up any time."
 msgstr "Cada división se guarda. Revisa, ajusta o liquida en cualquier momento."
+
+#: src/pages/PreviewPage.tsx:96
+msgid "Failed to analyze document"
+msgstr "Error al analizar el documento"
 
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:58
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:68
@@ -429,7 +473,7 @@ msgstr "Funciones experimentales"
 msgid "Final Total:"
 msgstr "Total final:"
 
-#: src/pages/HomePage.tsx:172
+#: src/pages/HomePage.tsx:193
 msgid "From receipt to settled,<0/><1>in a few taps.</1>"
 msgstr "Del recibo al pago,<0/><1>en pocos toques.</1>"
 
@@ -455,7 +499,7 @@ msgstr "operativo"
 msgid "Hide QR Code"
 msgstr "Ocultar código QR"
 
-#: src/pages/HomePage.tsx:169
+#: src/pages/HomePage.tsx:190
 msgid "how it works"
 msgstr "cómo funciona"
 
@@ -466,6 +510,10 @@ msgstr "Imagen descargada correctamente"
 #: src/features/receipt-image/ReceiptImageViewer.tsx:178
 msgid "Image hidden by owner"
 msgstr "Imagen oculta por el propietario"
+
+#: src/pages/ImagePrepPage.tsx:146
+msgid "Image processing failed"
+msgstr "Error al procesar la imagen"
 
 #: src/features/receipt-image/ReceiptImageViewer.tsx:107
 msgid "Image settings"
@@ -651,9 +699,18 @@ msgstr "Total después de impuestos:"
 msgid "Pre-tax Total:"
 msgstr "Total antes de impuestos:"
 
+#: src/pages/ImagePrepPage.tsx:181
+msgid "Prepare image"
+msgstr "Preparar imagen"
+
 #: src/features/receipt-upload/components/PreviewImage.tsx:24
 msgid "Preview"
 msgstr "Vista previa"
+
+#: src/pages/ImagePrepPage.tsx:248
+#: src/pages/PreviewPage.tsx:123
+msgid "Preview result"
+msgstr "Vista previa del resultado"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:93
 #: src/features/bill-split/components/BillBreakdownView.tsx:253
@@ -726,7 +783,7 @@ msgstr "Imagen del recibo"
 msgid "Receipt image not available"
 msgstr "Imagen del recibo no disponible"
 
-#: src/pages/HomePage.tsx:144
+#: src/pages/HomePage.tsx:165
 msgid "receipt splitting, simplified"
 msgstr "dividir recibos, simplificado"
 
@@ -743,6 +800,10 @@ msgstr "Eliminar {displayName}"
 msgid "Reset All Flags"
 msgstr "Restablecer todas las opciones"
 
+#: src/features/image-prep/components/CropTool.tsx:89
+msgid "Reset crop"
+msgstr "Restablecer recorte"
+
 #: src/features/receipt-image/ReceiptImageViewer.tsx:167
 msgid "Reset image zoom"
 msgstr "Restablecer zoom de imagen"
@@ -755,11 +816,11 @@ msgstr "Reintentar"
 msgid "Retrying..."
 msgstr "Reintentando..."
 
-#: src/pages/HomePage.tsx:148
+#: src/pages/HomePage.tsx:169
 msgid "Scan a receipt, divide costs fairly, settle up in seconds."
 msgstr "Escanea un recibo, divide costos justamente, liquida en segundos."
 
-#: src/pages/HomePage.tsx:49
+#: src/pages/HomePage.tsx:54
 msgid "Scan any receipt"
 msgstr "Escanea cualquier recibo"
 
@@ -767,7 +828,7 @@ msgstr "Escanea cualquier recibo"
 msgid "Select a category"
 msgstr "Selecciona una categoría"
 
-#: src/pages/HomePage.tsx:132
+#: src/pages/HomePage.tsx:153
 msgid "Service temporarily unavailable. Please try again later."
 msgstr "Servicio temporalmente no disponible. Por favor, inténtalo más tarde."
 
@@ -800,7 +861,7 @@ msgstr "Inicia sesión para reclamar {displayName}"
 msgid "Sign in to continue"
 msgstr "Inicia sesión para continuar"
 
-#: src/pages/HomePage.tsx:217
+#: src/pages/HomePage.tsx:238
 msgid "Sign in to see your history →"
 msgstr "Inicia sesión para ver tu historial →"
 
@@ -817,7 +878,7 @@ msgstr "¿Dividir entre cuántas personas?"
 msgid "Split Evenly"
 msgstr "Dividir equitativamente"
 
-#: src/pages/HomePage.tsx:54
+#: src/pages/HomePage.tsx:59
 msgid "Split fairly"
 msgstr "Divide justamente"
 
@@ -862,7 +923,7 @@ msgstr "Cambiar a esta persona"
 msgid "Switching…"
 msgstr "Cambiando…"
 
-#: src/pages/HomePage.tsx:50
+#: src/pages/HomePage.tsx:55
 msgid "Take a photo and we extract every line item automatically — no manual entry."
 msgstr "Toma una foto y extraemos cada artículo automáticamente — sin entrada manual."
 
@@ -896,6 +957,10 @@ msgstr "La tasa de impuesto es aproximadamente {formattedRate}% y se ha distribu
 msgid "Tax:"
 msgstr "Impuesto:"
 
+#: src/pages/PreviewPage.tsx:101
+msgid "The image does not appear to be a receipt: {reason}"
+msgstr "La imagen no parece ser un recibo: {reason}"
+
 #: src/features/receipt-image/ReceiptImageViewer.tsx:191
 msgid "The original receipt image might not be stored or is no longer accessible"
 msgstr "La imagen original del recibo podría no estar almacenada o ya no es accesible"
@@ -907,6 +972,10 @@ msgstr "La imagen del recibo solo es visible para el propietario"
 #: src/features/receipt-viewer/ReceiptSummaryCard.tsx:64
 msgid "The tax is already included in the individual item prices shown."
 msgstr "El impuesto ya está incluido en los precios individuales mostrados."
+
+#: src/pages/PreviewPage.tsx:102
+msgid "The uploaded image does not appear to be a payment document. Please upload a receipt, invoice, or bill."
+msgstr "La imagen subida no parece ser un documento de pago. Por favor, suba un recibo, una factura o un comprobante."
 
 #: src/features/line-items/components/NoLineItemsMessage.tsx:22
 msgid "This document doesn't include detailed line items. The total amount has been equally divided among all people."
@@ -947,11 +1016,11 @@ msgstr "Total"
 msgid "Total:"
 msgstr "Total:"
 
-#: src/pages/HomePage.tsx:59
+#: src/pages/HomePage.tsx:64
 msgid "Track history"
 msgstr "Seguimiento del historial"
 
-#: src/pages/HomePage.tsx:37
+#: src/pages/HomePage.tsx:42
 #: src/pages/ReceiptsPage.tsx:33
 msgid "Unable to load receipt history. Please try again later."
 msgstr "No se pudo cargar el historial de recibos. Por favor, inténtalo más tarde."
@@ -1002,6 +1071,10 @@ msgstr "Sube un recibo para comenzar"
 #: src/pages/SettingsPage.tsx:164
 msgid "Use new desktop table design for receipts."
 msgstr "Usar nuevo diseño de tabla de escritorio para recibos."
+
+#: src/pages/PreviewPage.tsx:126
+msgid "Verify edits look correct before analyzing"
+msgstr "Verifique que las ediciones sean correctas antes de analizar"
 
 #: src/components/Receipt/ReceiptHistory.tsx:106
 msgid "View"

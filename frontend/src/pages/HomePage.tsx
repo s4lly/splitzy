@@ -3,17 +3,22 @@ import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery } from '@rocicorp/zero/react';
 import { motion } from 'framer-motion';
+import { useSetAtom } from 'jotai';
 import { AlertCircle } from 'lucide-react';
-import React, { Suspense, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
 import ReceiptHistorySkeleton from '@/components/Receipt/ReceiptHistorySkeleton';
 import { Card } from '@/components/ui/card';
+import { pendingImageAtom } from '@/features/image-prep/atoms/imagePrepAtoms';
 import {
-  ReceiptAnalysisResult,
-  ReceiptUploader,
-} from '@/features/receipt-upload';
+  completedCropAtom,
+  cropAtom,
+  eraseRectsAtom,
+  imageDimsAtom,
+} from '@/features/image-prep/atoms/imagePrepStateAtoms';
+import { ReceiptUploader } from '@/features/receipt-upload/ReceiptUploader';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { fromZeroReceipt } from '@/lib/receiptTypes';
@@ -79,6 +84,11 @@ const fadeUp = (delay = 0, reducedMotion = false) =>
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const setPendingImage = useSetAtom(pendingImageAtom);
+  const setCrop = useSetAtom(cropAtom);
+  const setCompletedCrop = useSetAtom(completedCropAtom);
+  const setImageDims = useSetAtom(imageDimsAtom);
+  const setEraseRects = useSetAtom(eraseRectsAtom);
   const [apiStatus, setApiStatus] = useState('checking');
   const shouldReduceMotion = useReducedMotion();
   const { t } = useLingui();
@@ -103,13 +113,24 @@ const HomePage = () => {
     checkApiHealth();
   }, []);
 
-  const handleAnalysisComplete = (result: ReceiptAnalysisResult) => {
-    if (result?.success && result?.receipt_data?.id) {
-      navigate(`/receipt/${result.receipt_data.id}`);
-    } else {
-      console.error('Invalid receipt data received:', result);
-    }
-  };
+  const handleContinue = useCallback(
+    (file: File) => {
+      setCrop(undefined);
+      setCompletedCrop(null);
+      setImageDims(null);
+      setEraseRects([]);
+      setPendingImage(file);
+      navigate('/prepare');
+    },
+    [
+      navigate,
+      setCrop,
+      setCompletedCrop,
+      setImageDims,
+      setEraseRects,
+      setPendingImage,
+    ]
+  );
 
   return (
     <div className="mx-auto flex max-w-md flex-col gap-6 px-4 pb-10 pt-8">
@@ -117,7 +138,7 @@ const HomePage = () => {
 
       {/* ── Upload ── */}
       <motion.section {...fadeUp(0.1, shouldReduceMotion)}>
-        <ReceiptUploader onAnalysisComplete={handleAnalysisComplete} />
+        <ReceiptUploader onContinue={handleContinue} />
 
         {apiStatus === 'unhealthy' && (
           <div

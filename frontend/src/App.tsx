@@ -8,6 +8,8 @@ import NotFound from '@/components/routes/NotFound';
 import ReceiptRoute from '@/components/routes/ReceiptRoute';
 import { Toaster } from '@/components/ui/sonner';
 import HomePage from '@/pages/HomePage';
+import ImagePrepPage from '@/pages/ImagePrepPage';
+import PreviewPage from '@/pages/PreviewPage';
 import ReceiptsPage from '@/pages/ReceiptsPage';
 import SettingsPage from '@/pages/SettingsPage';
 
@@ -37,6 +39,12 @@ function App() {
 
           {/* Home */}
           <Route path="/" element={<HomePage />} />
+
+          {/* Image preparation (pre-analysis) */}
+          <Route path="/prepare" element={<ImagePrepPage />} />
+
+          {/* Preview processed image before sending to analyze */}
+          <Route path="/preview" element={<PreviewPage />} />
 
           {/* Receipts list */}
           <Route path="/receipts" element={<ReceiptsPage />} />
