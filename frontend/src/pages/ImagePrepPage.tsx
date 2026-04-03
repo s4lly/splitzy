@@ -1,7 +1,7 @@
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useAtom, useSetAtom } from 'jotai';
 import { ArrowLeft, Eye } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ import {
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 const ImagePrepPage = () => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const [pendingImage, setPendingImage] = useAtom(pendingImageAtom);
   const setProcessedImage = useSetAtom(processedImageAtom);
@@ -40,6 +41,9 @@ const ImagePrepPage = () => {
   const [eraseRects, setEraseRects] = useAtom(eraseRectsAtom);
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processingError, setProcessingError] = useState<string | null>(null);
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
 
   // Guard: redirect on mount only if no image is pending (handles direct URL access)
   useEffect(() => {
@@ -124,6 +128,7 @@ const ImagePrepPage = () => {
     }
 
     setIsProcessing(true);
+    setProcessingError(null);
     try {
       const processed = await processImage(
         pendingImage,
@@ -132,12 +137,18 @@ const ImagePrepPage = () => {
         eraseRects,
         imageDims ?? undefined
       );
+      if (!mountedRef.current) return;
       setProcessedImage(processed);
       navigate('/preview');
     } catch (err) {
-      console.error('Image processing failed:', err);
+      if (!mountedRef.current) return;
+      setProcessingError(
+        err instanceof Error ? err.message : t`Image processing failed`
+      );
     } finally {
-      setIsProcessing(false);
+      if (mountedRef.current) {
+        setIsProcessing(false);
+      }
     }
   }, [
     completedCrop,
@@ -218,6 +229,12 @@ const ImagePrepPage = () => {
           />
         </TabsContent>
       </Tabs>
+
+      {processingError && (
+        <p className="text-sm text-destructive" role="alert">
+          {processingError}
+        </p>
+      )}
 
       {/* Preview button */}
       <Button

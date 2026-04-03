@@ -282,11 +282,11 @@ msgstr "Erstellen Sie ein Konto oder melden Sie sich an, um \"{displayName}\" zu
 msgid "Create an account or sign in to see your receipt analysis history and manage your documents."
 msgstr "Erstelle ein Konto oder melde dich an, um deinen Beleganalyse-Verlauf zu sehen und deine Dokumente zu verwalten."
 
-#: src/pages/ImagePrepPage.tsx:182
+#: src/pages/ImagePrepPage.tsx:193
 msgid "Crop"
 msgstr "Zuschneiden"
 
-#: src/pages/ImagePrepPage.tsx:173
+#: src/pages/ImagePrepPage.tsx:184
 msgid "Crop or erase areas before analyzing"
 msgstr "Bereiche zuschneiden oder löschen vor der Analyse"
 
@@ -397,7 +397,7 @@ msgstr "Gleichmäßige Aufteilung — keine bestimmten Artikel zugewiesen"
 msgid "Equal Split Mode"
 msgstr "Gleichmäßiger Teilungsmodus"
 
-#: src/pages/ImagePrepPage.tsx:192
+#: src/pages/ImagePrepPage.tsx:203
 msgid "Erase areas"
 msgstr "Bereiche löschen"
 
@@ -510,6 +510,10 @@ msgstr "Bild erfolgreich heruntergeladen"
 #: src/features/receipt-image/ReceiptImageViewer.tsx:178
 msgid "Image hidden by owner"
 msgstr "Bild vom Eigentümer ausgeblendet"
+
+#: src/pages/ImagePrepPage.tsx:146
+msgid "Image processing failed"
+msgstr "Bildverarbeitung fehlgeschlagen"
 
 #: src/features/receipt-image/ReceiptImageViewer.tsx:107
 msgid "Image settings"
@@ -695,7 +699,7 @@ msgstr "Summe nach Steuern:"
 msgid "Pre-tax Total:"
 msgstr "Summe vor Steuern:"
 
-#: src/pages/ImagePrepPage.tsx:170
+#: src/pages/ImagePrepPage.tsx:181
 msgid "Prepare image"
 msgstr "Bild vorbereiten"
 
@@ -703,7 +707,7 @@ msgstr "Bild vorbereiten"
 msgid "Preview"
 msgstr "Vorschau"
 
-#: src/pages/ImagePrepPage.tsx:231
+#: src/pages/ImagePrepPage.tsx:248
 #: src/pages/PreviewPage.tsx:123
 msgid "Preview result"
 msgstr "Vorschau des Ergebnisses"

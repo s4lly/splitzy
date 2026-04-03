@@ -282,11 +282,11 @@ msgstr "Create an account or sign in to claim \"{displayName}\" as yourself. You
 msgid "Create an account or sign in to see your receipt analysis history and manage your documents."
 msgstr "Create an account or sign in to see your receipt analysis history and manage your documents."
 
-#: src/pages/ImagePrepPage.tsx:182
+#: src/pages/ImagePrepPage.tsx:193
 msgid "Crop"
 msgstr "Crop"
 
-#: src/pages/ImagePrepPage.tsx:173
+#: src/pages/ImagePrepPage.tsx:184
 msgid "Crop or erase areas before analyzing"
 msgstr "Crop or erase areas before analyzing"
 
@@ -397,7 +397,7 @@ msgstr "Equal split - no specific items assigned"
 msgid "Equal Split Mode"
 msgstr "Equal Split Mode"
 
-#: src/pages/ImagePrepPage.tsx:192
+#: src/pages/ImagePrepPage.tsx:203
 msgid "Erase areas"
 msgstr "Erase areas"
 
@@ -510,6 +510,10 @@ msgstr "Image downloaded successfully"
 #: src/features/receipt-image/ReceiptImageViewer.tsx:178
 msgid "Image hidden by owner"
 msgstr "Image hidden by owner"
+
+#: src/pages/ImagePrepPage.tsx:146
+msgid "Image processing failed"
+msgstr "Image processing failed"
 
 #: src/features/receipt-image/ReceiptImageViewer.tsx:107
 msgid "Image settings"
@@ -695,7 +699,7 @@ msgstr "Post-tax Total:"
 msgid "Pre-tax Total:"
 msgstr "Pre-tax Total:"
 
-#: src/pages/ImagePrepPage.tsx:170
+#: src/pages/ImagePrepPage.tsx:181
 msgid "Prepare image"
 msgstr "Prepare image"
 
@@ -703,7 +707,7 @@ msgstr "Prepare image"
 msgid "Preview"
 msgstr "Preview"
 
-#: src/pages/ImagePrepPage.tsx:231
+#: src/pages/ImagePrepPage.tsx:248
 #: src/pages/PreviewPage.tsx:123
 msgid "Preview result"
 msgstr "Preview result"
