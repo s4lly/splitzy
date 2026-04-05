@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { useCallback, useRef } from 'react';
 
 import type { EraseRect } from '@/features/image-prep/utils/canvasOperations';
+import { cn } from '@/lib/utils';
 
 interface Props {
   rect: EraseRect;
@@ -326,7 +327,19 @@ export function EraseRectangle({
     br: t`bottom-right`,
   };
 
-  const handleStyle = `absolute z-10 bg-white border border-gray-400 rounded-sm touch-none cursor-nwse-resize focus:outline-none focus:ring-2 focus:ring-blue-500`;
+  const handleStyle = cn(
+    'absolute',
+    'z-10',
+    'bg-white',
+    'border',
+    'border-gray-400',
+    'rounded-sm',
+    'touch-none',
+    'cursor-nwse-resize',
+    'focus:outline-none',
+    'focus:ring-2',
+    'focus:ring-blue-500',
+  );
 
   return (
     <div
