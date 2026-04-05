@@ -43,7 +43,12 @@ const ImagePrepPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingError, setProcessingError] = useState<string | null>(null);
   const mountedRef = useRef(true);
-  useEffect(() => () => { mountedRef.current = false; }, []);
+  useEffect(
+    () => () => {
+      mountedRef.current = false;
+    },
+    []
+  );
 
   // Guard: redirect on mount only if no image is pending (handles direct URL access)
   useEffect(() => {
