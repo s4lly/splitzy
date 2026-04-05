@@ -164,6 +164,10 @@ msgstr "Assignment in progress"
 msgid "Authentication Error"
 msgstr "Authentication Error"
 
+#: src/pages/ImagePrepPage.tsx:173
+msgid "Back"
+msgstr "Back"
+
 #: src/pages/SettingsPage.tsx:80
 msgid "Back to Settings"
 msgstr "Back to Settings"
@@ -718,6 +722,10 @@ msgstr "Pre-tax Total:"
 #: src/pages/ImagePrepPage.tsx:181
 msgid "Prepare image"
 msgstr "Prepare image"
+
+#: src/pages/ImagePrepPage.tsx:33
+msgid "Prepare Image"
+msgstr "Prepare Image"
 
 #: src/features/receipt-upload/components/PreviewImage.tsx:24
 msgid "Preview"

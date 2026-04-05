@@ -164,6 +164,10 @@ msgstr "割り当て中"
 msgid "Authentication Error"
 msgstr "認証エラー"
 
+#: src/pages/ImagePrepPage.tsx:173
+msgid "Back"
+msgstr "戻る"
+
 #: src/pages/SettingsPage.tsx:80
 msgid "Back to Settings"
 msgstr "設定に戻る"
@@ -717,6 +721,10 @@ msgstr "税抜合計："
 
 #: src/pages/ImagePrepPage.tsx:181
 msgid "Prepare image"
+msgstr "画像を準備"
+
+#: src/pages/ImagePrepPage.tsx:33
+msgid "Prepare Image"
 msgstr "画像を準備"
 
 #: src/features/receipt-upload/components/PreviewImage.tsx:24

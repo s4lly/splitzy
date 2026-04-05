@@ -156,6 +156,10 @@ msgstr "分配进行中"
 msgid "Authentication Error"
 msgstr "身份验证错误"
 
+#: src/pages/ImagePrepPage.tsx:173
+msgid "Back"
+msgstr "返回"
+
 #: src/pages/SettingsPage.tsx:80
 msgid "Back to Settings"
 msgstr "返回设置"
@@ -676,6 +680,10 @@ msgstr "税前总额："
 
 #: src/pages/ImagePrepPage.tsx:181
 msgid "Prepare image"
+msgstr "准备图片"
+
+#: src/pages/ImagePrepPage.tsx:33
+msgid "Prepare Image"
 msgstr "准备图片"
 
 #: src/features/receipt-upload/components/PreviewImage.tsx:24

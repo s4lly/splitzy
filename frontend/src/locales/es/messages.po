@@ -164,6 +164,10 @@ msgstr "Asignación en progreso"
 msgid "Authentication Error"
 msgstr "Error de autenticación"
 
+#: src/pages/ImagePrepPage.tsx:173
+msgid "Back"
+msgstr "Atrás"
+
 #: src/pages/SettingsPage.tsx:80
 msgid "Back to Settings"
 msgstr "Volver a Configuración"
@@ -717,6 +721,10 @@ msgstr "Total antes de impuestos:"
 
 #: src/pages/ImagePrepPage.tsx:181
 msgid "Prepare image"
+msgstr "Preparar imagen"
+
+#: src/pages/ImagePrepPage.tsx:33
+msgid "Prepare Image"
 msgstr "Preparar imagen"
 
 #: src/features/receipt-upload/components/PreviewImage.tsx:24

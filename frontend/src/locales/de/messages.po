@@ -164,6 +164,10 @@ msgstr "Zuweisung läuft"
 msgid "Authentication Error"
 msgstr "Authentifizierungsfehler"
 
+#: src/pages/ImagePrepPage.tsx:173
+msgid "Back"
+msgstr "Zurück"
+
 #: src/pages/SettingsPage.tsx:80
 msgid "Back to Settings"
 msgstr "Zurück zu Einstellungen"
@@ -717,6 +721,10 @@ msgstr "Summe vor Steuern:"
 
 #: src/pages/ImagePrepPage.tsx:181
 msgid "Prepare image"
+msgstr "Bild vorbereiten"
+
+#: src/pages/ImagePrepPage.tsx:33
+msgid "Prepare Image"
 msgstr "Bild vorbereiten"
 
 #: src/features/receipt-upload/components/PreviewImage.tsx:24

@@ -164,6 +164,10 @@ msgstr "Attribution en cours"
 msgid "Authentication Error"
 msgstr "Erreur d'authentification"
 
+#: src/pages/ImagePrepPage.tsx:173
+msgid "Back"
+msgstr "Retour"
+
 #: src/pages/SettingsPage.tsx:80
 msgid "Back to Settings"
 msgstr "Retour aux paramètres"
@@ -717,6 +721,10 @@ msgstr "Total avant taxes :"
 
 #: src/pages/ImagePrepPage.tsx:181
 msgid "Prepare image"
+msgstr "Préparer l'image"
+
+#: src/pages/ImagePrepPage.tsx:33
+msgid "Prepare Image"
 msgstr "Préparer l'image"
 
 #: src/features/receipt-upload/components/PreviewImage.tsx:24

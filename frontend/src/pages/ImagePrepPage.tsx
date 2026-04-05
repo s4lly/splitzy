@@ -30,7 +30,7 @@ const ImagePrepPage = () => {
   const [pendingImage, setPendingImage] = useAtom(pendingImageAtom);
   const setProcessedImage = useSetAtom(processedImageAtom);
 
-  useDocumentTitle('Prepare Image');
+  useDocumentTitle(t`Prepare Image`);
 
   // Crop state (atoms so edits survive /preview → back navigation)
   const [crop, setCrop] = useAtom(cropAtom);
@@ -170,7 +170,7 @@ const ImagePrepPage = () => {
           variant="ghost"
           size="icon"
           onClick={handleBack}
-          aria-label="Back"
+          aria-label={t`Back`}
           className="-ml-2 shrink-0"
           disabled={isProcessing}
         >
