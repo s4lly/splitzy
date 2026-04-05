@@ -11,8 +11,24 @@ interface Props {
   onRemove: () => void;
 }
 
-const HANDLE_SIZE = 12; // px, for the resize corners
+/** Size of the corner resize handles in pixels. */
+const HANDLE_SIZE = 12;
 
+/**
+ * Renders an interactive erase rectangle overlay on top of an image.
+ * Users can drag to reposition, resize via corner handles, and remove
+ * the rectangle. All coordinates are stored as percentages (0–100) of
+ * the parent container so the rectangle scales with the image.
+ *
+ * Supports both pointer (mouse/touch) and keyboard interactions for
+ * accessibility.
+ *
+ * @param rect - Current position and dimensions of the erase rectangle (in %).
+ * @param containerRef - Ref to the parent container used to convert pixel
+ *   deltas into percentage-based coordinates.
+ * @param onChange - Called with the updated rect whenever position or size changes.
+ * @param onRemove - Called when the user clicks the remove button.
+ */
 export function EraseRectangle({
   rect,
   containerRef,
@@ -20,6 +36,10 @@ export function EraseRectangle({
   onRemove,
 }: Props) {
   const { t } = useLingui();
+
+  // Snapshot of pointer + rect state at the moment a drag starts.
+  // Stored in a ref so pointer-move handlers can compute deltas without
+  // triggering re-renders on every frame.
   const dragStartRef = useRef<{
     pointerX: number;
     pointerY: number;
@@ -27,6 +47,8 @@ export function EraseRectangle({
     rectY: number;
   } | null>(null);
 
+  // Same idea as dragStartRef but for corner-resize gestures, which also
+  // need to remember the starting size and which corner was grabbed.
   const resizeStartRef = useRef<{
     pointerX: number;
     pointerY: number;
@@ -37,6 +59,11 @@ export function EraseRectangle({
     corner: 'tl' | 'tr' | 'bl' | 'br';
   } | null>(null);
 
+  /**
+   * Returns the current pixel dimensions of the parent container.
+   * Used to convert pointer pixel deltas into percentage offsets.
+   * Falls back to 1×1 to avoid division by zero if the ref is unset.
+   */
   const getContainerSize = useCallback(() => {
     const el = containerRef.current;
     if (!el) return { w: 1, h: 1 };
@@ -44,6 +71,11 @@ export function EraseRectangle({
   }, [containerRef]);
 
   // ── Drag to move ──────────────────────────────────────────────────────────
+
+  /**
+   * Initiates a drag-to-move gesture by capturing the pointer and
+   * snapshotting the current pointer position and rect origin.
+   */
   const onDragPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       e.stopPropagation();
@@ -58,12 +90,21 @@ export function EraseRectangle({
     [rect.x, rect.y]
   );
 
+  /**
+   * Handles pointer movement during a drag-to-move gesture.
+   * Converts the pixel delta since drag start into a percentage offset,
+   * then clamps the new position so the rectangle stays within bounds.
+   */
   const onDragPointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (!dragStartRef.current) return;
+
+      // Convert pixel delta to percentage of container size
       const { w, h } = getContainerSize();
       const dx = ((e.clientX - dragStartRef.current.pointerX) / w) * 100;
       const dy = ((e.clientY - dragStartRef.current.pointerY) / h) * 100;
+
+      // Clamp so the rectangle cannot be dragged outside the container
       const newX = Math.max(
         0,
         Math.min(100 - rect.width, dragStartRef.current.rectX + dx)
@@ -77,11 +118,18 @@ export function EraseRectangle({
     [getContainerSize, onChange, rect]
   );
 
+  /** Ends the drag-to-move gesture by clearing the snapshot. */
   const onDragPointerUp = useCallback(() => {
     dragStartRef.current = null;
   }, []);
 
   // ── Corner resize ─────────────────────────────────────────────────────────
+
+  /**
+   * Initiates a corner-resize gesture by capturing the pointer and
+   * snapshotting the current pointer position, rect geometry, and
+   * which corner handle was grabbed.
+   */
   const onResizePointerDown = useCallback(
     (
       e: React.PointerEvent<HTMLDivElement>,
@@ -102,9 +150,17 @@ export function EraseRectangle({
     [rect]
   );
 
+  /**
+   * Handles pointer movement during a corner-resize gesture.
+   * Each corner affects different edges: top-left moves origin and shrinks,
+   * bottom-right only expands, etc. The rect is always clamped to a minimum
+   * size (5%) and kept within the container bounds.
+   */
   const onResizePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (!resizeStartRef.current) return;
+
+      // Convert pixel delta to percentage of container size
       const { w, h } = getContainerSize();
       const dx = ((e.clientX - resizeStartRef.current.pointerX) / w) * 100;
       const dy = ((e.clientY - resizeStartRef.current.pointerY) / h) * 100;
@@ -116,6 +172,9 @@ export function EraseRectangle({
       let newW = rectW;
       let newH = rectH;
 
+      // Apply delta to the edges affected by this corner.
+      // For "anchor" edges (opposite the grabbed corner), only size changes.
+      // For "moving" edges (adjacent to the grabbed corner), origin shifts too.
       if (corner === 'tl') {
         newX = Math.max(0, Math.min(rectX + dx, rectX + rectW - MIN));
         newY = Math.max(0, Math.min(rectY + dy, rectY + rectH - MIN));
@@ -130,11 +189,12 @@ export function EraseRectangle({
         newW = rectW - (newX - rectX);
         newH = Math.max(MIN, rectH + dy);
       } else {
+        // bottom-right: simplest case — just expand/shrink width and height
         newW = Math.max(MIN, rectW + dx);
         newH = Math.max(MIN, rectH + dy);
       }
 
-      // Clamp within container
+      // Final clamp: ensure the rectangle stays within the 0–100% container
       newX = Math.max(0, newX);
       newY = Math.max(0, newY);
       newW = Math.min(newW, 100 - newX);
@@ -145,11 +205,18 @@ export function EraseRectangle({
     [getContainerSize, onChange, rect]
   );
 
+  /** Ends the corner-resize gesture by clearing the snapshot. */
   const onResizePointerUp = useCallback(() => {
     resizeStartRef.current = null;
   }, []);
 
   // ── Keyboard move ─────────────────────────────────────────────────────────
+
+  /**
+   * Moves the rectangle in response to arrow key presses.
+   * Holding Shift increases the step from 1% to 5% for faster repositioning.
+   * The new position is clamped so the rectangle stays within the container.
+   */
   const onMoveKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       const step = e.shiftKey ? 5 : 1;
@@ -178,16 +245,32 @@ export function EraseRectangle({
   );
 
   // ── Keyboard resize ───────────────────────────────────────────────────────
+
+  /**
+   * Resizes the rectangle from a specific corner in response to arrow key
+   * presses. The behavior mirrors the pointer resize: left-edge corners shift
+   * the origin and adjust width, while right-edge corners only change width.
+   * Holding Shift increases the step from 1% to 5%.
+   *
+   * @param e - The keyboard event from the focused corner handle.
+   * @param corner - Which corner handle is focused ('tl', 'tr', 'bl', 'br').
+   */
   const onResizeKeyDown = useCallback(
     (e: React.KeyboardEvent, corner: 'tl' | 'tr' | 'bl' | 'br') => {
       const step = e.shiftKey ? 5 : 1;
       const MIN = 5;
       let { x: newX, y: newY, width: newW, height: newH } = rect;
 
+      /**
+       * Expands or contracts a single axis from the corner's edge.
+       * For left/top edges this shifts the origin; for right/bottom edges
+       * it only changes the dimension. Values are clamped to stay within
+       * the container and respect the minimum size.
+       */
       const grow = (axis: 'x' | 'y', dir: 1 | -1) => {
         if (axis === 'x') {
           if (corner.endsWith('l')) {
-            // left edge: move x, adjust width
+            // Left edge: shift origin and compensate width
             const moved = Math.max(
               0,
               Math.min(newX + dir * step, newX + newW - MIN)
@@ -195,10 +278,12 @@ export function EraseRectangle({
             newW += newX - moved;
             newX = moved;
           } else {
+            // Right edge: just grow/shrink width
             newW = Math.max(MIN, Math.min(newW + dir * step, 100 - newX));
           }
         } else {
           if (corner.startsWith('t')) {
+            // Top edge: shift origin and compensate height
             const moved = Math.max(
               0,
               Math.min(newY + dir * step, newY + newH - MIN)
@@ -206,6 +291,7 @@ export function EraseRectangle({
             newH += newY - moved;
             newY = moved;
           } else {
+            // Bottom edge: just grow/shrink height
             newH = Math.max(MIN, Math.min(newH + dir * step, 100 - newY));
           }
         }
