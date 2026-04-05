@@ -185,6 +185,14 @@ msgstr "Billing"
 msgid "Billing settings content would go here."
 msgstr "Billing settings content would go here."
 
+#: src/features/image-prep/components/EraseRectangle.tsx:239
+msgid "bottom-left"
+msgstr "bottom-left"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:240
+msgid "bottom-right"
+msgstr "bottom-right"
+
 #: src/components/Receipt/LineItemAddForm.tsx:135
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:95
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:229
@@ -400,6 +408,14 @@ msgstr "Equal Split Mode"
 #: src/pages/ImagePrepPage.tsx:203
 msgid "Erase areas"
 msgstr "Erase areas"
+
+#. placeholder {0}: Math.round(rect.x)
+#. placeholder {1}: Math.round(rect.y)
+#. placeholder {2}: Math.round(rect.width)
+#. placeholder {3}: Math.round(rect.height)
+#: src/features/image-prep/components/EraseRectangle.tsx:260
+msgid "Erased area at {0}% left, {1}% top, {2}% wide, {3}% tall. Use arrow keys to move, Shift+arrow for larger steps."
+msgstr "Erased area at {0}% left, {1}% top, {2}% wide, {3}% tall. Use arrow keys to move, Shift+arrow for larger steps."
 
 #: src/features/bill-split/BillSplitSectionCollab.tsx:18
 msgid "Evenly"
@@ -796,6 +812,10 @@ msgstr "Receipt Viewer"
 msgid "Remove {displayName}"
 msgstr "Remove {displayName}"
 
+#: src/features/image-prep/components/EraseRectangle.tsx:275
+msgid "Remove erased area"
+msgstr "Remove erased area"
+
 #: src/pages/SettingsPage.tsx:151
 msgid "Reset All Flags"
 msgstr "Reset All Flags"
@@ -807,6 +827,11 @@ msgstr "Reset crop"
 #: src/features/receipt-image/ReceiptImageViewer.tsx:167
 msgid "Reset image zoom"
 msgstr "Reset image zoom"
+
+#. placeholder {0}: cornerLabel[corner]
+#: src/features/image-prep/components/EraseRectangle.tsx:287
+msgid "Resize from {0} corner. Use arrow keys to resize, Shift+arrow for larger steps."
+msgstr "Resize from {0} corner. Use arrow keys to resize, Shift+arrow for larger steps."
 
 #: src/context/ZeroProvider.tsx:153
 msgid "Retry"
@@ -1006,6 +1031,14 @@ msgstr "Tip:"
 #: src/components/ThemeToggle.tsx:23
 msgid "Toggle theme"
 msgstr "Toggle theme"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:237
+msgid "top-left"
+msgstr "top-left"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:238
+msgid "top-right"
+msgstr "top-right"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:96
 #: src/features/bill-split/components/BillBreakdownView.tsx:346

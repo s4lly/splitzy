@@ -185,6 +185,14 @@ msgstr "請求"
 msgid "Billing settings content would go here."
 msgstr "請求設定の内容がここに表示されます。"
 
+#: src/features/image-prep/components/EraseRectangle.tsx:239
+msgid "bottom-left"
+msgstr "左下"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:240
+msgid "bottom-right"
+msgstr "右下"
+
 #: src/components/Receipt/LineItemAddForm.tsx:135
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:95
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:229
@@ -400,6 +408,14 @@ msgstr "均等分割モード"
 #: src/pages/ImagePrepPage.tsx:203
 msgid "Erase areas"
 msgstr "エリアを消去"
+
+#. placeholder {0}: Math.round(rect.x)
+#. placeholder {1}: Math.round(rect.y)
+#. placeholder {2}: Math.round(rect.width)
+#. placeholder {3}: Math.round(rect.height)
+#: src/features/image-prep/components/EraseRectangle.tsx:260
+msgid "Erased area at {0}% left, {1}% top, {2}% wide, {3}% tall. Use arrow keys to move, Shift+arrow for larger steps."
+msgstr "消去領域: 左 {0}%、上 {1}%、幅 {2}%、高さ {3}%。矢印キーで移動、Shift+矢印で大きく移動します。"
 
 #: src/features/bill-split/BillSplitSectionCollab.tsx:18
 msgid "Evenly"
@@ -796,6 +812,10 @@ msgstr "レシートビューア"
 msgid "Remove {displayName}"
 msgstr "{displayName}を削除"
 
+#: src/features/image-prep/components/EraseRectangle.tsx:275
+msgid "Remove erased area"
+msgstr "消去領域を削除"
+
 #: src/pages/SettingsPage.tsx:151
 msgid "Reset All Flags"
 msgstr "すべてリセット"
@@ -807,6 +827,11 @@ msgstr "切り抜きをリセット"
 #: src/features/receipt-image/ReceiptImageViewer.tsx:167
 msgid "Reset image zoom"
 msgstr "画像ズームをリセット"
+
+#. placeholder {0}: cornerLabel[corner]
+#: src/features/image-prep/components/EraseRectangle.tsx:287
+msgid "Resize from {0} corner. Use arrow keys to resize, Shift+arrow for larger steps."
+msgstr "{0}の角からサイズ変更。矢印キーでサイズ変更、Shift+矢印で大きく変更します。"
 
 #: src/context/ZeroProvider.tsx:153
 msgid "Retry"
@@ -1006,6 +1031,14 @@ msgstr "チップ："
 #: src/components/ThemeToggle.tsx:23
 msgid "Toggle theme"
 msgstr "テーマを切り替え"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:237
+msgid "top-left"
+msgstr "左上"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:238
+msgid "top-right"
+msgstr "右上"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:96
 #: src/features/bill-split/components/BillBreakdownView.tsx:346

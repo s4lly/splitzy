@@ -185,6 +185,14 @@ msgstr "Abrechnung"
 msgid "Billing settings content would go here."
 msgstr "Hier würden die Abrechnungseinstellungen stehen."
 
+#: src/features/image-prep/components/EraseRectangle.tsx:239
+msgid "bottom-left"
+msgstr "unten links"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:240
+msgid "bottom-right"
+msgstr "unten rechts"
+
 #: src/components/Receipt/LineItemAddForm.tsx:135
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:95
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:229
@@ -400,6 +408,14 @@ msgstr "Gleichmäßiger Teilungsmodus"
 #: src/pages/ImagePrepPage.tsx:203
 msgid "Erase areas"
 msgstr "Bereiche löschen"
+
+#. placeholder {0}: Math.round(rect.x)
+#. placeholder {1}: Math.round(rect.y)
+#. placeholder {2}: Math.round(rect.width)
+#. placeholder {3}: Math.round(rect.height)
+#: src/features/image-prep/components/EraseRectangle.tsx:260
+msgid "Erased area at {0}% left, {1}% top, {2}% wide, {3}% tall. Use arrow keys to move, Shift+arrow for larger steps."
+msgstr "Gelöschter Bereich bei {0} % links, {1} % oben, {2} % breit, {3} % hoch. Pfeiltasten zum Verschieben, Umschalt+Pfeil für größere Schritte."
 
 #: src/features/bill-split/BillSplitSectionCollab.tsx:18
 msgid "Evenly"
@@ -796,6 +812,10 @@ msgstr "Beleganzeige"
 msgid "Remove {displayName}"
 msgstr "{displayName} entfernen"
 
+#: src/features/image-prep/components/EraseRectangle.tsx:275
+msgid "Remove erased area"
+msgstr "Gelöschten Bereich entfernen"
+
 #: src/pages/SettingsPage.tsx:151
 msgid "Reset All Flags"
 msgstr "Alle Optionen zurücksetzen"
@@ -807,6 +827,11 @@ msgstr "Zuschnitt zurücksetzen"
 #: src/features/receipt-image/ReceiptImageViewer.tsx:167
 msgid "Reset image zoom"
 msgstr "Bildzoom zurücksetzen"
+
+#. placeholder {0}: cornerLabel[corner]
+#: src/features/image-prep/components/EraseRectangle.tsx:287
+msgid "Resize from {0} corner. Use arrow keys to resize, Shift+arrow for larger steps."
+msgstr "Größe von Ecke {0} ändern. Pfeiltasten zum Ändern der Größe, Umschalt+Pfeil für größere Schritte."
 
 #: src/context/ZeroProvider.tsx:153
 msgid "Retry"
@@ -1006,6 +1031,14 @@ msgstr "Trinkgeld:"
 #: src/components/ThemeToggle.tsx:23
 msgid "Toggle theme"
 msgstr "Design wechseln"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:237
+msgid "top-left"
+msgstr "oben links"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:238
+msgid "top-right"
+msgstr "oben rechts"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:96
 #: src/features/bill-split/components/BillBreakdownView.tsx:346

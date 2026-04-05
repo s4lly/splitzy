@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import { X } from 'lucide-react';
 import { useCallback, useRef } from 'react';
 
@@ -18,6 +19,7 @@ export function EraseRectangle({
   onChange,
   onRemove,
 }: Props) {
+  const { t } = useLingui();
   const dragStartRef = useRef<{
     pointerX: number;
     pointerY: number;
@@ -232,10 +234,10 @@ export function EraseRectangle({
   );
 
   const cornerLabel: Record<string, string> = {
-    tl: 'top-left',
-    tr: 'top-right',
-    bl: 'bottom-left',
-    br: 'bottom-right',
+    tl: t`top-left`,
+    tr: t`top-right`,
+    bl: t`bottom-left`,
+    br: t`bottom-right`,
   };
 
   const handleStyle = `absolute z-10 bg-white border border-gray-400 rounded-sm touch-none cursor-nwse-resize focus:outline-none focus:ring-2 focus:ring-blue-500`;
@@ -255,7 +257,7 @@ export function EraseRectangle({
         className="absolute inset-0 cursor-move touch-none bg-red-400/40 ring-2 ring-red-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         tabIndex={0}
         role="button"
-        aria-label={`Erased area at ${Math.round(rect.x)}% left, ${Math.round(rect.y)}% top, ${Math.round(rect.width)}% wide, ${Math.round(rect.height)}% tall. Use arrow keys to move, Shift+arrow for larger steps.`}
+        aria-label={t`Erased area at ${Math.round(rect.x)}% left, ${Math.round(rect.y)}% top, ${Math.round(rect.width)}% wide, ${Math.round(rect.height)}% tall. Use arrow keys to move, Shift+arrow for larger steps.`}
         onPointerDown={onDragPointerDown}
         onPointerMove={onDragPointerMove}
         onPointerUp={onDragPointerUp}
@@ -270,7 +272,7 @@ export function EraseRectangle({
           e.stopPropagation();
           onRemove();
         }}
-        aria-label="Remove erased area"
+        aria-label={t`Remove erased area`}
       >
         <X className="size-3" />
       </button>
@@ -282,7 +284,7 @@ export function EraseRectangle({
           className={handleStyle}
           tabIndex={0}
           role="button"
-          aria-label={`Resize from ${cornerLabel[corner]} corner. Use arrow keys to resize, Shift+arrow for larger steps.`}
+          aria-label={t`Resize from ${cornerLabel[corner]} corner. Use arrow keys to resize, Shift+arrow for larger steps.`}
           style={{
             width: HANDLE_SIZE,
             height: HANDLE_SIZE,

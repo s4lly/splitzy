@@ -185,6 +185,14 @@ msgstr "Facturación"
 msgid "Billing settings content would go here."
 msgstr "El contenido de facturación iría aquí."
 
+#: src/features/image-prep/components/EraseRectangle.tsx:239
+msgid "bottom-left"
+msgstr "inferior izquierda"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:240
+msgid "bottom-right"
+msgstr "inferior derecha"
+
 #: src/components/Receipt/LineItemAddForm.tsx:135
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:95
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:229
@@ -400,6 +408,14 @@ msgstr "Modo de división equitativa"
 #: src/pages/ImagePrepPage.tsx:203
 msgid "Erase areas"
 msgstr "Borrar áreas"
+
+#. placeholder {0}: Math.round(rect.x)
+#. placeholder {1}: Math.round(rect.y)
+#. placeholder {2}: Math.round(rect.width)
+#. placeholder {3}: Math.round(rect.height)
+#: src/features/image-prep/components/EraseRectangle.tsx:260
+msgid "Erased area at {0}% left, {1}% top, {2}% wide, {3}% tall. Use arrow keys to move, Shift+arrow for larger steps."
+msgstr "Área borrada en {0} % izquierda, {1} % arriba, {2} % de ancho, {3} % de alto. Usa las teclas de flecha para mover, Mayús+flecha para pasos más grandes."
 
 #: src/features/bill-split/BillSplitSectionCollab.tsx:18
 msgid "Evenly"
@@ -796,6 +812,10 @@ msgstr "Visor de recibos"
 msgid "Remove {displayName}"
 msgstr "Eliminar {displayName}"
 
+#: src/features/image-prep/components/EraseRectangle.tsx:275
+msgid "Remove erased area"
+msgstr "Eliminar área borrada"
+
 #: src/pages/SettingsPage.tsx:151
 msgid "Reset All Flags"
 msgstr "Restablecer todas las opciones"
@@ -807,6 +827,11 @@ msgstr "Restablecer recorte"
 #: src/features/receipt-image/ReceiptImageViewer.tsx:167
 msgid "Reset image zoom"
 msgstr "Restablecer zoom de imagen"
+
+#. placeholder {0}: cornerLabel[corner]
+#: src/features/image-prep/components/EraseRectangle.tsx:287
+msgid "Resize from {0} corner. Use arrow keys to resize, Shift+arrow for larger steps."
+msgstr "Redimensionar desde la esquina {0}. Usa las teclas de flecha para redimensionar, Mayús+flecha para pasos más grandes."
 
 #: src/context/ZeroProvider.tsx:153
 msgid "Retry"
@@ -1006,6 +1031,14 @@ msgstr "Propina:"
 #: src/components/ThemeToggle.tsx:23
 msgid "Toggle theme"
 msgstr "Cambiar tema"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:237
+msgid "top-left"
+msgstr "superior izquierda"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:238
+msgid "top-right"
+msgstr "superior derecha"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:96
 #: src/features/bill-split/components/BillBreakdownView.tsx:346

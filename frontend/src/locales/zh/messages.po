@@ -177,6 +177,14 @@ msgstr "账单"
 msgid "Billing settings content would go here."
 msgstr "账单设置内容将显示在此处。"
 
+#: src/features/image-prep/components/EraseRectangle.tsx:239
+msgid "bottom-left"
+msgstr "左下"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:240
+msgid "bottom-right"
+msgstr "右下"
+
 #: src/components/Receipt/LineItemAddForm.tsx:135
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:95
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:229
@@ -384,6 +392,14 @@ msgstr "平均分摊模式"
 #: src/pages/ImagePrepPage.tsx:203
 msgid "Erase areas"
 msgstr "擦除区域"
+
+#. placeholder {0}: Math.round(rect.x)
+#. placeholder {1}: Math.round(rect.y)
+#. placeholder {2}: Math.round(rect.width)
+#. placeholder {3}: Math.round(rect.height)
+#: src/features/image-prep/components/EraseRectangle.tsx:260
+msgid "Erased area at {0}% left, {1}% top, {2}% wide, {3}% tall. Use arrow keys to move, Shift+arrow for larger steps."
+msgstr "已擦除区域：左 {0}%、上 {1}%、宽 {2}%、高 {3}%。使用方向键移动，Shift+方向键大步移动。"
 
 #: src/features/bill-split/BillSplitSectionCollab.tsx:18
 msgid "Evenly"
@@ -755,6 +771,10 @@ msgstr "收据查看器"
 msgid "Remove {displayName}"
 msgstr "移除{displayName}"
 
+#: src/features/image-prep/components/EraseRectangle.tsx:275
+msgid "Remove erased area"
+msgstr "移除已擦除区域"
+
 #: src/pages/SettingsPage.tsx:151
 msgid "Reset All Flags"
 msgstr "重置所有标记"
@@ -766,6 +786,11 @@ msgstr "重置裁剪"
 #: src/features/receipt-image/ReceiptImageViewer.tsx:167
 msgid "Reset image zoom"
 msgstr "重置图片缩放"
+
+#. placeholder {0}: cornerLabel[corner]
+#: src/features/image-prep/components/EraseRectangle.tsx:287
+msgid "Resize from {0} corner. Use arrow keys to resize, Shift+arrow for larger steps."
+msgstr "从{0}角调整大小。使用方向键调整大小，Shift+方向键大步调整。"
 
 #: src/context/ZeroProvider.tsx:153
 msgid "Retry"
@@ -957,6 +982,14 @@ msgstr "小费："
 #: src/components/ThemeToggle.tsx:23
 msgid "Toggle theme"
 msgstr "切换主题"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:237
+msgid "top-left"
+msgstr "左上"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:238
+msgid "top-right"
+msgstr "右上"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:96
 #: src/features/bill-split/components/BillBreakdownView.tsx:346

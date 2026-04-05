@@ -185,6 +185,14 @@ msgstr "Facturation"
 msgid "Billing settings content would go here."
 msgstr "Le contenu de facturation irait ici."
 
+#: src/features/image-prep/components/EraseRectangle.tsx:239
+msgid "bottom-left"
+msgstr "en bas à gauche"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:240
+msgid "bottom-right"
+msgstr "en bas à droite"
+
 #: src/components/Receipt/LineItemAddForm.tsx:135
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:95
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:229
@@ -400,6 +408,14 @@ msgstr "Mode partage égal"
 #: src/pages/ImagePrepPage.tsx:203
 msgid "Erase areas"
 msgstr "Effacer des zones"
+
+#. placeholder {0}: Math.round(rect.x)
+#. placeholder {1}: Math.round(rect.y)
+#. placeholder {2}: Math.round(rect.width)
+#. placeholder {3}: Math.round(rect.height)
+#: src/features/image-prep/components/EraseRectangle.tsx:260
+msgid "Erased area at {0}% left, {1}% top, {2}% wide, {3}% tall. Use arrow keys to move, Shift+arrow for larger steps."
+msgstr "Zone effacée à {0} % de la gauche, {1} % du haut, {2} % de largeur, {3} % de hauteur. Utilisez les touches fléchées pour déplacer, Maj+flèche pour des pas plus grands."
 
 #: src/features/bill-split/BillSplitSectionCollab.tsx:18
 msgid "Evenly"
@@ -796,6 +812,10 @@ msgstr "Visionneuse de reçus"
 msgid "Remove {displayName}"
 msgstr "Supprimer {displayName}"
 
+#: src/features/image-prep/components/EraseRectangle.tsx:275
+msgid "Remove erased area"
+msgstr "Supprimer la zone effacée"
+
 #: src/pages/SettingsPage.tsx:151
 msgid "Reset All Flags"
 msgstr "Réinitialiser toutes les options"
@@ -807,6 +827,11 @@ msgstr "Réinitialiser le recadrage"
 #: src/features/receipt-image/ReceiptImageViewer.tsx:167
 msgid "Reset image zoom"
 msgstr "Réinitialiser le zoom"
+
+#. placeholder {0}: cornerLabel[corner]
+#: src/features/image-prep/components/EraseRectangle.tsx:287
+msgid "Resize from {0} corner. Use arrow keys to resize, Shift+arrow for larger steps."
+msgstr "Redimensionner depuis le coin {0}. Utilisez les touches fléchées pour redimensionner, Maj+flèche pour des pas plus grands."
 
 #: src/context/ZeroProvider.tsx:153
 msgid "Retry"
@@ -1006,6 +1031,14 @@ msgstr "Pourboire :"
 #: src/components/ThemeToggle.tsx:23
 msgid "Toggle theme"
 msgstr "Changer de thème"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:237
+msgid "top-left"
+msgstr "en haut à gauche"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:238
+msgid "top-right"
+msgstr "en haut à droite"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:96
 #: src/features/bill-split/components/BillBreakdownView.tsx:346
