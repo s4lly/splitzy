@@ -51,7 +51,10 @@ const ImagePrepPage = () => {
     []
   );
 
-  // Guard: redirect on mount only if no image is pending (handles direct URL access)
+  // Guard: redirect to home on component mount when pendingImage is absent,
+  // which happens when a user navigates directly to /prepare via URL.
+  // The empty dependency array is intentional — this check should only run once
+  // on mount, not re-run when pendingImage changes during the page lifecycle.
   useEffect(() => {
     if (!pendingImage) {
       navigate('/', { replace: true });
