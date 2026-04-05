@@ -18,10 +18,7 @@ import {
 } from '@/features/image-prep/atoms/imagePrepStateAtoms';
 import { CropTool } from '@/features/image-prep/components/CropTool';
 import { EraseTool } from '@/features/image-prep/components/EraseTool';
-import {
-  processImage,
-  remapEraseToCropRegion,
-} from '@/features/image-prep/utils/canvasOperations';
+import { processImage } from '@/features/image-prep/utils/canvasOperations';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 const ImagePrepPage = () => {
@@ -125,6 +122,9 @@ const ImagePrepPage = () => {
         });
         if (eraseRects.length > 0) {
           console.log('Erase rects (% of full image):', eraseRects);
+          const { remapEraseToCropRegion } = await import(
+            '@/features/image-prep/utils/canvasOperations'
+          );
           console.log(
             'Erase rects (remapped to crop region):',
             remapEraseToCropRegion(eraseRects, completedCrop, imageDims)
