@@ -164,7 +164,7 @@ msgstr "Assignment in progress"
 msgid "Authentication Error"
 msgstr "Authentication Error"
 
-#: src/pages/ImagePrepPage.tsx:173
+#: src/pages/ImagePrepPage.tsx:172
 msgid "Back"
 msgstr "Back"
 
@@ -294,11 +294,11 @@ msgstr "Create an account or sign in to claim \"{displayName}\" as yourself. You
 msgid "Create an account or sign in to see your receipt analysis history and manage your documents."
 msgstr "Create an account or sign in to see your receipt analysis history and manage your documents."
 
-#: src/pages/ImagePrepPage.tsx:193
+#: src/pages/ImagePrepPage.tsx:192
 msgid "Crop"
 msgstr "Crop"
 
-#: src/pages/ImagePrepPage.tsx:184
+#: src/pages/ImagePrepPage.tsx:183
 msgid "Crop or erase areas before analyzing"
 msgstr "Crop or erase areas before analyzing"
 
@@ -409,7 +409,7 @@ msgstr "Equal split - no specific items assigned"
 msgid "Equal Split Mode"
 msgstr "Equal Split Mode"
 
-#: src/pages/ImagePrepPage.tsx:203
+#: src/pages/ImagePrepPage.tsx:202
 msgid "Erase areas"
 msgstr "Erase areas"
 
@@ -719,7 +719,7 @@ msgstr "Post-tax Total:"
 msgid "Pre-tax Total:"
 msgstr "Pre-tax Total:"
 
-#: src/pages/ImagePrepPage.tsx:181
+#: src/pages/ImagePrepPage.tsx:180
 msgid "Prepare image"
 msgstr "Prepare image"
 
@@ -731,7 +731,7 @@ msgstr "Prepare Image"
 msgid "Preview"
 msgstr "Preview"
 
-#: src/pages/ImagePrepPage.tsx:248
+#: src/pages/ImagePrepPage.tsx:247
 #: src/pages/PreviewPage.tsx:123
 msgid "Preview result"
 msgstr "Preview result"

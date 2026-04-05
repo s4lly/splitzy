@@ -141,10 +141,9 @@ const ImagePrepPage = () => {
       setProcessedImage(processed);
       navigate('/preview');
     } catch (err) {
+      console.error('Image processing failed:', err);
       if (!mountedRef.current) return;
-      setProcessingError(
-        err instanceof Error ? err.message : t`Image processing failed`
-      );
+      setProcessingError(t`Image processing failed`);
     } finally {
       if (mountedRef.current) {
         setIsProcessing(false);

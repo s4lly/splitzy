@@ -164,7 +164,7 @@ msgstr "Attribution en cours"
 msgid "Authentication Error"
 msgstr "Erreur d'authentification"
 
-#: src/pages/ImagePrepPage.tsx:173
+#: src/pages/ImagePrepPage.tsx:172
 msgid "Back"
 msgstr "Retour"
 
@@ -294,11 +294,11 @@ msgstr "Créez un compte ou connectez-vous pour revendiquer \"{displayName}\". V
 msgid "Create an account or sign in to see your receipt analysis history and manage your documents."
 msgstr "Créez un compte ou connectez-vous pour voir votre historique d'analyse de reçus et gérer vos documents."
 
-#: src/pages/ImagePrepPage.tsx:193
+#: src/pages/ImagePrepPage.tsx:192
 msgid "Crop"
 msgstr "Recadrer"
 
-#: src/pages/ImagePrepPage.tsx:184
+#: src/pages/ImagePrepPage.tsx:183
 msgid "Crop or erase areas before analyzing"
 msgstr "Recadrer ou effacer des zones avant l'analyse"
 
@@ -409,7 +409,7 @@ msgstr "Partage équitable — aucun article spécifique attribué"
 msgid "Equal Split Mode"
 msgstr "Mode partage égal"
 
-#: src/pages/ImagePrepPage.tsx:203
+#: src/pages/ImagePrepPage.tsx:202
 msgid "Erase areas"
 msgstr "Effacer des zones"
 
@@ -719,7 +719,7 @@ msgstr "Total après taxes :"
 msgid "Pre-tax Total:"
 msgstr "Total avant taxes :"
 
-#: src/pages/ImagePrepPage.tsx:181
+#: src/pages/ImagePrepPage.tsx:180
 msgid "Prepare image"
 msgstr "Préparer l'image"
 
@@ -731,7 +731,7 @@ msgstr "Préparer l'image"
 msgid "Preview"
 msgstr "Aperçu"
 
-#: src/pages/ImagePrepPage.tsx:248
+#: src/pages/ImagePrepPage.tsx:247
 #: src/pages/PreviewPage.tsx:123
 msgid "Preview result"
 msgstr "Aperçu du résultat"
