@@ -391,6 +391,10 @@ export function EraseRectangle({
             bottom: corner.startsWith('b') ? -HANDLE_SIZE / 2 : undefined,
             left: corner.endsWith('l') ? -HANDLE_SIZE / 2 : undefined,
             right: corner.endsWith('r') ? -HANDLE_SIZE / 2 : undefined,
+            cursor:
+              corner === 'tl' || corner === 'br'
+                ? 'nwse-resize'
+                : 'nesw-resize',
           }}
           onPointerDown={(e) => onResizePointerDown(e, corner)}
           onPointerMove={onResizePointerMove}
