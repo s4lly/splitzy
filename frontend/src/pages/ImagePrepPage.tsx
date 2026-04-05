@@ -43,10 +43,11 @@ const ImagePrepPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingError, setProcessingError] = useState<string | null>(null);
   const mountedRef = useRef(true);
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    return function cleanup() {
       mountedRef.current = false;
-    },
+    };
+  },
     []
   );
 
