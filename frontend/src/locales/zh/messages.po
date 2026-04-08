@@ -57,6 +57,10 @@ msgstr "操作"
 msgid "Add"
 msgstr "添加"
 
+#: src/features/image-prep/components/EraseTool.tsx:86
+msgid "Add area"
+msgstr "添加区域"
+
 #: src/features/receipt-collab/components/ReceiptCollabContent.tsx:96
 msgid "Add Item"
 msgstr "添加项目"
@@ -69,11 +73,16 @@ msgstr "添加人员来分摊账单"
 msgid "Add People to Split With"
 msgstr "添加分摊人员"
 
+#: src/features/image-prep/components/EraseTool.tsx:47
+msgid "Add rectangles over areas you want removed before analysis. Useful for hiding sensitive information."
+msgstr "在要删除的区域上添加矩形，然后再进行分析。适用于隐藏敏感信息。"
+
 #: src/components/Receipt/LineItemsTableDesktop.tsx:215
 msgid "Add Users"
 msgstr "添加用户"
 
-#: src/features/receipt-viewer/components/TipEditor.tsx:183
+#: src/features/receipt-viewer/components/TipEditor.tsx:219
+#: src/features/receipt-viewer/components/TipEditor.tsx:331
 msgid "After tax"
 msgstr "税后"
 
@@ -85,11 +94,19 @@ msgstr "所有项目已分配"
 msgid "All people assigned."
 msgstr "所有人员已分配。"
 
-#: src/features/receipt-upload/ReceiptUploader.tsx:114
-msgid "Analyze Document"
-msgstr "分析单据"
+#: src/pages/PreviewPage.tsx:93
+msgid "An error occurred while analyzing the document. Please try again."
+msgstr "分析文档时发生错误。请重试。"
 
-#: src/features/receipt-upload/ReceiptUploader.tsx:109
+#: src/features/receipt-upload/ReceiptUploader.tsx:114
+#~ msgid "Analyze Document"
+#~ msgstr "分析单据"
+
+#: src/pages/PreviewPage.tsx:166
+msgid "Analyze receipt"
+msgstr "分析收据"
+
+#: src/pages/PreviewPage.tsx:161
 msgid "Analyzing…"
 msgstr "分析中…"
 
@@ -114,7 +131,7 @@ msgstr "分配{itemLabel}"
 msgid "Assign All"
 msgstr "全部分配"
 
-#: src/pages/HomePage.tsx:55
+#: src/pages/HomePage.tsx:60
 msgid "Assign items to people, split shared costs, and handle tips. No awkward math."
 msgstr "将项目分配给每个人，分摊共同费用并处理小费。无需复杂计算。"
 
@@ -139,11 +156,16 @@ msgstr "分配进行中"
 msgid "Authentication Error"
 msgstr "身份验证错误"
 
+#: src/pages/ImagePrepPage.tsx:172
+msgid "Back"
+msgstr "返回"
+
 #: src/pages/SettingsPage.tsx:80
 msgid "Back to Settings"
 msgstr "返回设置"
 
-#: src/features/receipt-viewer/components/TipEditor.tsx:180
+#: src/features/receipt-viewer/components/TipEditor.tsx:216
+#: src/features/receipt-viewer/components/TipEditor.tsx:333
 msgid "Before tax"
 msgstr "税前"
 
@@ -159,11 +181,19 @@ msgstr "账单"
 msgid "Billing settings content would go here."
 msgstr "账单设置内容将显示在此处。"
 
+#: src/features/image-prep/components/EraseRectangle.tsx:239
+msgid "bottom-left"
+msgstr "左下"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:240
+msgid "bottom-right"
+msgstr "右下"
+
 #: src/components/Receipt/LineItemAddForm.tsx:135
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:95
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:229
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:160
-#: src/features/receipt-viewer/components/TipEditor.tsx:248
+#: src/features/receipt-viewer/components/TipEditor.tsx:284
 msgid "Cancel"
 msgstr "取消"
 
@@ -198,6 +228,10 @@ msgstr "认领此人"
 msgid "Claiming…"
 msgstr "认领中…"
 
+#: src/features/image-prep/components/EraseTool.tsx:97
+msgid "Clear all"
+msgstr "全部清除"
+
 #: src/features/receipt-upload/components/PreviewImage.tsx:34
 msgid "Clear preview"
 msgstr "清除预览"
@@ -222,6 +256,10 @@ msgstr "收起分配"
 #: src/components/Receipt/LineItemsTableMobile.tsx:147
 msgid "Collapse edit"
 msgstr "收起编辑"
+
+#: src/features/receipt-upload/ReceiptUploader.tsx:34
+msgid "Continue"
+msgstr "继续"
 
 #: src/pages/SettingsPage.tsx:214
 msgid "Control how and when you receive notifications."
@@ -248,6 +286,14 @@ msgstr "创建账户或登录以将\"{displayName}\"认领为自己。然后您�
 msgid "Create an account or sign in to see your receipt analysis history and manage your documents."
 msgstr "创建账户或登录以查看您的收据分析历史并管理您的文档。"
 
+#: src/pages/ImagePrepPage.tsx:192
+msgid "Crop"
+msgstr "裁剪"
+
+#: src/pages/ImagePrepPage.tsx:183
+msgid "Crop or erase areas before analyzing"
+msgstr "分析前裁剪或擦除区域"
+
 #: src/pages/SettingsPage.tsx:252
 msgid "Customize the look and feel of the application."
 msgstr "自定义应用的外观和风格。"
@@ -267,7 +313,7 @@ msgstr "删除"
 msgid "Delete gratuity"
 msgstr "删除小费"
 
-#: src/features/receipt-viewer/components/TipEditor.tsx:236
+#: src/features/receipt-viewer/components/TipEditor.tsx:272
 msgid "Delete tip"
 msgstr "删除小费"
 
@@ -290,7 +336,7 @@ msgstr "文档详情"
 #: src/components/Receipt/LineItemsTableDesktop.tsx:254
 #: src/components/Receipt/LineItemsTableMobile.tsx:286
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:167
-#: src/features/receipt-viewer/components/TipEditor.tsx:255
+#: src/features/receipt-viewer/components/TipEditor.tsx:291
 msgid "Done"
 msgstr "完成"
 
@@ -301,6 +347,10 @@ msgstr "下载"
 #: src/features/receipt-image/ReceiptImageViewer.tsx:63
 msgid "Download failed"
 msgstr "下载失败"
+
+#: src/features/image-prep/components/CropTool.tsx:58
+msgid "Drag to select the area you want to keep. Crop out anything that isn't part of the receipt to improve accuracy."
+msgstr "拖动以选择要保留的区域。裁剪掉不属于收据的部分以提高准确性。"
 
 #: src/features/receipt-upload/components/DropZone.tsx:26
 msgid "Drop files here to upload"
@@ -343,13 +393,29 @@ msgstr "平均分摊 - 未分配具体项目"
 msgid "Equal Split Mode"
 msgstr "平均分摊模式"
 
+#: src/pages/ImagePrepPage.tsx:202
+msgid "Erase areas"
+msgstr "擦除区域"
+
+#. placeholder {0}: Math.round(rect.x)
+#. placeholder {1}: Math.round(rect.y)
+#. placeholder {2}: Math.round(rect.width)
+#. placeholder {3}: Math.round(rect.height)
+#: src/features/image-prep/components/EraseRectangle.tsx:260
+msgid "Erased area at {0}% left, {1}% top, {2}% wide, {3}% tall. Use arrow keys to move, Shift+arrow for larger steps."
+msgstr "已擦除区域：左 {0}%、上 {1}%、宽 {2}%、高 {3}%。使用方向键移动，Shift+方向键大步移动。"
+
 #: src/features/bill-split/BillSplitSectionCollab.tsx:18
 msgid "Evenly"
 msgstr "平均"
 
-#: src/pages/HomePage.tsx:60
+#: src/pages/HomePage.tsx:65
 msgid "Every split is saved. Review, adjust, or settle up any time."
 msgstr "每次分摊都会保存。随时查看、调整或结算。"
+
+#: src/pages/PreviewPage.tsx:96
+msgid "Failed to analyze document"
+msgstr "文档分析失败"
 
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:58
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:68
@@ -386,11 +452,11 @@ msgstr "更新图片可见性失败"
 msgid "Feature Flags"
 msgstr "功能开关"
 
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:196
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:208
 msgid "Final Total:"
 msgstr "最终总额："
 
-#: src/pages/HomePage.tsx:172
+#: src/pages/HomePage.tsx:193
 msgid "From receipt to settled,<0/><1>in a few taps.</1>"
 msgstr "从收据到结清，<0/><1>只需几步。</1>"
 
@@ -412,7 +478,7 @@ msgstr "正常"
 msgid "Hide QR Code"
 msgstr "隐藏二维码"
 
-#: src/pages/HomePage.tsx:169
+#: src/pages/HomePage.tsx:190
 msgid "how it works"
 msgstr "使用方法"
 
@@ -423,6 +489,10 @@ msgstr "图片下载成功"
 #: src/features/receipt-image/ReceiptImageViewer.tsx:178
 msgid "Image hidden by owner"
 msgstr "图片已被所有者隐藏"
+
+#: src/pages/ImagePrepPage.tsx:146
+msgid "Image processing failed"
+msgstr "图片处理失败"
 
 #: src/features/receipt-image/ReceiptImageViewer.tsx:107
 msgid "Image settings"
@@ -437,7 +507,7 @@ msgstr "图片设置"
 msgid "Image visibility updated"
 msgstr "图片可见性已更新"
 
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:149
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:160
 msgid "Included in prices"
 msgstr "已含在价格中"
 
@@ -469,11 +539,11 @@ msgstr "项目"
 msgid "Items subtotal:"
 msgstr "项目小计："
 
-#: src/features/receipt-viewer/components/TipEditor.tsx:191
+#: src/features/receipt-viewer/components/TipEditor.tsx:227
 msgid "Items total"
 msgstr "项目总计"
 
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:100
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:111
 msgid "Items Total:"
 msgstr "项目总计："
 
@@ -592,21 +662,38 @@ msgstr "启用后仅您可以查看图片"
 msgid "or drag & drop · JPEG, PNG"
 msgstr "或拖放文件 · JPEG、PNG"
 
+#: src/features/receipt-viewer/components/TipEditor.tsx:326
+msgid "Original"
+msgstr "原始"
+
 #: src/features/bill-split/components/EvenSplitTabCollab.tsx:70
 msgid "Per Person:"
 msgstr "每人："
 
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:165
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:176
 msgid "Post-tax Total:"
 msgstr "税后总额："
 
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:133
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:144
 msgid "Pre-tax Total:"
 msgstr "税前总额："
+
+#: src/pages/ImagePrepPage.tsx:180
+msgid "Prepare image"
+msgstr "准备图片"
+
+#: src/pages/ImagePrepPage.tsx:33
+msgid "Prepare Image"
+msgstr "准备图片"
 
 #: src/features/receipt-upload/components/PreviewImage.tsx:24
 msgid "Preview"
 msgstr "预览"
+
+#: src/pages/ImagePrepPage.tsx:247
+#: src/pages/PreviewPage.tsx:123
+msgid "Preview result"
+msgstr "预览结果"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:93
 #: src/features/bill-split/components/BillBreakdownView.tsx:253
@@ -679,7 +766,7 @@ msgstr "收据图片"
 msgid "Receipt image not available"
 msgstr "收据图片不可用"
 
-#: src/pages/HomePage.tsx:144
+#: src/pages/HomePage.tsx:165
 msgid "receipt splitting, simplified"
 msgstr "轻松分摊账单"
 
@@ -692,13 +779,26 @@ msgstr "收据查看器"
 msgid "Remove {displayName}"
 msgstr "移除{displayName}"
 
+#: src/features/image-prep/components/EraseRectangle.tsx:275
+msgid "Remove erased area"
+msgstr "移除已擦除区域"
+
 #: src/pages/SettingsPage.tsx:151
 msgid "Reset All Flags"
 msgstr "重置所有标记"
 
+#: src/features/image-prep/components/CropTool.tsx:89
+msgid "Reset crop"
+msgstr "重置裁剪"
+
 #: src/features/receipt-image/ReceiptImageViewer.tsx:167
 msgid "Reset image zoom"
 msgstr "重置图片缩放"
+
+#. placeholder {0}: cornerLabel[corner]
+#: src/features/image-prep/components/EraseRectangle.tsx:287
+msgid "Resize from {0} corner. Use arrow keys to resize, Shift+arrow for larger steps."
+msgstr "从{0}角调整大小。使用方向键调整大小，Shift+方向键大步调整。"
 
 #: src/context/ZeroProvider.tsx:153
 msgid "Retry"
@@ -708,11 +808,11 @@ msgstr "重试"
 msgid "Retrying..."
 msgstr "重试中..."
 
-#: src/pages/HomePage.tsx:148
+#: src/pages/HomePage.tsx:169
 msgid "Scan a receipt, divide costs fairly, settle up in seconds."
 msgstr "扫描收据，公平分摊费用，几秒内完成结算。"
 
-#: src/pages/HomePage.tsx:49
+#: src/pages/HomePage.tsx:54
 msgid "Scan any receipt"
 msgstr "扫描任意收据"
 
@@ -720,7 +820,7 @@ msgstr "扫描任意收据"
 msgid "Select a category"
 msgstr "选择分类"
 
-#: src/pages/HomePage.tsx:132
+#: src/pages/HomePage.tsx:153
 msgid "Service temporarily unavailable. Please try again later."
 msgstr "服务暂时不可用。请稍后再试。"
 
@@ -749,7 +849,7 @@ msgstr "登录以认领{displayName}"
 msgid "Sign in to continue"
 msgstr "登录以继续"
 
-#: src/pages/HomePage.tsx:217
+#: src/pages/HomePage.tsx:238
 msgid "Sign in to see your history →"
 msgstr "登录查看您的历史记录 →"
 
@@ -766,7 +866,7 @@ msgstr "在几个人之间分摊？"
 msgid "Split Evenly"
 msgstr "平均分摊"
 
-#: src/pages/HomePage.tsx:54
+#: src/pages/HomePage.tsx:59
 msgid "Split fairly"
 msgstr "公平分摊"
 
@@ -778,11 +878,11 @@ msgstr "与朋友分摊"
 msgid "Subtotal"
 msgstr "小计"
 
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:116
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:127
 msgid "Subtotal (as shown):"
 msgstr "小计（如所示）："
 
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:36
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:47
 msgid "Summary"
 msgstr "摘要"
 
@@ -811,7 +911,7 @@ msgstr "切换到此人"
 msgid "Switching…"
 msgstr "切换中…"
 
-#: src/pages/HomePage.tsx:50
+#: src/pages/HomePage.tsx:55
 msgid "Take a photo and we extract every line item automatically — no manual entry."
 msgstr "拍张照片，我们会自动提取每个项目——无需手动输入。"
 
@@ -820,26 +920,30 @@ msgid "Tap to upload a receipt"
 msgstr "点击上传收据"
 
 #: src/features/bill-split/components/BillBreakdownView.tsx:315
-#: src/features/receipt-viewer/components/TipEditor.tsx:199
+#: src/features/receipt-viewer/components/TipEditor.tsx:235
 msgid "Tax"
 msgstr "税费"
 
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:72
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:83
 msgid "Tax Calculation"
 msgstr "税费计算"
 
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:50
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:61
 msgid "Tax Included in Prices"
 msgstr "价格已含税"
 
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:85
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:96
 msgid "Tax rate is approximately {formattedRate}% and has been distributed proportionally based on each person's items."
 msgstr "税率约为{formattedRate}%，已根据每人的项目按比例分配。"
 
 #: src/features/bill-split/components/BillBreakdownView.tsx:170
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:145
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:156
 msgid "Tax:"
 msgstr "税费："
+
+#: src/pages/PreviewPage.tsx:101
+msgid "The image does not appear to be a receipt: {reason}"
+msgstr "该图片似乎不是收据：{reason}"
 
 #: src/features/receipt-image/ReceiptImageViewer.tsx:191
 msgid "The original receipt image might not be stored or is no longer accessible"
@@ -849,9 +953,13 @@ msgstr "原始收据图片可能未保存或已无法访问"
 msgid "The receipt image is only visible to the owner"
 msgstr "收据图片仅对所有者可见"
 
-#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:53
+#: src/features/receipt-viewer/ReceiptSummaryCard.tsx:64
 msgid "The tax is already included in the individual item prices shown."
 msgstr "税费已包含在所显示的各项目价格中。"
+
+#: src/pages/PreviewPage.tsx:102
+msgid "The uploaded image does not appear to be a payment document. Please upload a receipt, invoice, or bill."
+msgstr "上传的图片似乎不是支付凭证。请上传收据、发票或账单。"
 
 #: src/features/line-items/components/NoLineItemsMessage.tsx:22
 msgid "This document doesn't include detailed line items. The total amount has been equally divided among all people."
@@ -866,22 +974,30 @@ msgid "This receipt doesn't contain detailed line items, so the total amount has
 msgstr "此收据不包含详细项目明细，因此总金额已在所有人之间平均分配。"
 
 #: src/features/bill-split/components/BillBreakdownView.tsx:326
-#: src/features/receipt-viewer/components/TipEditor.tsx:167
-#: src/features/receipt-viewer/components/TipEditor.tsx:263
+#: src/features/receipt-viewer/components/TipEditor.tsx:203
+#: src/features/receipt-viewer/components/TipEditor.tsx:299
 msgid "Tip"
 msgstr "小费"
 
-#: src/features/receipt-viewer/components/TipEditor.tsx:205
+#: src/features/receipt-viewer/components/TipEditor.tsx:241
 msgid "Tip base"
 msgstr "小费基数"
 
-#: src/features/receipt-viewer/components/TipEditor.tsx:147
+#: src/features/receipt-viewer/components/TipEditor.tsx:183
 msgid "Tip:"
 msgstr "小费："
 
 #: src/components/ThemeToggle.tsx:23
 msgid "Toggle theme"
 msgstr "切换主题"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:237
+msgid "top-left"
+msgstr "左上"
+
+#: src/features/image-prep/components/EraseRectangle.tsx:238
+msgid "top-right"
+msgstr "右上"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:96
 #: src/features/bill-split/components/BillBreakdownView.tsx:346
@@ -892,11 +1008,11 @@ msgstr "总计"
 msgid "Total:"
 msgstr "总计："
 
-#: src/pages/HomePage.tsx:59
+#: src/pages/HomePage.tsx:64
 msgid "Track history"
 msgstr "追踪历史"
 
-#: src/pages/HomePage.tsx:37
+#: src/pages/HomePage.tsx:42
 #: src/pages/ReceiptsPage.tsx:33
 msgid "Unable to load receipt history. Please try again later."
 msgstr "无法加载收据历史。请稍后再试。"
@@ -947,6 +1063,10 @@ msgstr "上传收据以开始"
 #: src/pages/SettingsPage.tsx:164
 msgid "Use new desktop table design for receipts."
 msgstr "使用新的桌面表格设计显示收据。"
+
+#: src/pages/PreviewPage.tsx:126
+msgid "Verify edits look correct before analyzing"
+msgstr "分析前请确认编辑内容正确"
 
 #: src/components/Receipt/ReceiptHistory.tsx:106
 msgid "View"

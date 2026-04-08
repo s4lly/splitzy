@@ -1,14 +1,8 @@
 export interface ReceiptUploaderProps {
-  onAnalysisComplete?: (result: ReceiptAnalysisResult) => void;
+  onContinue?: (file: File) => void;
 }
 
-export interface ReceiptAnalysisResult {
-  success: boolean;
-  is_receipt?: boolean;
-  error?: string;
-  receipt_data?: {
-    id: number;
-    [key: string]: unknown;
-  };
-  [key: string]: unknown;
-}
+export type ReceiptAnalysisResult =
+  | { success: false; error?: string }
+  | { success: true; is_receipt: false; receipt_data?: { reason?: string } }
+  | { success: true; is_receipt: true; receipt_data: { id: number } };

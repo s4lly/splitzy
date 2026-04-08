@@ -1,4 +1,5 @@
 import os
+import time
 
 import requests
 from flask import Blueprint, current_app, jsonify, request
@@ -120,6 +121,14 @@ def analyze_receipt():
     file.seek(0)  # Reset file pointer to beginning
     image_data = file.read()
 
+    if current_app.debug:
+        current_app.logger.debug(
+            "[receipt] Incoming image: filename=%s, content_type=%s, size=%d bytes",
+            file.filename,
+            file.content_type,
+            len(image_data),
+        )
+
     # Upload to blob storage using binary data
     blob_url = upload_to_blob_storage(image_data, file.filename, file.content_type)
     if not blob_url:
@@ -134,7 +143,22 @@ def analyze_receipt():
         analyzer = ImageAnalyzer()
 
         try:
-            receipt_model = analyzer.analyze_image(image_data)
+            _t0 = time.monotonic()
+            receipt_model = analyzer.analyze_image(
+                image_data, mime_type=file.content_type or "image/jpeg"
+            )
+            if current_app.debug:
+                current_app.logger.debug(
+                    "[receipt] Gemini analysis took %.2fs, result type: %s",
+                    time.monotonic() - _t0,
+                    type(receipt_model).__name__,
+                )
+                if hasattr(receipt_model, "is_receipt") and not receipt_model.is_receipt:
+                    reason = getattr(receipt_model, "reason", None)
+                    current_app.logger.debug(
+                        "[receipt] NotAReceipt returned. Reason: %s",
+                        reason or "none provided",
+                    )
         except ImageAnalyzerConfigError as config_error:
             current_app.logger.error(
                 f"Image analyzer configuration error: {str(config_error)}"
@@ -204,6 +228,17 @@ def analyze_receipt():
                     new_receipt.line_items.append(line_item)
 
             db.session.commit()
+
+            current_app.logger.info(
+                "[receipt] Receipt saved successfully: id=%s",
+                new_receipt.id,
+            )
+            current_app.logger.debug(
+                "[receipt] Receipt details: store=%s, total=%s, user_id=%s",
+                getattr(new_receipt, "store_name", None),
+                getattr(new_receipt, "total", None),
+                getattr(new_receipt, "user_id", None),
+            )
 
             return jsonify(
                 {
