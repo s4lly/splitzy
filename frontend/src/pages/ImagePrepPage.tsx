@@ -44,9 +44,7 @@ const ImagePrepPage = () => {
     return function cleanup() {
       mountedRef.current = false;
     };
-  },
-    []
-  );
+  }, []);
 
   // Guard: redirect to home on component mount when pendingImage is absent,
   // which happens when a user navigates directly to /prepare via URL.
@@ -122,9 +120,8 @@ const ImagePrepPage = () => {
         });
         if (eraseRects.length > 0) {
           console.log('Erase rects (% of full image):', eraseRects);
-          const { remapEraseToCropRegion } = await import(
-            '@/features/image-prep/utils/canvasOperations'
-          );
+          const { remapEraseToCropRegion } =
+            await import('@/features/image-prep/utils/canvasOperations');
           console.log(
             'Erase rects (remapped to crop region):',
             remapEraseToCropRegion(eraseRects, completedCrop, imageDims)

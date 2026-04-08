@@ -338,7 +338,7 @@ export function EraseRectangle({
     'cursor-nwse-resize',
     'focus:outline-none',
     'focus:ring-2',
-    'focus:ring-blue-500',
+    'focus:ring-blue-500'
   );
 
   return (
