@@ -37,21 +37,20 @@ export function SignInToClaimDialog({
             </Trans>
           </DialogDescription>
         </DialogHeader>
-        <div className="flex justify-center py-2">
-          <SignInButton mode="modal">
-            <Button>
-              <Trans>Sign in or create account</Trans>
-            </Button>
-          </SignInButton>
-        </div>
         <DialogFooter>
           <Button
             type="button"
             variant="outline"
+            className="w-full sm:w-auto"
             onClick={() => onOpenChange(false)}
           >
             <Trans>Close</Trans>
           </Button>
+          <SignInButton mode="modal">
+            <Button className="w-full sm:w-auto">
+              <Trans>Sign in or create account</Trans>
+            </Button>
+          </SignInButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

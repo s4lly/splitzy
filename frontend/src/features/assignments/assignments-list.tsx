@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/clerk-react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
-import { Check, GripVertical, Plus, X } from 'lucide-react';
+import { Check, HandGrab, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
 
 import {
@@ -43,10 +43,10 @@ type AvatarAction =
   | { type: 'claim' }
   | { type: 'sign-in' }
   | {
-      type: 'switch';
-      previousReceiptUserId: string;
-      previousDisplayName: string;
-    }
+    type: 'switch';
+    previousReceiptUserId: string;
+    previousDisplayName: string;
+  }
   | null;
 
 function getAvatarAction(
@@ -250,7 +250,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                             title={displayName}
                           >
                             <AvatarFallback className={cn(c.bg, c.text)}>
-                              <GripVertical />
+                              <HandGrab />
                             </AvatarFallback>
                           </Avatar>
                         </Button>
@@ -261,7 +261,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                             'ring-1',
                             c.ring,
                             assignment.receiptUser?.user?.authUserId ===
-                              clerkUserId && 'overflow-visible'
+                            clerkUserId && 'overflow-visible'
                           )}
                           title={displayName}
                         >
@@ -270,13 +270,13 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                           </AvatarFallback>
                           {assignment.receiptUser?.user?.authUserId ===
                             clerkUserId && (
-                            <AvatarBadge
-                              className="bg-green-600 text-white ring-2 ring-background dark:bg-green-700 dark:text-white"
-                              aria-label={t`Linked to your account`}
-                            >
-                              <Check className="size-2.5" aria-hidden />
-                            </AvatarBadge>
-                          )}
+                              <AvatarBadge
+                                className="bg-green-600 text-white ring-2 ring-background dark:bg-green-700 dark:text-white"
+                                aria-label={t`Linked to your account`}
+                              >
+                                <Check className="size-2.5" aria-hidden />
+                              </AvatarBadge>
+                            )}
                         </Avatar>
                       )}
                       <span>{displayName}</span>
