@@ -431,7 +431,6 @@ export const BillBreakdownView = ({
       <SettlementControls
         allPaid={allPaid}
         onSoftDelete={onSoftDelete}
-        receiptId={receipt.id}
       />
     </div>
   );
@@ -440,11 +439,9 @@ export const BillBreakdownView = ({
 function SettlementControls({
   allPaid,
   onSoftDelete,
-  receiptId,
 }: {
   allPaid: boolean;
   onSoftDelete: () => void;
-  receiptId: number;
 }) {
   const [isMarkedComplete, setIsMarkedComplete] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
