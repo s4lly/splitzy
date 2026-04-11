@@ -20,6 +20,7 @@ class UserReceipt(db.Model):
     created_at = db.Column(
         db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     )
+    deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
 
     # Denormalized fields extracted from receipt_data (RegularReceipt / TransportationTicket)
     is_receipt = db.Column(db.Boolean, nullable=True, default=True)

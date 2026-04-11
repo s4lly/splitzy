@@ -35,6 +35,7 @@ import type { ReceiptLineItem } from './ReceiptLineItem';
  *   isReceipt: true,
  *   taxIncludedInItems: false,
  *   tipAfterTax: false,
+ *   deletedAt: null,
  *   lineItems: []
  * };
  * ```
@@ -109,6 +110,10 @@ export interface Receipt {
 
   /** Whether tip percentage buttons should calculate based on post-tax amount */
   readonly tipAfterTax: boolean;
+
+  // Soft delete
+  /** The date and time when this receipt was soft-deleted, or null if active */
+  readonly deletedAt: Date | null;
 
   // Line items
   /** Array of line items that make up this receipt */

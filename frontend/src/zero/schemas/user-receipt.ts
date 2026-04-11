@@ -51,5 +51,6 @@ export const userReceipt = table('user_receipts')
     currency: string().optional(),
     taxes: number().optional(),
     receipt_metadata: json().optional(),
+    deleted_at: number().optional(),
   })
   .primaryKey('id');

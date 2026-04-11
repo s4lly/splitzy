@@ -16,6 +16,7 @@ import type { User } from './User';
  *   displayName: "Jane Doe",
  *   createdAt: new Date("2024-01-15"),
  *   deletedAt: null,
+ *   paidAt: new Date("2024-01-20"),
  *   user: {
  *     id: 42,
  *     authUserId: "user_2abc123",
@@ -41,6 +42,9 @@ export interface ReceiptUser {
 
   /** The date and time when this receipt user was soft-deleted, or null if active */
   readonly deletedAt: Date | null;
+
+  /** The date and time when this receipt user was marked as paid, or null if unpaid */
+  readonly paidAt: Date | null;
 
   /** The linked User, if available and loaded, or null if not loaded or this is an anonymous receipt user */
   readonly user: User | null;

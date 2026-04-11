@@ -23,5 +23,6 @@ export const receiptUser = table('receipt_users')
     display_name: string().optional(),
     created_at: number(),
     deleted_at: number().optional(),
+    paid_at: number().optional(),
   })
   .primaryKey('id');
