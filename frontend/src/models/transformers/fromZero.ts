@@ -50,7 +50,7 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
                 deletedAt: a.receipt_user.deleted_at
                   ? new Date(a.receipt_user.deleted_at)
                   : null,
-                paidAt: a.receipt_user.paid_at
+                paidAt: a.receipt_user.paid_at != null
                   ? new Date(a.receipt_user.paid_at)
                   : null,
                 user: a.receipt_user.user
@@ -105,7 +105,7 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
     tipAfterTax: zeroReceipt.tip_after_tax ?? false,
 
     // Soft delete
-    deletedAt: zeroReceipt.deleted_at
+    deletedAt: zeroReceipt.deleted_at != null
       ? new Date(zeroReceipt.deleted_at)
       : null,
 
