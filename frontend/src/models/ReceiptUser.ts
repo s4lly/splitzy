@@ -16,6 +16,7 @@ import type { User } from './User';
  *   displayName: "Jane Doe",
  *   createdAt: new Date("2024-01-15"),
  *   deletedAt: null,
+ *   paidAt: new Date("2024-01-20"),
  *   user: {
  *     id: 42,
  *     authUserId: "user_2abc123",
