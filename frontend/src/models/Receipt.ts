@@ -35,6 +35,7 @@ import type { ReceiptLineItem } from './ReceiptLineItem';
  *   isReceipt: true,
  *   taxIncludedInItems: false,
  *   tipAfterTax: false,
+ *   deletedAt: null,
  *   lineItems: []
  * };
  * ```
