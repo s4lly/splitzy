@@ -428,10 +428,7 @@ export const BillBreakdownView = ({
       </div>
 
       {/* Settlement controls */}
-      <SettlementControls
-        allPaid={allPaid}
-        onSoftDelete={onSoftDelete}
-      />
+      <SettlementControls allPaid={allPaid} onSoftDelete={onSoftDelete} />
     </div>
   );
 };

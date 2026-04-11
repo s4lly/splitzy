@@ -123,7 +123,7 @@ export const ReceiptCollabContent = () => {
 
           <BillSplitSectionCollab />
 
-          {isLocalDevelopment() && <ReceiptViewer />}
+          {/* {isLocalDevelopment() && <ReceiptViewer />} */}
         </div>
       </div>
     </motion.div>
