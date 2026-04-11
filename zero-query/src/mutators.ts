@@ -17,6 +17,15 @@ export const mutators = defineMutators({
         await tx.mutate.user_receipts.update(args);
       }
     ),
+    softDelete: defineMutator(
+      z.object({ id: z.number() }),
+      async ({ tx, args }) => {
+        await tx.mutate.user_receipts.update({
+          id: args.id,
+          deleted_at: Date.now(),
+        });
+      }
+    ),
   },
   lineItems: {
     update: defineMutator(
@@ -152,6 +161,18 @@ export const mutators = defineMutators({
           // Client-side optimistic update -- trust the args
           await tx.mutate.receipt_users.update(args);
         }
+      }
+    ),
+    updatePaidStatus: defineMutator(
+      z.object({
+        id: z.string(),
+        paid_at: z.number().nullable(),
+      }),
+      async ({ tx, args }) => {
+        await tx.mutate.receipt_users.update({
+          id: args.id,
+          paid_at: args.paid_at,
+        });
       }
     ),
     delete: defineMutator(

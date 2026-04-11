@@ -1,6 +1,7 @@
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
-import { Check, FileText, UserPlus } from 'lucide-react';
+import { ArrowRight, Check, Circle, FileText, UserPlus } from 'lucide-react';
+import { useState } from 'react';
 
 import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
@@ -13,6 +14,7 @@ import {
   DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -30,8 +32,10 @@ export interface BillBreakdownViewProps {
   receiptTotal: Decimal;
   useEqualSplit: boolean;
   onManagePeopleClick?: () => void;
-  /** Receipt user id linked to the signed-in user; show badge on that person's avatar when set */
   linkedToSignedInUserReceiptUserId?: string | null;
+  personPaidStatus: Map<string, boolean>;
+  onTogglePaid: (receiptUserId: string, currentlyPaid: boolean) => void;
+  onSoftDelete: () => void;
 }
 
 export const BillBreakdownView = ({
@@ -43,6 +47,9 @@ export const BillBreakdownView = ({
   useEqualSplit,
   onManagePeopleClick,
   linkedToSignedInUserReceiptUserId,
+  personPaidStatus,
+  onTogglePaid,
+  onSoftDelete,
 }: BillBreakdownViewProps) => {
   const { t } = useLingui();
 
@@ -78,6 +85,9 @@ export const BillBreakdownView = ({
   const chipColors = getAvatarChipColors(receipt.id, personIds);
   const idToName = new Map(people.map((p) => [p.id, p.displayName]));
 
+  const allPaid =
+    people.length > 0 && people.every((p) => personPaidStatus.get(p.id));
+
   return (
     <div className="space-y-2">
       <h3 className="mb-1 font-medium">
@@ -86,6 +96,7 @@ export const BillBreakdownView = ({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {people.map((person) => {
           const c = chipColors.get(person.id);
+          const isPaid = personPaidStatus.get(person.id) ?? false;
 
           const personFairTotal: Decimal =
             personFairTotals.get(person.id) ?? new Decimal(0);
@@ -127,11 +138,13 @@ export const BillBreakdownView = ({
 
           return (
             <Dialog key={person.id}>
-              <DialogTrigger asChild>
-                <button
-                  type="button"
-                  className="font-inherit w-full cursor-pointer rounded-lg border bg-transparent p-4 text-left transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
+              <div
+                className={cn(
+                  'overflow-hidden rounded-lg border bg-card transition-shadow',
+                  !isPaid && 'hover:shadow-md'
+                )}
+              >
+                <div className={cn('p-4', isPaid && 'opacity-45')}>
                   <div className="mb-2 flex items-center gap-2">
                     {personAvatar}
                     <span className="truncate font-medium">
@@ -200,26 +213,60 @@ export const BillBreakdownView = ({
                     </div>
                   )}
 
-                  <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-                    {!useEqualSplit ? (
-                      <>
-                        <FileText className="h-3 w-3" />
-                        <Trans>
-                          {personItems.length}{' '}
-                          <Plural
-                            value={personItems.length}
-                            one="item"
-                            other="items"
-                          />{' '}
-                          assigned
-                        </Trans>
-                      </>
-                    ) : (
-                      <Trans>Equal amount split</Trans>
-                    )}
+                  {/* Footer row: item count + view items link */}
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      {!useEqualSplit ? (
+                        <>
+                          <FileText className="h-3 w-3" />
+                          <Trans>
+                            {personItems.length}{' '}
+                            <Plural
+                              value={personItems.length}
+                              one="item"
+                              other="items"
+                            />{' '}
+                            assigned
+                          </Trans>
+                        </>
+                      ) : (
+                        <Trans>Equal amount split</Trans>
+                      )}
+                    </div>
+
+                    <DialogTrigger asChild>
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 text-xs font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        <Trans>View items</Trans>
+                        <ArrowRight className="h-3 w-3" />
+                      </button>
+                    </DialogTrigger>
                   </div>
+                </div>
+
+                {/* Paid toggle strip */}
+                <button
+                  type="button"
+                  onClick={() => onTogglePaid(person.id, isPaid)}
+                  className={cn(
+                    'flex w-full items-center gap-2 border-t px-4 py-2.5 text-xs font-medium transition-colors',
+                    isPaid
+                      ? 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400'
+                      : 'text-muted-foreground hover:bg-muted/50'
+                  )}
+                >
+                  {isPaid ? (
+                    <div className="flex h-4 w-4 items-center justify-center rounded-full bg-green-600 dark:bg-green-500">
+                      <Check className="h-2.5 w-2.5 text-white" />
+                    </div>
+                  ) : (
+                    <Circle className="h-4 w-4" />
+                  )}
+                  {isPaid ? <Trans>Paid</Trans> : <Trans>Mark as paid</Trans>}
                 </button>
-              </DialogTrigger>
+              </div>
 
               <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-md">
                 <DialogHeader>
@@ -379,6 +426,93 @@ export const BillBreakdownView = ({
           );
         })}
       </div>
+
+      {/* Settlement controls */}
+      <SettlementControls
+        allPaid={allPaid}
+        onSoftDelete={onSoftDelete}
+        receiptId={receipt.id}
+      />
     </div>
   );
 };
+
+function SettlementControls({
+  allPaid,
+  onSoftDelete,
+  receiptId,
+}: {
+  allPaid: boolean;
+  onSoftDelete: () => void;
+  receiptId: number;
+}) {
+  const [isMarkedComplete, setIsMarkedComplete] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  return (
+    <div className="mt-4 border-t pt-5">
+      <Button
+        className={cn(
+          'w-full transition-colors',
+          isMarkedComplete &&
+            'bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800'
+        )}
+        disabled={!allPaid || isMarkedComplete}
+        onClick={() => setIsMarkedComplete(true)}
+      >
+        {isMarkedComplete ? (
+          <>
+            <Check className="mr-1.5 h-4 w-4" />
+            <Trans>Marked complete</Trans>
+          </>
+        ) : (
+          <Trans>All settled — mark complete</Trans>
+        )}
+      </Button>
+
+      <div
+        className={cn(
+          'mt-3 text-center transition-opacity',
+          isMarkedComplete
+            ? 'opacity-100'
+            : 'pointer-events-none select-none opacity-0'
+        )}
+      >
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogTrigger asChild>
+            <button
+              type="button"
+              className="text-xs font-medium text-destructive/65 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <Trans>Delete this record</Trans>
+            </button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                <Trans>Delete receipt?</Trans>
+              </DialogTitle>
+              <DialogDescription>
+                <Trans>
+                  This will remove the receipt for everyone who has the link.
+                  This action cannot be undone.
+                </Trans>
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+              >
+                <Trans>Cancel</Trans>
+              </Button>
+              <Button variant="destructive" onClick={onSoftDelete}>
+                <Trans>Delete</Trans>
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  );
+}

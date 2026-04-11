@@ -9,7 +9,9 @@ export const queries = defineQueries({
       byAuthUserId: defineQuery(z.object({}), ({ ctx }) =>
         zql.users
           .where('auth_user_id', ctx.userID ?? '')
-          .related('receipts', (q) => q.orderBy('created_at', 'desc'))
+          .related('receipts', (q) =>
+            q.where('deleted_at', 'IS', null).orderBy('created_at', 'desc')
+          )
           .one()
       ),
     },
@@ -18,6 +20,7 @@ export const queries = defineQueries({
     byId: defineQuery(z.object({ id: z.number() }), ({ args: { id } }) =>
       zql.user_receipts
         .where('id', id)
+        .where('deleted_at', 'IS', null)
         .related('line_items', (q) =>
           q
             .where('deleted_at', 'IS', null)

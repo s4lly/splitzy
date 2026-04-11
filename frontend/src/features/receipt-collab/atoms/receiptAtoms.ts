@@ -239,3 +239,16 @@ export const assignedUsersAtom = atom((get) => {
   }
   return Array.from(userMap.values());
 });
+
+/**
+ * Maps receiptUserId -> boolean indicating whether the person is marked as paid.
+ * Derived from assignedUsers' receiptUser.paidAt field.
+ */
+export const personPaidStatusAtom = atom((get) => {
+  const assignedUsers = get(assignedUsersAtom);
+  const paidMap = new Map<string, boolean>();
+  for (const a of assignedUsers) {
+    paidMap.set(a.receiptUserId, a.receiptUser?.paidAt != null);
+  }
+  return paidMap;
+});

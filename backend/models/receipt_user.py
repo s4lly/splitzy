@@ -14,6 +14,7 @@ class ReceiptUser(db.Model):
         db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     )
     deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
+    paid_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     user = db.relationship("User", backref=db.backref("receipt_users", lazy=True), lazy="joined")
 
