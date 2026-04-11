@@ -443,6 +443,11 @@ function SettlementControls({
   allPaid: boolean;
   onSoftDelete: () => void;
 }) {
+  // Intentionally ephemeral: this is a one-click confirmation step that
+  // reveals the destructive "Delete this record" action. There is no backend
+  // "marked complete" concept — persistence comes from allPaid (each user's
+  // paidAt timestamp). On remount, allPaid will still be true, so the user
+  // simply clicks once again. No data is lost.
   const [isMarkedComplete, setIsMarkedComplete] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
