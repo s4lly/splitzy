@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/clerk-react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
-import { Check, GripVertical, Plus, X } from 'lucide-react';
+import { Check, HandGrab, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
 
 import {
@@ -250,7 +250,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                             title={displayName}
                           >
                             <AvatarFallback className={cn(c.bg, c.text)}>
-                              <GripVertical />
+                              <HandGrab />
                             </AvatarFallback>
                           </Avatar>
                         </Button>
