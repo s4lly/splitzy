@@ -467,49 +467,44 @@ function SettlementControls({
         )}
       </Button>
 
-      <div
-        className={cn(
-          'mt-3 text-center transition-opacity',
-          isMarkedComplete
-            ? 'opacity-100'
-            : 'pointer-events-none select-none opacity-0'
-        )}
-      >
-        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogTrigger asChild>
-            <button
-              type="button"
-              className="text-xs font-medium text-destructive/65 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <Trans>Delete this record</Trans>
-            </button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                <Trans>Delete receipt?</Trans>
-              </DialogTitle>
-              <DialogDescription>
-                <Trans>
-                  This will remove the receipt for everyone who has the link.
-                  This action cannot be undone.
-                </Trans>
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setDeleteDialogOpen(false)}
+      {isMarkedComplete && (
+        <div className="mt-3 text-center">
+          <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <DialogTrigger asChild>
+              <button
+                type="button"
+                className="text-xs font-medium text-destructive/65 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <Trans>Cancel</Trans>
-              </Button>
-              <Button variant="destructive" onClick={onSoftDelete}>
-                <Trans>Delete</Trans>
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+                <Trans>Delete this record</Trans>
+              </button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  <Trans>Delete receipt?</Trans>
+                </DialogTitle>
+                <DialogDescription>
+                  <Trans>
+                    This will remove the receipt for everyone who has the link.
+                    This action cannot be undone.
+                  </Trans>
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setDeleteDialogOpen(false)}
+                >
+                  <Trans>Cancel</Trans>
+                </Button>
+                <Button variant="destructive" onClick={onSoftDelete}>
+                  <Trans>Delete</Trans>
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      )}
     </div>
   );
 }
