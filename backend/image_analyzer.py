@@ -2,7 +2,10 @@ import json
 import logging
 import os
 import re
+from dataclasses import dataclass, field
+from decimal import Decimal
 from pathlib import Path
+from typing import Optional
 
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -21,6 +24,31 @@ logger = logging.getLogger(__name__)
 
 _is_dev = os.environ.get("VERCEL_ENV", "production") != "production"
 
+# ---------------------------------------------------------------------------
+# Reconciliation configuration
+# ---------------------------------------------------------------------------
+# Tolerance for sum(line_item.total_price) vs. printed subtotal. $0.05 absorbs
+# per-line rounding on receipts that independently round unit×qty.
+RECONCILIATION_TOLERANCE = Decimal("0.05")
+
+
+@dataclass
+class _SuspectItem:
+    """A line item that is likely the source of a reconciliation mismatch."""
+    name: str
+    qty: float
+    unit_price: Decimal
+    total_price: Decimal
+
+
+@dataclass
+class _ReconciliationResult:
+    ok: bool
+    items_sum: Decimal = Decimal("0")
+    printed_subtotal: Decimal = Decimal("0")
+    delta: Decimal = Decimal("0")
+    suspect: Optional[_SuspectItem] = None
+
 
 class ImageAnalysisError(Exception):
     """Domain-specific exception for image analysis failures"""
@@ -38,6 +66,10 @@ class ImageAnalyzerConfigError(Exception):
 backend_dir = Path(__file__).resolve().parent
 env_path = backend_dir / ".env"
 load_dotenv(env_path)
+
+# When True, a mismatch triggers one targeted Gemini retry with arithmetic
+# hints. Disable during incident response without a code deploy.
+RECEIPT_RETRY_ON_MISMATCH: bool = os.getenv("RECEIPT_RETRY_ON_MISMATCH", "true").strip().lower() in ("1", "true", "yes")
 
 # Module-level flag to track if configuration has been done
 _configured = False
@@ -104,7 +136,7 @@ class ImageAnalyzer:
             ) from e
 
     def _analyze_image_with_gemini(self, image_data_or_path, mime_type="image/jpeg"):
-        """Analyze image using Google Gemini"""
+        """Analyze image using Google Gemini, with one targeted retry on totals mismatch."""
         # Handle both binary data and file path
         if isinstance(image_data_or_path, bytes):
             image_data = image_data_or_path
@@ -118,14 +150,12 @@ class ImageAnalyzer:
         # Create the model
         model = genai.GenerativeModel("models/gemini-2.5-flash-lite")
 
-        # Create the content parts
+        # --- First pass ---
         content_parts = [
             self._get_system_prompt(),
             "Analyze this image and extract all relevant payment information. This might be a receipt, invoice, or transportation ticket. Pay special attention to any monetary amounts shown.",
             {"mime_type": mime_type, "data": image_data},
         ]
-
-        # Generate content
         response = model.generate_content(content_parts)
 
         logger.debug("[analyzer] Gemini response length: %d", len(response.text))
@@ -135,7 +165,173 @@ class ImageAnalyzer:
                 response.text[:2000],
             )
 
-        return self._process_response(response.text)
+        receipt_model = self._process_response(response.text)
+
+        # --- Reconciliation check + optional retry ---
+        if RECEIPT_RETRY_ON_MISMATCH and hasattr(receipt_model, "line_items"):
+            reconciliation = self._validate_totals(receipt_model)
+            if not reconciliation.ok:
+                retry_hint = self._build_retry_hint(reconciliation)
+                logger.warning(
+                    "[analyzer] Totals mismatch (delta=%s); retrying with hint. merchant=%s",
+                    reconciliation.delta,
+                    getattr(receipt_model, "merchant", None),
+                )
+                try:
+                    retry_parts = [
+                        self._get_system_prompt(),
+                        "Analyze this image and extract all relevant payment information. This might be a receipt, invoice, or transportation ticket. Pay special attention to any monetary amounts shown.",
+                        {"mime_type": mime_type, "data": image_data},
+                        retry_hint,
+                    ]
+                    retry_response = model.generate_content(retry_parts)
+                    logger.debug(
+                        "[analyzer] Retry Gemini response length: %d",
+                        len(retry_response.text),
+                    )
+                    retry_model = self._process_response(retry_response.text)
+                    if hasattr(retry_model, "line_items"):
+                        retry_reconciliation = self._validate_totals(retry_model)
+                        if retry_reconciliation.ok:
+                            logger.info(
+                                "[analyzer] Reconciled on retry. merchant=%s",
+                                getattr(retry_model, "merchant", None),
+                            )
+                            return retry_model
+                        else:
+                            logger.error(
+                                "[analyzer] Unreconciled after retry (delta=%s); "
+                                "falling back to first response. merchant=%s",
+                                retry_reconciliation.delta,
+                                getattr(retry_model, "merchant", None),
+                            )
+                    else:
+                        logger.warning(
+                            "[analyzer] Retry returned unexpected type %s "
+                            "(original type=%s); returning retry model as-is. "
+                            "merchant=%s image=%s",
+                            retry_model.__class__.__name__,
+                            receipt_model.__class__.__name__,
+                            getattr(retry_model, "merchant", None),
+                            image_data_or_path
+                            if isinstance(image_data_or_path, str)
+                            else "<bytes>",
+                        )
+                        return retry_model
+                except Exception as retry_err:
+                    logger.error(
+                        "[analyzer] Retry response processing failed: %s; "
+                        "falling back to first response.",
+                        retry_err,
+                    )
+            elif _is_dev:
+                logger.debug(
+                    "[analyzer] Totals reconciled (items_sum=%s, subtotal=%s). merchant=%s",
+                    reconciliation.items_sum,
+                    reconciliation.printed_subtotal,
+                    getattr(receipt_model, "merchant", None),
+                )
+
+        return receipt_model
+
+    def _validate_totals(self, receipt_model) -> "_ReconciliationResult":
+        """
+        Compare sum(line_item.total_price) against the printed subtotal.
+
+        Returns a _ReconciliationResult. ok=True when the delta is within
+        RECONCILIATION_TOLERANCE. Also tries to identify the most likely
+        suspect line item responsible for the mismatch.
+        """
+        line_items = getattr(receipt_model, "line_items", [])
+        items_sum = sum(
+            (Decimal(str(item.total_price)) for item in line_items), Decimal("0")
+        ).quantize(Decimal("0.01"))
+
+        # Use the printed subtotal as the oracle. Fall back to total if absent.
+        _subtotal = getattr(receipt_model, "subtotal", None)
+        _total = getattr(receipt_model, "total", None)
+        printed_subtotal = Decimal(
+            str(_subtotal if _subtotal is not None else (_total if _total is not None else 0))
+        ).quantize(Decimal("0.01"))
+
+        delta = (items_sum - printed_subtotal).copy_abs()
+
+        if delta <= RECONCILIATION_TOLERANCE:
+            return _ReconciliationResult(
+                ok=True, items_sum=items_sum, printed_subtotal=printed_subtotal, delta=delta
+            )
+
+        if _is_dev:
+            for item in line_items:
+                logger.debug(
+                    "[analyzer] line item: name=%r qty=%s unit=%s total=%s",
+                    item.name,
+                    item.quantity,
+                    item.price_per_item,
+                    item.total_price,
+                )
+
+        # Try to identify the suspect item: the one whose (qty-1)*unit_price
+        # equals the delta (i.e. we counted one extra unit), or whose
+        # unit_price equals delta (we doubled the value by using unit as total).
+        suspect: Optional[_SuspectItem] = None
+        for item in line_items:
+            qty = item.quantity
+            unit = Decimal(str(item.price_per_item)).quantize(Decimal("0.01"))
+            total = Decimal(str(item.total_price)).quantize(Decimal("0.01"))
+            # Classic misread: unit price was used as total, so total = qty * unit
+            # instead of the printed value. Extra amount = (qty - 1) * unit.
+            if qty > 1 and (Decimal(str(qty - 1)) * unit - delta).copy_abs() <= Decimal("0.02"):
+                suspect = _SuspectItem(name=item.name, qty=qty, unit_price=unit, total_price=total)
+                break
+            # Alternate: the item is wholly spurious — qty × unit equals the full delta.
+            if qty > 1 and (Decimal(str(qty)) * unit - delta).copy_abs() <= Decimal("0.02"):
+                suspect = _SuspectItem(name=item.name, qty=qty, unit_price=unit, total_price=total)
+                break
+
+        return _ReconciliationResult(
+            ok=False,
+            items_sum=items_sum,
+            printed_subtotal=printed_subtotal,
+            delta=delta,  # already absolute from copy_abs() above
+            suspect=suspect,
+        )
+
+    def _build_retry_hint(self, result: "_ReconciliationResult") -> str:
+        """
+        Build a targeted correction message to include in the retry prompt.
+        """
+        lines = [
+            f"CORRECTION REQUIRED: Your previous extraction had "
+            f"sum(line_item.total_price) = ${result.items_sum} but the printed "
+            f"subtotal on the receipt is ${result.printed_subtotal} "
+            f"(difference: ${result.delta.copy_abs()}).",
+            "",
+            "The most likely cause is misreading a printed extended-line total as a "
+            "unit price. Remember: when only one price appears next to a quantity > 1, "
+            "that price is almost always the EXTENDED TOTAL (quantity × unit price), "
+            "not the unit price.",
+        ]
+        if result.suspect:
+            s = result.suspect
+            # The extracted unit_price is the value that appeared on the receipt.
+            # In the classic misread, that printed value IS the extended total,
+            # so the correct unit_price = printed_value / qty.
+            corrected_unit = (s.unit_price / Decimal(str(s.qty))).quantize(Decimal("0.01"))
+            lines += [
+                "",
+                f"Suspect line item: '{s.name}' (qty {s.qty}, extracted unit ${s.unit_price}, "
+                f"extracted total ${s.total_price}).",
+                f"The printed value ${s.unit_price} is likely the EXTENDED TOTAL, not the unit "
+                f"price. Correct extraction: total_price={s.unit_price}, "
+                f"price_per_item={corrected_unit}.",
+            ]
+        lines += [
+            "",
+            "Re-extract the receipt. Ensure sum(line_item.total_price) reconciles with "
+            "the printed subtotal before returning your JSON.",
+        ]
+        return "\n".join(lines)
 
     def _with_structured_output(self, analysis_text: str):
         """
@@ -302,7 +498,7 @@ class ImageAnalyzer:
         """Get the system prompt for receipt analysis"""
         return """
         You are a financial document analyzer, specializing in receipts, bills, invoices, transportation tickets, and similar payment documents. First, determine if the image contains any payment document (receipt, bill, invoice, ticket, order confirmation, etc.) with pricing information.
-        
+
         If the image is a TRANSPORTATION TICKET (train, bus, flight, etc.):
         Extract this information in JSON format:
         {
@@ -320,22 +516,18 @@ class ImageAnalyzer:
           "taxes": 0.0,  # Any taxes listed separately
           "total": 20.0  # Total amount paid
         }
-        
+
         If the image is NOT any payment document (contains no prices or payment information), respond with: {"is_receipt": false, "reason": "Brief explanation of what the image appears to contain and why it is not a receipt or payment document"}
-        
+
         If it IS a REGULAR payment document (receipt, bill, invoice, order, etc.), extract the following information in JSON format:
         1. Store or merchant name
         2. Date of purchase/invoice/order
-        3. List of items with:
-           - Item name
-           - Quantity (if available)
-           - Price per item (0 if not present)
-           - Total price for the item
-        4. Subtotal (before tax)
+        3. List of items — see LINE ITEM RULES below
+        4. Subtotal (before tax) — copy exactly from the printed document
         5. Tax amount
         6. Tip amount (if present)
         7. Gratuity or service charge (if present, as a separate field from tip)
-        8. Total amount
+        8. Total amount — copy exactly from the printed document
         9. Payment method (if available)
         10. Special fields for different tax handling:
            - tax_included_in_items: (true/false) - Whether tax is already included in item prices
@@ -344,6 +536,42 @@ class ImageAnalyzer:
            - pretax_total: Total before tax (might be different from items_total if there are discounts)
            - posttax_total: Total after tax is applied (but before tip/gratuity)
            - final_total: The final total including everything (tax, tip, gratuity)
+
+        SOURCE OF TRUTH — READ THIS CAREFULLY:
+        The printed subtotal, tax, tip/gratuity, and total on the receipt are the source of truth.
+        Before you return your JSON, mentally verify: sum(line_item.total_price) must equal the
+        printed subtotal (within $0.05 for rounding). If it does not, you have a mis-extracted
+        line item — re-read each line and fix it before returning.
+
+        LINE ITEM RULES:
+        For each line item extract:
+        - "name": item description
+        - "quantity": number of units (default 1 if not printed)
+        - "total_price": the EXTENDED total for this line — what this line contributes to the
+          subtotal. This is the key figure. Read it directly from the receipt.
+        - "price_per_item": the per-unit price. If only one price is printed next to a
+          multi-quantity line, that price is almost always the EXTENDED TOTAL, not the unit price.
+
+        IMPORTANT — UNIT PRICE vs. EXTENDED TOTAL:
+        Many receipts show only one price column. That column is the extended total (qty × unit).
+        Example of the WRONG interpretation:
+          Receipt line: "2 Soda   $12"
+          Wrong: quantity=2, price_per_item=12.00, total_price=24.00  ← sum would be $12 too high
+        Example of the CORRECT interpretation:
+          Receipt line: "2 Soda   $12"
+          Correct: quantity=2, price_per_item=6.00, total_price=12.00  ← printed $12 is the total
+        Rule: if treating the printed price as the unit price causes sum(total_price) to exceed
+        the printed subtotal, treat the printed price as the extended total instead, and derive
+        price_per_item = printed_price / quantity.
+
+        SELF-CHECK (mandatory before returning JSON):
+        1. Add up all line_item.total_price values.
+        2. Compare the sum to the printed subtotal on the receipt.
+        3. If the difference is more than $0.05, re-inspect your line items for the
+           unit-vs-extended misread above and fix them.
+        4. If you truly cannot reconcile (illegible receipt, complex discounts), keep your
+           best-effort values but ensure total_price values do not silently inflate the sum
+           beyond the printed subtotal.
 
         Format your response as valid JSON like this:
         {
@@ -355,7 +583,7 @@ class ImageAnalyzer:
               "name": "Item 1",
               "quantity": 2,
               "price_per_item": 10.99,
-              "total_price": 21.98,
+              "total_price": 21.98
             },
             ...
           ],
@@ -372,14 +600,14 @@ class ImageAnalyzer:
           "posttax_total": 49.65,
           "final_total": 62.15
         }
-        
+
         For tips and gratuity:
         - Report "tip" for any discretionary amounts added by the customer
         - Report "gratuity" for any mandatory service charges added by the establishment
         - Pre-calculated tip options with one selected should be under "tip"
         - If no tip is found, set tip to 0.0
         - If no gratuity is found, you can omit that field or set it to 0.0
-        
+
         For tax handling and totals:
         - Set "tax_included_in_items" to true if the document indicates tax is already included in item prices
         - "display_subtotal" should be the subtotal exactly as shown on the document
@@ -388,10 +616,10 @@ class ImageAnalyzer:
         - "posttax_total" is the amount after tax but before tip/gratuity
         - "final_total" is the very final amount including everything
         - "total" should be the final total (same as final_total) for backward compatibility
-        
+
         If you can't determine some of these special fields, make your best estimation based on the values you can see.
         The most important thing is to correctly identify if tax is included in items or added separately.
-        
+
         Use null for any other fields that cannot be determined and are not supposed to be numbers. Ensure all numbers are formatted as numbers, not strings.
         Use 0 for amounts that are not present or cannot be determined.
         Note: Use 'line_items' (not 'items') as the key for the list of purchased items.
