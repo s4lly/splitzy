@@ -248,8 +248,10 @@ class ImageAnalyzer:
         ).quantize(Decimal("0.01"))
 
         # Use the printed subtotal as the oracle. Fall back to total if absent.
+        _subtotal = getattr(receipt_model, "subtotal", None)
+        _total = getattr(receipt_model, "total", None)
         printed_subtotal = Decimal(
-            str(getattr(receipt_model, "subtotal", None) or getattr(receipt_model, "total", 0) or 0)
+            str(_subtotal if _subtotal is not None else (_total if _total is not None else 0))
         ).quantize(Decimal("0.01"))
 
         delta = (items_sum - printed_subtotal).copy_abs()
