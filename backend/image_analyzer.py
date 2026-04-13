@@ -31,10 +31,6 @@ _is_dev = os.environ.get("VERCEL_ENV", "production") != "production"
 # per-line rounding on receipts that independently round unit×qty.
 RECONCILIATION_TOLERANCE = Decimal("0.05")
 
-# When True, a mismatch triggers one targeted Gemini retry with arithmetic
-# hints. Disable during incident response without a code deploy.
-RECEIPT_RETRY_ON_MISMATCH: bool = os.getenv("RECEIPT_RETRY_ON_MISMATCH", "true").strip().lower() in ("1", "true", "yes")
-
 
 @dataclass
 class _SuspectItem:
@@ -70,6 +66,10 @@ class ImageAnalyzerConfigError(Exception):
 backend_dir = Path(__file__).resolve().parent
 env_path = backend_dir / ".env"
 load_dotenv(env_path)
+
+# When True, a mismatch triggers one targeted Gemini retry with arithmetic
+# hints. Disable during incident response without a code deploy.
+RECEIPT_RETRY_ON_MISMATCH: bool = os.getenv("RECEIPT_RETRY_ON_MISMATCH", "true").strip().lower() in ("1", "true", "yes")
 
 # Module-level flag to track if configuration has been done
 _configured = False
