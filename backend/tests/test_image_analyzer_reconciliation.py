@@ -138,6 +138,27 @@ class TestValidateTotals:
         assert result.suspect is not None
         assert result.suspect.name == "Soda"
 
+    def test_delta_is_non_negative_when_items_sum_below_subtotal(self, analyzer):
+        """
+        delta must be absolute (non-negative) even when items_sum < printed_subtotal.
+
+        Regression guard: returning `items_sum - printed_subtotal` without .copy_abs()
+        would yield -12.00 here, breaking any caller that expects a non-negative delta.
+        """
+        receipt = _good_receipt()
+        # Remove one item so items_sum (10) falls below the printed subtotal (22).
+        receipt["line_items"] = [
+            {"name": "Sandwich", "quantity": 1, "price_per_item": 10.00, "total_price": 10.00},
+        ]
+        model = RegularReceipt.model_validate(receipt)
+        result = analyzer._validate_totals(model)
+
+        assert result.ok is False
+        assert result.delta >= Decimal("0"), (
+            f"delta should be non-negative (absolute), got {result.delta}"
+        )
+        assert result.delta == Decimal("12.00")
+
 
 class TestBuildRetryHint:
     """Unit tests for the retry hint builder."""

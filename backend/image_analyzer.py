@@ -291,7 +291,7 @@ class ImageAnalyzer:
             ok=False,
             items_sum=items_sum,
             printed_subtotal=printed_subtotal,
-            delta=items_sum - printed_subtotal,
+            delta=delta,  # already absolute from copy_abs() above
             suspect=suspect,
         )
 
