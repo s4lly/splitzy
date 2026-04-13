@@ -177,18 +177,18 @@ class ImageAnalyzer:
                     reconciliation.delta,
                     getattr(receipt_model, "merchant", None),
                 )
-                retry_parts = [
-                    self._get_system_prompt(),
-                    "Analyze this image and extract all relevant payment information. This might be a receipt, invoice, or transportation ticket. Pay special attention to any monetary amounts shown.",
-                    {"mime_type": mime_type, "data": image_data},
-                    retry_hint,
-                ]
-                retry_response = model.generate_content(retry_parts)
-                logger.debug(
-                    "[analyzer] Retry Gemini response length: %d",
-                    len(retry_response.text),
-                )
                 try:
+                    retry_parts = [
+                        self._get_system_prompt(),
+                        "Analyze this image and extract all relevant payment information. This might be a receipt, invoice, or transportation ticket. Pay special attention to any monetary amounts shown.",
+                        {"mime_type": mime_type, "data": image_data},
+                        retry_hint,
+                    ]
+                    retry_response = model.generate_content(retry_parts)
+                    logger.debug(
+                        "[analyzer] Retry Gemini response length: %d",
+                        len(retry_response.text),
+                    )
                     retry_model = self._process_response(retry_response.text)
                     if hasattr(retry_model, "line_items"):
                         retry_reconciliation = self._validate_totals(retry_model)
