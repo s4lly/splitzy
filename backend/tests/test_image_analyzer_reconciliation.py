@@ -10,11 +10,10 @@ import json
 import logging
 from decimal import Decimal
 from types import SimpleNamespace
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-import image_analyzer as ia
 from image_analyzer import (
     RECONCILIATION_TOLERANCE,
     ImageAnalyzer,
