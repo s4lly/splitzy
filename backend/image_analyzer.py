@@ -282,8 +282,8 @@ class ImageAnalyzer:
             if qty > 1 and (Decimal(str(qty - 1)) * unit - delta).copy_abs() <= Decimal("0.02"):
                 suspect = _SuspectItem(name=item.name, qty=qty, unit_price=unit, total_price=total)
                 break
-            # Alternate: the printed single number is the total, not the unit price.
-            if qty > 1 and (unit * Decimal(str(qty)) - total - delta).copy_abs() <= Decimal("0.02"):
+            # Alternate: the item is wholly spurious — qty × unit equals the full delta.
+            if qty > 1 and (Decimal(str(qty)) * unit - delta).copy_abs() <= Decimal("0.02"):
                 suspect = _SuspectItem(name=item.name, qty=qty, unit_price=unit, total_price=total)
                 break
 
