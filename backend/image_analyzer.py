@@ -33,7 +33,7 @@ RECONCILIATION_TOLERANCE = Decimal("0.05")
 
 # When True, a mismatch triggers one targeted Gemini retry with arithmetic
 # hints. Disable during incident response without a code deploy.
-RECEIPT_RETRY_ON_MISMATCH: bool = True
+RECEIPT_RETRY_ON_MISMATCH: bool = os.getenv("RECEIPT_RETRY_ON_MISMATCH", "true").strip().lower() in ("1", "true", "yes")
 
 
 @dataclass
