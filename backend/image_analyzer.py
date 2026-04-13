@@ -206,6 +206,17 @@ class ImageAnalyzer:
                                 getattr(retry_model, "merchant", None),
                             )
                     else:
+                        logger.warning(
+                            "[analyzer] Retry returned unexpected type %s "
+                            "(original type=%s); returning retry model as-is. "
+                            "merchant=%s image=%s",
+                            retry_model.__class__.__name__,
+                            receipt_model.__class__.__name__,
+                            getattr(retry_model, "merchant", None),
+                            image_data_or_path
+                            if isinstance(image_data_or_path, str)
+                            else "<bytes>",
+                        )
                         return retry_model
                 except Exception as retry_err:
                     logger.error(
