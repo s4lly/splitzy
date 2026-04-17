@@ -1655,9 +1655,7 @@ describe('Phase 2: tax distribution via receipt.tax (no rate indirection)', () =
     });
 
     expect(
-      calculations.final
-        .getReceiptTotal(receipt as any)
-        .equals(new Decimal(50))
+      calculations.final.getReceiptTotal(receipt as any).equals(new Decimal(50))
     ).toBe(true);
   });
 
@@ -1679,9 +1677,7 @@ describe('Phase 2: tax distribution via receipt.tax (no rate indirection)', () =
 
     // items(50) + tax(5) + gratuity(1) + tip(2) = 58
     expect(
-      calculations.final
-        .getReceiptTotal(receipt as any)
-        .equals(new Decimal(58))
+      calculations.final.getReceiptTotal(receipt as any).equals(new Decimal(58))
     ).toBe(true);
   });
 });
