@@ -77,6 +77,9 @@ export interface Receipt {
   /** The tax amount, using Decimal.js for precision */
   readonly tax: Decimal | null;
 
+  /** The original tax amount from the receipt image, using Decimal.js for precision */
+  readonly originalTax: Decimal | null;
+
   /** The tip amount, using Decimal.js for precision */
   readonly tip: Decimal | null;
 

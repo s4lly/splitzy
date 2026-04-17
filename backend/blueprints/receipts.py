@@ -211,6 +211,7 @@ def analyze_receipt():
             )
             receipt_create_data.image_path = blob_url
             receipt_create_data.original_tip = receipt_create_data.tip
+            receipt_create_data.original_tax = receipt_create_data.tax
 
             # Create the SQLAlchemy model instance
             new_receipt = UserReceipt(**receipt_create_data.model_dump())

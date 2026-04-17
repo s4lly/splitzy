@@ -91,6 +91,7 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
     subtotal: toDecimal(zeroReceipt.subtotal),
     displaySubtotal: toDecimal(zeroReceipt.display_subtotal),
     tax: toDecimal(zeroReceipt.tax),
+    originalTax: toDecimal(zeroReceipt.original_tax),
     tip: toDecimal(zeroReceipt.tip),
     originalTip: toDecimal(zeroReceipt.original_tip),
     gratuity: toDecimal(zeroReceipt.gratuity),
