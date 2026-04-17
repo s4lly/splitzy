@@ -31,6 +31,7 @@ class UserReceipt(db.Model):
     date = db.Column(db.Date, nullable=True)  # Using proper Date type
     subtotal = db.Column(Numeric(12, 2), nullable=True, default=0)
     tax = db.Column(Numeric(12, 2), nullable=True, default=0)
+    original_tax = db.Column(Numeric(12, 2), nullable=True, default=0)
     tip = db.Column(Numeric(12, 2), nullable=True, default=0)
     original_tip = db.Column(Numeric(12, 2), nullable=True, default=0)
     gratuity = db.Column(Numeric(12, 2), nullable=True, default=0)

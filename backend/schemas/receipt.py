@@ -57,6 +57,7 @@ class ReceiptDecimalSerializerMixin:
     @field_serializer(
         "subtotal",
         "tax",
+        "original_tax",
         "tip",
         "original_tip",
         "gratuity",
@@ -298,6 +299,7 @@ class RegularReceiptBase(
     )  # Exclude from database creation
     subtotal: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     tax: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+    original_tax: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     tip: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     original_tip: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     gratuity: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
@@ -353,6 +355,7 @@ class RegularReceiptBase(
         for attr in (
             "subtotal",
             "tax",
+            "original_tax",
             "tip",
             "original_tip",
             "gratuity",

@@ -136,15 +136,16 @@ export namespace calculations {
       item: ReceiptLineItem,
       candidate?: { pricePerItem: Decimal; quantity: Decimal }
     ): Decimal {
-      const price =
-        candidate?.pricePerItem != null
-          ? candidate.pricePerItem
-          : item.pricePerItem;
+      // When a candidate override is provided, the user is actively editing
+      // pricePerItem/quantity — derive the preview from those values.
+      if (candidate) {
+        return candidate.pricePerItem.mul(candidate.quantity);
+      }
 
-      const quantity =
-        candidate?.quantity != null ? candidate.quantity : item.quantity;
-
-      return price.mul(quantity);
+      // Otherwise, treat the OCR-provided totalPrice as authoritative.
+      // OCR can produce inconsistent triples (e.g. pricePerItem=3.33,
+      // quantity=3, totalPrice=10.00); using totalPrice avoids cent-level drift.
+      return item.totalPrice;
     }
 
     /**
@@ -340,10 +341,9 @@ export namespace calculations {
 
             subtotal = Decimal.add(
               subtotal,
-              Decimal.mul(
-                individualSplit.item.pricePerItem,
-                individualSplit.item.quantity
-              ).div(new Decimal(groupSize))
+              getIndividualItemTotalPrice(individualSplit.item).div(
+                new Decimal(groupSize)
+              )
             );
             break;
           }
@@ -401,10 +401,9 @@ export namespace calculations {
                 throw new Error('Group size not found');
               }
 
-              const splitValue = Decimal.mul(
-                item.pricePerItem,
-                item.quantity
-              ).div(new Decimal(groupSize));
+              const splitValue = getIndividualItemTotalPrice(item).div(
+                new Decimal(groupSize)
+              );
 
               personItemTotals.set(
                 personIdentifier,
@@ -436,35 +435,32 @@ export namespace calculations {
   export namespace tax {
     /**
      * Calculates the tax rate as a decimal (e.g., 0.10 for 10% tax).
-     * Computed by dividing the tax amount by the display subtotal.
-     * Uses Decimal.js for precise division to avoid floating-point errors.
-     * Returns Decimal(0) if subtotal is zero or tax is not provided.
+     * Computed by dividing `receipt.tax` by the live sum of line items
+     * (`pretax.getTotalForAllItems(receipt)`), not by the frozen OCR
+     * `displaySubtotal`. This keeps the rate consistent with the current
+     * items after edits.
      *
-     * @param receipt - The receipt containing tax and displaySubtotal (already as Decimal)
-     * @returns The tax rate as a Decimal instance (tax / displaySubtotal). Returns Decimal(0) if subtotal is zero or tax is missing.
+     * This function is informational (used for display and future tax
+     * editors) — tax distribution in `getPersonTotals` distributes
+     * `receipt.tax` directly by proportion rather than re-applying this
+     * rate.
      *
-     * @example
-     * ```ts
-     * // Receipt with $10.00 tax on $100.00 subtotal
-     * const taxRate = calculations.tax.getRate(receipt);
-     * // Returns: new Decimal(0.10) // 10% tax rate
+     * Returns Decimal(0) when tax is missing/zero or when there are no items.
      *
-     * // Receipt with $8.50 tax on $85.00 subtotal
-     * const taxRate = calculations.tax.getRate(receipt);
-     * // Returns: new Decimal(0.10) // Still 10% tax rate
-     * ```
+     * @param receipt - The receipt containing tax and line items
+     * @returns The tax rate as a Decimal instance (receipt.tax / itemsTotal).
      */
     export function getRate(receipt: Receipt): Decimal {
-      // Avoid division by zero
-      if (!receipt.displaySubtotal) {
+      if (!receipt.tax || receipt.tax.isZero()) {
         return new Decimal(0);
       }
 
-      if (!receipt.tax) {
+      const itemsTotal = pretax.getTotalForAllItems(receipt);
+      if (itemsTotal.isZero()) {
         return new Decimal(0);
       }
 
-      return receipt.tax.div(receipt.displaySubtotal);
+      return receipt.tax.div(itemsTotal);
     }
   }
 
@@ -514,7 +510,10 @@ export namespace calculations {
 
       // derived
       total = total.plus(pretax.getTotalForAllItems(receipt));
-      total = total.plus(total.mul(tax.getRate(receipt)));
+
+      if (!receipt.taxIncludedInItems) {
+        total = total.plus(receipt.tax ?? new Decimal(0));
+      }
 
       // pulled from receipt
       total = total.plus(receipt.gratuity ?? new Decimal(0));
@@ -631,8 +630,15 @@ export namespace calculations {
           ? Decimal.sum(...Array.from(personItemTotals.values()))
           : new Decimal(0);
 
-        const taxRate = tax.getRate(receipt);
-        const taxAmount = totalAssignedItemsValue.mul(taxRate);
+        // Distribute receipt.tax directly by proportion — no rate indirection.
+        // When all items are assigned, totalAssignedItemsValue === totalItemsValue,
+        // so taxAmount === receipt.tax. When some items are unassigned, only the
+        // fraction of receipt.tax attributable to assigned items is distributed.
+        const totalItemsValue = pretax.getTotalForAllItems(receipt);
+        const receiptTax = receipt.tax ?? new Decimal(0);
+        const taxAmount = totalItemsValue.isZero()
+          ? new Decimal(0)
+          : receiptTax.mul(totalAssignedItemsValue.div(totalItemsValue));
 
         switch (taxSplitType) {
           case 'even': {
@@ -652,12 +658,9 @@ export namespace calculations {
 
           case 'proportional': {
             for (const [personIdentifier, itemTotal] of personItemTotals) {
-              const personSplitTotal = pretax.getPersonSplitTotal(
-                personIdentifier,
-                itemSplits
-              );
-
-              const burden = personSplitTotal.div(totalAssignedItemsValue);
+              const burden = totalAssignedItemsValue.isZero()
+                ? new Decimal(0)
+                : itemTotal.div(totalAssignedItemsValue);
               const personTaxAmount = taxAmount.mul(burden);
 
               personItemTotals.set(

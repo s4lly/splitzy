@@ -6,6 +6,7 @@ export const mutators = defineMutators({
     update: defineMutator(
       z.object({
         id: z.number(),
+        tax: z.number().optional(),
         tip: z.number().optional(),
         gratuity: z.number().optional(),
         tip_after_tax: z.boolean().optional(),

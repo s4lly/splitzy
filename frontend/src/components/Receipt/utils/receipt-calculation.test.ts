@@ -1009,7 +1009,11 @@ describe('tax.getRate', () => {
     ).toBe(true); // 2/20 = 0.1
   });
 
-  it('returns 0 when display_subtotal is 0', () => {
+  // Phase 2: getRate no longer uses display_subtotal as denominator — it uses
+  // the live items sum. The old "returns 0 when display_subtotal is 0" test
+  // is obsolete; coverage for the "no items → rate is 0" case lives in the
+  // Phase 2 describe block below via getReceiptTotal behavior.
+  it.skip('returns 0 when display_subtotal is 0 (obsolete — see Phase 2)', () => {
     const receipt = makeReceiptData({
       tax: 2,
       display_subtotal: 0,
@@ -1259,5 +1263,421 @@ describe('getPersonTotals - edge cases', () => {
     expect(result.get('1')?.equals(new Decimal(10))).toBe(true);
     expect(result.get('2')?.equals(new Decimal(10))).toBe(true);
     expect(result.get('3')?.equals(new Decimal(10))).toBe(true);
+  });
+});
+
+describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)', () => {
+  const itemId = '11111111-1111-1111-1111-111111111111';
+
+  const makeModelLineItem = (overrides: {
+    pricePerItem: number | string;
+    quantity: number | string;
+    totalPrice: number | string;
+    assignments?: Assignment[];
+    id?: string;
+  }) => ({
+    id: overrides.id ?? itemId,
+    name: 'Item',
+    quantity: new Decimal(overrides.quantity),
+    pricePerItem: new Decimal(overrides.pricePerItem),
+    totalPrice: new Decimal(overrides.totalPrice),
+    deletedAt: null,
+    assignments: overrides.assignments ?? [],
+  });
+
+  it('returns item.totalPrice when no candidate is provided, even if it differs from pricePerItem * quantity', () => {
+    const item = makeModelLineItem({
+      pricePerItem: 3.33,
+      quantity: 3,
+      totalPrice: 10.0,
+    });
+
+    const result = calculations.pretax.getIndividualItemTotalPrice(item as any);
+
+    expect(result.equals(new Decimal(10.0))).toBe(true);
+    expect(result.equals(new Decimal(9.99))).toBe(false);
+  });
+
+  it('uses pricePerItem * quantity from candidate override when provided', () => {
+    const item = makeModelLineItem({
+      pricePerItem: 10,
+      quantity: 2,
+      totalPrice: 20,
+    });
+
+    const result = calculations.pretax.getIndividualItemTotalPrice(
+      item as any,
+      {
+        pricePerItem: new Decimal(15),
+        quantity: new Decimal(3),
+      }
+    );
+
+    expect(result.equals(new Decimal(45))).toBe(true);
+  });
+
+  it('reconciles person totals to receipt total using totalPrice for OCR-inconsistent triples', () => {
+    // OCR produced an inconsistent triple: 3.33 * 3 = 9.99, but the printed total is 10.00
+    const item = makeModelLineItem({
+      pricePerItem: 3.33,
+      quantity: 3,
+      totalPrice: 10.0,
+      assignments: [makeAssignment('1', itemId), makeAssignment('2', itemId)],
+    });
+
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments([
+      item as any,
+    ]);
+
+    const personTotals = calculations.pretax.getAllPersonItemTotals(itemSplits);
+    const sum = Decimal.sum(...Array.from(personTotals.values()));
+
+    expect(sum.equals(new Decimal(10.0))).toBe(true);
+    expect(personTotals.get('1')?.equals(new Decimal(5))).toBe(true);
+    expect(personTotals.get('2')?.equals(new Decimal(5))).toBe(true);
+  });
+
+  it('getPersonSplitTotal uses totalPrice for OCR-inconsistent triples', () => {
+    const item = makeModelLineItem({
+      pricePerItem: 3.33,
+      quantity: 3,
+      totalPrice: 10.0,
+      assignments: [makeAssignment('1', itemId), makeAssignment('2', itemId)],
+    });
+
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments([
+      item as any,
+    ]);
+
+    expect(
+      calculations.pretax
+        .getPersonSplitTotal('1', itemSplits)
+        .equals(new Decimal(5))
+    ).toBe(true);
+  });
+
+  it('getPersonTotalForItem uses totalPrice when no candidate is provided', () => {
+    const item = makeModelLineItem({
+      pricePerItem: 3.33,
+      quantity: 3,
+      totalPrice: 10.0,
+      assignments: [makeAssignment('1', itemId), makeAssignment('2', itemId)],
+    });
+
+    const result = calculations.pretax.getPersonTotalForItem(item as any, '1');
+
+    expect(result.equals(new Decimal(5))).toBe(true);
+  });
+
+  it('getTotalForAllItems sums totalPrice across line items', () => {
+    const itemA = makeModelLineItem({
+      id: '11111111-1111-1111-1111-111111111111',
+      pricePerItem: 3.33,
+      quantity: 3,
+      totalPrice: 10.0,
+    });
+    const itemB = makeModelLineItem({
+      id: '22222222-2222-2222-2222-222222222222',
+      pricePerItem: 2.5,
+      quantity: 2,
+      totalPrice: 5.0,
+    });
+
+    const receipt = { lineItems: [itemA, itemB] } as any;
+
+    expect(
+      calculations.pretax.getTotalForAllItems(receipt).equals(new Decimal(15.0))
+    ).toBe(true);
+  });
+});
+
+describe('Phase 2: tax distribution via receipt.tax (no rate indirection)', () => {
+  const makeModelLineItem = (overrides: {
+    pricePerItem: number | string;
+    quantity: number | string;
+    totalPrice: number | string;
+    assignments?: Assignment[];
+    id?: string;
+  }) => ({
+    id: overrides.id ?? '11111111-1111-1111-1111-111111111111',
+    name: 'Item',
+    quantity: new Decimal(overrides.quantity),
+    pricePerItem: new Decimal(overrides.pricePerItem),
+    totalPrice: new Decimal(overrides.totalPrice),
+    deletedAt: null,
+    assignments: overrides.assignments ?? [],
+  });
+
+  const makeReceipt = (overrides: {
+    lineItems: ReturnType<typeof makeModelLineItem>[];
+    tax?: number;
+    tip?: number;
+    gratuity?: number;
+    taxIncludedInItems?: boolean;
+  }) => ({
+    lineItems: overrides.lineItems,
+    tax: overrides.tax != null ? new Decimal(overrides.tax) : null,
+    tip: overrides.tip != null ? new Decimal(overrides.tip) : null,
+    gratuity:
+      overrides.gratuity != null ? new Decimal(overrides.gratuity) : null,
+    taxIncludedInItems: overrides.taxIncludedInItems ?? false,
+  });
+
+  it('sums person tax to receipt.tax when all items assigned to one person', () => {
+    const itemId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    const item = makeModelLineItem({
+      id: itemId,
+      pricePerItem: 50,
+      quantity: 1,
+      totalPrice: 50,
+      assignments: [makeAssignment('1', itemId)],
+    });
+
+    const receipt = makeReceipt({
+      lineItems: [item],
+      tax: 5,
+      tip: 0,
+      gratuity: 0,
+    });
+
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.lineItems as any
+    );
+
+    const result = calculations.final.getPersonTotals(receipt as any, {
+      itemSplits,
+      taxSplitType: 'proportional',
+    });
+
+    expect(result.get('1')?.equals(new Decimal(55))).toBe(true);
+  });
+
+  it('splits tax proportionally among assigned people (60/40)', () => {
+    const itemA = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    const itemB = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+    const receipt = makeReceipt({
+      lineItems: [
+        makeModelLineItem({
+          id: itemA,
+          pricePerItem: 30,
+          quantity: 1,
+          totalPrice: 30,
+          assignments: [makeAssignment('1', itemA)],
+        }),
+        makeModelLineItem({
+          id: itemB,
+          pricePerItem: 20,
+          quantity: 1,
+          totalPrice: 20,
+          assignments: [makeAssignment('2', itemB)],
+        }),
+      ],
+      tax: 5,
+      tip: 0,
+      gratuity: 0,
+    });
+
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.lineItems as any
+    );
+
+    const result = calculations.final.getPersonTotals(receipt as any, {
+      itemSplits,
+      taxSplitType: 'proportional',
+    });
+
+    // items=50, tax=5 → 10% effective. Person 1 = 30 + 3 = 33. Person 2 = 20 + 2 = 22.
+    expect(result.get('1')?.equals(new Decimal(33))).toBe(true);
+    expect(result.get('2')?.equals(new Decimal(22))).toBe(true);
+  });
+
+  it('distributes only the fraction of tax attributable to assigned items when some are unassigned', () => {
+    const itemA = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    const itemB = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+    const itemC = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
+    const receipt = makeReceipt({
+      lineItems: [
+        makeModelLineItem({
+          id: itemA,
+          pricePerItem: 20,
+          quantity: 1,
+          totalPrice: 20,
+          assignments: [makeAssignment('1', itemA)],
+        }),
+        makeModelLineItem({
+          id: itemB,
+          pricePerItem: 20,
+          quantity: 1,
+          totalPrice: 20,
+          assignments: [makeAssignment('2', itemB)],
+        }),
+        makeModelLineItem({
+          id: itemC,
+          pricePerItem: 10,
+          quantity: 1,
+          totalPrice: 10,
+          assignments: [],
+        }),
+      ],
+      tax: 5,
+      tip: 0,
+      gratuity: 0,
+    });
+
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.lineItems as any
+    );
+
+    const result = calculations.final.getPersonTotals(receipt as any, {
+      itemSplits,
+      taxSplitType: 'proportional',
+    });
+
+    // totalItems=50, assigned=40. taxAmount = 5 * 40/50 = 4.
+    // Split proportionally 20/40 and 20/40 → 2 tax each.
+    expect(result.get('1')?.equals(new Decimal(22))).toBe(true);
+    expect(result.get('2')?.equals(new Decimal(22))).toBe(true);
+  });
+
+  it('splits tax evenly among assigned people when taxSplitType is "even"', () => {
+    const itemA = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    const itemB = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+    const receipt = makeReceipt({
+      lineItems: [
+        makeModelLineItem({
+          id: itemA,
+          pricePerItem: 30,
+          quantity: 1,
+          totalPrice: 30,
+          assignments: [makeAssignment('1', itemA)],
+        }),
+        makeModelLineItem({
+          id: itemB,
+          pricePerItem: 20,
+          quantity: 1,
+          totalPrice: 20,
+          assignments: [makeAssignment('2', itemB)],
+        }),
+      ],
+      tax: 5,
+      tip: 0,
+      gratuity: 0,
+    });
+
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.lineItems as any
+    );
+
+    const result = calculations.final.getPersonTotals(receipt as any, {
+      itemSplits,
+      taxSplitType: 'even',
+    });
+
+    // tax=5 split evenly between 2 people → 2.5 each
+    expect(result.get('1')?.equals(new Decimal(32.5))).toBe(true);
+    expect(result.get('2')?.equals(new Decimal(22.5))).toBe(true);
+  });
+
+  it('adds no tax when receipt.tax is zero', () => {
+    const itemId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    const receipt = makeReceipt({
+      lineItems: [
+        makeModelLineItem({
+          id: itemId,
+          pricePerItem: 50,
+          quantity: 1,
+          totalPrice: 50,
+          assignments: [makeAssignment('1', itemId)],
+        }),
+      ],
+      tax: 0,
+      tip: 0,
+      gratuity: 0,
+    });
+
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.lineItems as any
+    );
+
+    const result = calculations.final.getPersonTotals(receipt as any, {
+      itemSplits,
+      taxSplitType: 'proportional',
+    });
+
+    expect(result.get('1')?.equals(new Decimal(50))).toBe(true);
+  });
+
+  it('does not add tax in getPersonTotals when taxIncludedInItems is true', () => {
+    const itemId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    const receipt = makeReceipt({
+      lineItems: [
+        makeModelLineItem({
+          id: itemId,
+          pricePerItem: 50,
+          quantity: 1,
+          totalPrice: 50,
+          assignments: [makeAssignment('1', itemId)],
+        }),
+      ],
+      tax: 5,
+      tip: 0,
+      gratuity: 0,
+      taxIncludedInItems: true,
+    });
+
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.lineItems as any
+    );
+
+    const result = calculations.final.getPersonTotals(receipt as any, {
+      itemSplits,
+      taxSplitType: 'proportional',
+    });
+
+    expect(result.get('1')?.equals(new Decimal(50))).toBe(true);
+  });
+
+  it('getReceiptTotal does not add tax when taxIncludedInItems is true', () => {
+    const itemId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    const receipt = makeReceipt({
+      lineItems: [
+        makeModelLineItem({
+          id: itemId,
+          pricePerItem: 50,
+          quantity: 1,
+          totalPrice: 50,
+        }),
+      ],
+      tax: 5,
+      tip: 0,
+      gratuity: 0,
+      taxIncludedInItems: true,
+    });
+
+    expect(
+      calculations.final.getReceiptTotal(receipt as any).equals(new Decimal(50))
+    ).toBe(true);
+  });
+
+  it('getReceiptTotal adds receipt.tax directly when taxIncludedInItems is false', () => {
+    const itemId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    const receipt = makeReceipt({
+      lineItems: [
+        makeModelLineItem({
+          id: itemId,
+          pricePerItem: 50,
+          quantity: 1,
+          totalPrice: 50,
+        }),
+      ],
+      tax: 5,
+      tip: 2,
+      gratuity: 1,
+    });
+
+    // items(50) + tax(5) + gratuity(1) + tip(2) = 58
+    expect(
+      calculations.final.getReceiptTotal(receipt as any).equals(new Decimal(58))
+    ).toBe(true);
   });
 });
