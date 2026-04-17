@@ -51,7 +51,7 @@ export const getPersonItems = (
     const isAssigned = assignedReceiptUserIds.includes(receiptUserId);
 
     if (isAssigned) {
-      const totalPrice = item.pricePerItem.mul(item.quantity);
+      const totalPrice = item.totalPrice;
       const pricePerPerson = totalPrice.div(
         new Decimal(assignedReceiptUserIds.length)
       );

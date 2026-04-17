@@ -136,15 +136,16 @@ export namespace calculations {
       item: ReceiptLineItem,
       candidate?: { pricePerItem: Decimal; quantity: Decimal }
     ): Decimal {
-      const price =
-        candidate?.pricePerItem != null
-          ? candidate.pricePerItem
-          : item.pricePerItem;
+      // When a candidate override is provided, the user is actively editing
+      // pricePerItem/quantity — derive the preview from those values.
+      if (candidate) {
+        return candidate.pricePerItem.mul(candidate.quantity);
+      }
 
-      const quantity =
-        candidate?.quantity != null ? candidate.quantity : item.quantity;
-
-      return price.mul(quantity);
+      // Otherwise, treat the OCR-provided totalPrice as authoritative.
+      // OCR can produce inconsistent triples (e.g. pricePerItem=3.33,
+      // quantity=3, totalPrice=10.00); using totalPrice avoids cent-level drift.
+      return item.totalPrice;
     }
 
     /**
@@ -340,10 +341,9 @@ export namespace calculations {
 
             subtotal = Decimal.add(
               subtotal,
-              Decimal.mul(
-                individualSplit.item.pricePerItem,
-                individualSplit.item.quantity
-              ).div(new Decimal(groupSize))
+              getIndividualItemTotalPrice(individualSplit.item).div(
+                new Decimal(groupSize)
+              )
             );
             break;
           }
@@ -401,10 +401,9 @@ export namespace calculations {
                 throw new Error('Group size not found');
               }
 
-              const splitValue = Decimal.mul(
-                item.pricePerItem,
-                item.quantity
-              ).div(new Decimal(groupSize));
+              const splitValue = getIndividualItemTotalPrice(item).div(
+                new Decimal(groupSize)
+              );
 
               personItemTotals.set(
                 personIdentifier,

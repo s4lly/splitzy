@@ -1261,3 +1261,128 @@ describe('getPersonTotals - edge cases', () => {
     expect(result.get('3')?.equals(new Decimal(10))).toBe(true);
   });
 });
+
+describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)', () => {
+  const itemId = '11111111-1111-1111-1111-111111111111';
+
+  const makeModelLineItem = (overrides: {
+    pricePerItem: number | string;
+    quantity: number | string;
+    totalPrice: number | string;
+    assignments?: Assignment[];
+    id?: string;
+  }) => ({
+    id: overrides.id ?? itemId,
+    name: 'Item',
+    quantity: new Decimal(overrides.quantity),
+    pricePerItem: new Decimal(overrides.pricePerItem),
+    totalPrice: new Decimal(overrides.totalPrice),
+    deletedAt: null,
+    assignments: overrides.assignments ?? [],
+  });
+
+  it('returns item.totalPrice when no candidate is provided, even if it differs from pricePerItem * quantity', () => {
+    const item = makeModelLineItem({
+      pricePerItem: 3.33,
+      quantity: 3,
+      totalPrice: 10.0,
+    });
+
+    const result = calculations.pretax.getIndividualItemTotalPrice(item as any);
+
+    expect(result.equals(new Decimal(10.0))).toBe(true);
+    expect(result.equals(new Decimal(9.99))).toBe(false);
+  });
+
+  it('uses pricePerItem * quantity from candidate override when provided', () => {
+    const item = makeModelLineItem({
+      pricePerItem: 10,
+      quantity: 2,
+      totalPrice: 20,
+    });
+
+    const result = calculations.pretax.getIndividualItemTotalPrice(
+      item as any,
+      {
+        pricePerItem: new Decimal(15),
+        quantity: new Decimal(3),
+      }
+    );
+
+    expect(result.equals(new Decimal(45))).toBe(true);
+  });
+
+  it('reconciles person totals to receipt total using totalPrice for OCR-inconsistent triples', () => {
+    // OCR produced an inconsistent triple: 3.33 * 3 = 9.99, but the printed total is 10.00
+    const item = makeModelLineItem({
+      pricePerItem: 3.33,
+      quantity: 3,
+      totalPrice: 10.0,
+      assignments: [makeAssignment('1', itemId), makeAssignment('2', itemId)],
+    });
+
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments([
+      item as any,
+    ]);
+
+    const personTotals = calculations.pretax.getAllPersonItemTotals(itemSplits);
+    const sum = Decimal.sum(...Array.from(personTotals.values()));
+
+    expect(sum.equals(new Decimal(10.0))).toBe(true);
+    expect(personTotals.get('1')?.equals(new Decimal(5))).toBe(true);
+    expect(personTotals.get('2')?.equals(new Decimal(5))).toBe(true);
+  });
+
+  it('getPersonSplitTotal uses totalPrice for OCR-inconsistent triples', () => {
+    const item = makeModelLineItem({
+      pricePerItem: 3.33,
+      quantity: 3,
+      totalPrice: 10.0,
+      assignments: [makeAssignment('1', itemId), makeAssignment('2', itemId)],
+    });
+
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments([
+      item as any,
+    ]);
+
+    expect(
+      calculations.pretax
+        .getPersonSplitTotal('1', itemSplits)
+        .equals(new Decimal(5))
+    ).toBe(true);
+  });
+
+  it('getPersonTotalForItem uses totalPrice when no candidate is provided', () => {
+    const item = makeModelLineItem({
+      pricePerItem: 3.33,
+      quantity: 3,
+      totalPrice: 10.0,
+      assignments: [makeAssignment('1', itemId), makeAssignment('2', itemId)],
+    });
+
+    const result = calculations.pretax.getPersonTotalForItem(item as any, '1');
+
+    expect(result.equals(new Decimal(5))).toBe(true);
+  });
+
+  it('getTotalForAllItems sums totalPrice across line items', () => {
+    const itemA = makeModelLineItem({
+      id: '11111111-1111-1111-1111-111111111111',
+      pricePerItem: 3.33,
+      quantity: 3,
+      totalPrice: 10.0,
+    });
+    const itemB = makeModelLineItem({
+      id: '22222222-2222-2222-2222-222222222222',
+      pricePerItem: 2.5,
+      quantity: 2,
+      totalPrice: 5.0,
+    });
+
+    const receipt = { lineItems: [itemA, itemB] } as any;
+
+    expect(
+      calculations.pretax.getTotalForAllItems(receipt).equals(new Decimal(15.0))
+    ).toBe(true);
+  });
+});
