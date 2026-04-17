@@ -1,0 +1,34 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "103c7b63c3e6",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "backend/blueprints/receipts.py",
+    "backend/migrations/versions/d67f07100e72_add_original_tax_to_user_receipts.py",
+    "backend/models/user_receipt.py",
+    "backend/schemas/receipt.py",
+    "frontend/src/components/Receipt/utils/receipt-calculation.test.ts",
+    "frontend/src/components/Receipt/utils/receipt-calculation.ts",
+    "frontend/src/models/Receipt.ts",
+    "frontend/src/models/transformers/fromZero.ts",
+    "frontend/src/zero/mutators.ts",
+    "frontend/src/zero/schemas/user-receipt.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/10/3c7b63c3e6/0/metadata.json",
+      "transcript": "/10/3c7b63c3e6/0/full.jsonl",
+      "content_hash": "/10/3c7b63c3e6/0/content_hash.txt",
+      "prompt": "/10/3c7b63c3e6/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 79,
+    "cache_creation_tokens": 235906,
+    "cache_read_tokens": 5769577,
+    "output_tokens": 24735,
+    "api_call_count": 59
+  }
+}

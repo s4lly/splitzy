@@ -1,0 +1,162 @@
+implement phase 2 of the plan document @docs/split-calculation-fix-plan.md, parts A and B. only implement phase 2. if there are any remaining questions ask me for clarification instead of making assumptions on your own.
+
+---
+
+i get the following error when i try to run "flask db upgrade":
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> c7a9e1f2b3d4, add original_tax to user_receipts
+Traceback (most recent call last):
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: relation "user_receipts" does not exist
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/s4lly/dev/splitzy/backend/.venv/bin/flask", line 6, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/flask/cli.py", line 1131, in main
+    cli.main()
+    ~~~~~~~~^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/click/decorators.py", line 34, in new_func
+    return f(get_current_context(), *args, **kwargs)
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/flask/cli.py", line 400, in decorator
+    return ctx.invoke(f, *args, **kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/flask_migrate/cli.py", line 154, in upgrade
+    _upgrade(directory, revision, sql, tag, x_arg)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/flask_migrate/__init__.py", line 111, in wrapped
+    f(*args, **kwargs)
+    ~^^^^^^^^^^^^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/flask_migrate/__init__.py", line 200, in upgrade
+    command.upgrade(config, revision, sql=sql, tag=tag)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/alembic/command.py", line 403, in upgrade
+    script.run_env()
+    ~~~~~~~~~~~~~~^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/alembic/script/base.py", line 583, in run_env
+    util.load_python_file(self.dir, "env.py")
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/alembic/util/pyfiles.py", line 95, in load_python_file
+    module = load_module_py(module_id, path)
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/alembic/util/pyfiles.py", line 113, in load_module_py
+    spec.loader.exec_module(module)  # type: ignore
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "/Users/s4lly/dev/splitzy/backend/migrations/env.py", line 124, in <module>
+    run_migrations_online()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/s4lly/dev/splitzy/backend/migrations/env.py", line 118, in run_migrations_online
+    context.run_migrations()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 8, in run_migrations
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/alembic/runtime/environment.py", line 948, in run_migrations
+    self.get_context().run_migrations(**kw)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/alembic/runtime/migration.py", line 627, in run_migrations
+    step.migration_fn(**kw)
+    ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/migrations/versions/c7a9e1f2b3d4_add_original_tax_to_user_receipts.py", line 20, in upgrade
+    with op.batch_alter_table('user_receipts', schema=None) as batch_op:
+         ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py", line 148, in __exit__
+    next(self.gen)
+    ~~~~^^^^^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/alembic/operations/base.py", line 398, in batch_alter_table
+    impl.flush()
+    ~~~~~~~~~~^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/alembic/operations/batch.py", line 116, in flush
+    fn(*arg, **kw)
+    ~~^^^^^^^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/alembic/ddl/impl.py", line 334, in add_column
+    self._exec(base.AddColumn(table_name, column, schema=schema))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/alembic/ddl/impl.py", line 207, in _exec
+    return conn.execute(construct, multiparams)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/sqlalchemy/sql/ddl.py", line 180, in _execute_on_connection
+    return connection._execute_ddl(
+           ~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1529, in _execute_ddl
+    ret = self._execute_context(
+        dialect,
+    ...<4 lines>...
+        compiled,
+    )
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/s4lly/dev/splitzy/backend/.venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "user_receipts" does not exist
+
+[SQL: ALTER TABLE user_receipts ADD COLUMN original_tax NUMERIC(12, 2)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+
+can you instead create the migration file by running "flask db migrate" command with comment.
+
+---
+
+correct db but likely deleted. i restored using the following command:
+splitzy on  main [!?⇡] via  v24.14.0 via 🐍 v3.14.4 (.venv)
+󰂃 10% ❯ ./backend/scripts/setup-local-db.sh backend/dumps/mydumpfile-2026-03-30-0056.bak

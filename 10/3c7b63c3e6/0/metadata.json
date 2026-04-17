@@ -1,0 +1,88 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "103c7b63c3e6",
+  "session_id": "87c87d48-1226-41d4-931d-bce986ad734a",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-17T19:39:55.894049Z",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "backend/blueprints/receipts.py",
+    "backend/migrations/versions/d67f07100e72_add_original_tax_to_user_receipts.py",
+    "backend/models/user_receipt.py",
+    "backend/schemas/receipt.py",
+    "frontend/src/components/Receipt/utils/receipt-calculation.test.ts",
+    "frontend/src/components/Receipt/utils/receipt-calculation.ts",
+    "frontend/src/models/Receipt.ts",
+    "frontend/src/models/transformers/fromZero.ts",
+    "frontend/src/zero/mutators.ts",
+    "frontend/src/zero/schemas/user-receipt.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "db41d783d9ed",
+  "token_usage": {
+    "input_tokens": 79,
+    "cache_creation_tokens": 235906,
+    "cache_read_tokens": 5769577,
+    "output_tokens": 24735,
+    "api_call_count": 59
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-17T19:39:55.881742Z",
+    "agent_lines": 383,
+    "agent_removed": 28,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 383,
+    "total_lines_changed": 411,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 3812,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "2026-04-04-194954-verify-each-finding-against-the-current-code-and.txt": 709,
+        "IMAGE_PREP_PLAN.md": 162,
+        "docs/assignment-code-journey.md": 683,
+        "docs/custom-splits-architecture-notes.md": 455,
+        "docs/setup-improvements.md": 25,
+        "docs/split-calculation-findings.md": 378,
+        "docs/split-calculation-fix-plan.md": 314,
+        "docs/structured-logging-plan.md": 182,
+        "frontend/2026-03-31-233627-create-a-plan-for-a-new-page-which-appears-after-u.txt": 734,
+        "splitzy-payment-tracking-prompt.md": 170
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4189,
+      "agent_lines_removed": 28
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4154,
+      "agent_lines_removed": 28
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4195,
+      "agent_lines_removed": 28
+    }
+  ]
+}
