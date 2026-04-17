@@ -160,3 +160,7 @@ can you instead create the migration file by running "flask db migrate" command 
 correct db but likely deleted. i restored using the following command:
 splitzy on  main [!?⇡] via  v24.14.0 via 🐍 v3.14.4 (.venv)
 󰂃 10% ❯ ./backend/scripts/setup-local-db.sh backend/dumps/mydumpfile-2026-03-30-0056.bak
+
+---
+
+commit changes you made in this chat session and leave everything else as-is. generate a commit message for phase 2 work.
