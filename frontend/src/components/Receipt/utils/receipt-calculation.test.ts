@@ -407,7 +407,7 @@ describe('getPersonFairTotals', () => {
   it('distributes positive rounding pennies correctly', () => {
     // $31.00 split 3 ways = $10.333... each
     // Should round to two values at $10.33 and one at $10.34 to sum to $31.00
-    const receiptTotal = new Decimal(31.0);
+    const targetSum = new Decimal(31.0);
     const personTotals = new Map([
       ['1', new Decimal(10.333333333333334)],
       ['2', new Decimal(10.333333333333334)],
@@ -415,7 +415,7 @@ describe('getPersonFairTotals', () => {
     ]);
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -427,13 +427,13 @@ describe('getPersonFairTotals', () => {
 
     // Sum should equal receipt total
     const sum = Decimal.sum(...Array.from(result.values()));
-    expect(sum.equals(receiptTotal)).toBe(true);
+    expect(sum.equals(targetSum)).toBe(true);
   });
 
   it('handles case where rounded sum exceeds receipt total (negative difference)', () => {
     // Simulate case where truncation causes sum to be slightly higher
-    // receiptTotal = 30.00, but truncated shares sum to 30.01
-    const receiptTotal = new Decimal(30.0);
+    // targetSum = 30.00, but truncated shares sum to 30.01
+    const targetSum = new Decimal(30.0);
     const personTotals2 = new Map([
       ['1', new Decimal(10.009)], // truncates to 10.00
       ['2', new Decimal(10.009)], // truncates to 10.00
@@ -441,13 +441,13 @@ describe('getPersonFairTotals', () => {
     ]);
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals2
     );
 
     // Sum should still equal receipt total
     const sum = Decimal.sum(...Array.from(result.values()));
-    expect(sum.equals(receiptTotal)).toBe(true);
+    expect(sum.equals(targetSum)).toBe(true);
   });
 
   it('handles negative differences when rounded sum exceeds receipt total', () => {
@@ -455,19 +455,19 @@ describe('getPersonFairTotals', () => {
     // The diffCents calculation converts to integer cents to avoid floating point errors
 
     // Create a scenario where rounded sum is slightly higher than receipt total
-    const receiptTotal = new Decimal(29.99);
+    const targetSum = new Decimal(29.99);
     const personTotals = new Map([
       ['1', new Decimal(10.005)], // truncates to 10.00
       ['2', new Decimal(10.005)], // truncates to 10.00
       ['3', new Decimal(10.005)], // truncates to 10.00
     ]);
-    // After truncation: 30.00 total, which is 0.01 more than receiptTotal
-    // receiptTotalCents = Math.trunc(29.99 * 100) = 2999
+    // After truncation: 30.00 total, which is 0.01 more than targetSum
+    // targetSumCents = Math.trunc(29.99 * 100) = 2999
     // roundedSumCents = Math.trunc(30.00... * 100) = 3000
     // diffCents = 2999 - 3000 = -1
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -480,11 +480,11 @@ describe('getPersonFairTotals', () => {
 
     // Sum should equal receipt total
     const sum = Decimal.sum(...Array.from(result.values()));
-    expect(sum.equals(receiptTotal)).toBe(true);
+    expect(sum.equals(targetSum)).toBe(true);
   });
 
   it('handles exact match with no adjustment needed', () => {
-    const receiptTotal = new Decimal(30.0);
+    const targetSum = new Decimal(30.0);
     const personTotals = new Map([
       ['1', new Decimal(10.0)],
       ['2', new Decimal(10.0)],
@@ -492,7 +492,7 @@ describe('getPersonFairTotals', () => {
     ]);
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -502,11 +502,11 @@ describe('getPersonFairTotals', () => {
   });
 
   it('handles single person case', () => {
-    const receiptTotal = new Decimal(25.67);
+    const targetSum = new Decimal(25.67);
     const personTotals = new Map([['1', new Decimal(25.671234)]]);
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -516,7 +516,7 @@ describe('getPersonFairTotals', () => {
   it('distributes multiple pennies to people with largest fractional parts', () => {
     // $10.00 split 3 ways = $3.333... each
     // Should round to two values at $3.33 and one at $3.34 to sum to $10.00
-    const receiptTotal = new Decimal(10.0);
+    const targetSum = new Decimal(10.0);
     const personTotals = new Map([
       ['1', new Decimal(3.333333333333334)],
       ['2', new Decimal(3.333333333333334)],
@@ -524,7 +524,7 @@ describe('getPersonFairTotals', () => {
     ]);
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -536,13 +536,13 @@ describe('getPersonFairTotals', () => {
 
     // Sum should equal receipt total
     const sum = Decimal.sum(...Array.from(result.values()));
-    expect(sum.equals(receiptTotal)).toBe(true);
+    expect(sum.equals(targetSum)).toBe(true);
   });
 
   it('handles real-world scenario with complex decimal values', () => {
     // Real data from user's receipt showing floating point precision issues
     // This test ensures the integer cents approach correctly handles the difference
-    const receiptTotal = new Decimal(371.32);
+    const targetSum = new Decimal(371.32);
     const personTotals = new Map([
       ['1', new Decimal(224.08811711635272)],
       ['2', new Decimal(69.26421672605917)],
@@ -551,13 +551,13 @@ describe('getPersonFairTotals', () => {
     ]);
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
     // Sum should equal receipt total exactly when truncated
     const sum = Decimal.sum(...Array.from(result.values()));
-    expect(sum.mul(100).trunc().equals(receiptTotal.mul(100).trunc())).toBe(
+    expect(sum.mul(100).trunc().equals(targetSum.mul(100).trunc())).toBe(
       true
     );
 
@@ -570,17 +570,17 @@ describe('getPersonFairTotals', () => {
     // This test covers the specific bug that was reported where
     // personFinalFairLineItemTotalsSum was 80.62 or 80.60 instead of 80.61
     // The bug was caused by floating-point errors in the penny distribution
-    const receiptTotal = new Decimal(80.61);
+    const targetSum = new Decimal(80.61);
     const personTotals = new Map([
       ['1', new Decimal(40.31)],
       ['2', new Decimal(40.18)],
       ['3', new Decimal(0.13)],
     ]);
     // Note: 40.31 + 40.18 + 0.13 in floating point = 80.62 (8062 cents when truncated)
-    // But receiptTotal is 80.61 (8061 cents), so algorithm must subtract 1 cent
+    // But targetSum is 80.61 (8061 cents), so algorithm must subtract 1 cent
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -603,7 +603,7 @@ describe('getPersonFairTotals', () => {
 
     // Verify sum using Decimal
     const sum = Decimal.sum(user1, user2, user3);
-    expect(sum.mul(100).trunc().equals(receiptTotal.mul(100).trunc())).toBe(
+    expect(sum.mul(100).trunc().equals(targetSum.mul(100).trunc())).toBe(
       true
     );
   });
@@ -611,7 +611,7 @@ describe('getPersonFairTotals', () => {
   it('prevents floating-point accumulation errors during penny distribution', () => {
     // This test ensures that repeatedly adding/subtracting pennies
     // doesn't cause floating-point drift (using integer arithmetic)
-    const receiptTotal = new Decimal(100.0);
+    const targetSum = new Decimal(100.0);
     const personTotals = new Map([
       ['1', new Decimal(14.287)], // truncates to 14.28 (1428 cents)
       ['2', new Decimal(14.286)], // truncates to 14.28 (1428 cents)
@@ -625,7 +625,7 @@ describe('getPersonFairTotals', () => {
     // Need to distribute 3 cents to reach 100.00
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -645,7 +645,7 @@ describe('getPersonFairTotals', () => {
     // This test specifically targets the bug where we were doing:
     // Math.trunc(truncateFloatByNDecimals(value, 2) * 100)
     // which could cause 40.31 -> 40.31 * 100 -> 4030.9999... -> 4030 cents (wrong!)
-    const receiptTotal = new Decimal(50.62);
+    const targetSum = new Decimal(50.62);
     const personTotals = new Map([
       ['1', new Decimal(25.31)], // 2531 cents
       ['2', new Decimal(25.31)], // 2531 cents
@@ -653,7 +653,7 @@ describe('getPersonFairTotals', () => {
     // Sum = 5062 cents = 50.62 - should match exactly
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -677,13 +677,13 @@ describe('getPersonFairTotals', () => {
     ];
 
     testCases.forEach(({ total, splits }) => {
-      const receiptTotal = new Decimal(total);
+      const targetSum = new Decimal(total);
       const personTotals = new Map(
         splits.map((val, idx) => [String(idx + 1), new Decimal(val)])
       );
 
       const result = calculations.final.getPersonFairTotals(
-        receiptTotal,
+        targetSum,
         personTotals
       );
 

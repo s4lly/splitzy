@@ -717,39 +717,43 @@ export namespace calculations {
     }
 
     /**
-     * Calculates "fair" totals with proper rounding and penny distribution to ensure the sum equals the receipt total.
+     * Rounds per-person values to whole cents and distributes rounding drift so they sum to `targetSum`.
      *
-     * This function addresses the rounding problem: when individual person totals are rounded to 2 decimal places,
-     * their sum may not equal the original receipt total. This function distributes rounding differences (pennies)
-     * fairly among people.
+     * Used for fair penny distribution: after truncating each person's value to integer cents, the
+     * sum can differ from `targetSum` by a few cents. This function allocates those pennies to the
+     * people with the largest fractional-cent remainders first, so the distribution is fair.
+     *
+     * `targetSum` is a generic target — it is not required to be the receipt total. Callers pass
+     * whatever sum the rounded per-person values should add up to (e.g. the unrounded sum of
+     * personTotals, or the receipt total, depending on context).
      *
      * **Algorithm:**
      * 1. Converts all amounts to integer cents (truncates to avoid double-conversion errors)
-     * 2. Calculates the rounding gap between the rounded sum and the receipt total
+     * 2. Calculates the rounding gap between the rounded sum and `targetSum`
      * 3. Sorts people by largest fractional part (those with the most "leftover" cents get priority)
      * 4. Distributes extra/missing pennies one at a time, cycling through people
      * 5. Converts back to dollars (Decimal instances)
      *
      * Uses Decimal.js throughout to maintain precision during the rounding and distribution process.
      *
-     * @param receiptTotal - The total receipt amount as a Decimal instance
+     * @param targetSum - The target sum that the rounded per-person values should add up to, as a Decimal instance
      * @param personTotals - Map of person identifiers to their calculated totals (as Decimal instances)
      * @returns A Map where keys are person identifiers and values are "fair" totals as Decimal instances.
-     *          The sum of these fair totals equals the receipt total (within 1 cent).
+     *          The sum of these fair totals equals `targetSum` (within 1 cent).
      *
      * @example
      * ```ts
-     * // Receipt total: $31.00
+     * // Target sum: $31.00
      * // Person totals: [10.333, 10.333, 10.334] (sum = 31.00)
      * // After rounding: [10.33, 10.33, 10.34] (sum = 31.00) ✓
      *
-     * const receiptTotal = new Decimal(31.00);
+     * const targetSum = new Decimal(31.00);
      * const personTotals = new Map([
      *   [1, new Decimal(10.333)],
      *   [2, new Decimal(10.333)],
      *   [3, new Decimal(10.334)]
      * ]);
-     * const fairTotals = calculations.final.getPersonFairTotals(receiptTotal, personTotals);
+     * const fairTotals = calculations.final.getPersonFairTotals(targetSum, personTotals);
      * // Returns: Map([
      * //   [1, new Decimal(10.33)],
      * //   [2, new Decimal(10.33)],
@@ -758,14 +762,14 @@ export namespace calculations {
      * // Sum: 10.33 + 10.33 + 10.34 = 31.00 ✓
      *
      * // Example with rounding gap
-     * // Receipt total: $10.00
+     * // Target sum: $10.00
      * // Person totals: [3.333, 3.333, 3.334] (sum = 10.00)
      * // After rounding: [3.33, 3.33, 3.33] (sum = 9.99) - gap of 1 cent
      * // Fair totals: [3.33, 3.33, 3.34] (sum = 10.00) - penny goes to person with largest fractional part
      * ```
      */
     export function getPersonFairTotals(
-      receiptTotal: Decimal,
+      targetSum: Decimal,
       personTotals: Map<PersonIdentifier, Decimal>
     ): Map<PersonIdentifier, Decimal> {
       // Step 1: Convert to cents (truncate directly to avoid double-conversion errors)
@@ -779,8 +783,8 @@ export namespace calculations {
       const roundedSumCents = inCents.length
         ? Decimal.sum(...inCents.map(({ cents }) => cents))
         : new Decimal(0);
-      const receiptTotalCents = receiptTotal.mul(100).trunc();
-      let diffCents = receiptTotalCents.minus(roundedSumCents);
+      const targetSumCents = targetSum.mul(100).trunc();
+      let diffCents = targetSumCents.minus(roundedSumCents);
 
       // Step 3: Sort by largest fractional part (for fair distribution of pennies)
       inCents.sort((a, b) => b.original.mod(1).cmp(a.original.mod(1)));
