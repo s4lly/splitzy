@@ -1,0 +1,1 @@
+implement phase 4 of the plan document @docs/split-calculation-fix-plan.md. only implement phase 4. if there are any remaining questions ask me for clarification instead of making assumptions on your own.
