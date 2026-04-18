@@ -599,26 +599,6 @@ export namespace calculations {
     ): Map<PersonIdentifier, Decimal> {
       const hasLineItems = receiptHasLineItems(itemSplits);
 
-      // if no assignments made to any line item, split total evenly
-      if (!hasLineItems && itemSplits.individuals.size > 0) {
-        const receiptTotal = getReceiptTotal(receipt);
-
-        // split total evenly
-        const splitAmount = receiptTotal.div(itemSplits.individuals.size);
-
-        // EARLY RETURN
-        return new Map(
-          Array.from(itemSplits.individuals.keys()).map(
-            (personIdentifier): [PersonIdentifier, Decimal] => [
-              personIdentifier,
-              splitAmount,
-            ]
-          )
-        );
-      }
-
-      // --
-
       // get the total amount for all items assigned to each person
       const personItemTotals = pretax.getAllPersonItemTotals(itemSplits);
 

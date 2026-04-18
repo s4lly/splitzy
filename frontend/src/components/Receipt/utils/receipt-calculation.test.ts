@@ -256,35 +256,6 @@ describe('getPersonTotals', () => {
     expect(result.get('1')?.equals(new Decimal(10))).toBe(true);
   });
 
-  it.skip('returns equal split if no assignments', () => {
-    const receipt = makeReceiptData({
-      line_items: [
-        makeLineItem({
-          assignments: [],
-          price_per_item: 10,
-          quantity: 2,
-        }),
-      ],
-      total: 20,
-      final_total: 20,
-      tip: 0,
-      gratuity: 0,
-      tax: 0,
-    });
-    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
-      receipt.line_items as any
-    );
-    // Add people to itemSplits even though they have no assignments
-    itemSplits.individuals.set('1', []);
-    itemSplits.individuals.set('2', []);
-    const result = calculations.final.getPersonTotals(receipt as any, {
-      itemSplits,
-    });
-    // Receipt total = 20 (items) + 0 (tax) + 0 (tip) + 0 (gratuity) = 20
-    // Split 2 ways = 10 each
-    expect(result.get('1')?.equals(new Decimal(10))).toBe(true);
-    expect(result.get('2')?.equals(new Decimal(10))).toBe(true);
-  });
 });
 
 describe('receipt-calculation candidate logic', () => {
@@ -1217,53 +1188,6 @@ describe('getPersonTotals - edge cases', () => {
     expect(result.size).toBe(0);
   });
 
-  it('handles getReceiptTotal returning 0 when no line items', () => {
-    const receipt = makeReceiptData({
-      line_items: [],
-      tax: 0,
-      tip: 0,
-      gratuity: 0,
-    });
-    const itemSplits = {
-      individuals: new Map([['1', []]]),
-      groups: new Map(),
-    };
-    const result = calculations.final.getPersonTotals(receipt as any, {
-      itemSplits,
-    });
-    // When receiptTotal is 0 and split evenly, each person gets 0
-    expect(result.get('1')?.equals(new Decimal(0))).toBe(true);
-  });
-
-  it.skip('handles multiple people with no assignments splitting evenly', () => {
-    const receipt = makeReceiptData({
-      line_items: [
-        makeLineItem({
-          assignments: [],
-          price_per_item: 30,
-          quantity: 1,
-        }),
-      ],
-      tax: 0,
-      tip: 0,
-      gratuity: 0,
-    });
-    const itemSplits = {
-      individuals: new Map([
-        ['1', []],
-        ['2', []],
-        ['3', []],
-      ]),
-      groups: new Map(),
-    };
-    const result = calculations.final.getPersonTotals(receipt as any, {
-      itemSplits,
-    });
-    // Receipt total = 30, split 3 ways = 10 each
-    expect(result.get('1')?.equals(new Decimal(10))).toBe(true);
-    expect(result.get('2')?.equals(new Decimal(10))).toBe(true);
-    expect(result.get('3')?.equals(new Decimal(10))).toBe(true);
-  });
 });
 
 describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)', () => {
