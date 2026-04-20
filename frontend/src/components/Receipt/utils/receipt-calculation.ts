@@ -557,9 +557,7 @@ export namespace calculations {
 
         switch (taxSplitType) {
           case 'even': {
-            const taxPerPerson = taxAmount.div(
-              new Decimal(personTotals.size)
-            );
+            const taxPerPerson = taxAmount.div(new Decimal(personTotals.size));
 
             for (const [personIdentifier, itemTotal] of personTotals) {
               personTotals.set(personIdentifier, itemTotal.add(taxPerPerson));

@@ -255,7 +255,6 @@ describe('getPersonTotals', () => {
     });
     expect(result.get('1')?.equals(new Decimal(10))).toBe(true);
   });
-
 });
 
 describe('receipt-calculation candidate logic', () => {
@@ -557,9 +556,7 @@ describe('getPersonFairTotals', () => {
 
     // Sum should equal receipt total exactly when truncated
     const sum = Decimal.sum(...Array.from(result.values()));
-    expect(sum.mul(100).trunc().equals(targetSum.mul(100).trunc())).toBe(
-      true
-    );
+    expect(sum.mul(100).trunc().equals(targetSum.mul(100).trunc())).toBe(true);
 
     // When formatted with formatCurrency (which truncates), should match
     const sumTruncated = sum.mul(100).trunc().div(100);
@@ -603,9 +600,7 @@ describe('getPersonFairTotals', () => {
 
     // Verify sum using Decimal
     const sum = Decimal.sum(user1, user2, user3);
-    expect(sum.mul(100).trunc().equals(targetSum.mul(100).trunc())).toBe(
-      true
-    );
+    expect(sum.mul(100).trunc().equals(targetSum.mul(100).trunc())).toBe(true);
   });
 
   it('prevents floating-point accumulation errors during penny distribution', () => {
@@ -1049,7 +1044,6 @@ describe('getPersonTotals - edge cases', () => {
     });
     expect(result.size).toBe(0);
   });
-
 });
 
 describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)', () => {
