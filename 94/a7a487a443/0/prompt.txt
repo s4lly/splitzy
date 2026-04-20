@@ -1,0 +1,1 @@
+yes, i am ready for the next commit. i already ran the extract command with "pnpm --filter frontend i18n:extract". use the translations skill to add the missing translations for all the supported locales.
