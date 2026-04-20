@@ -1044,6 +1044,37 @@ describe('getPersonTotals - edge cases', () => {
     });
     expect(result.size).toBe(0);
   });
+
+  it('does not throw when no assignments but tip and gratuity are present', () => {
+    const receipt = makeReceiptData({
+      line_items: [
+        makeLineItem({
+          assignments: [],
+          price_per_item: 20,
+          quantity: 1,
+        }),
+      ],
+      tax: 0,
+      tip: 5,
+      gratuity: 3,
+    });
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items as any
+    );
+    expect(() =>
+      calculations.final.getPersonTotals(receipt as any, {
+        itemSplits,
+        tipSplitType: 'even',
+        gratuitySplitType: 'even',
+      })
+    ).not.toThrow();
+    const result = calculations.final.getPersonTotals(receipt as any, {
+      itemSplits,
+      tipSplitType: 'even',
+      gratuitySplitType: 'even',
+    });
+    expect(result.size).toBe(0);
+  });
 });
 
 describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)', () => {

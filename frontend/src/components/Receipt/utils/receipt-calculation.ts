@@ -557,6 +557,7 @@ export namespace calculations {
 
         switch (taxSplitType) {
           case 'even': {
+            if (personTotals.size === 0) break;
             const taxPerPerson = taxAmount.div(new Decimal(personTotals.size));
 
             for (const [personIdentifier, itemTotal] of personTotals) {
@@ -594,6 +595,7 @@ export namespace calculations {
       if (receipt.tip) {
         switch (tipSplitType) {
           case 'even': {
+            if (personTotals.size === 0) break;
             const tipPerPerson = receipt.tip.div(
               new Decimal(personTotals.size)
             );
@@ -618,6 +620,7 @@ export namespace calculations {
       if (receipt.gratuity) {
         switch (gratuitySplitType) {
           case 'even': {
+            if (personTotals.size === 0) break;
             const gratuityPerPerson = receipt.gratuity.div(
               new Decimal(personTotals.size)
             );
