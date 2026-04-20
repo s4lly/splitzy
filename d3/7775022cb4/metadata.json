@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "d37775022cb4",
+  "strategy": "manual-commit",
+  "branch": "split-calculation-fixes-phase-4-6",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/src/components/Receipt/utils/receipt-calculation.test.ts",
+    "frontend/src/components/Receipt/utils/receipt-calculation.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/d3/7775022cb4/0/metadata.json",
+      "transcript": "/d3/7775022cb4/0/full.jsonl",
+      "content_hash": "/d3/7775022cb4/0/content_hash.txt",
+      "prompt": "/d3/7775022cb4/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 21,
+    "cache_creation_tokens": 28413,
+    "cache_read_tokens": 390556,
+    "output_tokens": 5911,
+    "api_call_count": 17
+  }
+}

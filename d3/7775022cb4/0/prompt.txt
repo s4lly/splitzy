@@ -1,0 +1,13 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/components/Receipt/utils/receipt-calculation.ts` around lines
+534 - 644, The tip/gratuity branches can divide by personTotals.size when
+personTotals is empty causing a DecimalError; in functions/blocks using
+personTotals and symbols receipt.tip, receipt.gratuity, tipSplitType and
+gratuitySplitType, add guards that check if personTotals.size === 0 and skip
+distribution (or treat per-person amount as zero) before performing div(new
+Decimal(personTotals.size)) or entering the split logic, and for
+proportional/custom cases ensure you don't compute ratios against zero; also add
+a regression test that calls the receipt calculation with itemSplits containing
+no assignments but with tip > 0 and/or gratuity > 0 to confirm no exception is
+thrown.
