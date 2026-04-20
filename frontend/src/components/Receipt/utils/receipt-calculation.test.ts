@@ -255,36 +255,6 @@ describe('getPersonTotals', () => {
     });
     expect(result.get('1')?.equals(new Decimal(10))).toBe(true);
   });
-
-  it.skip('returns equal split if no assignments', () => {
-    const receipt = makeReceiptData({
-      line_items: [
-        makeLineItem({
-          assignments: [],
-          price_per_item: 10,
-          quantity: 2,
-        }),
-      ],
-      total: 20,
-      final_total: 20,
-      tip: 0,
-      gratuity: 0,
-      tax: 0,
-    });
-    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
-      receipt.line_items as any
-    );
-    // Add people to itemSplits even though they have no assignments
-    itemSplits.individuals.set('1', []);
-    itemSplits.individuals.set('2', []);
-    const result = calculations.final.getPersonTotals(receipt as any, {
-      itemSplits,
-    });
-    // Receipt total = 20 (items) + 0 (tax) + 0 (tip) + 0 (gratuity) = 20
-    // Split 2 ways = 10 each
-    expect(result.get('1')?.equals(new Decimal(10))).toBe(true);
-    expect(result.get('2')?.equals(new Decimal(10))).toBe(true);
-  });
 });
 
 describe('receipt-calculation candidate logic', () => {
@@ -436,7 +406,7 @@ describe('getPersonFairTotals', () => {
   it('distributes positive rounding pennies correctly', () => {
     // $31.00 split 3 ways = $10.333... each
     // Should round to two values at $10.33 and one at $10.34 to sum to $31.00
-    const receiptTotal = new Decimal(31.0);
+    const targetSum = new Decimal(31.0);
     const personTotals = new Map([
       ['1', new Decimal(10.333333333333334)],
       ['2', new Decimal(10.333333333333334)],
@@ -444,7 +414,7 @@ describe('getPersonFairTotals', () => {
     ]);
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -456,13 +426,13 @@ describe('getPersonFairTotals', () => {
 
     // Sum should equal receipt total
     const sum = Decimal.sum(...Array.from(result.values()));
-    expect(sum.equals(receiptTotal)).toBe(true);
+    expect(sum.equals(targetSum)).toBe(true);
   });
 
   it('handles case where rounded sum exceeds receipt total (negative difference)', () => {
     // Simulate case where truncation causes sum to be slightly higher
-    // receiptTotal = 30.00, but truncated shares sum to 30.01
-    const receiptTotal = new Decimal(30.0);
+    // targetSum = 30.00, but truncated shares sum to 30.01
+    const targetSum = new Decimal(30.0);
     const personTotals2 = new Map([
       ['1', new Decimal(10.009)], // truncates to 10.00
       ['2', new Decimal(10.009)], // truncates to 10.00
@@ -470,13 +440,13 @@ describe('getPersonFairTotals', () => {
     ]);
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals2
     );
 
     // Sum should still equal receipt total
     const sum = Decimal.sum(...Array.from(result.values()));
-    expect(sum.equals(receiptTotal)).toBe(true);
+    expect(sum.equals(targetSum)).toBe(true);
   });
 
   it('handles negative differences when rounded sum exceeds receipt total', () => {
@@ -484,19 +454,19 @@ describe('getPersonFairTotals', () => {
     // The diffCents calculation converts to integer cents to avoid floating point errors
 
     // Create a scenario where rounded sum is slightly higher than receipt total
-    const receiptTotal = new Decimal(29.99);
+    const targetSum = new Decimal(29.99);
     const personTotals = new Map([
       ['1', new Decimal(10.005)], // truncates to 10.00
       ['2', new Decimal(10.005)], // truncates to 10.00
       ['3', new Decimal(10.005)], // truncates to 10.00
     ]);
-    // After truncation: 30.00 total, which is 0.01 more than receiptTotal
-    // receiptTotalCents = Math.trunc(29.99 * 100) = 2999
+    // After truncation: 30.00 total, which is 0.01 more than targetSum
+    // targetSumCents = Math.trunc(29.99 * 100) = 2999
     // roundedSumCents = Math.trunc(30.00... * 100) = 3000
     // diffCents = 2999 - 3000 = -1
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -509,11 +479,11 @@ describe('getPersonFairTotals', () => {
 
     // Sum should equal receipt total
     const sum = Decimal.sum(...Array.from(result.values()));
-    expect(sum.equals(receiptTotal)).toBe(true);
+    expect(sum.equals(targetSum)).toBe(true);
   });
 
   it('handles exact match with no adjustment needed', () => {
-    const receiptTotal = new Decimal(30.0);
+    const targetSum = new Decimal(30.0);
     const personTotals = new Map([
       ['1', new Decimal(10.0)],
       ['2', new Decimal(10.0)],
@@ -521,7 +491,7 @@ describe('getPersonFairTotals', () => {
     ]);
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -531,11 +501,11 @@ describe('getPersonFairTotals', () => {
   });
 
   it('handles single person case', () => {
-    const receiptTotal = new Decimal(25.67);
+    const targetSum = new Decimal(25.67);
     const personTotals = new Map([['1', new Decimal(25.671234)]]);
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -545,7 +515,7 @@ describe('getPersonFairTotals', () => {
   it('distributes multiple pennies to people with largest fractional parts', () => {
     // $10.00 split 3 ways = $3.333... each
     // Should round to two values at $3.33 and one at $3.34 to sum to $10.00
-    const receiptTotal = new Decimal(10.0);
+    const targetSum = new Decimal(10.0);
     const personTotals = new Map([
       ['1', new Decimal(3.333333333333334)],
       ['2', new Decimal(3.333333333333334)],
@@ -553,7 +523,7 @@ describe('getPersonFairTotals', () => {
     ]);
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -565,13 +535,13 @@ describe('getPersonFairTotals', () => {
 
     // Sum should equal receipt total
     const sum = Decimal.sum(...Array.from(result.values()));
-    expect(sum.equals(receiptTotal)).toBe(true);
+    expect(sum.equals(targetSum)).toBe(true);
   });
 
   it('handles real-world scenario with complex decimal values', () => {
     // Real data from user's receipt showing floating point precision issues
     // This test ensures the integer cents approach correctly handles the difference
-    const receiptTotal = new Decimal(371.32);
+    const targetSum = new Decimal(371.32);
     const personTotals = new Map([
       ['1', new Decimal(224.08811711635272)],
       ['2', new Decimal(69.26421672605917)],
@@ -580,15 +550,13 @@ describe('getPersonFairTotals', () => {
     ]);
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
     // Sum should equal receipt total exactly when truncated
     const sum = Decimal.sum(...Array.from(result.values()));
-    expect(sum.mul(100).trunc().equals(receiptTotal.mul(100).trunc())).toBe(
-      true
-    );
+    expect(sum.mul(100).trunc().equals(targetSum.mul(100).trunc())).toBe(true);
 
     // When formatted with formatCurrency (which truncates), should match
     const sumTruncated = sum.mul(100).trunc().div(100);
@@ -599,17 +567,17 @@ describe('getPersonFairTotals', () => {
     // This test covers the specific bug that was reported where
     // personFinalFairLineItemTotalsSum was 80.62 or 80.60 instead of 80.61
     // The bug was caused by floating-point errors in the penny distribution
-    const receiptTotal = new Decimal(80.61);
+    const targetSum = new Decimal(80.61);
     const personTotals = new Map([
       ['1', new Decimal(40.31)],
       ['2', new Decimal(40.18)],
       ['3', new Decimal(0.13)],
     ]);
     // Note: 40.31 + 40.18 + 0.13 in floating point = 80.62 (8062 cents when truncated)
-    // But receiptTotal is 80.61 (8061 cents), so algorithm must subtract 1 cent
+    // But targetSum is 80.61 (8061 cents), so algorithm must subtract 1 cent
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -632,15 +600,13 @@ describe('getPersonFairTotals', () => {
 
     // Verify sum using Decimal
     const sum = Decimal.sum(user1, user2, user3);
-    expect(sum.mul(100).trunc().equals(receiptTotal.mul(100).trunc())).toBe(
-      true
-    );
+    expect(sum.mul(100).trunc().equals(targetSum.mul(100).trunc())).toBe(true);
   });
 
   it('prevents floating-point accumulation errors during penny distribution', () => {
     // This test ensures that repeatedly adding/subtracting pennies
     // doesn't cause floating-point drift (using integer arithmetic)
-    const receiptTotal = new Decimal(100.0);
+    const targetSum = new Decimal(100.0);
     const personTotals = new Map([
       ['1', new Decimal(14.287)], // truncates to 14.28 (1428 cents)
       ['2', new Decimal(14.286)], // truncates to 14.28 (1428 cents)
@@ -654,7 +620,7 @@ describe('getPersonFairTotals', () => {
     // Need to distribute 3 cents to reach 100.00
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -674,7 +640,7 @@ describe('getPersonFairTotals', () => {
     // This test specifically targets the bug where we were doing:
     // Math.trunc(truncateFloatByNDecimals(value, 2) * 100)
     // which could cause 40.31 -> 40.31 * 100 -> 4030.9999... -> 4030 cents (wrong!)
-    const receiptTotal = new Decimal(50.62);
+    const targetSum = new Decimal(50.62);
     const personTotals = new Map([
       ['1', new Decimal(25.31)], // 2531 cents
       ['2', new Decimal(25.31)], // 2531 cents
@@ -682,7 +648,7 @@ describe('getPersonFairTotals', () => {
     // Sum = 5062 cents = 50.62 - should match exactly
 
     const result = calculations.final.getPersonFairTotals(
-      receiptTotal,
+      targetSum,
       personTotals
     );
 
@@ -706,13 +672,13 @@ describe('getPersonFairTotals', () => {
     ];
 
     testCases.forEach(({ total, splits }) => {
-      const receiptTotal = new Decimal(total);
+      const targetSum = new Decimal(total);
       const personTotals = new Map(
         splits.map((val, idx) => [String(idx + 1), new Decimal(val)])
       );
 
       const result = calculations.final.getPersonFairTotals(
-        receiptTotal,
+        targetSum,
         personTotals
       );
 
@@ -857,144 +823,6 @@ describe('pretax.getPersonTotalForItem', () => {
     // 10 / 3 = 3.333...
     const result = calculations.pretax.getPersonTotalForItem(item as any, '1');
     expect(result.equals(new Decimal(10).div(3))).toBe(true);
-  });
-});
-
-describe('pretax.getPersonSplitTotal', () => {
-  it('returns 0 when person has no splits', () => {
-    const itemSplits = calculations.pretax.createItemSplitsFromAssignments([]);
-    expect(
-      calculations.pretax
-        .getPersonSplitTotal('1', itemSplits)
-        .equals(new Decimal(0))
-    ).toBe(true);
-  });
-
-  it.skip('returns correct total for single item assigned to one person', () => {
-    const itemId = '00000000-0000-0000-0000-000000000000';
-    const receipt = makeReceiptData({
-      line_items: [
-        makeLineItem({
-          id: itemId,
-          assignments: [makeAssignment('1', itemId)],
-          price_per_item: 10,
-          quantity: 2,
-        }),
-      ],
-    });
-    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
-      receipt.line_items as any
-    );
-    expect(
-      calculations.pretax
-        .getPersonSplitTotal('1', itemSplits)
-        .equals(new Decimal(20))
-    ).toBe(true);
-  });
-
-  it.skip('returns correct total for item split between two people', () => {
-    const itemId = '00000000-0000-0000-0000-000000000000';
-    const receipt = makeReceiptData({
-      line_items: [
-        makeLineItem({
-          id: itemId,
-          assignments: [
-            makeAssignment('1', itemId),
-            makeAssignment('2', itemId),
-          ],
-          price_per_item: 10,
-          quantity: 2,
-        }),
-      ],
-    });
-    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
-      receipt.line_items as any
-    );
-    expect(
-      calculations.pretax
-        .getPersonSplitTotal('1', itemSplits)
-        .equals(new Decimal(10))
-    ).toBe(true);
-    expect(
-      calculations.pretax
-        .getPersonSplitTotal('2', itemSplits)
-        .equals(new Decimal(10))
-    ).toBe(true);
-  });
-
-  it.skip('returns correct total for multiple items', () => {
-    const itemId1 = '11111111-1111-1111-1111-111111111111';
-    const itemId2 = '22222222-2222-2222-2222-222222222222';
-    const receipt = makeReceiptData({
-      line_items: [
-        makeLineItem({
-          id: itemId1,
-          assignments: [
-            makeAssignment('1', itemId1),
-            makeAssignment('2', itemId1),
-          ],
-          price_per_item: 10,
-          quantity: 2,
-        }),
-        makeLineItem({
-          id: itemId2,
-          assignments: [makeAssignment('1', itemId2)],
-          price_per_item: 5,
-          quantity: 1,
-        }),
-      ],
-    });
-    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
-      receipt.line_items as any
-    );
-    // User 1: (10*2)/2 + 5*1 = 10 + 5 = 15
-    expect(
-      calculations.pretax
-        .getPersonSplitTotal('1', itemSplits)
-        .equals(new Decimal(15))
-    ).toBe(true);
-    // User 2: (10*2)/2 = 10
-    expect(
-      calculations.pretax
-        .getPersonSplitTotal('2', itemSplits)
-        .equals(new Decimal(10))
-    ).toBe(true);
-  });
-
-  it.skip('handles three-way split correctly', () => {
-    const itemId = '00000000-0000-0000-0000-000000000000';
-    const receipt = makeReceiptData({
-      line_items: [
-        makeLineItem({
-          id: itemId,
-          assignments: [
-            makeAssignment('1', itemId),
-            makeAssignment('2', itemId),
-            makeAssignment('3', itemId),
-          ],
-          price_per_item: 30,
-          quantity: 1,
-        }),
-      ],
-    });
-    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
-      receipt.line_items as any
-    );
-    expect(
-      calculations.pretax
-        .getPersonSplitTotal('1', itemSplits)
-        .equals(new Decimal(10))
-    ).toBe(true);
-    expect(
-      calculations.pretax
-        .getPersonSplitTotal('2', itemSplits)
-        .equals(new Decimal(10))
-    ).toBe(true);
-    expect(
-      calculations.pretax
-        .getPersonSplitTotal('3', itemSplits)
-        .equals(new Decimal(10))
-    ).toBe(true);
   });
 });
 
@@ -1217,52 +1045,35 @@ describe('getPersonTotals - edge cases', () => {
     expect(result.size).toBe(0);
   });
 
-  it('handles getReceiptTotal returning 0 when no line items', () => {
-    const receipt = makeReceiptData({
-      line_items: [],
-      tax: 0,
-      tip: 0,
-      gratuity: 0,
-    });
-    const itemSplits = {
-      individuals: new Map([['1', []]]),
-      groups: new Map(),
-    };
-    const result = calculations.final.getPersonTotals(receipt as any, {
-      itemSplits,
-    });
-    // When receiptTotal is 0 and split evenly, each person gets 0
-    expect(result.get('1')?.equals(new Decimal(0))).toBe(true);
-  });
-
-  it.skip('handles multiple people with no assignments splitting evenly', () => {
+  it('does not throw when no assignments but tip and gratuity are present', () => {
     const receipt = makeReceiptData({
       line_items: [
         makeLineItem({
           assignments: [],
-          price_per_item: 30,
+          price_per_item: 20,
           quantity: 1,
         }),
       ],
       tax: 0,
-      tip: 0,
-      gratuity: 0,
+      tip: 5,
+      gratuity: 3,
     });
-    const itemSplits = {
-      individuals: new Map([
-        ['1', []],
-        ['2', []],
-        ['3', []],
-      ]),
-      groups: new Map(),
-    };
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.line_items as any
+    );
+    expect(() =>
+      calculations.final.getPersonTotals(receipt as any, {
+        itemSplits,
+        tipSplitType: 'even',
+        gratuitySplitType: 'even',
+      })
+    ).not.toThrow();
     const result = calculations.final.getPersonTotals(receipt as any, {
       itemSplits,
+      tipSplitType: 'even',
+      gratuitySplitType: 'even',
     });
-    // Receipt total = 30, split 3 ways = 10 each
-    expect(result.get('1')?.equals(new Decimal(10))).toBe(true);
-    expect(result.get('2')?.equals(new Decimal(10))).toBe(true);
-    expect(result.get('3')?.equals(new Decimal(10))).toBe(true);
+    expect(result.size).toBe(0);
   });
 });
 
@@ -1335,25 +1146,6 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
     expect(sum.equals(new Decimal(10.0))).toBe(true);
     expect(personTotals.get('1')?.equals(new Decimal(5))).toBe(true);
     expect(personTotals.get('2')?.equals(new Decimal(5))).toBe(true);
-  });
-
-  it('getPersonSplitTotal uses totalPrice for OCR-inconsistent triples', () => {
-    const item = makeModelLineItem({
-      pricePerItem: 3.33,
-      quantity: 3,
-      totalPrice: 10.0,
-      assignments: [makeAssignment('1', itemId), makeAssignment('2', itemId)],
-    });
-
-    const itemSplits = calculations.pretax.createItemSplitsFromAssignments([
-      item as any,
-    ]);
-
-    expect(
-      calculations.pretax
-        .getPersonSplitTotal('1', itemSplits)
-        .equals(new Decimal(5))
-    ).toBe(true);
   });
 
   it('getPersonTotalForItem uses totalPrice when no candidate is provided', () => {

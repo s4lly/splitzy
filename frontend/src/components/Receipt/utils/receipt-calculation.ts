@@ -297,76 +297,10 @@ export namespace calculations {
     }
 
     /**
-     * Calculates the total pre-tax amount a person owes across all their assigned items.
-     * Sums up each person's share of each assigned item based on the split type.
-     * Currently only supports 'even' splits (items divided equally among assigned people).
-     * Uses Decimal.js for precise arithmetic to avoid rounding errors.
-     *
-     * @param personIdentifier - The person identifier to calculate the total for
-     * @param itemSplits - The ItemSplits structure containing assignment information
-     * @returns The person's total pre-tax amount as a Decimal instance. Returns Decimal(0) if person has no assignments.
-     *
-     * @example
-     * ```ts
-     * // User 1 assigned to:
-     * // - Item 1: $30.00 (split with user 2) -> User 1 owes $15.00
-     * // - Item 2: $20.00 (split with users 2 and 3) -> User 1 owes $6.67
-     * const user1Total = calculations.pretax.getPersonSplitTotal(1, itemSplits);
-     * // Returns: new Decimal(21.66666666666666666667)
-     * ```
-     */
-    export function getPersonSplitTotal(
-      personIdentifier: string, // receiptUserId (ULID)
-      itemSplits: ItemSplits
-    ): Decimal {
-      const individualSplits = itemSplits.individuals.get(personIdentifier);
-
-      if (!individualSplits) {
-        return new Decimal(0);
-        // throw new Error('Individual splits not found');
-      }
-
-      let subtotal = new Decimal(0);
-
-      for (const individualSplit of individualSplits) {
-        switch (individualSplit.type) {
-          case 'even': {
-            const groupSize = itemSplits.groups.get(
-              individualSplit.item.id
-            )?.size;
-
-            if (!groupSize) {
-              throw new Error('Group size not found');
-            }
-
-            subtotal = Decimal.add(
-              subtotal,
-              getIndividualItemTotalPrice(individualSplit.item).div(
-                new Decimal(groupSize)
-              )
-            );
-            break;
-          }
-
-          case 'proportional':
-          case 'custom': {
-            console.warn('Split type not implemented', individualSplit.type);
-            break;
-          }
-        }
-      }
-
-      return subtotal;
-    }
-
-    /**
      * Calculates pre-tax item totals for each person based on their assigned items.
      * Returns a map where each person's identifier maps to their total pre-tax amount.
      * Currently only supports 'even' splits (items divided equally among assigned people).
      * Uses Decimal.js for precise arithmetic to ensure accurate totals.
-     *
-     * This function is similar to `getPersonSplitTotal` but returns totals for all people at once,
-     * making it more efficient when you need totals for multiple people.
      *
      * @param itemSplits - The ItemSplits structure containing assignment information
      * @returns A Map of person identifiers to their pre-tax total as Decimal instances
@@ -599,35 +533,16 @@ export namespace calculations {
     ): Map<PersonIdentifier, Decimal> {
       const hasLineItems = receiptHasLineItems(itemSplits);
 
-      // if no assignments made to any line item, split total evenly
-      if (!hasLineItems && itemSplits.individuals.size > 0) {
-        const receiptTotal = getReceiptTotal(receipt);
-
-        // split total evenly
-        const splitAmount = receiptTotal.div(itemSplits.individuals.size);
-
-        // EARLY RETURN
-        return new Map(
-          Array.from(itemSplits.individuals.keys()).map(
-            (personIdentifier): [PersonIdentifier, Decimal] => [
-              personIdentifier,
-              splitAmount,
-            ]
-          )
-        );
-      }
-
-      // --
-
-      // get the total amount for all items assigned to each person
-      const personItemTotals = pretax.getAllPersonItemTotals(itemSplits);
+      // Clone the map returned by getAllPersonItemTotals so we don't mutate
+      // the caller-visible pretax totals when adding tax/tip/gratuity.
+      const personTotals = new Map(pretax.getAllPersonItemTotals(itemSplits));
 
       // --
 
       if (hasLineItems && !receipt.taxIncludedInItems) {
         // get the total value of all assigned items
-        const totalAssignedItemsValue = personItemTotals.size
-          ? Decimal.sum(...Array.from(personItemTotals.values()))
+        const totalAssignedItemsValue = personTotals.size
+          ? Decimal.sum(...Array.from(personTotals.values()))
           : new Decimal(0);
 
         // Distribute receipt.tax directly by proportion — no rate indirection.
@@ -642,28 +557,24 @@ export namespace calculations {
 
         switch (taxSplitType) {
           case 'even': {
-            const taxPerPerson = taxAmount.div(
-              new Decimal(personItemTotals.size)
-            );
+            if (personTotals.size === 0) break;
+            const taxPerPerson = taxAmount.div(new Decimal(personTotals.size));
 
-            for (const [personIdentifier, itemTotal] of personItemTotals) {
-              personItemTotals.set(
-                personIdentifier,
-                itemTotal.add(taxPerPerson)
-              );
+            for (const [personIdentifier, itemTotal] of personTotals) {
+              personTotals.set(personIdentifier, itemTotal.add(taxPerPerson));
             }
 
             break;
           }
 
           case 'proportional': {
-            for (const [personIdentifier, itemTotal] of personItemTotals) {
+            for (const [personIdentifier, itemTotal] of personTotals) {
               const burden = totalAssignedItemsValue.isZero()
                 ? new Decimal(0)
                 : itemTotal.div(totalAssignedItemsValue);
               const personTaxAmount = taxAmount.mul(burden);
 
-              personItemTotals.set(
+              personTotals.set(
                 personIdentifier,
                 itemTotal.add(personTaxAmount)
               );
@@ -684,15 +595,13 @@ export namespace calculations {
       if (receipt.tip) {
         switch (tipSplitType) {
           case 'even': {
+            if (personTotals.size === 0) break;
             const tipPerPerson = receipt.tip.div(
-              new Decimal(personItemTotals.size)
+              new Decimal(personTotals.size)
             );
 
-            for (const [personIdentifier, itemTotal] of personItemTotals) {
-              personItemTotals.set(
-                personIdentifier,
-                itemTotal.add(tipPerPerson)
-              );
+            for (const [personIdentifier, itemTotal] of personTotals) {
+              personTotals.set(personIdentifier, itemTotal.add(tipPerPerson));
             }
 
             break;
@@ -711,12 +620,13 @@ export namespace calculations {
       if (receipt.gratuity) {
         switch (gratuitySplitType) {
           case 'even': {
+            if (personTotals.size === 0) break;
             const gratuityPerPerson = receipt.gratuity.div(
-              new Decimal(personItemTotals.size)
+              new Decimal(personTotals.size)
             );
 
-            for (const [personIdentifier, itemTotal] of personItemTotals) {
-              personItemTotals.set(
+            for (const [personIdentifier, itemTotal] of personTotals) {
+              personTotals.set(
                 personIdentifier,
                 itemTotal.add(gratuityPerPerson)
               );
@@ -733,43 +643,47 @@ export namespace calculations {
         }
       }
 
-      return personItemTotals;
+      return personTotals;
     }
 
     /**
-     * Calculates "fair" totals with proper rounding and penny distribution to ensure the sum equals the receipt total.
+     * Rounds per-person values to whole cents and distributes rounding drift so they sum to `targetSum`.
      *
-     * This function addresses the rounding problem: when individual person totals are rounded to 2 decimal places,
-     * their sum may not equal the original receipt total. This function distributes rounding differences (pennies)
-     * fairly among people.
+     * Used for fair penny distribution: after truncating each person's value to integer cents, the
+     * sum can differ from `targetSum` by a few cents. This function allocates those pennies to the
+     * people with the largest fractional-cent remainders first, so the distribution is fair.
+     *
+     * `targetSum` is a generic target — it is not required to be the receipt total. Callers pass
+     * whatever sum the rounded per-person values should add up to (e.g. the unrounded sum of
+     * personTotals, or the receipt total, depending on context).
      *
      * **Algorithm:**
      * 1. Converts all amounts to integer cents (truncates to avoid double-conversion errors)
-     * 2. Calculates the rounding gap between the rounded sum and the receipt total
+     * 2. Calculates the rounding gap between the rounded sum and `targetSum`
      * 3. Sorts people by largest fractional part (those with the most "leftover" cents get priority)
      * 4. Distributes extra/missing pennies one at a time, cycling through people
      * 5. Converts back to dollars (Decimal instances)
      *
      * Uses Decimal.js throughout to maintain precision during the rounding and distribution process.
      *
-     * @param receiptTotal - The total receipt amount as a Decimal instance
+     * @param targetSum - The target sum that the rounded per-person values should add up to, as a Decimal instance
      * @param personTotals - Map of person identifiers to their calculated totals (as Decimal instances)
      * @returns A Map where keys are person identifiers and values are "fair" totals as Decimal instances.
-     *          The sum of these fair totals equals the receipt total (within 1 cent).
+     *          The sum of these fair totals equals `targetSum` (within 1 cent).
      *
      * @example
      * ```ts
-     * // Receipt total: $31.00
+     * // Target sum: $31.00
      * // Person totals: [10.333, 10.333, 10.334] (sum = 31.00)
      * // After rounding: [10.33, 10.33, 10.34] (sum = 31.00) ✓
      *
-     * const receiptTotal = new Decimal(31.00);
+     * const targetSum = new Decimal(31.00);
      * const personTotals = new Map([
      *   [1, new Decimal(10.333)],
      *   [2, new Decimal(10.333)],
      *   [3, new Decimal(10.334)]
      * ]);
-     * const fairTotals = calculations.final.getPersonFairTotals(receiptTotal, personTotals);
+     * const fairTotals = calculations.final.getPersonFairTotals(targetSum, personTotals);
      * // Returns: Map([
      * //   [1, new Decimal(10.33)],
      * //   [2, new Decimal(10.33)],
@@ -778,29 +692,54 @@ export namespace calculations {
      * // Sum: 10.33 + 10.33 + 10.34 = 31.00 ✓
      *
      * // Example with rounding gap
-     * // Receipt total: $10.00
+     * // Target sum: $10.00
      * // Person totals: [3.333, 3.333, 3.334] (sum = 10.00)
      * // After rounding: [3.33, 3.33, 3.33] (sum = 9.99) - gap of 1 cent
      * // Fair totals: [3.33, 3.33, 3.34] (sum = 10.00) - penny goes to person with largest fractional part
      * ```
      */
     export function getPersonFairTotals(
-      receiptTotal: Decimal,
+      targetSum: Decimal,
       personTotals: Map<PersonIdentifier, Decimal>
     ): Map<PersonIdentifier, Decimal> {
-      // Step 1: Convert to cents (truncate directly to avoid double-conversion errors)
+      // Step 1: Convert to cents.
+      //
+      // We truncate (floor toward zero) rather than rounding to the nearest cent
+      // here, and that is intentional:
+      //
+      // 1. Every person's initial rounded value is <= their unrounded value,
+      //    so the penny-distribution loop below only ever needs to ADD pennies
+      //    (when targetSum > sum(trunc)) or, for negative targets, subtract.
+      //    This keeps the loop direction consistent and avoids the case where
+      //    half-even rounding overshoots targetSum and we'd need to claw pennies
+      //    back from people who already got "lucky" on rounding.
+      //
+      // 2. The fairness guarantee is provided by the sort-by-largest-remainder
+      //    step (line below): the people whose unrounded values had the biggest
+      //    fractional part are first in line to receive the drift pennies. If
+      //    we rounded first, the fractional part we'd need to sort by is the
+      //    ORIGINAL fractional part (pre-rounding), not the post-rounding
+      //    residue — so switching to banker's rounding doesn't change the
+      //    fairness of the allocation, only the starting point.
+      //
+      // 3. The final sum is guaranteed to equal targetSum regardless of
+      //    rounding mode, because the loop explicitly closes the gap.
+      //
+      // Truncation is simpler to reason about and the tests exercise this
+      // behavior directly; switching to Decimal.ROUND_HALF_EVEN would require
+      // re-validating the sort ordering and bidirectional penny distribution.
       const inCents = Array.from(personTotals).map(([userId, value]) => ({
         userId,
         original: value,
-        cents: new Decimal(value).mul(100).trunc(), // Convert directly to integer cents
+        cents: new Decimal(value).mul(100).trunc(),
       }));
 
       // Step 2: Calculate rounding gap in cents
       const roundedSumCents = inCents.length
         ? Decimal.sum(...inCents.map(({ cents }) => cents))
         : new Decimal(0);
-      const receiptTotalCents = receiptTotal.mul(100).trunc();
-      let diffCents = receiptTotalCents.minus(roundedSumCents);
+      const targetSumCents = targetSum.mul(100).trunc();
+      let diffCents = targetSumCents.minus(roundedSumCents);
 
       // Step 3: Sort by largest fractional part (for fair distribution of pennies)
       inCents.sort((a, b) => b.original.mod(1).cmp(a.original.mod(1)));

@@ -16,7 +16,6 @@ import type { User } from '@/models/User';
  * Zero stores dates as Unix timestamps (numbers), which are converted to Date objects.
  */
 export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
-  console.log('='.repeat(100), 'fromZeroReceipt', zeroReceipt);
   // Convert Unix timestamps to Date objects
   const createdAt = new Date(zeroReceipt.created_at);
   const date = zeroReceipt.date ? new Date(zeroReceipt.date) : null;
