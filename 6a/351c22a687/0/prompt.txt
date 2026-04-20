@@ -1,0 +1,13 @@
+i'm using lingui. when i start the frontend app using "pnpm dev" from frontend directory and open the website i can see the translated text. but when i view the response from http://localhost:5173/src/locales/en/messages.ts i do not see the translated text anywhere when i do a ctrl+f search for the string. and in the deployed version on vercel i do not see the translated version in the UI, it just shows "zEbwUg" for the text "All settled — mark complete". help me identify the issue and come up with a fix.
+
+---
+
+add an extract step to the build script
+
+---
+
+what is the difference between lingui extract and lingui compile
+
+---
+
+we compile to typescript because the code references the typescript files and the bundler will create the js files for us since the browser does not know how to read typescript files correct?
