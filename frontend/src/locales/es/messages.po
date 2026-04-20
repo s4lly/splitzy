@@ -15,13 +15,13 @@ msgstr ""
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:120
 #: src/components/Receipt/LineItemsTableMobile.tsx:133
-#: src/features/bill-split/components/BillBreakdownView.tsx:267
+#: src/features/bill-split/components/BillBreakdownView.tsx:314
 msgid "(Unnamed item)"
 msgstr "(Artículo sin nombre)"
 
 #. placeholder {0}: personItems.length
 #. placeholder {1}: personItems.length
-#: src/features/bill-split/components/BillBreakdownView.tsx:207
+#: src/features/bill-split/components/BillBreakdownView.tsx:222
 msgid "{0} {1, plural, one {item} other {items}} assigned"
 msgstr "{0} {1, plural, one {artículo asignado} other {artículos asignados}}"
 
@@ -30,17 +30,17 @@ msgstr "{0} {1, plural, one {artículo asignado} other {artículos asignados}}"
 #~ msgstr "{0} {1} asignados"
 
 #. placeholder {0}: calculations.utils.formatPercentage( personFairTotal, receiptTotal )
-#: src/features/bill-split/components/BillBreakdownView.tsx:192
+#: src/features/bill-split/components/BillBreakdownView.tsx:205
 msgid "{0} of total"
 msgstr "{0} del total"
 
 #. placeholder {0}: person.displayName
-#: src/features/bill-split/components/BillBreakdownView.tsx:229
+#: src/features/bill-split/components/BillBreakdownView.tsx:276
 msgid "{0}'s Items"
 msgstr "Artículos de {0}"
 
 #. placeholder {0}: people.length
-#: src/features/bill-split/components/BillBreakdownView.tsx:153
+#: src/features/bill-split/components/BillBreakdownView.tsx:166
 msgid "1/{0} of the total"
 msgstr "1/{0} del total"
 
@@ -69,7 +69,7 @@ msgstr "Añadir área"
 msgid "Add Item"
 msgstr "Añadir artículo"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:54
+#: src/features/bill-split/components/BillBreakdownView.tsx:61
 msgid "Add People to Split the Bill"
 msgstr "Añadir personas para dividir la cuenta"
 
@@ -97,6 +97,10 @@ msgstr "Todos los artículos asignados"
 #: src/features/assignments/assignments-list.tsx:382
 msgid "All people assigned."
 msgstr "Todas las personas asignadas."
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:468
+msgid "All settled — mark complete"
+msgstr "Todo saldado: marcar como completado"
 
 #: src/pages/PreviewPage.tsx:93
 msgid "An error occurred while analyzing the document. Please try again."
@@ -164,7 +168,7 @@ msgstr "Asignación en progreso"
 msgid "Authentication Error"
 msgstr "Error de autenticación"
 
-#: src/pages/ImagePrepPage.tsx:172
+#: src/pages/ImagePrepPage.tsx:179
 msgid "Back"
 msgstr "Atrás"
 
@@ -177,7 +181,7 @@ msgstr "Volver a Configuración"
 msgid "Before tax"
 msgstr "Antes de impuestos"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:84
+#: src/features/bill-split/components/BillBreakdownView.tsx:94
 msgid "Bill Breakdown"
 msgstr "Desglose de la cuenta"
 
@@ -189,17 +193,18 @@ msgstr "Facturación"
 msgid "Billing settings content would go here."
 msgstr "El contenido de facturación iría aquí."
 
-#: src/features/image-prep/components/EraseRectangle.tsx:239
+#: src/features/image-prep/components/EraseRectangle.tsx:326
 msgid "bottom-left"
 msgstr "inferior izquierda"
 
-#: src/features/image-prep/components/EraseRectangle.tsx:240
+#: src/features/image-prep/components/EraseRectangle.tsx:327
 msgid "bottom-right"
 msgstr "inferior derecha"
 
 #: src/components/Receipt/LineItemAddForm.tsx:135
 #: src/features/assignments/ClaimReceiptUserDialog.tsx:95
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:229
+#: src/features/bill-split/components/BillBreakdownView.tsx:500
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:160
 #: src/features/receipt-viewer/components/TipEditor.tsx:284
 msgid "Cancel"
@@ -244,12 +249,12 @@ msgstr "Borrar todo"
 msgid "Clear preview"
 msgstr "Borrar vista previa"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:57
+#: src/features/bill-split/components/BillBreakdownView.tsx:64
 msgid "Click \"Manage People\" to add friends and assign items to them. Then tag each item with who should pay for it."
 msgstr "Haz clic en \"Gestionar personas\" para añadir amigos y asignarles artículos. Luego etiqueta cada artículo con quién debe pagarlo."
 
-#: src/features/assignments/SignInToClaimDialog.tsx:53
-#: src/features/bill-split/components/BillBreakdownView.tsx:373
+#: src/features/assignments/SignInToClaimDialog.tsx:47
+#: src/features/bill-split/components/BillBreakdownView.tsx:420
 msgid "Close"
 msgstr "Cerrar"
 
@@ -294,11 +299,11 @@ msgstr "Crea una cuenta o inicia sesión para reclamar \"{displayName}\". Podrá
 msgid "Create an account or sign in to see your receipt analysis history and manage your documents."
 msgstr "Crea una cuenta o inicia sesión para ver tu historial de análisis de recibos y gestionar tus documentos."
 
-#: src/pages/ImagePrepPage.tsx:192
+#: src/pages/ImagePrepPage.tsx:199
 msgid "Crop"
 msgstr "Recortar"
 
-#: src/pages/ImagePrepPage.tsx:183
+#: src/pages/ImagePrepPage.tsx:190
 msgid "Crop or erase areas before analyzing"
 msgstr "Recortar o borrar áreas antes de analizar"
 
@@ -313,6 +318,7 @@ msgstr "Fecha:"
 #: src/components/Receipt/LineItemsTableDesktop.tsx:186
 #: src/components/Receipt/LineItemsTableDesktop.tsx:247
 #: src/components/Receipt/LineItemsTableMobile.tsx:282
+#: src/features/bill-split/components/BillBreakdownView.tsx:503
 msgid "Delete"
 msgstr "Eliminar"
 
@@ -320,6 +326,14 @@ msgstr "Eliminar"
 #: src/features/receipt-viewer/components/GratuityEditor.tsx:148
 msgid "Delete gratuity"
 msgstr "Eliminar propina"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:486
+msgid "Delete receipt?"
+msgstr "¿Eliminar recibo?"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:480
+msgid "Delete this record"
+msgstr "Eliminar este registro"
 
 #: src/features/receipt-viewer/components/TipEditor.tsx:272
 msgid "Delete tip"
@@ -332,7 +346,7 @@ msgid "Deleting..."
 msgstr "Eliminando..."
 
 #. placeholder {0}: person.displayName
-#: src/features/bill-split/components/BillBreakdownView.tsx:233
+#: src/features/bill-split/components/BillBreakdownView.tsx:280
 msgid "Detailed breakdown of items assigned to {0}."
 msgstr "Desglose detallado de artículos asignados a {0}."
 
@@ -393,15 +407,15 @@ msgstr "Ingresar nombre"
 msgid "Enter name..."
 msgstr "Ingresar nombre..."
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:218
+#: src/features/bill-split/components/BillBreakdownView.tsx:233
 msgid "Equal amount split"
 msgstr "División equitativa"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:149
+#: src/features/bill-split/components/BillBreakdownView.tsx:162
 msgid "Equal split"
 msgstr "División equitativa"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:359
+#: src/features/bill-split/components/BillBreakdownView.tsx:406
 msgid "Equal split - no specific items assigned"
 msgstr "División equitativa — sin artículos específicos asignados"
 
@@ -409,7 +423,7 @@ msgstr "División equitativa — sin artículos específicos asignados"
 msgid "Equal Split Mode"
 msgstr "Modo de división equitativa"
 
-#: src/pages/ImagePrepPage.tsx:202
+#: src/pages/ImagePrepPage.tsx:209
 msgid "Erase areas"
 msgstr "Borrar áreas"
 
@@ -417,7 +431,7 @@ msgstr "Borrar áreas"
 #. placeholder {1}: Math.round(rect.y)
 #. placeholder {2}: Math.round(rect.width)
 #. placeholder {3}: Math.round(rect.height)
-#: src/features/image-prep/components/EraseRectangle.tsx:260
+#: src/features/image-prep/components/EraseRectangle.tsx:359
 msgid "Erased area at {0}% left, {1}% top, {2}% wide, {3}% tall. Use arrow keys to move, Shift+arrow for larger steps."
 msgstr "Área borrada en {0} % izquierda, {1} % arriba, {2} % de ancho, {3} % de alto. Usa las teclas de flecha para mover, Mayús+flecha para pasos más grandes."
 
@@ -441,6 +455,11 @@ msgstr "Error al reclamar persona"
 #: src/features/summary-card/GratuityEditor.tsx:114
 #~ msgid "Failed to delete gratuity. Please try again."
 #~ msgstr "Error al eliminar la propina. Por favor, inténtelo de nuevo."
+
+#: src/features/bill-split/components/BillBreakdownCollab.tsx:79
+#: src/features/bill-split/components/BillBreakdownCollab.tsx:84
+msgid "Failed to delete receipt"
+msgstr "No se pudo eliminar el recibo"
 
 #: src/features/summary-card/TipEditor.tsx:147
 #~ msgid "Failed to delete tip. Please try again."
@@ -479,6 +498,11 @@ msgstr "Error al cambiar de persona"
 #: src/features/receipt-image/components/ImageSettingsDialog.tsx:62
 msgid "Failed to update image visibility"
 msgstr "Error al actualizar la visibilidad de la imagen"
+
+#: src/features/bill-split/components/BillBreakdownCollab.tsx:65
+#: src/features/bill-split/components/BillBreakdownCollab.tsx:68
+msgid "Failed to update payment status"
+msgstr "No se pudo actualizar el estado de pago"
 
 #: src/features/summary-card/TipEditor.tsx:193
 #~ msgid "Failed to update setting. Please try again."
@@ -531,7 +555,7 @@ msgstr "Imagen descargada correctamente"
 msgid "Image hidden by owner"
 msgstr "Imagen oculta por el propietario"
 
-#: src/pages/ImagePrepPage.tsx:146
+#: src/pages/ImagePrepPage.tsx:153
 msgid "Image processing failed"
 msgstr "Error al procesar la imagen"
 
@@ -563,7 +587,7 @@ msgid "item"
 msgstr "artículo"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:87
-#: src/features/bill-split/components/BillBreakdownView.tsx:247
+#: src/features/bill-split/components/BillBreakdownView.tsx:294
 msgid "Item"
 msgstr "Artículo"
 
@@ -576,7 +600,7 @@ msgstr "Nombre del artículo"
 msgid "Items"
 msgstr "Artículos"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:161
+#: src/features/bill-split/components/BillBreakdownView.tsx:174
 msgid "Items subtotal:"
 msgstr "Subtotal de artículos:"
 
@@ -589,7 +613,7 @@ msgid "Items Total:"
 msgstr "Total de artículos:"
 
 #: src/features/assignments/assignments-list.tsx:275
-#: src/features/bill-split/components/BillBreakdownView.tsx:120
+#: src/features/bill-split/components/BillBreakdownView.tsx:131
 msgid "Linked to your account"
 msgstr "Vinculado a tu cuenta"
 
@@ -606,7 +630,7 @@ msgstr "Gestionar asignaciones de {0}"
 msgid "Manage assignments for {itemLabel}"
 msgstr "Gestionar asignaciones de {itemLabel}"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:70
+#: src/features/bill-split/components/BillBreakdownView.tsx:77
 #: src/features/bill-split/components/ManualSplitTabCollab.tsx:37
 msgid "Manage People"
 msgstr "Gestionar personas"
@@ -626,6 +650,14 @@ msgstr "Gestiona tu suscripción y métodos de pago."
 #: src/features/bill-split/BillSplitSectionCollab.tsx:15
 msgid "Manual"
 msgstr "Manual"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:267
+msgid "Mark as paid"
+msgstr "Marcar como pagado"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:465
+msgid "Marked complete"
+msgstr "Marcado como completado"
 
 #: src/features/receipt-viewer/ReceiptDetailsCard.tsx:88
 msgid "Merchant:"
@@ -649,7 +681,7 @@ msgstr "Nuevo:"
 msgid "No Item Details Available"
 msgstr "Sin detalles de artículos disponibles"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:363
+#: src/features/bill-split/components/BillBreakdownView.tsx:410
 msgid "No items assigned yet"
 msgstr "Aún no hay artículos asignados"
 
@@ -691,7 +723,7 @@ msgid "Number of people"
 msgstr "Número de personas"
 
 #. placeholder {0}: formatCurrency(item.originalPrice)
-#: src/features/bill-split/components/BillBreakdownView.tsx:293
+#: src/features/bill-split/components/BillBreakdownView.tsx:340
 msgid "of {0}"
 msgstr "de {0}"
 
@@ -707,6 +739,10 @@ msgstr "o arrastra y suelta · JPEG, PNG"
 msgid "Original"
 msgstr "Original"
 
+#: src/features/bill-split/components/BillBreakdownView.tsx:267
+msgid "Paid"
+msgstr "Pagado"
+
 #: src/features/bill-split/components/EvenSplitTabCollab.tsx:70
 msgid "Per Person:"
 msgstr "Por persona:"
@@ -719,11 +755,11 @@ msgstr "Total después de impuestos:"
 msgid "Pre-tax Total:"
 msgstr "Total antes de impuestos:"
 
-#: src/pages/ImagePrepPage.tsx:180
+#: src/pages/ImagePrepPage.tsx:187
 msgid "Prepare image"
 msgstr "Preparar imagen"
 
-#: src/pages/ImagePrepPage.tsx:33
+#: src/pages/ImagePrepPage.tsx:30
 msgid "Prepare Image"
 msgstr "Preparar imagen"
 
@@ -731,13 +767,13 @@ msgstr "Preparar imagen"
 msgid "Preview"
 msgstr "Vista previa"
 
-#: src/pages/ImagePrepPage.tsx:247
+#: src/pages/ImagePrepPage.tsx:254
 #: src/pages/PreviewPage.tsx:123
 msgid "Preview result"
 msgstr "Vista previa del resultado"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:93
-#: src/features/bill-split/components/BillBreakdownView.tsx:253
+#: src/features/bill-split/components/BillBreakdownView.tsx:300
 msgid "Price"
 msgstr "Precio"
 
@@ -754,7 +790,7 @@ msgid "Private Image"
 msgstr "Imagen privada"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:90
-#: src/features/bill-split/components/BillBreakdownView.tsx:250
+#: src/features/bill-split/components/BillBreakdownView.tsx:297
 msgid "Qty"
 msgstr "Cant."
 
@@ -820,7 +856,7 @@ msgstr "Visor de recibos"
 msgid "Remove {displayName}"
 msgstr "Eliminar {displayName}"
 
-#: src/features/image-prep/components/EraseRectangle.tsx:275
+#: src/features/image-prep/components/EraseRectangle.tsx:374
 msgid "Remove erased area"
 msgstr "Eliminar área borrada"
 
@@ -837,7 +873,7 @@ msgid "Reset image zoom"
 msgstr "Restablecer zoom de imagen"
 
 #. placeholder {0}: cornerLabel[corner]
-#: src/features/image-prep/components/EraseRectangle.tsx:287
+#: src/features/image-prep/components/EraseRectangle.tsx:386
 msgid "Resize from {0} corner. Use arrow keys to resize, Shift+arrow for larger steps."
 msgstr "Redimensionar desde la esquina {0}. Usa las teclas de flecha para redimensionar, Mayús+flecha para pasos más grandes."
 
@@ -873,7 +909,7 @@ msgstr "Configuración"
 #~ msgid "Shared with {0}"
 #~ msgstr "Compartido con {0}"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:276
+#: src/features/bill-split/components/BillBreakdownView.tsx:323
 msgid "Shared with {sharedWithNames}"
 msgstr "Compartido con {sharedWithNames}"
 
@@ -881,7 +917,7 @@ msgstr "Compartido con {sharedWithNames}"
 msgid "Show QR Code"
 msgstr "Mostrar código QR"
 
-#: src/features/assignments/SignInToClaimDialog.tsx:43
+#: src/features/assignments/SignInToClaimDialog.tsx:51
 msgid "Sign in or create account"
 msgstr "Inicia sesión o crea una cuenta"
 
@@ -919,7 +955,7 @@ msgstr "Divide justamente"
 msgid "Split with Friends"
 msgstr "Dividir con amigos"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:305
+#: src/features/bill-split/components/BillBreakdownView.tsx:352
 msgid "Subtotal"
 msgstr "Subtotal"
 
@@ -964,7 +1000,7 @@ msgstr "Toma una foto y extraemos cada artículo automáticamente — sin entrad
 msgid "Tap to upload a receipt"
 msgstr "Toca para subir un recibo"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:315
+#: src/features/bill-split/components/BillBreakdownView.tsx:362
 #: src/features/receipt-viewer/components/TipEditor.tsx:235
 msgid "Tax"
 msgstr "Impuesto"
@@ -985,7 +1021,7 @@ msgstr "Impuesto incluido en los precios"
 msgid "Tax rate is approximately {formattedRate}% and has been distributed proportionally based on each person's items."
 msgstr "La tasa de impuesto es aproximadamente {formattedRate}% y se ha distribuido proporcionalmente según los artículos de cada persona."
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:170
+#: src/features/bill-split/components/BillBreakdownView.tsx:183
 #: src/features/receipt-viewer/ReceiptSummaryCard.tsx:156
 msgid "Tax:"
 msgstr "Impuesto:"
@@ -1022,7 +1058,11 @@ msgstr "Este documento de {merchant} no incluye artículos detallados. El monto 
 msgid "This receipt doesn't contain detailed line items, so the total amount has been divided equally among all people."
 msgstr "Este recibo no contiene artículos detallados, por lo que el monto total se ha dividido equitativamente entre todas las personas."
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:326
+#: src/features/bill-split/components/BillBreakdownView.tsx:489
+msgid "This will remove the receipt for everyone who has the link. This action cannot be undone."
+msgstr "Esto eliminará el recibo para todos los que tengan el enlace. Esta acción no se puede deshacer."
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:373
 #: src/features/receipt-viewer/components/TipEditor.tsx:203
 #: src/features/receipt-viewer/components/TipEditor.tsx:299
 msgid "Tip"
@@ -1040,20 +1080,20 @@ msgstr "Propina:"
 msgid "Toggle theme"
 msgstr "Cambiar tema"
 
-#: src/features/image-prep/components/EraseRectangle.tsx:237
+#: src/features/image-prep/components/EraseRectangle.tsx:324
 msgid "top-left"
 msgstr "superior izquierda"
 
-#: src/features/image-prep/components/EraseRectangle.tsx:238
+#: src/features/image-prep/components/EraseRectangle.tsx:325
 msgid "top-right"
 msgstr "superior derecha"
 
 #: src/components/Receipt/LineItemsTableDesktop.tsx:96
-#: src/features/bill-split/components/BillBreakdownView.tsx:346
+#: src/features/bill-split/components/BillBreakdownView.tsx:393
 msgid "Total"
 msgstr "Total"
 
-#: src/features/bill-split/components/BillBreakdownView.tsx:179
+#: src/features/bill-split/components/BillBreakdownView.tsx:192
 msgid "Total:"
 msgstr "Total:"
 
@@ -1120,6 +1160,10 @@ msgstr "Verifique que las ediciones sean correctas antes de analizar"
 #: src/components/Receipt/ReceiptHistory.tsx:106
 msgid "View"
 msgstr "Ver"
+
+#: src/features/bill-split/components/BillBreakdownView.tsx:242
+msgid "View items"
+msgstr "Ver artículos"
 
 #. placeholder {0}: receipt.merchant
 #: src/components/Receipt/ReceiptHistory.tsx:101
