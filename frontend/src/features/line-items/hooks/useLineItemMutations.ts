@@ -9,6 +9,10 @@ import type {
   UpdateLineItemData,
 } from '@/features/line-items/types';
 import {
+  planAddRebalance,
+  planRemoveRebalance,
+} from '@/features/line-items/utils/rebalance-shares';
+import {
   receiptAtom,
   receiptIdAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
@@ -59,19 +63,30 @@ export function useLineItemMutations() {
     }
 
     const assignmentId = generateId();
+    const activeSiblings = lineItem.assignments.filter((a) => !a.deletedAt);
+    const rebalance = planAddRebalance(activeSiblings);
+
     const result = zero.mutate(
       mutators.assignments.insert({
         id: assignmentId,
         receipt_user_id: receiptUserId,
         receipt_line_item_id: itemId,
+        share_percentage: rebalance ? rebalance.newcomerShare : null,
+        locked: rebalance ? rebalance.newcomerLocked : false,
       })
     );
 
     const clientResult = await result.client;
     if (clientResult.type === 'error') {
       console.error('Failed to create assignment:', clientResult.error.message);
-    } else {
-      console.info('Successfully created assignment');
+      return;
+    }
+    console.info('Successfully created assignment');
+
+    if (rebalance) {
+      for (const update of rebalance.siblingUpdates) {
+        void zero.mutate(mutators.assignments.update(update));
+      }
     }
   };
 
@@ -114,11 +129,16 @@ export function useLineItemMutations() {
     }
 
     // Then, create the assignment
+    const activeSiblings = lineItem.assignments.filter((a) => !a.deletedAt);
+    const rebalance = planAddRebalance(activeSiblings);
+
     const assignmentResult = zero.mutate(
       mutators.assignments.insert({
         id: assignmentId,
         receipt_user_id: receiptUserId,
         receipt_line_item_id: itemId,
+        share_percentage: rebalance ? rebalance.newcomerShare : null,
+        locked: rebalance ? rebalance.newcomerLocked : false,
       })
     );
 
@@ -145,6 +165,11 @@ export function useLineItemMutations() {
       }
     } else {
       console.info('Successfully created receipt user and assignment');
+      if (rebalance) {
+        for (const update of rebalance.siblingUpdates) {
+          void zero.mutate(mutators.assignments.update(update));
+        }
+      }
     }
   };
 
@@ -165,6 +190,11 @@ export function useLineItemMutations() {
       return;
     }
 
+    const removed = lineItem.assignments.find((a) => a.id === assignmentId);
+    const remainingActive = lineItem.assignments.filter(
+      (a) => a.id !== assignmentId && !a.deletedAt
+    );
+
     const result = zero.mutate(
       mutators.assignments.delete({ id: assignmentId })
     );
@@ -172,18 +202,34 @@ export function useLineItemMutations() {
     const clientResult = await result.client;
     if (clientResult.type === 'error') {
       console.error('Failed to delete assignment:', clientResult.error.message);
-    } else {
-      console.info('Successfully deleted assignment');
+      return;
+    }
+    console.info('Successfully deleted assignment');
+
+    if (removed) {
+      const updates = planRemoveRebalance(removed, remainingActive);
+      if (updates) {
+        for (const update of updates) {
+          void zero.mutate(mutators.assignments.update(update));
+        }
+      }
     }
   };
 
   const handleUpdateLineItem = async (data: UpdateLineItemData) => {
+    const current = receipt?.lineItems.find((item) => item.id === data.itemId);
+    const nextQuantity = data.quantity ?? current?.quantity.toNumber() ?? 1;
+    const nextPricePerItem =
+      data.price_per_item ?? current?.pricePerItem.toNumber() ?? 0;
+    const nextTotalPrice = nextQuantity * nextPricePerItem;
+
     const result = zero.mutate(
       mutators.lineItems.update({
         id: data.itemId,
         name: data.name,
         quantity: data.quantity,
         price_per_item: data.price_per_item,
+        total_price: nextTotalPrice,
       })
     );
 

@@ -273,6 +273,8 @@ class AssignmentResponse(BaseModel):
     receipt_line_item_id: UUID
     created_at: datetime
     deleted_at: Optional[datetime] = None
+    share_percentage: Optional[Decimal] = None
+    locked: bool = False
     user: Optional[UserResponse] = None  # From receipt_user.user relationship
 
 

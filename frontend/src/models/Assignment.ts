@@ -1,3 +1,5 @@
+import type Decimal from 'decimal.js';
+
 import type { ReceiptUser } from './ReceiptUser';
 
 /**
@@ -49,4 +51,10 @@ export interface Assignment {
 
   /** The receipt user associated with this assignment, or null if receipt user data is not loaded */
   readonly receiptUser: ReceiptUser | null;
+
+  /** Custom percent share of the line item total, 0-100. Null means even-split fallback. */
+  readonly sharePercentage: Decimal | null;
+
+  /** Whether the share is pinned and excluded from rebalancing. */
+  readonly locked: boolean;
 }

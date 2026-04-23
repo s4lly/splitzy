@@ -14,7 +14,7 @@
  * - Many-to-one with receipt_line_items (assignments.receipt_line_item_id -> receipt_line_items.id)
  */
 
-import { number, string, table } from '@rocicorp/zero';
+import { boolean, number, string, table } from '@rocicorp/zero';
 
 export const assignment = table('assignments')
   .columns({
@@ -23,5 +23,7 @@ export const assignment = table('assignments')
     receipt_line_item_id: string(), // FK to receipt_line_items.id (UUID)
     created_at: number(),
     deleted_at: number().optional(),
+    share_percentage: number().optional(), // null => even split fallback
+    locked: boolean(),
   })
   .primaryKey('id');

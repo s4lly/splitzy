@@ -1,4 +1,4 @@
-from sqlalchemy import text
+from sqlalchemy import Boolean, Numeric, text
 from sqlalchemy.dialects.postgresql import UUID
 
 from models import db
@@ -25,6 +25,8 @@ class Assignment(db.Model):
         db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     )
     deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
+    share_percentage = db.Column(Numeric(7, 4), nullable=True)
+    locked = db.Column(Boolean, nullable=False, server_default=text("false"))
 
     receipt_user = db.relationship(
         "ReceiptUser", backref=db.backref("assignments", lazy=True), lazy="joined"

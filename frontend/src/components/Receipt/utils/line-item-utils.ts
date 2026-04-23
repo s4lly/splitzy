@@ -1,5 +1,6 @@
 import Decimal from 'decimal.js';
 
+import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 
@@ -51,18 +52,18 @@ export const getPersonItems = (
     const isAssigned = assignedReceiptUserIds.includes(receiptUserId);
 
     if (isAssigned) {
-      const totalPrice = item.totalPrice;
-      const pricePerPerson = totalPrice.div(
-        new Decimal(assignedReceiptUserIds.length)
+      const originalPrice =
+        calculations.pretax.getIndividualItemTotalPrice(item);
+      const pricePerPerson = calculations.pretax.getPersonTotalForItem(
+        item,
+        receiptUserId
       );
       personItems.push({
         name: item.name ?? '(Unnamed item)',
         quantity: item.quantity,
-        originalPrice: totalPrice,
+        originalPrice,
         price: pricePerPerson,
         shared: assignedReceiptUserIds.length > 1,
-        // TODO: used person display name before
-        // with receipt user id, maybe don't need to transform to string
         sharedWith: assignedReceiptUserIds.filter((id) => id !== receiptUserId),
       });
     }

@@ -124,6 +124,8 @@ export const mutators = defineMutators({
         receipt_user_id: z.string(), // ULID
         receipt_line_item_id: z.string(),
         created_at: z.number().optional(),
+        share_percentage: z.number().nullable().optional(),
+        locked: z.boolean().optional(),
       }),
       async ({ tx, args }) => {
         await tx.mutate.assignments.insert({
@@ -131,6 +133,24 @@ export const mutators = defineMutators({
           receipt_user_id: args.receipt_user_id,
           receipt_line_item_id: args.receipt_line_item_id,
           created_at: args.created_at ?? Date.now(),
+          share_percentage: args.share_percentage ?? undefined,
+          locked: args.locked ?? false,
+        });
+      }
+    ),
+    update: defineMutator(
+      z.object({
+        id: z.string(), // ULID
+        share_percentage: z.number().nullable().optional(),
+        locked: z.boolean().optional(),
+      }),
+      async ({ tx, args }) => {
+        await tx.mutate.assignments.update({
+          id: args.id,
+          ...(args.share_percentage !== undefined && {
+            share_percentage: args.share_percentage ?? undefined,
+          }),
+          ...(args.locked !== undefined && { locked: args.locked }),
         });
       }
     ),

@@ -16,6 +16,8 @@ const makeAssignment = (
   createdAt: new Date('2024-01-01'),
   deletedAt: null,
   receiptUser: null,
+  sharePercentage: null,
+  locked: false,
   ...overrides,
 });
 
@@ -1077,7 +1079,7 @@ describe('getPersonTotals - edge cases', () => {
   });
 });
 
-describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)', () => {
+describe('pretax.getIndividualItemTotalPrice (pricePerItem × quantity authoritative)', () => {
   const itemId = '11111111-1111-1111-1111-111111111111';
 
   const makeModelLineItem = (overrides: {
@@ -1096,7 +1098,7 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
     assignments: overrides.assignments ?? [],
   });
 
-  it('returns item.totalPrice when no candidate is provided, even if it differs from pricePerItem * quantity', () => {
+  it('returns pricePerItem * quantity when no candidate is provided, even if it differs from stored totalPrice', () => {
     const item = makeModelLineItem({
       pricePerItem: 3.33,
       quantity: 3,
@@ -1105,8 +1107,8 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
 
     const result = calculations.pretax.getIndividualItemTotalPrice(item as any);
 
-    expect(result.equals(new Decimal(10.0))).toBe(true);
-    expect(result.equals(new Decimal(9.99))).toBe(false);
+    expect(result.equals(new Decimal(9.99))).toBe(true);
+    expect(result.equals(new Decimal(10.0))).toBe(false);
   });
 
   it('uses pricePerItem * quantity from candidate override when provided', () => {
@@ -1127,8 +1129,7 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
     expect(result.equals(new Decimal(45))).toBe(true);
   });
 
-  it('reconciles person totals to receipt total using totalPrice for OCR-inconsistent triples', () => {
-    // OCR produced an inconsistent triple: 3.33 * 3 = 9.99, but the printed total is 10.00
+  it('splits pricePerItem * quantity evenly across assigned people, ignoring stale totalPrice', () => {
     const item = makeModelLineItem({
       pricePerItem: 3.33,
       quantity: 3,
@@ -1143,12 +1144,12 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
     const personTotals = calculations.pretax.getAllPersonItemTotals(itemSplits);
     const sum = Decimal.sum(...Array.from(personTotals.values()));
 
-    expect(sum.equals(new Decimal(10.0))).toBe(true);
-    expect(personTotals.get('1')?.equals(new Decimal(5))).toBe(true);
-    expect(personTotals.get('2')?.equals(new Decimal(5))).toBe(true);
+    expect(sum.equals(new Decimal(9.99))).toBe(true);
+    expect(personTotals.get('1')?.equals(new Decimal(4.995))).toBe(true);
+    expect(personTotals.get('2')?.equals(new Decimal(4.995))).toBe(true);
   });
 
-  it('getPersonTotalForItem uses totalPrice when no candidate is provided', () => {
+  it('getPersonTotalForItem uses pricePerItem * quantity when no candidate is provided', () => {
     const item = makeModelLineItem({
       pricePerItem: 3.33,
       quantity: 3,
@@ -1158,10 +1159,10 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
 
     const result = calculations.pretax.getPersonTotalForItem(item as any, '1');
 
-    expect(result.equals(new Decimal(5))).toBe(true);
+    expect(result.equals(new Decimal(4.995))).toBe(true);
   });
 
-  it('getTotalForAllItems sums totalPrice across line items', () => {
+  it('getTotalForAllItems sums pricePerItem * quantity across line items', () => {
     const itemA = makeModelLineItem({
       id: '11111111-1111-1111-1111-111111111111',
       pricePerItem: 3.33,
@@ -1178,7 +1179,9 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
     const receipt = { lineItems: [itemA, itemB] } as any;
 
     expect(
-      calculations.pretax.getTotalForAllItems(receipt).equals(new Decimal(15.0))
+      calculations.pretax
+        .getTotalForAllItems(receipt)
+        .equals(new Decimal(14.99))
     ).toBe(true);
   });
 });
