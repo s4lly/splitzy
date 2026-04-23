@@ -1,0 +1,130 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "ec97d963faf8",
+  "session_id": "573fa820-f12c-47a8-9460-80d2db2246bf",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-23T02:45:03.832127Z",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "backend/migrations/versions/76997c37f508_add_share_percentage_and_locked_to_.py",
+    "backend/migrations/versions/7ebf97147f9e_reconcile_line_item_total_price_to_.py",
+    "backend/models/assignment.py",
+    "backend/schemas/receipt.py",
+    "frontend/package.json",
+    "frontend/src/components/Receipt/utils/line-item-utils.ts",
+    "frontend/src/components/Receipt/utils/receipt-calculation.test.ts",
+    "frontend/src/components/Receipt/utils/receipt-calculation.ts",
+    "frontend/src/components/ui/slider.tsx",
+    "frontend/src/features/assignments/SplitPercentTab.tsx",
+    "frontend/src/features/assignments/assignments-list.tsx",
+    "frontend/src/features/assignments/hooks/useSplitPercent.ts",
+    "frontend/src/features/assignments/utils/split-percent.test.ts",
+    "frontend/src/features/assignments/utils/split-percent.ts",
+    "frontend/src/features/line-items/hooks/useLineItemMutations.ts",
+    "frontend/src/models/Assignment.ts",
+    "frontend/src/models/transformers/fromZero.ts",
+    "frontend/src/zero/mutators.ts",
+    "frontend/src/zero/schemas/assignment.ts",
+    "pnpm-lock.yaml",
+    "zero-query/src/mutators.ts",
+    "zero-query/src/schemas/assignment.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "22b4fd7aead3",
+  "token_usage": {
+    "input_tokens": 56,
+    "cache_creation_tokens": 115782,
+    "cache_read_tokens": 1945162,
+    "output_tokens": 24400,
+    "api_call_count": 36
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-23T02:45:03.826771Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 499,
+    "human_removed": 64,
+    "total_committed": 279,
+    "total_lines_changed": 563,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 5524,
+      "user_lines_removed": 538,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "2026-04-04-194954-verify-each-finding-against-the-current-code-and.txt": 709,
+        "CODE_REVIEW_split-calculation-fixes-phase-4-6.md": 168,
+        "IMAGE_PREP_PLAN.md": 162,
+        "backend/migrations/versions/76997c37f508_add_share_percentage_and_locked_to_.py": 34,
+        "backend/migrations/versions/7ebf97147f9e_reconcile_line_item_total_price_to_.py": 32,
+        "backend/models/assignment.py": 3,
+        "backend/schemas/receipt.py": 2,
+        "docs/assignment-code-journey.md": 683,
+        "docs/custom-splits-architecture-notes.md": 455,
+        "docs/lingui-precommit-hook-plan.md": 134,
+        "docs/setup-improvements.md": 25,
+        "docs/split-calculation-findings.md": 378,
+        "docs/split-calculation-fix-plan.md": 314,
+        "docs/structured-logging-plan.md": 182,
+        "frontend/2026-03-31-233627-create-a-plan-for-a-new-page-which-appears-after-u.txt": 734,
+        "frontend/package.json": 1,
+        "frontend/src/components/Receipt/utils/line-item-utils.ts": 7,
+        "frontend/src/components/Receipt/utils/receipt-calculation.test.ts": 16,
+        "frontend/src/components/Receipt/utils/receipt-calculation.ts": 510,
+        "frontend/src/components/ui/slider.tsx": 26,
+        "frontend/src/features/assignments/SplitPercentTab.tsx": 307,
+        "frontend/src/features/assignments/assignments-list.tsx": 244,
+        "frontend/src/features/line-items/hooks/useLineItemMutations.ts": 135,
+        "frontend/src/models/Assignment.ts": 8,
+        "frontend/src/models/transformers/fromZero.ts": 3,
+        "frontend/src/zero/mutators.ts": 20,
+        "frontend/src/zero/schemas/assignment.ts": 3,
+        "pnpm-lock.yaml": 36,
+        "splitzy-payment-tracking-prompt.md": 170,
+        "zero-query/src/mutators.ts": 20,
+        "zero-query/src/schemas/assignment.ts": 3
+      },
+      "user_removed_per_file": {
+        "backend/models/assignment.py": 1,
+        "frontend/src/components/Receipt/utils/line-item-utils.ts": 6,
+        "frontend/src/components/Receipt/utils/receipt-calculation.test.ts": 13,
+        "frontend/src/components/Receipt/utils/receipt-calculation.ts": 291,
+        "frontend/src/features/assignments/assignments-list.tsx": 221,
+        "frontend/src/features/line-items/hooks/useLineItemMutations.ts": 4,
+        "frontend/src/zero/schemas/assignment.ts": 1,
+        "zero-query/src/schemas/assignment.ts": 1
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5960,
+      "agent_lines_removed": 538,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 6086,
+      "agent_lines_removed": 538,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    }
+  ]
+}

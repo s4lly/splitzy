@@ -1,0 +1,15 @@
+refactor frontend/src/features/assignments/SplitPercentTab.tsx
+
+expand the jsdoc for each of the functions which are not react related, like largestRemainderRound. include info about params, return value and examples. also, add inline comments for logical groupings of lines of code. so if there is a couple lines which perform one logical unit of work, then there should be one comment describing what those lines are doing. to that affect, also try to add one empty line between logical groupings of code. avoid single character variable names. avoid ternary operator, use if statement instead and include comment explaining why fell into if block.
+
+use decimal.js for any numerical calculation.
+
+also, i would like to refactor the rebalance logic into separate file(s). ideally should have file for react presentation layer, react business logic and potentially file with just functions which perform some unit of work which is not dependent on react at all. do an internet search and find out what are some good patterns to follow for such a separation and present to me a couple options. in the end i would prefer that the rebalance code, the code which has nothing to do with react, is moved someplace else.
+
+---
+
+create a prompt which i can use to perform a similar refactor to other parts of the code. ideally should ask llm to perform investigation into which refactors make sense, ask user any clarifying questions and generate a plan the user can implement. add the prompt to a markdown file in the root directory.
+
+---
+
+remove the markdown quote syntax from the prompt, "> ", because it makes it hard to copy

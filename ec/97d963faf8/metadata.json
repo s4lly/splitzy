@@ -1,0 +1,46 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "ec97d963faf8",
+  "strategy": "manual-commit",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "backend/migrations/versions/76997c37f508_add_share_percentage_and_locked_to_.py",
+    "backend/migrations/versions/7ebf97147f9e_reconcile_line_item_total_price_to_.py",
+    "backend/models/assignment.py",
+    "backend/schemas/receipt.py",
+    "frontend/package.json",
+    "frontend/src/components/Receipt/utils/line-item-utils.ts",
+    "frontend/src/components/Receipt/utils/receipt-calculation.test.ts",
+    "frontend/src/components/Receipt/utils/receipt-calculation.ts",
+    "frontend/src/components/ui/slider.tsx",
+    "frontend/src/features/assignments/SplitPercentTab.tsx",
+    "frontend/src/features/assignments/assignments-list.tsx",
+    "frontend/src/features/assignments/hooks/useSplitPercent.ts",
+    "frontend/src/features/assignments/utils/split-percent.test.ts",
+    "frontend/src/features/assignments/utils/split-percent.ts",
+    "frontend/src/features/line-items/hooks/useLineItemMutations.ts",
+    "frontend/src/models/Assignment.ts",
+    "frontend/src/models/transformers/fromZero.ts",
+    "frontend/src/zero/mutators.ts",
+    "frontend/src/zero/schemas/assignment.ts",
+    "pnpm-lock.yaml",
+    "zero-query/src/mutators.ts",
+    "zero-query/src/schemas/assignment.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ec/97d963faf8/0/metadata.json",
+      "transcript": "/ec/97d963faf8/0/full.jsonl",
+      "content_hash": "/ec/97d963faf8/0/content_hash.txt",
+      "prompt": "/ec/97d963faf8/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 56,
+    "cache_creation_tokens": 115782,
+    "cache_read_tokens": 1945162,
+    "output_tokens": 24400,
+    "api_call_count": 36
+  }
+}
