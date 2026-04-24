@@ -1,0 +1,40 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/hooks/useSplitPercent.ts` around lines 9 -
+14, The import in useSplitPercent.ts uses a relative path; update the import of
+evenShares, largestRemainderRound, rebalance, and ShareEntry to use the project
+alias (e.g. change from '../utils/split-percent' to the
+'@/features/assignments/utils/split-percent' alias) so the file imports the same
+symbols via the "@/..." resolver.
+
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/SplitPercentTab.tsx` at line 19, The import
+in SplitPercentTab.tsx uses a relative path for the hook; change the import of
+useSplitPercent to use the project alias (e.g., import { useSplitPercent } from
+'@/features/assignments/hooks/useSplitPercent') so it follows the frontend
+import guideline (use '@/...' instead of relative '../' paths) and update any
+other occurrences of the same relative import in this file.
+
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/line-items/utils/rebalance-shares.test.ts` around lines
+4 - 10, Replace the relative import at the top of the test with the project
+alias: change the import that currently brings in itemHasCustomShares,
+planAddRebalance, planRemoveRebalance, RebalanceAssignment, and
+SiblingShareUpdate from './rebalance-shares' to use the configured '@/...' alias
+(e.g. import { itemHasCustomShares, planAddRebalance, planRemoveRebalance, type
+RebalanceAssignment, type SiblingShareUpdate } from
+'@/features/line-items/utils/rebalance-shares') so the test uses the alias-based
+path instead of a relative path.
+
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/utils/split-percent.test.ts` around lines 4
+- 9, Replace the relative import of the split-percent utility with the project
+alias import; update the import statement that brings in evenShares,
+largestRemainderRound, rebalance, and type ShareEntry from './split-percent' to
+use the '@/...' alias path (e.g., import { evenShares, largestRemainderRound,
+rebalance, type ShareEntry } from '@/features/assignments/utils/split-percent')
+so the file uses the configured frontend import alias instead of a relative
+path.
