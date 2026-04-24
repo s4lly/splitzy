@@ -1,0 +1,9 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/line-items/utils/rebalance-shares.ts` around lines 20 -
+23, The SiblingShareUpdate type currently only has id and share_percentage, but
+the rebalance mutator performs partial updates so it never clears locks when
+redistributing shares; add a locked?: boolean field to SiblingShareUpdate and
+ensure the rebalance code (the function that builds updates for siblings) sets
+locked: false on siblings that should be unlocked during an all-locked rebalance
+so the partial update clears the lock flag on the backend.
