@@ -1,0 +1,12 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/zero/mutators.ts` around lines 141 - 156, The update mutator
+(defineMutator -> async ({ tx, args }) => { ... }) is collapsing explicit nulls
+by using args.share_percentage ?? undefined; change the construction so that
+undefined is treated as "no-op" but explicit null is passed through (e.g.,
+include share_percentage: args.share_percentage when args.share_percentage is
+not undefined), thereby preserving the three-state contract declared by
+z.number().nullable().optional(); make the same analogous change in the other
+occurrence in zero-query/src/mutators.ts (the update handler at the noted
+location) so explicit null clears the column while undefined leaves it
+unchanged.
