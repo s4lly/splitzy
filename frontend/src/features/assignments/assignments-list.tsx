@@ -2,7 +2,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import { Check, HandGrab, Plus, X } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   DEFAULT_CHIP_COLOR,
@@ -100,6 +100,15 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
     newId: string;
     newName: string;
   } | null>(null);
+  const [tabValue, setTabValue] = useState<'assignment' | 'split'>(
+    'assignment'
+  );
+  const splitDisabled = item.assignments.length < 2;
+  useEffect(() => {
+    if (splitDisabled && tabValue === 'split') {
+      setTabValue('assignment');
+    }
+  }, [splitDisabled, tabValue]);
   const newPersonSanitized = newPerson.trim();
   const assignmentsAddAllEnabled = useFeatureFlag('assignments-add-all');
 
@@ -180,12 +189,16 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
           possiblePeople={possiblePeople}
         />
       )}
-      <Tabs defaultValue="assignment" className="w-full">
+      <Tabs
+        value={tabValue}
+        onValueChange={(v) => setTabValue(v as 'assignment' | 'split')}
+        className="w-full"
+      >
         <TabsList className="grid h-auto w-full grid-cols-2">
           <TabsTrigger value="assignment">
             <Trans>Assignment</Trans>
           </TabsTrigger>
-          <TabsTrigger value="split" disabled={item.assignments.length < 2}>
+          <TabsTrigger value="split" disabled={splitDisabled}>
             <Trans>Split %</Trans>
           </TabsTrigger>
         </TabsList>
