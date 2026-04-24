@@ -1,0 +1,14 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/line-items/hooks/useLineItemMutations.ts` around lines
+86 - 90, The sibling rebalance updates use fire-and-forget calls (void
+zero.mutate(mutators.assignments.update(update))) inside useLineItemMutations,
+which can leave assignments inconsistent on failure; change these to collect the
+returned promises from zero.mutate for each mutators.assignments.update(update)
+(e.g., map to an array) and await them (Promise.all or sequential await), then
+inspect results and on any failure either log the error via the existing logger
+and surface the error to the caller or roll back the primary change (undo the
+initial mutate) so state remains consistent; apply this pattern for the
+rebalance branches that reference rebalance.siblingUpdates, zero.mutate, and
+mutators.assignments.update (also update the similar blocks currently at the
+other rebalance sites).
