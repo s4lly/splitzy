@@ -124,7 +124,7 @@ export const mutators = defineMutators({
         receipt_user_id: z.string(), // ULID
         receipt_line_item_id: z.string(),
         created_at: z.number().optional(),
-        share_percentage: z.number().nullable().optional(),
+        share_percentage: z.number().min(0).max(100).nullable().optional(),
         locked: z.boolean().optional(),
       }),
       async ({ tx, args }) => {
@@ -141,7 +141,7 @@ export const mutators = defineMutators({
     update: defineMutator(
       z.object({
         id: z.string(), // ULID
-        share_percentage: z.number().nullable().optional(),
+        share_percentage: z.number().min(0).max(100).nullable().optional(),
         locked: z.boolean().optional(),
       }),
       async ({ tx, args }) => {
