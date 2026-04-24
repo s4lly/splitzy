@@ -113,6 +113,16 @@ export function useSplitPercent({
     new Map()
   );
 
+  useEffect(() => {
+    const timers = persistTimers.current;
+    return () => {
+      for (const timer of timers.values()) {
+        clearTimeout(timer);
+      }
+      timers.clear();
+    };
+  }, []);
+
   const persistShare = useCallback(
     (assignmentId: string, share: Decimal) => {
       // Replace any in-flight timer for this row so rapid slider moves
@@ -207,6 +217,12 @@ export function useSplitPercent({
       // reset is a single discrete action, not a drag.
       const sharePercentage = share.toNumber();
       for (const entry of next) {
+        // Cancel any pending debounced write so it can't clobber this reset.
+        const pending = persistTimers.current.get(entry.id);
+        if (pending) {
+          clearTimeout(pending);
+          persistTimers.current.delete(entry.id);
+        }
         void zero.mutate(
           mutators.assignments.update({
             id: entry.id,
