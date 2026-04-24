@@ -1,0 +1,10 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/SplitPercentTab.tsx` around lines 48 - 54,
+Replace the current empty-state check in SplitPercentTab that uses
+item.assignments.length with a check that counts only active (non-soft-deleted)
+split entries: derive activeAssignments = item.assignments.filter(a =>
+!a.deleted && !a.isDeleted && !a.softDeleted && !a.archived) (or the appropriate
+soft-delete flag used in your model) and use activeAssignments.length < 2 to
+decide the empty state; update any subsequent uses in the component that assume
+assignments to iterate over activeAssignments instead of item.assignments.
