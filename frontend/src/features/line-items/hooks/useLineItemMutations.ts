@@ -230,7 +230,8 @@ export function useLineItemMutations() {
     const nextQuantity = data.quantity ?? current?.quantity.toNumber() ?? 1;
     const nextPricePerItem =
       data.price_per_item ?? current?.pricePerItem.toNumber() ?? 0;
-    const nextTotalPrice = nextQuantity * nextPricePerItem;
+    const nextTotalPrice =
+      Math.round(nextQuantity * nextPricePerItem * 100) / 100;
 
     const result = zero.mutate(
       mutators.lineItems.update({
