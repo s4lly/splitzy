@@ -11,7 +11,7 @@ import {
   largestRemainderRound,
   rebalance,
   type ShareEntry,
-} from '../utils/split-percent';
+} from '@/features/assignments/utils/split-percent';
 
 const PERSIST_DEBOUNCE_MS = 150;
 

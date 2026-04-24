@@ -16,7 +16,7 @@ import { getInitials } from '@/lib/get-initials';
 import { cn } from '@/lib/utils';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 
-import { useSplitPercent } from './hooks/useSplitPercent';
+import { useSplitPercent } from '@/features/assignments/hooks/useSplitPercent';
 
 interface SplitPercentTabProps {
   item: ReceiptLineItem;

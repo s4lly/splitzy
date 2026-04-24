@@ -6,7 +6,7 @@ import {
   largestRemainderRound,
   rebalance,
   type ShareEntry,
-} from './split-percent';
+} from '@/features/assignments/utils/split-percent';
 
 const d = (value: number | string) => new Decimal(value);
 
