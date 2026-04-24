@@ -1,0 +1,10 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/utils/split-percent.ts` around lines 165 -
+171, The current logic computes maxForTarget = ONE_HUNDRED.minus(lockedSum)
+which can be negative when lockedSum > 100 and then assigns clamped =
+maxForTarget, allowing a target below zero; fix this by clamping maxForTarget to
+at least ZERO before using it (i.e., set maxForTarget = Decimal.max(ZERO,
+ONE_HUNDRED.minus(lockedSum))) and then apply the existing comparison against
+clamped (variables involved: maxForTarget, lockedSum, clamped, ONE_HUNDRED,
+ZERO, newValue, Decimal).
