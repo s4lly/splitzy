@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "c8a3d1b1aa4f",
+  "strategy": "manual-commit",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/src/features/line-items/hooks/useLineItemMutations.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/c8/a3d1b1aa4f/0/metadata.json",
+      "transcript": "/c8/a3d1b1aa4f/0/full.jsonl",
+      "content_hash": "/c8/a3d1b1aa4f/0/content_hash.txt",
+      "prompt": "/c8/a3d1b1aa4f/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 15,
+    "cache_creation_tokens": 14302,
+    "cache_read_tokens": 134539,
+    "output_tokens": 886,
+    "api_call_count": 5
+  }
+}

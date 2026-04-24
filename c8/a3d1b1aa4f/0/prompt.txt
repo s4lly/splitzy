@@ -1,0 +1,9 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/line-items/hooks/useLineItemMutations.ts` around lines
+219 - 234, The computed nextTotalPrice in handleUpdateLineItem uses raw IEEE-754
+multiplication which can produce float drift; replace nextTotalPrice with a
+value rounded to 2 decimal places (e.g., Math.round(nextQuantity *
+nextPricePerItem * 100) / 100 or equivalent) and pass that rounded value into
+mutators.lineItems.update (the object sent via zero.mutate) as total_price so
+the frontend matches the DB's ROUND(price_per_item * quantity, 2) behavior.
