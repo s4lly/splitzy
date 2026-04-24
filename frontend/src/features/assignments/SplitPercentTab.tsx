@@ -45,7 +45,7 @@ const SplitPercentTab: React.FC<SplitPercentTabProps> = ({
     quantity: formQuantity,
   });
 
-  if (item.assignments.length < 2) {
+  if (entries.length < 2) {
     return (
       <div className="rounded-md p-4 text-center text-sm text-muted-foreground">
         <Trans>Assign 2+ people to customize the split.</Trans>
