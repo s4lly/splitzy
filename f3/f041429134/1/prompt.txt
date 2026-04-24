@@ -1,0 +1,13 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/assignments-list.tsx` around lines 183 -
+191, The Tabs are currently uncontrolled via defaultValue="assignment", so when
+a user selects TabsContent value="split" and then item.assignments.length drops
+below 2 the TabsTrigger for "split" becomes disabled while TabsContent("split")
+stays active; change Tabs to be controlled by adding local state (e.g., const
+[tabValue, setTabValue] = useState<"assignment" | "split">("assignment")) and
+pass value={tabValue} and onValueChange={setTabValue} to <Tabs>, and whenever
+item.assignments.length < 2 ensure you programmatically
+setTabValue("assignment") (for example inside an effect watching
+item.assignments.length) so the UI and disabled trigger remain consistent;
+update references to TabsTrigger/TabsContent/SplitPercentTab accordingly.

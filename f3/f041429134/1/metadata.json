@@ -1,0 +1,73 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "f3f041429134",
+  "session_id": "84704af0-857a-47e0-903a-33d52693345d",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-24T03:58:24.78554Z",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/src/features/assignments/assignments-list.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "7c7843deae81",
+  "token_usage": {
+    "input_tokens": 18,
+    "cache_creation_tokens": 38245,
+    "cache_read_tokens": 244363,
+    "output_tokens": 1674,
+    "api_call_count": 8
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-24T03:58:24.781601Z",
+    "agent_lines": 16,
+    "agent_removed": 3,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 16,
+    "total_lines_changed": 19,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 4248,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7,
+        "2026-04-04-194954-verify-each-finding-against-the-current-code-and.txt": 709,
+        "CODE_REVIEW_split-calculation-fixes-phase-4-6.md": 168,
+        "IMAGE_PREP_PLAN.md": 162,
+        "REFACTOR_PROMPT.md": 126,
+        "docs/assignment-code-journey.md": 683,
+        "docs/custom-splits-architecture-notes.md": 455,
+        "docs/lingui-precommit-hook-plan.md": 134,
+        "docs/setup-improvements.md": 25,
+        "docs/split-calculation-findings.md": 378,
+        "docs/split-calculation-fix-plan.md": 314,
+        "docs/structured-logging-plan.md": 182,
+        "frontend/2026-03-31-233627-create-a-plan-for-a-new-page-which-appears-after-u.txt": 734,
+        "frontend/tsconfig.tsbuildinfo": 1,
+        "splitzy-payment-tracking-prompt.md": 170
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4257,
+      "agent_lines_removed": 3,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    }
+  ]
+}

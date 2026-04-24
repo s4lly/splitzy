@@ -3,7 +3,7 @@
   "checkpoint_id": "f3f041429134",
   "strategy": "manual-commit",
   "branch": "feat/split-percent-assignments",
-  "checkpoints_count": 7,
+  "checkpoints_count": 8,
   "files_touched": [
     "frontend/src/features/assignments/assignments-list.tsx"
   ],
@@ -13,13 +13,19 @@
       "transcript": "/f3/f041429134/0/full.jsonl",
       "content_hash": "/f3/f041429134/0/content_hash.txt",
       "prompt": "/f3/f041429134/0/prompt.txt"
+    },
+    {
+      "metadata": "/f3/f041429134/1/metadata.json",
+      "transcript": "/f3/f041429134/1/full.jsonl",
+      "content_hash": "/f3/f041429134/1/content_hash.txt",
+      "prompt": "/f3/f041429134/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 189,
-    "cache_creation_tokens": 693379,
-    "cache_read_tokens": 17662553,
-    "output_tokens": 86991,
-    "api_call_count": 130
+    "input_tokens": 207,
+    "cache_creation_tokens": 731624,
+    "cache_read_tokens": 17906916,
+    "output_tokens": 88665,
+    "api_call_count": 138
   }
 }
