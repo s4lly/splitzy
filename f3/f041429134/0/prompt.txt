@@ -1,0 +1,176 @@
+i will paste a plan for a new feature. the plan was created without access to the codebase. if there is any discrepancies between what the plan is asking and what is possible given the codebase please ask me any clarifying questions. otherwise use the plan to create a plan which is informed about the codebase. the plan describes a new feature added to the cards for editing a line item's people assignments. we are adding tabs for assignments, what exists now, and in another tab will add controls to adjust how much responsibility each person assigned to an item has. likely changes applied around the AssignmentsList component in frontend/src/components/Receipt/LineItemsTableMobile.tsx and frontend/src/components/Receipt/LineItemsTableDesktop.tsx. i also pasted a screenshot of what the new UI should look like.[Image #2]
+
+plan without access to codebase:
+# Proportional Responsibility Split — Implementation Plan
+
+## Overview
+
+The item assignment card currently allows users to add/remove people who equally split the cost of a receipt item. This update adds a **second mode** where users can manually customize what percentage of an item's cost each assigned person is responsible for.
+
+The two modes live in a **tabbed interface** within the existing item card. The first tab ("Assignment") retains the current add/remove functionality. The second tab ("Split %") provides sliders and numeric inputs to adjust each person's share.
+
+A screenshot of the final prototype is attached. Use it as the visual reference for layout, spacing, and component placement.
+
+---
+
+## Tab Structure
+
+Add a shadcn `Tabs` component with two tabs, full-width within the card:
+
+- **"Assignment"** — the existing add/remove UI, unchanged in functionality.
+- **"Split %"** — the new proportional adjustment UI described below.
+
+The tabs should sit below the item name/price header and above the person list. Default to the "Assignment" tab. The "Split %" tab is only meaningful when 2+ people are assigned; if only 0–1 people are assigned, either disable the tab or show a message prompting the user to assign more people from the Assignment tab.
+
+---
+
+## Assignment Tab (existing behavior, minor additions)
+
+This tab contains the current UI: the list of assigned people with remove (×) buttons, the "New" input to add someone, and the unassigned people list with (+) buttons.
+
+One addition: next to each person's name, show their current **dollar amount** based on their share. This gives the user a preview of how the split currently stands even before switching to the Split % tab.
+
+---
+
+## Split % Tab — Layout per person row
+
+Each assigned person gets a two-row block:
+
+**Row 1 (info row):**
+- Avatar (circle with initial, colored background — use existing avatar component)
+- Name (truncated if long)
+- Numeric percent input in a rounded pill (`bg-slate-100` or equivalent), showing the integer percent followed by a `%` suffix. The input and suffix sit inside the same pill container. Width ~80px.
+- Dollar amount label, right-aligned, showing `$X.XX` computed from `(itemTotal × share / 100)`.
+
+**Row 2 (control row):**
+- Range slider (full width of row minus the lock button). Use the native `<input type="range">` or a shadcn `Slider`. Range 0–100, value bound to the person's share.
+- Lock/unlock button to the **right** of the slider. Uses Lucide `Lock` (locked state) and `Unlock` (unlocked state) icons. 44×44px tap target minimum. When locked: dark fill (`bg-slate-900 text-white`). When unlocked: light fill (`bg-slate-100 text-slate-500`).
+
+**No add/remove controls appear on this tab.** Adding and removing people is only possible on the Assignment tab.
+
+### iOS Safari zoom prevention
+
+All `<input>` elements (the numeric percent input and the name input on the Assignment tab) must use `font-size: 16px` on mobile to prevent Safari's auto-zoom on focus. Use responsive font sizing: `text-base` (16px) at mobile widths, `text-sm` (14px) at `md` breakpoint and above. This matches the pattern shadcn uses for their Input component.
+
+---
+
+## Split % Tab — Rebalance Logic
+
+### Core rule
+All shares must sum to exactly 100% at all times. When one person's share changes, the remaining unlocked people absorb the difference **proportionally to their current shares**.
+
+### Adjusting a share (slider drag or numeric input)
+
+1. Clamp the new value to `[0, 100]`.
+2. If the person is locked, ignore the input (the slider and numeric field should be disabled).
+3. Compute `lockedSum` = sum of all locked people's shares.
+4. If `newValue + lockedSum > 100`, clamp `newValue` to `100 - lockedSum`.
+5. Compute `remaining = 100 - newValue - lockedSum`.
+6. Distribute `remaining` among unlocked people (excluding the one being adjusted) **proportionally**: each gets `(theirCurrentShare / sumOfTheirShares) × remaining`.
+7. If `sumOfTheirShares` is 0 (all unlocked others are at 0%), distribute `remaining` evenly among them.
+
+### Locking / unlocking
+
+Toggling the lock pins or unpins a person's share. No rebalance happens on toggle — the shares stay as they are. The locked person's slider and numeric input become disabled. Their share is excluded from redistribution when others adjust.
+
+### Adding a person (on Assignment tab)
+
+When a new person is added while custom splits exist:
+
+1. Compute the newcomer's "fair share" as `100 / newTotalPeople`.
+2. Compute `lockedSum` = sum of locked people's shares.
+3. If `lockedSum >= 100` or there are zero unlocked people: add the newcomer at **0%** and show a warning: *"[Name] added at 0% — unlock someone to give them a share."*
+4. Otherwise: cap the newcomer's share at `min(fairShare, 100 - lockedSum)`. Scale all unlocked existing people down proportionally to make room (same proportional redistribution as above). The newcomer starts unlocked.
+
+### Removing a person (on Assignment tab)
+
+When a person is removed:
+
+1. Their share is redistributed to remaining **unlocked** people proportionally.
+2. If all remaining people are locked, spread evenly across everyone as a fallback.
+3. If the last person is removed, auto-switch to the Assignment tab.
+
+### Resetting
+
+Include a "Reset to even split" text button at the bottom of the Split % tab. It sets all shares to `100 / n` and unlocks everyone.
+
+---
+
+## Display Rounding
+
+Internally, shares are stored as floats that sum to exactly 100.0. For **display**, use largest-remainder rounding to produce integers that sum to exactly 100:
+
+1. Floor each share.
+2. Compute the deficit: `100 - sum(floors)`.
+3. Sort people by the fractional part of their share, descending.
+4. Award +1 to the top `deficit` people.
+
+Show the rounded integer in the numeric input. Show the dollar amount computed from the **float** (not the rounded integer) so dollars always sum to the item total exactly.
+
+---
+
+## Warning Banner
+
+When a person is added at 0% due to the fully-locked edge case, show a dismissible warning banner between the tabs and the person list. Style: amber background (`bg-amber-50`), amber border, amber text, with a ⚠️ icon and a × dismiss button. The warning auto-clears when any lock is toggled (since that creates room for redistribution).
+
+---
+
+## Data Model Changes
+
+Each person assigned to an item needs two new fields:
+
+- `share: number` — their percentage of the item cost (float, 0–100). Defaults to `100 / n` where `n` is the number of assigned people.
+- `locked: boolean` — whether the share is pinned. Defaults to `false`.
+
+When the assignment list changes (add/remove), recompute shares using the logic above. When all shares are equal and no one is locked, the behavior is identical to the current even-split model — so this is backward-compatible.
+
+---
+
+## Summary of Components Needed
+
+- **Tabs** — shadcn Tabs wrapping the two views.
+- **Slider** — shadcn Slider or native range input per person in the Split % tab. Disabled when locked.
+- **Numeric input** — small pill-shaped number input per person. Disabled when locked. 16px font on mobile.
+- **Lock button** — 44×44px button with Lucide Lock/Unlock icons, to the right of the slider.
+- **Warning banner** — conditional amber banner for the 0%-newcomer edge case.
+- **Reset button** — text link at the bottom of the Split % tab.
+
+---
+
+i get the following error. we need to also update anything zero related in the frontend directory and in the zero-query directory.
+
+installHook.js:1 clientID=ga7p8ga0dhumkdlj57 Mutator "assignments.update" app error on server {"name":"ApplicationError","message":"Mutator not found: assignments.update","stack":"ApplicationError: Mutator not found: assignments.update\n    at #processMutationError (http://localhost:5173/node_modules/.vite/deps/chunk-DKOBNVMJ.js?v=b4453dfe:17318:31)\n    at #processMutationResponses (http://localhost:5173/node_modules/.vite/deps/chunk-DKOBNVMJ.js?v=b4453dfe:17145:39)\n    at experimentalWatch.prefix (http://localhost:5173/node_modules/.vite/deps/chunk-DKOBNVMJ.js?v=b4453dfe:17075:39)\n    at WatchSubscription.onData (http://localhost:5173/node_modules/.vite/deps/chunk-DKOBNVMJ.js?v=b4453dfe:7977:21)\n    at SubscriptionsManagerImpl.callCallbacks (http://localhost:5173/node_modules/.vite/deps/chunk-DKOBNVMJ.js?v=b4453dfe:8121:11)\n    at #fireSubscriptions (http://localhost:5173/node_modules/.vite/deps/chunk-DKOBNVMJ.js?v=b4453dfe:8113:10)\n    at async ReplicacheImpl.maybeEndPull (http://localhost:5173/node_modules/.vite/deps/chunk-DKOBNVMJ.js?v=b4453dfe:8745:9)\n    at async ReplicacheImpl.poke (http://localhost:5173/node_modules/.vite/deps/chunk-DKOBNVMJ.js?v=b4453dfe:9008:9)\n    at async http://localhost:5173/node_modules/.vite/deps/chunk-DKOBNVMJ.js?v=b4453dfe:18170:9\n    at async run (http://localhost:5173/node_modules/.vite/deps/chunk-I573M4FI.js?v=b4453dfe:3474:12)"}
+
+---
+
+for this receipt: http://localhost:5173/receipt/80
+
+for this line item: Korean Palace Patty Benedict
+
+i pasted a screenshot of the price and quantity [Image #4]
+
+i adjusted the split percentage and you can view in the screenshot [Image #5]
+
+but in the dialog of bill breakdown towards the bottom, Bill, the person with largest split percentage, only shows $6.25 for that item as you can see in the screenshot [Image #6]
+
+help identify why the bill breakdown dialog for each person shows an incorrect value for the items and create a plan to fix
+
+---
+
+the quantity is 4 items and each item is $25 so it should be 56% of $100
+
+---
+
+can you explain the OCR drift comment? how does using the pricePerItem x quantity in getIndividualItemTotalPrice as source of trutch cause a contradiction?
+
+---
+
+ok, in that case lets reconcile with option 3, flip the source of truth and persist whenever a user edits an item and perform a one-time migration / repair pass for existing rows. create a plan for me to review, do not start implementing.
+
+---
+
+ok, in that case lets reconcile with option 3, flip the source of truth and persist whenever a user edits an item and perform a one-time migration / repair pass for existing rows. create a plan for me to review, do not start implementing.
+
+---
+
+read the jsdoc for the functions in frontend/src/components/Receipt/utils/receipt-calculation.ts and make any updates. especially if the structure of the data each function handles has changed, like input or return values has changed. include examples where missing. if you see a pattern in the stucture of data handled that is rebuilt multiple times in each function then consider creating a type/interface and use that. make sure to add plenty of comments to any new types/interfaces.
