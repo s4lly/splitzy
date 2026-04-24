@@ -366,11 +366,12 @@ export namespace calculations {
         candidate?: ItemQuantityPrice;
       }
     ): Decimal {
-      const assignment = item.assignments.find(
+      const activeAssignments = item.assignments.filter((a) => !a.deletedAt);
+      const assignment = activeAssignments.find(
         (a) => a.receiptUserId === person
       );
 
-      if (item.assignments.length === 0 || !assignment) {
+      if (activeAssignments.length === 0 || !assignment) {
         return new Decimal(0);
       }
 
@@ -379,12 +380,12 @@ export namespace calculations {
         options?.candidate
       );
 
-      if (itemHasCustomShares(item.assignments)) {
+      if (itemHasCustomShares(activeAssignments)) {
         const percent = assignment.sharePercentage ?? new Decimal(0);
         return itemTotalPrice.mul(percent).div(new Decimal(100));
       }
 
-      return itemTotalPrice.div(new Decimal(item.assignments.length));
+      return itemTotalPrice.div(new Decimal(activeAssignments.length));
     }
 
     /**
@@ -436,9 +437,12 @@ export namespace calculations {
       };
 
       for (const lineItem of lineItems) {
-        const customShares = itemHasCustomShares(lineItem.assignments);
+        const activeAssignments = lineItem.assignments.filter(
+          (a) => !a.deletedAt
+        );
+        const customShares = itemHasCustomShares(activeAssignments);
 
-        for (const assignment of lineItem.assignments) {
+        for (const assignment of activeAssignments) {
           const personIdentifier = assignment.receiptUserId;
           let personSplits = splits.individuals.get(personIdentifier);
 
