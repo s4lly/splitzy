@@ -1,0 +1,12 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/utils/split-percent.ts` around lines 68 -
+73, The redistribution loop currently only gives each remainder at most one
+percent (result[remainders[rank].index] += 1) and stops after a single pass, so
+splitPercent can return a total under 100 (e.g., [30,30] -> [31,31]). Change the
+logic in splitPercent to keep assigning +1 to remainders in round-robin until
+deficit === 0: iterate over remainders cyclically (wrap rank using modulo or
+reset rank when reaching remainders.length) and decrement deficit each
+assignment; also handle the edge case when remainders is empty by breaking
+early. Update references to result, remainders, deficit and the loop variable
+(rank) accordingly.
