@@ -1,0 +1,15 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@backend/schemas/receipt.py` around lines 276 - 277, Add inclusive bounds
+validation for share_percentage to prevent values outside 0–100: locate the
+Pydantic field named share_percentage in the receipt schemas
+(backend/schemas/receipt.py) and change its definition to use Field(...,
+ge=Decimal("0"), le=Decimal("100")) or Field(None, ge=Decimal("0"),
+le=Decimal("100")) as appropriate for nullable write schemas (create/update).
+Apply this validation on the create/update request schemas (not necessarily only
+the response model) so malformed percentages are rejected early; keep the field
+type Optional[Decimal] and Decimal imports intact.
+
+---
+
+commit changes to current branch
