@@ -1,0 +1,12 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/hooks/useSplitPercent.ts` around lines 103
+- 128, The debounce timers stored in persistTimers inside the useSplitPercent
+hook can fire after an immediate reset and overwrite the reset; update the hook
+to clear any pending timers before performing an immediate write and on unmount:
+add a cleanup effect that iterates persistTimers.current, calls clearTimeout for
+each timer and clears the map, and modify the reset/resetShare handler (the code
+that performs immediate mutators) to first clear persistTimers.current for the
+affected assignment(s) so pending timers are canceled before calling
+mutators.assignments.update; reference persistTimers, persistShare, and the
+reset handler inside useSplitPercent when making these changes.
