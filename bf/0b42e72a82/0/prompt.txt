@@ -1,0 +1,10 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/hooks/useSplitPercent.ts` around lines 56 -
+93, seedEntries (and seedKey) currently uses item.assignments without excluding
+soft-deleted rows, causing deleted assignments to appear and skew evenShares;
+filter item.assignments to only include active rows (e.g., where !a.deletedAt)
+before building the seedKey and before deriving seedEntries in the useMemo hooks
+so DraftEntry objects and the fallbackShare are computed from active assignments
+only (update the useMemo callbacks referencing seedKey, seedEntries, evenShares,
+and item.assignments to map/filter the active assignments first).
