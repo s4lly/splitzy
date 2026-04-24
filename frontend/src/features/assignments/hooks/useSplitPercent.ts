@@ -53,26 +53,33 @@ export function useSplitPercent({
 }: UseSplitPercentArgs): UseSplitPercentResult {
   const zero = useZero();
 
+  // Only active assignments participate in the split; soft-deleted rows would
+  // otherwise skew the even-share fallback and show ghost rows in the UI.
+  const activeAssignments = useMemo(
+    () => item.assignments.filter((assignment) => !assignment.deletedAt),
+    [item.assignments]
+  );
+
   // Build a stable key that changes whenever any assignment id, share, or
   // lock flag changes. Used to re-seed local state from the source of truth.
   const seedKey = useMemo(
     () =>
-      item.assignments
+      activeAssignments
         .map(
           (assignment) =>
             `${assignment.id}:${assignment.sharePercentage?.toString() ?? 'null'}:${assignment.locked ? 1 : 0}`
         )
         .join('|'),
-    [item.assignments]
+    [activeAssignments]
   );
 
   // Derive the initial draft entries from the receipt's assignments. Rows
   // without an explicit share fall back to an even split across participants.
   const seedEntries = useMemo<DraftEntry[]>(() => {
-    const participantCount = item.assignments.length;
+    const participantCount = activeAssignments.length;
     const fallbackShare = evenShares(participantCount);
 
-    return item.assignments.map((assignment) => {
+    return activeAssignments.map((assignment) => {
       let share: Decimal;
       if (assignment.sharePercentage != null) {
         // Persisted custom share exists → honor it.
@@ -90,7 +97,7 @@ export function useSplitPercent({
         locked: assignment.locked,
       };
     });
-  }, [item.assignments]);
+  }, [activeAssignments]);
 
   const [entries, setEntries] = useState<DraftEntry[]>(seedEntries);
 
