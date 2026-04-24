@@ -170,7 +170,7 @@ export function rebalance(
 
   // Clamp the requested value into the budget available to unlocked entries.
   let clamped = Decimal.max(ZERO, Decimal.min(ONE_HUNDRED, newValue));
-  const maxForTarget = ONE_HUNDRED.minus(lockedSum);
+  const maxForTarget = Decimal.max(ZERO, ONE_HUNDRED.minus(lockedSum));
   if (clamped.greaterThan(maxForTarget)) {
     // Requested value would exceed what's available after honoring locks.
     clamped = maxForTarget;
