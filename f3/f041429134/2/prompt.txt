@@ -1,0 +1,98 @@
+I'd like to refactor `frontend/src/features/line-items/hooks/useLineItemMutations.ts` (a React component / feature area) to
+improve its separation of concerns. Before writing any code, I want you to
+investigate, ask clarifying questions, and produce a plan I can review.
+
+### Phase 1 — Investigation (read-only)
+
+1. Read `frontend/src/features/line-items/hooks/useLineItemMutations.ts` end-to-end. Identify and list:
+   - **Pure computations** — functions or inline expressions that don't
+     depend on React, the DOM, network, storage, or any hook. Candidates
+     for extraction into a non-React utility module.
+   - **React business logic** — state, effects, refs, memos, debounced IO,
+     mutators, subscriptions, handlers. Candidates for extraction into a
+     custom hook.
+   - **Presentation** — JSX/markup, styling, and the minimum wiring needed
+     to render and forward user events.
+2. Check whether any of the identified pure functions are reused elsewhere
+   in the codebase (`grep`/`Glob`). Reuse informs where the extracted
+   module should live:
+   - Used only by this feature → colocate under
+     `features/<feature>/utils/`.
+   - Used (or likely to be used) across features → place under a shared
+     utils directory alongside sibling modules.
+3. Look for existing conventions in the repo and mirror them:
+   - Test file layout (`*.test.ts` next to the module?).
+   - Hook folder (`features/<feature>/hooks/`?).
+   - Numeric library usage (e.g. `decimal.js` vs. raw `number`).
+   - Any project-wide style rules in `CLAUDE.md`, `.eslintrc`, or existing
+     modules.
+4. Summarize findings before proposing any change.
+
+### Phase 2 — Clarifying questions
+
+Ask the user (using `AskUserQuestion` if available, otherwise a concise
+numbered list) to confirm direction on anything ambiguous. Typical
+questions:
+
+- Preferred separation pattern: 3-file (pure utils + hook + view),
+  2-file (pure utils + component with inline hooks), or a headless/
+  controller pattern?
+- Location for the extracted pure module (colocated vs. shared).
+- Whether to add unit tests for the extracted pure functions.
+- Whether there are numeric-precision or library conventions to adopt
+  (e.g. `decimal.js` everywhere).
+- Any behavior that must remain bit-for-bit identical vs. acceptable
+  drift (e.g. debounce timing, rounding tie-breaking).
+
+Do NOT proceed until the user has answered.
+
+### Phase 3 — Plan
+
+Write a plan file containing:
+
+- **Context** — why the refactor is happening and what problem it solves.
+- **Chosen architecture** — file tree diff showing new / moved / shrunk
+  files, plus a one-line rationale referencing an existing precedent in
+  the repo.
+- **File-by-file plan** — for each file, list:
+  - Exports (names, signatures, brief purpose).
+  - Behavior preserved vs. changed.
+  - Style rules to apply (see below).
+- **Test plan** — enumerated cases for the pure module.
+- **Reused existing code** — which functions, utilities, or types from
+  elsewhere will be called rather than re-implemented.
+- **Verification** — exact commands (`pnpm tsc --noEmit`, `pnpm lint`,
+  `pnpm vitest run …`) and a short manual QA script if UI is affected.
+- **Out of scope** — things intentionally not touched (wire format,
+  visual changes, adjacent components).
+
+### Phase 4 — Code style requirements (apply to every new/edited file)
+
+- Expanded JSDoc for each non-React function: include `@param`,
+  `@returns`, and at least one `@example` block with representative
+  input/output.
+- Inline `//` comments above each logical grouping of lines, describing
+  the unit of work performed.
+- Exactly one blank line between logical groupings so the comments read
+  as section headers.
+- No single-character variable names. Prefer `value`, `sum`, `entry`,
+  `index`, `left`/`right` over `v`, `s`, `e`, `k`, `a`/`b`.
+- No ternary operators in new code. Use `if` / `else if` / `else`
+  blocks, and place a comment above each branch explaining *why* control
+  reached it (not what it does).
+- Use the project's numeric library (e.g. `decimal.js`) for every
+  arithmetic operation in the pure module. Convert to `number` only at
+  serialization boundaries (mutator payloads, DOM inputs).
+- Custom hook returns a stable, destructurable object — no passing the
+  whole hook result through as props.
+- Presentation file imports from the hook and utils; it should contain
+  no state, effects, or math.
+
+### Phase 5 — Approval and execution
+
+- Present the plan and wait for explicit approval (`ExitPlanMode` if
+  available).
+- After approval, implement the plan file by file. Run typecheck, lint,
+  and the new unit tests before reporting completion.
+- Do not start the dev server or perform manual UI QA on my behalf —
+  tell me what to click through and I'll verify.
