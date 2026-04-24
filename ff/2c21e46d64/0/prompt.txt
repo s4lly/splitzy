@@ -1,0 +1,12 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/components/Receipt/utils/receipt-calculation.ts` around lines
+369 - 387, Filter out soft-deleted assignments before any receipt math: when
+locating assignment and when computing item.assignments length or passing
+assignments into itemHasCustomShares/getIndividualItemTotalPrice, use a filtered
+list (e.g., assignments.filter(a => !a.deleted && !a.isSoftDeleted)) instead of
+item.assignments directly so deleted rows don't affect percent-mode detection or
+receive totals; update the block that defines const assignment and the
+subsequent checks (and mirror the same change in the other similar logic used
+for split graph creation where itemHasCustomShares and per-item total
+calculations are performed).
