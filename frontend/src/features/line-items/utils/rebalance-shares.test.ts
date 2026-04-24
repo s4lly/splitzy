@@ -166,6 +166,10 @@ describe('planRemoveRebalance', () => {
     expect(updates).toHaveLength(2);
     expect(updates![0].share_percentage).toBeCloseTo(50, 10);
     expect(updates![1].share_percentage).toBeCloseTo(50, 10);
+    // The mutator does a partial update, so `locked: false` must be sent
+    // explicitly to clear the locks on the previously-locked siblings.
+    expect(updates![0].locked).toBe(false);
+    expect(updates![1].locked).toBe(false);
   });
 
   it('splits the removed share evenly when the unlocked pool sums to zero', () => {

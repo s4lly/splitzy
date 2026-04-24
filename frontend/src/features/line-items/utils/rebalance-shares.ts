@@ -16,10 +16,15 @@ export type RebalanceAssignment = {
 /**
  * Update payload for a single sibling assignment, shaped for the Zero
  * mutator (`share_percentage` as a raw `number`, not a `Decimal`).
+ *
+ * `locked` is optional because the mutator performs a partial update —
+ * include it only when the rebalance needs to flip the lock flag (e.g.
+ * the all-locked escape hatch in `planRemoveRebalance`).
  */
 export type SiblingShareUpdate = {
   id: string;
   share_percentage: number;
+  locked?: boolean;
 };
 
 /**
@@ -201,9 +206,10 @@ export function planAddRebalance(
  *      remains, return `null` — the item either wasn't in percent mode or
  *      there's nothing left to redistribute onto.
  *   2. If every remaining sibling is locked, redistribute evenly across
- *      all of them. Writing fresh shares implicitly clears the locks at
- *      the call site (the mutator overwrites the share without a lock
- *      flag), which is the desired escape hatch.
+ *      all of them and explicitly unlock each one (`locked: false` in the
+ *      update payload). The mutator performs partial updates, so the
+ *      lock flag has to be written out — simply overwriting the share
+ *      would leave the stale lock in place.
  *   3. Otherwise, unlocked siblings absorb the removed share
  *      proportionally (evenly when their current shares sum to zero).
  *
@@ -280,12 +286,14 @@ export function planRemoveRebalance(
 
   // Every remaining sibling is locked → no one can absorb the removed
   // share without breaking a lock. Overwrite everyone with an even split
-  // instead; the mutator call site will clear the lock flag implicitly.
+  // and explicitly clear the lock flag; the mutator performs partial
+  // updates, so omitting `locked` would leave the stale lock on the row.
   if (unlocked.length === 0) {
     const evenShare = ONE_HUNDRED.div(siblings.length);
     return siblings.map((sibling) => ({
       id: sibling.id,
       share_percentage: evenShare.toNumber(),
+      locked: false,
     }));
   }
 
