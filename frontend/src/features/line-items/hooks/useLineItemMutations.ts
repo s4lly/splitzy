@@ -11,6 +11,7 @@ import type {
 import {
   planAddRebalance,
   planRemoveRebalance,
+  type SiblingShareUpdate,
 } from '@/features/line-items/utils/rebalance-shares';
 import {
   receiptAtom,
@@ -34,6 +35,20 @@ export function useLineItemMutations() {
    */
   const generateId = (): string => {
     return ulid();
+  };
+
+  const applySiblingUpdates = async (updates: SiblingShareUpdate[]) => {
+    const results = await Promise.all(
+      updates.map((update) => zero.mutate(mutators.assignments.update(update)).client)
+    );
+    for (const result of results) {
+      if (result.type === 'error') {
+        console.error(
+          'Failed to apply sibling rebalance update:',
+          result.error.message
+        );
+      }
+    }
   };
 
   /**
@@ -84,9 +99,7 @@ export function useLineItemMutations() {
     console.info('Successfully created assignment');
 
     if (rebalance) {
-      for (const update of rebalance.siblingUpdates) {
-        void zero.mutate(mutators.assignments.update(update));
-      }
+      await applySiblingUpdates(rebalance.siblingUpdates);
     }
   };
 
@@ -166,9 +179,7 @@ export function useLineItemMutations() {
     } else {
       console.info('Successfully created receipt user and assignment');
       if (rebalance) {
-        for (const update of rebalance.siblingUpdates) {
-          void zero.mutate(mutators.assignments.update(update));
-        }
+        await applySiblingUpdates(rebalance.siblingUpdates);
       }
     }
   };
@@ -209,9 +220,7 @@ export function useLineItemMutations() {
     if (removed) {
       const updates = planRemoveRebalance(removed, remainingActive);
       if (updates) {
-        for (const update of updates) {
-          void zero.mutate(mutators.assignments.update(update));
-        }
+        await applySiblingUpdates(updates);
       }
     }
   };
