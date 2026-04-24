@@ -148,7 +148,7 @@ export const mutators = defineMutators({
         await tx.mutate.assignments.update({
           id: args.id,
           ...(args.share_percentage !== undefined && {
-            share_percentage: args.share_percentage ?? undefined,
+            share_percentage: args.share_percentage,
           }),
           ...(args.locked !== undefined && { locked: args.locked }),
         });
