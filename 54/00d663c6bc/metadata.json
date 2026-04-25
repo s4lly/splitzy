@@ -3,8 +3,9 @@
   "checkpoint_id": "5400d663c6bc",
   "strategy": "manual-commit",
   "branch": "feat/split-percent-assignments",
-  "checkpoints_count": 7,
+  "checkpoints_count": 8,
   "files_touched": [
+    ".dockerignore",
     "frontend/package.json",
     "frontend/src/components/Receipt/LineItemAddForm.tsx",
     "frontend/src/context/ReceiptContext.tsx",
@@ -18,6 +19,9 @@
     "frontend/src/features/receipt-image/components/ImageSettingsDialog.tsx",
     "frontend/src/features/receipt-viewer/hooks/useReceiptMutation.ts",
     "frontend/src/lib/receiptTypes.ts",
+    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/pages/ReceiptCollabPage.tsx",
+    "frontend/src/pages/ReceiptsPage.tsx",
     "frontend/src/zero/mutators.ts",
     "frontend/src/zero/queries.ts",
     "frontend/src/zero/schema.ts",
@@ -28,7 +32,10 @@
     "frontend/src/zero/schemas/user.ts",
     "pnpm-lock.yaml",
     "pnpm-workspace.yaml",
+    "shared-zero/package.json",
+    "shared-zero/src/queries.ts",
     "skills-lock.json",
+    "zero-query/Dockerfile",
     "zero-query/package.json",
     "zero-query/src/db-provider.ts",
     "zero-query/src/index.ts",
@@ -47,13 +54,19 @@
       "transcript": "/54/00d663c6bc/0/full.jsonl",
       "content_hash": "/54/00d663c6bc/0/content_hash.txt",
       "prompt": "/54/00d663c6bc/0/prompt.txt"
+    },
+    {
+      "metadata": "/54/00d663c6bc/1/metadata.json",
+      "transcript": "/54/00d663c6bc/1/full.jsonl",
+      "content_hash": "/54/00d663c6bc/1/content_hash.txt",
+      "prompt": "/54/00d663c6bc/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 57,
-    "cache_creation_tokens": 55302,
-    "cache_read_tokens": 825501,
-    "output_tokens": 15523,
-    "api_call_count": 22
+    "input_tokens": 83,
+    "cache_creation_tokens": 140024,
+    "cache_read_tokens": 1523263,
+    "output_tokens": 24269,
+    "api_call_count": 38
   }
 }
