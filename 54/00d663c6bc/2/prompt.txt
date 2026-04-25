@@ -1,0 +1,33 @@
+come up with a plan for implementing for the following
+
+Verify each finding against the current code and only fix it if needed.
+
+In `@zero-query/src/mutators.ts` around lines 188 - 208, Duplicate Zod schemas and
+mutator bodies for assignments.insert/update (and receipts, lineItems,
+receiptUsers) must be unified: extract the Zod schemas (e.g.,
+assignmentsInsertSchema, assignmentsUpdateSchema) and the mutator factory or the
+defined mutators (e.g., assignments.insert, assignments.update or a
+defineAssignmentsMutators function) into an exported module from the zero-query
+package, export them, then update the frontend code to import and reuse those
+exported schemas/mutators instead of redefining them; while extracting, preserve
+the exact nullable/optional semantics (e.g., keep
+z.number().nullable().optional() for share_percentage) and ensure the
+argument-to-payload mapping (the code in assignments.insert that sets
+share_percentage and created_at) stays consistent so null vs undefined behavior
+does not diverge between packages.
+
+ask me questions about anything, don't make assumptions.
+
+ideally if splitting into separate package then make sure to use the pnpm workspace setup.
+
+---
+
+continue
+
+---
+
+continue
+
+---
+
+save plan to markdown document in docs directory
