@@ -1,10 +1,7 @@
 import { useZero } from '@rocicorp/zero/react';
+import { mutators } from '@splitzy/shared-zero/mutators';
 import Decimal from 'decimal.js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
-import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-import { getUserDisplayName } from '@/utils/user-display';
-import { mutators } from '@/zero/mutators';
 
 import {
   evenShares,
@@ -12,6 +9,8 @@ import {
   rebalance,
   type ShareEntry,
 } from '@/features/assignments/utils/split-percent';
+import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
+import { getUserDisplayName } from '@/utils/user-display';
 
 const PERSIST_DEBOUNCE_MS = 150;
 

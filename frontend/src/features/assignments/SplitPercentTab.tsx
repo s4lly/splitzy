@@ -12,11 +12,10 @@ import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { useSplitPercent } from '@/features/assignments/hooks/useSplitPercent';
 import { getInitials } from '@/lib/get-initials';
 import { cn } from '@/lib/utils';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-
-import { useSplitPercent } from '@/features/assignments/hooks/useSplitPercent';
 
 interface SplitPercentTabProps {
   item: ReceiptLineItem;

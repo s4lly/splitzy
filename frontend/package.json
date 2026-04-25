@@ -29,6 +29,7 @@
     "@react-spring/web": "^10.0.1",
     "@rocicorp/zero": "^0.25.12",
     "@spectrum-icons/illustrations": "^3.6.18",
+    "@splitzy/shared-zero": "workspace:*",
     "@spectrum-icons/workflow": "^4.2.17",
     "@tanstack/react-query": "^5.80.7",
     "@tanstack/react-query-devtools": "^5.80.7",
@@ -61,7 +62,7 @@
     "ulid": "^2.3.0",
     "uuid": "^13.0.0",
     "web-vitals": "^5.1.0",
-    "zod": "^3.25.62"
+    "zod": "^4.2.1"
   },
   "scripts": {
     "dev": "lingui compile --typescript && vite",

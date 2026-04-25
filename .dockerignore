@@ -13,3 +13,5 @@ backend/
 .env.example
 .gitignore
 README.md
+shared-zero/node_modules
+shared-zero/dist

@@ -1,4 +1,5 @@
 import { useZero } from '@rocicorp/zero/react';
+import { mutators } from '@splitzy/shared-zero/mutators';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { ulid } from 'ulid';
@@ -17,7 +18,6 @@ import {
   receiptAtom,
   receiptIdAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
-import { mutators } from '@/zero/mutators';
 
 export function useLineItemMutations() {
   const zero = useZero();
@@ -39,7 +39,9 @@ export function useLineItemMutations() {
 
   const applySiblingUpdates = async (updates: SiblingShareUpdate[]) => {
     const results = await Promise.all(
-      updates.map((update) => zero.mutate(mutators.assignments.update(update)).client)
+      updates.map(
+        (update) => zero.mutate(mutators.assignments.update(update)).client
+      )
     );
     for (const result of results) {
       if (result.type === 'error') {

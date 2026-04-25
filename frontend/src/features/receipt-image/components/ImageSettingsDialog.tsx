@@ -1,5 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useZero } from '@rocicorp/zero/react';
+import { mutators } from '@splitzy/shared-zero/mutators';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -12,7 +13,6 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { mutators } from '@/zero/mutators';
 
 interface ImageSettingsDialogProps {
   open: boolean;

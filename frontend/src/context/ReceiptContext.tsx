@@ -1,12 +1,11 @@
-import { createContext, ReactNode, useContext } from 'react';
-
 import {
   Assignment,
   ReceiptLineItem,
   ReceiptUser,
   User,
   UserReceipt,
-} from '@/zero/schema';
+} from '@splitzy/shared-zero/schema';
+import { createContext, ReactNode, useContext } from 'react';
 
 /**
  * Assignment with related receipt user from Zero query

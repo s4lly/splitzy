@@ -1,0 +1,40 @@
+{
+  "name": "@splitzy/shared-zero",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./schema": {
+      "types": "./dist/schema.d.ts",
+      "default": "./dist/schema.js"
+    },
+    "./mutators": {
+      "types": "./dist/mutators.d.ts",
+      "default": "./dist/mutators.js"
+    },
+    "./queries": {
+      "types": "./dist/queries.d.ts",
+      "default": "./dist/queries.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write --ignore-unknown .",
+    "check": "pnpm run format && pnpm run type-check"
+  },
+  "dependencies": {
+    "@rocicorp/zero": "^0.25.12",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "prettier": "^3.8.1",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,6 +1,7 @@
 import { useAuth } from '@clerk/clerk-react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useZero } from '@rocicorp/zero/react';
+import { mutators } from '@splitzy/shared-zero/mutators';
 import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -16,7 +17,6 @@ import {
   useEqualSplitAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
 import { getUserDisplayName } from '@/utils/user-display';
-import { mutators } from '@/zero/mutators';
 
 export const BillBreakdownCollab = () => {
   const { t } = useLingui();

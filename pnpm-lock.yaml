@@ -88,6 +88,9 @@ importers:
       '@spectrum-icons/workflow':
         specifier: ^4.2.17
         version: 4.2.28(@react-spectrum/provider@3.10.14(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@splitzy/shared-zero':
+        specifier: workspace:*
+        version: link:../shared-zero
       '@tanstack/react-query':
         specifier: ^5.80.7
         version: 5.90.21(react@19.2.4)
@@ -182,8 +185,8 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0
       zod:
-        specifier: ^3.25.62
-        version: 3.25.76
+        specifier: ^4.2.1
+        version: 4.3.6
     devDependencies:
       '@lingui/babel-plugin-lingui-macro':
         specifier: ^5.9.2
@@ -282,6 +285,25 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@edge-runtime/vm@3.2.0)(@types/node@24.12.0)(@vitest/ui@3.2.4)(jiti@1.21.7)(jsdom@26.1.0)(msw@2.12.10(@types/node@24.12.0)(typescript@5.9.3))(tsx@4.21.0)
 
+  shared-zero:
+    dependencies:
+      '@rocicorp/zero':
+        specifier: ^0.25.12
+        version: 0.25.13(@opentelemetry/core@2.6.0(@opentelemetry/api@1.9.0))
+      zod:
+        specifier: ^4.2.1
+        version: 4.3.6
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.17
+        version: 20.19.37
+      prettier:
+        specifier: ^3.8.1
+        version: 3.8.1
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
   zero-query:
     dependencies:
       '@clerk/backend':
@@ -293,6 +315,9 @@ importers:
       '@rocicorp/zero':
         specifier: ^0.25.12
         version: 0.25.13(@opentelemetry/core@2.6.0(@opentelemetry/api@1.9.0))
+      '@splitzy/shared-zero':
+        specifier: workspace:*
+        version: link:../shared-zero
       hono:
         specifier: ^4.11.2
         version: 4.12.5
@@ -7493,9 +7518,6 @@ packages:
 
   zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
-
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
   zod@4.3.6:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
@@ -16180,7 +16202,5 @@ snapshots:
   yoctocolors-cjs@2.1.3: {}
 
   zod@3.22.4: {}
-
-  zod@3.25.76: {}
 
   zod@4.3.6: {}
