@@ -1,0 +1,59 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "5400d663c6bc",
+  "strategy": "manual-commit",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 7,
+  "files_touched": [
+    "frontend/package.json",
+    "frontend/src/components/Receipt/LineItemAddForm.tsx",
+    "frontend/src/context/ReceiptContext.tsx",
+    "frontend/src/context/ZeroProvider.tsx",
+    "frontend/src/features/assignments/ClaimReceiptUserDialog.tsx",
+    "frontend/src/features/assignments/SplitPercentTab.tsx",
+    "frontend/src/features/assignments/SwitchReceiptUserDialog.tsx",
+    "frontend/src/features/assignments/hooks/useSplitPercent.ts",
+    "frontend/src/features/bill-split/components/BillBreakdownCollab.tsx",
+    "frontend/src/features/line-items/hooks/useLineItemMutations.ts",
+    "frontend/src/features/receipt-image/components/ImageSettingsDialog.tsx",
+    "frontend/src/features/receipt-viewer/hooks/useReceiptMutation.ts",
+    "frontend/src/lib/receiptTypes.ts",
+    "frontend/src/zero/mutators.ts",
+    "frontend/src/zero/queries.ts",
+    "frontend/src/zero/schema.ts",
+    "frontend/src/zero/schemas/assignment.ts",
+    "frontend/src/zero/schemas/receipt-line-item.ts",
+    "frontend/src/zero/schemas/receipt-user.ts",
+    "frontend/src/zero/schemas/user-receipt.ts",
+    "frontend/src/zero/schemas/user.ts",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "skills-lock.json",
+    "zero-query/package.json",
+    "zero-query/src/db-provider.ts",
+    "zero-query/src/index.ts",
+    "zero-query/src/mutators.ts",
+    "zero-query/src/queries.ts",
+    "zero-query/src/schema.ts",
+    "zero-query/src/schemas/assignment.ts",
+    "zero-query/src/schemas/receipt-line-item.ts",
+    "zero-query/src/schemas/receipt-user.ts",
+    "zero-query/src/schemas/user-receipt.ts",
+    "zero-query/src/schemas/user.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/54/00d663c6bc/0/metadata.json",
+      "transcript": "/54/00d663c6bc/0/full.jsonl",
+      "content_hash": "/54/00d663c6bc/0/content_hash.txt",
+      "prompt": "/54/00d663c6bc/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 57,
+    "cache_creation_tokens": 55302,
+    "cache_read_tokens": 825501,
+    "output_tokens": 15523,
+    "api_call_count": 22
+  }
+}

@@ -1,0 +1,25 @@
+/grill-me @docs/zero-query-docker-shared-zero-fix.md
+
+---
+
+explicit form
+
+---
+
+trust the runner's fresh install, do not copy node_modules from the builder
+
+---
+
+yes, verify now
+
+---
+
+agree, add an antry to root .dockerignore
+
+---
+
+yes, codify ordering A in the plan
+
+---
+
+yes
