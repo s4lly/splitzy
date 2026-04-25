@@ -1,0 +1,23 @@
+/grill-me and help revise the plan @docs/zero-query-docker-shared-zero-fix.md with the following changes:
+
+frontend/src/zero/queries.ts and zero-query/src/queries.ts are still duplicated, move queries into shared-zero too.
+
+---
+
+Option A and also want you to actively drop mutators/schema from the root barrel. no barrel files.
+
+---
+
+A and relative-internal-imports sound
+
+---
+
+A
+
+---
+
+A
+
+---
+
+A
