@@ -1,0 +1,11 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/utils/split-percent.test.ts` around lines
+27 - 36, The test relies on a specific tie-break for equal remainders; update
+the test in split-percent.test.ts to avoid brittle ordering by either removing
+the exact-array equality assertion for the equal-thirds case and only asserting
+the sum equals 100, or add an explicit comment stating the deterministic
+tie-break expectation for largestRemainderRound so future changes don't silently
+break; keep the index-specific assertion in the existing `33.5/33.3/33.2` case
+where remainders differ and reference the function name largestRemainderRound
+when making the change.
