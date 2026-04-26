@@ -1,0 +1,12 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/assignments-list.tsx` at line 106, The
+splitDisabled flag is currently using all item.assignments (including
+soft-deleted ones), causing the Split % trigger to enable incorrectly; change
+the computation of splitDisabled to count only active assignments (filter
+item.assignments by !assignment.deletedAt) to match useSplitPercent and
+SplitPercentTab behavior so it returns true when active entries.length < 2;
+update the variable where splitDisabled is defined and any related UI trigger
+logic (referencing splitDisabled, useSplitPercent, SplitPercentTab,
+item.assignments, and assignment.deletedAt) to use the filtered active list
+consistently.
