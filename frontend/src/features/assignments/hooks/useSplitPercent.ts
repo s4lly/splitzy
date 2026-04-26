@@ -73,10 +73,24 @@ export function useSplitPercent({
   );
 
   // Derive the initial draft entries from the receipt's assignments. Rows
-  // without an explicit share fall back to an even split across participants.
+  // without an explicit share split the leftover percentage evenly so they
+  // don't over-allocate when siblings already have custom shares.
   const seedEntries = useMemo<DraftEntry[]>(() => {
-    const participantCount = activeAssignments.length;
-    const fallbackShare = evenShares(participantCount);
+    let sumCustom = new Decimal(0);
+    let nullCount = 0;
+    for (const assignment of activeAssignments) {
+      if (assignment.sharePercentage != null) {
+        sumCustom = sumCustom.plus(assignment.sharePercentage);
+      } else {
+        nullCount += 1;
+      }
+    }
+
+    let fallbackPerNull = new Decimal(0);
+    if (nullCount > 0) {
+      const remaining = Decimal.max(0, new Decimal(100).minus(sumCustom));
+      fallbackPerNull = remaining.dividedBy(nullCount);
+    }
 
     return activeAssignments.map((assignment) => {
       let share: Decimal;
@@ -84,8 +98,9 @@ export function useSplitPercent({
         // Persisted custom share exists → honor it.
         share = assignment.sharePercentage;
       } else {
-        // No persisted share yet → seed from the even-split fallback.
-        share = fallbackShare;
+        // No persisted share yet → split the remaining percentage evenly
+        // across the other null rows.
+        share = fallbackPerNull;
       }
 
       return {
