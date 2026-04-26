@@ -171,11 +171,11 @@ export const mutators = defineMutators({
           } else {
             if (includeDisplayName) {
               sql =
-                'UPDATE receipt_users SET user_id = NULL, display_name = $1 WHERE id = $2 AND (user_id IS NULL OR user_id = $3) RETURNING id';
+                'UPDATE receipt_users SET user_id = NULL, display_name = $1 WHERE id = $2 AND user_id = $3 RETURNING id';
               params = [args.display_name, args.id, authenticatedUser.id];
             } else {
               sql =
-                'UPDATE receipt_users SET user_id = NULL WHERE id = $1 AND (user_id IS NULL OR user_id = $2) RETURNING id';
+                'UPDATE receipt_users SET user_id = NULL WHERE id = $1 AND user_id = $2 RETURNING id';
               params = [args.id, authenticatedUser.id];
             }
           }
