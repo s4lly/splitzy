@@ -381,6 +381,12 @@ export namespace calculations {
       );
 
       if (itemHasCustomShares(activeAssignments)) {
+        if (assignment.sharePercentage == null) {
+          console.warn(
+            'Missing sharePercentage on custom-share item; treating as 0%',
+            { itemId: item.id, receiptUserId: assignment.receiptUserId }
+          );
+        }
         const percent = assignment.sharePercentage ?? new Decimal(0);
         return itemTotalPrice.mul(percent).div(new Decimal(100));
       }
