@@ -216,7 +216,9 @@ export const mutators = defineMutators({
         receipt_user_id: args.receipt_user_id,
         receipt_line_item_id: args.receipt_line_item_id,
         created_at: args.created_at ?? Date.now(),
-        share_percentage: args.share_percentage ?? undefined,
+        ...(args.share_percentage !== undefined && {
+          share_percentage: args.share_percentage,
+        }),
         locked: args.locked ?? false,
       });
     }),
