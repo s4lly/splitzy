@@ -31,6 +31,9 @@ describe('largestRemainderRound', () => {
       d(100).div(3),
     ]);
 
+    // All fractional remainders are equal (1/3), so largestRemainderRound
+    // relies on Array.prototype.sort stability to break the tie in input
+    // order — the +1 deficit goes to index 0.
     expect(result.reduce((sum, value) => sum + value, 0)).toBe(100);
     expect(result).toEqual([34, 33, 33]);
   });
