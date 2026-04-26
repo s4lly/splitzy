@@ -469,6 +469,13 @@ export namespace calculations {
             splits.groups.set(lineItem.id, groupShares);
           }
 
+          if (customShares && assignment.sharePercentage == null) {
+            console.warn(
+              'Missing sharePercentage on custom-share item; treating as 0%',
+              { itemId: lineItem.id, receiptUserId: personIdentifier }
+            );
+          }
+
           groupShares.set(
             personIdentifier,
             customShares
