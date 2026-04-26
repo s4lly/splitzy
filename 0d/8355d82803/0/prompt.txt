@@ -1,0 +1,10 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/utils/split-percent.ts` around lines 153 -
+214, The function rebalance currently returns ShareEntry[] which forces callers
+to widen and cast (e.g., in useSplitPercent.ts). Make rebalance generic so it
+preserves the input element type: add a type parameter like T extends ShareEntry
+and change the signature to accept T[] and return T[]; inside, keep the
+spreading logic ({ ...entry, share: ... }) but ensure the mapped result is
+typed/returned as T so callers (e.g., useSplitPercent) no longer need to cast to
+DraftEntry[].
