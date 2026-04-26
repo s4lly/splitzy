@@ -178,7 +178,10 @@ export function rebalance<T extends ShareEntry>(
   const siblings = entries.filter(
     (entry) => entry.id !== targetId && !entry.locked
   );
-  const remaining = ONE_HUNDRED.minus(clamped).minus(lockedSum);
+  const remaining = Decimal.max(
+    ZERO,
+    ONE_HUNDRED.minus(clamped).minus(lockedSum)
+  );
   const siblingSum = siblings.reduce(
     (sum, entry) => sum.plus(entry.share),
     ZERO
