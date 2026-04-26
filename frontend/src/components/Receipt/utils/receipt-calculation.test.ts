@@ -1402,6 +1402,56 @@ describe('Phase 2: tax distribution via receipt.tax (no rate indirection)', () =
     expect(result.get('1')?.equals(new Decimal(50))).toBe(true);
   });
 
+  it('does not throw and adds no tax when assigned items sum to zero', () => {
+    // Reproduces the all-zero-pretax-shares edge case: totalItemsValue > 0
+    // (an unassigned item carries the receipt total) but every assigned
+    // person's item share is Decimal(0). The proportional branch must
+    // guard against the resulting 0/0 in burden = itemTotal /
+    // totalAssignedItemsValue.
+    const itemA = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    const itemB = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+    const receipt = makeReceipt({
+      lineItems: [
+        makeModelLineItem({
+          id: itemA,
+          pricePerItem: 0,
+          quantity: 1,
+          totalPrice: 0,
+          assignments: [makeAssignment('1', itemA)],
+        }),
+        makeModelLineItem({
+          id: itemB,
+          pricePerItem: 25,
+          quantity: 1,
+          totalPrice: 25,
+          assignments: [],
+        }),
+      ],
+      tax: 5,
+      tip: 0,
+      gratuity: 0,
+    });
+
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.lineItems as any
+    );
+
+    let result: ReturnType<typeof calculations.final.getPersonTotals>;
+    expect(() => {
+      result = calculations.final.getPersonTotals(receipt as any, {
+        itemSplits,
+        taxSplitType: 'proportional',
+      });
+    }).not.toThrow();
+
+    // Person 1 was assigned but their pre-tax share is 0; no tax should be
+    // distributed to them, and the total distributed across personTotals
+    // must be Decimal(0).
+    expect(result!.get('1')?.equals(new Decimal(0))).toBe(true);
+    const distributed = Decimal.sum(...Array.from(result!.values()));
+    expect(distributed.equals(new Decimal(0))).toBe(true);
+  });
+
   it('does not add tax in getPersonTotals when taxIncludedInItems is true', () => {
     const itemId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
     const receipt = makeReceipt({
