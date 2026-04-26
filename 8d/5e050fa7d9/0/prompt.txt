@@ -1,0 +1,11 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/line-items/hooks/useLineItemMutations.ts` around lines
+40 - 54, The rebalance error log in applySiblingUpdates doesn't include which
+update failed; change the handling to log the corresponding update id (from
+SiblingShareUpdate.id) alongside result.error.message so you can triage
+failures. Since results are returned in the same order as updates, iterate
+results with the index (or zip results to updates) and include updates[i].id (or
+update.id) in the console.error call invoked when result.type === 'error';
+reference applySiblingUpdates, SiblingShareUpdate, zero.mutate, and
+mutators.assignments.update to locate the code to modify.
