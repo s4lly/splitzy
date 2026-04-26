@@ -1,7 +1,9 @@
+import { useLingui } from '@lingui/react/macro';
 import { useZero } from '@rocicorp/zero/react';
 import { mutators } from '@splitzy/shared-zero/mutators';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { ulid } from 'ulid';
 
 import type {
@@ -21,6 +23,7 @@ import {
 
 export function useLineItemMutations() {
   const zero = useZero();
+  const { t } = useLingui();
   const receipt = useAtomValue(receiptAtom);
   const receiptId = useAtomValue(receiptIdAtom);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -49,6 +52,7 @@ export function useLineItemMutations() {
           'Failed to apply sibling rebalance update:',
           result.error.message
         );
+        toast.error(t`Failed to rebalance shares`);
       }
     }
   };
@@ -96,6 +100,7 @@ export function useLineItemMutations() {
     const clientResult = await result.client;
     if (clientResult.type === 'error') {
       console.error('Failed to create assignment:', clientResult.error.message);
+      toast.error(t`Failed to add person to item`);
       return;
     }
     console.info('Successfully created assignment');
@@ -140,6 +145,7 @@ export function useLineItemMutations() {
         'Failed to create receipt user:',
         receiptUserClientResult.error.message
       );
+      toast.error(t`Failed to add new person`);
       return;
     }
 
@@ -163,6 +169,7 @@ export function useLineItemMutations() {
         'Failed to create assignment:',
         assignmentClientResult.error.message
       );
+      toast.error(t`Failed to add person to item`);
       // Rollback: soft-delete the orphaned receipt_user
       try {
         const rollbackResult = zero.mutate(
@@ -215,6 +222,7 @@ export function useLineItemMutations() {
     const clientResult = await result.client;
     if (clientResult.type === 'error') {
       console.error('Failed to delete assignment:', clientResult.error.message);
+      toast.error(t`Failed to remove person from item`);
       return;
     }
     console.info('Successfully deleted assignment');
@@ -249,6 +257,7 @@ export function useLineItemMutations() {
 
     if (clientResult.type === 'error') {
       console.error('Failed to update line item:', clientResult.error.message);
+      toast.error(t`Failed to update item`);
     } else {
       console.info('Successfully updated line item');
     }
@@ -273,6 +282,7 @@ export function useLineItemMutations() {
           'Failed to delete line item:',
           clientResult.error.message
         );
+        toast.error(t`Failed to delete item`);
         options?.onError?.(new Error(clientResult.error.message));
       } else {
         console.info('Successfully deleted line item');

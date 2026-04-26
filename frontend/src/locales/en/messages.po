@@ -461,6 +461,15 @@ msgstr "Evenly"
 msgid "Every split is saved. Review, adjust, or settle up any time."
 msgstr "Every split is saved. Review, adjust, or settle up any time."
 
+#: src/features/line-items/hooks/useLineItemMutations.ts:148
+msgid "Failed to add new person"
+msgstr "Failed to add new person"
+
+#: src/features/line-items/hooks/useLineItemMutations.ts:103
+#: src/features/line-items/hooks/useLineItemMutations.ts:172
+msgid "Failed to add person to item"
+msgstr "Failed to add person to item"
+
 #: src/pages/PreviewPage.tsx:96
 msgid "Failed to analyze document"
 msgstr "Failed to analyze document"
@@ -473,6 +482,10 @@ msgstr "Failed to claim person"
 #: src/features/summary-card/GratuityEditor.tsx:114
 #~ msgid "Failed to delete gratuity. Please try again."
 #~ msgstr "Failed to delete gratuity. Please try again."
+
+#: src/features/line-items/hooks/useLineItemMutations.ts:285
+msgid "Failed to delete item"
+msgstr "Failed to delete item"
 
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:79
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:84
@@ -495,6 +508,14 @@ msgstr "Failed to fetch authentication token. Your requests may not be properly 
 msgid "Failed to load receipt image"
 msgstr "Failed to load receipt image"
 
+#: src/features/line-items/hooks/useLineItemMutations.ts:55
+msgid "Failed to rebalance shares"
+msgstr "Failed to rebalance shares"
+
+#: src/features/line-items/hooks/useLineItemMutations.ts:225
+msgid "Failed to remove person from item"
+msgstr "Failed to remove person from item"
+
 #: src/features/summary-card/GratuityEditor.tsx:61
 #~ msgid "Failed to save gratuity. Please try again."
 #~ msgstr "Failed to save gratuity. Please try again."
@@ -516,6 +537,10 @@ msgstr "Failed to switch person"
 #: src/features/receipt-image/components/ImageSettingsDialog.tsx:62
 msgid "Failed to update image visibility"
 msgstr "Failed to update image visibility"
+
+#: src/features/line-items/hooks/useLineItemMutations.ts:260
+msgid "Failed to update item"
+msgstr "Failed to update item"
 
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:65
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:68
