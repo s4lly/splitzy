@@ -11,6 +11,7 @@ jobs:
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       zero-query: ${{ steps.filter.outputs.zero-query }}
+      shared-zero: ${{ steps.filter.outputs.shared-zero }}
       tooling: ${{ steps.filter.outputs.tooling }}
     steps:
       - uses: dorny/paths-filter@v3
@@ -21,6 +22,8 @@ jobs:
               - 'frontend/**'
             zero-query:
               - 'zero-query/**'
+            shared-zero:
+              - 'shared-zero/**'
             tooling:
               - 'package.json'
               - 'pnpm-lock.yaml'
@@ -29,7 +32,7 @@ jobs:
 
   static-analysis-frontend:
     needs: changes
-    if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.tooling == 'true'
+    if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.shared-zero == 'true' || needs.changes.outputs.tooling == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -49,11 +52,14 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - name: Build @splitzy/shared-zero
+        working-directory: .
+        run: pnpm --filter @splitzy/shared-zero run build
       - run: pnpm run ${{ matrix.script }}
 
   static-analysis-zero-query:
     needs: changes
-    if: needs.changes.outputs.zero-query == 'true' || needs.changes.outputs.tooling == 'true'
+    if: needs.changes.outputs.zero-query == 'true' || needs.changes.outputs.shared-zero == 'true' || needs.changes.outputs.tooling == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -73,4 +79,7 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - name: Build @splitzy/shared-zero
+        working-directory: .
+        run: pnpm --filter @splitzy/shared-zero run build
       - run: pnpm run ${{ matrix.script }}
