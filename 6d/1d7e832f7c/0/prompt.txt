@@ -1,0 +1,13 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@shared-zero/src/mutators.ts` around lines 138 - 180, The unclaim branch in
+the mutator allows matching rows where user_id IS NULL, causing an
+already-unclaimed row to be treated as a successful unclaim; update the SQL in
+the unclaim paths inside the block that builds sql/params (where isClaim is
+false) to require user_id = authenticatedUser.id instead of OR user_id IS NULL
+(i.e., change WHERE id = $X AND (user_id IS NULL OR user_id = $Y) to WHERE id =
+$X AND user_id = $Y), and adjust the params arrays used for those two unclaim
+variants (the ones that reference args.display_name and the one without) so they
+pass authenticatedUser.id in the correct position for the new placeholder; the
+rest of the logic (tx.run user lookup, tx.dbTransaction.query, rowCount check)
+can remain unchanged.
