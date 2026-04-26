@@ -1,0 +1,9 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/hooks/useSplitPercent.ts` around lines 134
+- 142, The call to share.toNumber() inside the persist debounce can introduce
+precision drift versus the DB (Numeric(7,4)); update the zero.mutate call in the
+timer callback (the mutators.assignments.update invocation) to send a value
+rounded to 4 decimals by calling share.toDecimalPlaces(4).toNumber() instead of
+share.toNumber(), so the payload matches assignmentsUpdateSchema/z.number() and
+prevents spurious changes detected by persistChangedShares.
