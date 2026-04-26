@@ -1,0 +1,16 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/line-items/hooks/useLineItemMutations.ts` around lines
+89 - 90, After calling planAddRebalance (e.g., the line const rebalance =
+planAddRebalance(activeSiblings)), check the returned rebalance result for a
+warning state and surface it to the user in both add flows (the current
+occurrence and the other occurrence around lines 155-156): if rebalance
+indicates warnings (e.g., rebalance.warning or rebalance.state === 'warning' /
+fully locked shares), call the existing user-visible error/notification path (or
+throw to be handled consistently with other errors) and handle/abort the add
+flow as the UX requires so the user sees the warning instead of it being
+dropped.
+
+---
+
+use translation skill and check if any locales have missing translations and if they do then generate the translations and fill the appropriate *.po files
