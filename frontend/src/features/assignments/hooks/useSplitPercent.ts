@@ -135,7 +135,7 @@ export function useSplitPercent({
         void zero.mutate(
           mutators.assignments.update({
             id: assignmentId,
-            share_percentage: share.toNumber(),
+            share_percentage: share.toDecimalPlaces(4).toNumber(),
           })
         );
         persistTimers.current.delete(assignmentId);
