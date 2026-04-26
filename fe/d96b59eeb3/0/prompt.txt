@@ -1,0 +1,23 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/line-items/hooks/useLineItemMutations.ts` around lines
+86 - 105, When creating the assignment via
+zero.mutate(mutators.assignments.insert(...)) check the successful response for
+a rebalance warning and surface it instead of silently dropping it: after
+awaiting result.client inspect clientResult (e.g., clientResult.type ===
+'success' and clientResult.value?.warning) and log the warning (and preferably
+return or include it in the function result so the caller/UI can show a toast).
+Apply the same change in addNewPersonAssignment where the insertion occurs
+(referencing the same result.client handling) and ensure you still call
+applySiblingUpdates(rebalance.siblingUpdates) only after handling/propagating
+any warning.
+
+use shadcn Sonner to show a toast to the user for the errors instead of just logging to console. if not already installed use shadcn cli to add Sonner, like "pnpm dlx shadcn@latest add sonner", do not manually create.
+
+---
+
+use lingui to translate toast messages. run build command so *.po files get updated.
+
+---
+
+use translation skill to identify locales with missing translations, translate text and add to appropriate *.po files
