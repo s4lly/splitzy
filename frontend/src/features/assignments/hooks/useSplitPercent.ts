@@ -229,7 +229,7 @@ export function useSplitPercent({
       // Fire-and-forget a write for every row so the persisted state matches
       // what the user sees. This bypasses the debounce intentionally — a
       // reset is a single discrete action, not a drag.
-      const sharePercentage = share.toNumber();
+      const sharePercentage = share.toDecimalPlaces(4).toNumber();
       for (const entry of next) {
         // Cancel any pending debounced write so it can't clobber this reset.
         const pending = persistTimers.current.get(entry.id);
