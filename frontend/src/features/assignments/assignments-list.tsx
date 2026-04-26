@@ -103,7 +103,10 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
   const [tabValue, setTabValue] = useState<'assignment' | 'split'>(
     'assignment'
   );
-  const splitDisabled = item.assignments.length < 2;
+  const activeAssignments = item.assignments.filter(
+    (assignment) => !assignment.deletedAt
+  );
+  const splitDisabled = activeAssignments.length < 2;
   useEffect(() => {
     if (splitDisabled && tabValue === 'split') {
       setTabValue('assignment');
