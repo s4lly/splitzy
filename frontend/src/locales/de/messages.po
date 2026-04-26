@@ -100,11 +100,16 @@ msgstr "Benutzer hinzufügen"
 msgid "After tax"
 msgstr "Nach Steuern"
 
+#: src/features/line-items/hooks/useLineItemMutations.ts:93
+#: src/features/line-items/hooks/useLineItemMutations.ts:165
+msgid "All existing shares are locked — added with 0% share. Unlock a share to give them a portion."
+msgstr "Alle bestehenden Anteile sind gesperrt – mit 0 % Anteil hinzugefügt. Entsperre einen Anteil, um ihnen einen Teil zuzuweisen."
+
 #: src/features/bill-split/components/AssignmentProgressCollab.tsx:42
 msgid "All items assigned"
 msgstr "Alle Artikel zugewiesen"
 
-#: src/features/assignments/assignments-list.tsx:411
+#: src/features/assignments/assignments-list.tsx:410
 msgid "All people assigned."
 msgstr "Alle Personen zugewiesen."
 
@@ -140,8 +145,8 @@ msgstr "Hier würden die Erscheinungsbild-Einstellungen stehen."
 #~ msgid "Assign {0}"
 #~ msgstr "{0} zuweisen"
 
+#: src/features/assignments/assignments-list.tsx:430
 #: src/features/assignments/assignments-list.tsx:431
-#: src/features/assignments/assignments-list.tsx:432
 msgid "Assign {displayName}"
 msgstr "{displayName} zuweisen"
 
@@ -153,7 +158,7 @@ msgstr "{itemLabel} zuweisen"
 msgid "Assign 2+ people to customize the split."
 msgstr "Weisen Sie 2+ Personen zu, um die Aufteilung anzupassen."
 
-#: src/features/assignments/assignments-list.tsx:398
+#: src/features/assignments/assignments-list.tsx:397
 msgid "Assign All"
 msgstr "Alle zuweisen"
 
@@ -174,7 +179,7 @@ msgstr "Zugewiesen an:"
 msgid "Assigned Users"
 msgstr "Zugewiesene Benutzer"
 
-#: src/features/assignments/assignments-list.tsx:202
+#: src/features/assignments/assignments-list.tsx:201
 msgid "Assignment"
 msgstr "Zuweisung"
 
@@ -245,8 +250,8 @@ msgstr "Beanspruchen"
 msgid "Claim \"{displayName}\" as yourself? This will link this user to your account."
 msgstr "\"{displayName}\" als sich selbst beanspruchen? Dies verknüpft diesen Benutzer mit Ihrem Konto."
 
-#: src/features/assignments/assignments-list.tsx:266
-#: src/features/assignments/assignments-list.tsx:273
+#: src/features/assignments/assignments-list.tsx:265
+#: src/features/assignments/assignments-list.tsx:272
 msgid "Claim {displayName}"
 msgstr "{displayName} beanspruchen"
 
@@ -305,7 +310,7 @@ msgstr "Steuern Sie, wer das Belegbild sehen kann."
 msgid "Could not restore your original claim. Please try claiming again manually."
 msgstr "Ihre ursprüngliche Beanspruchung konnte nicht wiederhergestellt werden. Bitte versuchen Sie es erneut."
 
-#: src/features/assignments/assignments-list.tsx:377
+#: src/features/assignments/assignments-list.tsx:376
 msgid "Create"
 msgstr "Erstellen"
 
@@ -421,7 +426,7 @@ msgstr "Aktiviere oder deaktiviere Funktionen in deiner Anwendung."
 msgid "Enter name"
 msgstr "Name eingeben"
 
-#: src/features/assignments/assignments-list.tsx:359
+#: src/features/assignments/assignments-list.tsx:358
 msgid "Enter name..."
 msgstr "Name eingeben..."
 
@@ -461,12 +466,12 @@ msgstr "Gleichmäßig"
 msgid "Every split is saved. Review, adjust, or settle up any time."
 msgstr "Jede Teilung wird gespeichert. Überprüfe, passe an oder rechne jederzeit ab."
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:148
+#: src/features/line-items/hooks/useLineItemMutations.ts:155
 msgid "Failed to add new person"
 msgstr "Hinzufügen einer neuen Person fehlgeschlagen"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:103
-#: src/features/line-items/hooks/useLineItemMutations.ts:172
+#: src/features/line-items/hooks/useLineItemMutations.ts:110
+#: src/features/line-items/hooks/useLineItemMutations.ts:185
 msgid "Failed to add person to item"
 msgstr "Hinzufügen der Person zum Artikel fehlgeschlagen"
 
@@ -483,7 +488,7 @@ msgstr "Person konnte nicht beansprucht werden"
 #~ msgid "Failed to delete gratuity. Please try again."
 #~ msgstr "Trinkgeld konnte nicht gelöscht werden. Bitte versuche es erneut."
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:285
+#: src/features/line-items/hooks/useLineItemMutations.ts:298
 msgid "Failed to delete item"
 msgstr "Löschen des Artikels fehlgeschlagen"
 
@@ -508,11 +513,11 @@ msgstr "Authentifizierungstoken konnte nicht abgerufen werden. Deine Anfragen si
 msgid "Failed to load receipt image"
 msgstr "Belegbild konnte nicht geladen werden"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:55
+#: src/features/line-items/hooks/useLineItemMutations.ts:56
 msgid "Failed to rebalance shares"
 msgstr "Anteile konnten nicht neu verteilt werden"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:225
+#: src/features/line-items/hooks/useLineItemMutations.ts:238
 msgid "Failed to remove person from item"
 msgstr "Entfernen der Person vom Artikel fehlgeschlagen"
 
@@ -538,7 +543,7 @@ msgstr "Person konnte nicht gewechselt werden"
 msgid "Failed to update image visibility"
 msgstr "Bildsichtbarkeit konnte nicht aktualisiert werden"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:260
+#: src/features/line-items/hooks/useLineItemMutations.ts:273
 msgid "Failed to update item"
 msgstr "Aktualisieren des Artikels fehlgeschlagen"
 
@@ -655,7 +660,7 @@ msgstr "Artikelsumme"
 msgid "Items Total:"
 msgstr "Artikelsumme:"
 
-#: src/features/assignments/assignments-list.tsx:304
+#: src/features/assignments/assignments-list.tsx:303
 #: src/features/bill-split/components/BillBreakdownView.tsx:131
 msgid "Linked to your account"
 msgstr "Mit Ihrem Konto verknüpft"
@@ -722,7 +727,7 @@ msgstr "Beanspruchung von \"{0}\" auf \"{1}\" übertragen? Ihr Konto wird mit de
 msgid "My Receipts"
 msgstr "Meine Belege"
 
-#: src/features/assignments/assignments-list.tsx:350
+#: src/features/assignments/assignments-list.tsx:349
 msgid "New:"
 msgstr "Neu:"
 
@@ -738,11 +743,11 @@ msgstr "Noch keine Artikel zugewiesen"
 msgid "No items have been assigned yet. The total has been divided equally among all people by default."
 msgstr "Es wurden noch keine Artikel zugewiesen. Die Gesamtsumme wurde standardmäßig gleichmäßig auf alle Personen aufgeteilt."
 
-#: src/features/assignments/assignments-list.tsx:407
+#: src/features/assignments/assignments-list.tsx:406
 msgid "No matching people. Press Enter to add."
 msgstr "Keine Übereinstimmung. Drücken Sie Enter zum Hinzufügen."
 
-#: src/features/assignments/assignments-list.tsx:214
+#: src/features/assignments/assignments-list.tsx:213
 msgid "No one assigned yet."
 msgstr "Noch niemand zugewiesen."
 
@@ -900,8 +905,8 @@ msgstr "Rechnungen teilen, vereinfacht"
 msgid "Receipt Viewer"
 msgstr "Beleganzeige"
 
+#: src/features/assignments/assignments-list.tsx:332
 #: src/features/assignments/assignments-list.tsx:333
-#: src/features/assignments/assignments-list.tsx:334
 msgid "Remove {displayName}"
 msgstr "{displayName} entfernen"
 
@@ -974,8 +979,8 @@ msgstr "QR-Code anzeigen"
 msgid "Sign in or create account"
 msgstr "Anmelden oder Konto erstellen"
 
-#: src/features/assignments/assignments-list.tsx:263
-#: src/features/assignments/assignments-list.tsx:270
+#: src/features/assignments/assignments-list.tsx:262
+#: src/features/assignments/assignments-list.tsx:269
 msgid "Sign in to claim {displayName}"
 msgstr "Anmelden, um {displayName} zu beanspruchen"
 
@@ -992,7 +997,7 @@ msgstr "Anmelden, um deinen Verlauf zu sehen →"
 msgid "Something went wrong"
 msgstr "Etwas ist schiefgelaufen"
 
-#: src/features/assignments/assignments-list.tsx:205
+#: src/features/assignments/assignments-list.tsx:204
 msgid "Split %"
 msgstr "Anteil %"
 
@@ -1028,8 +1033,8 @@ msgstr "Zusammenfassung"
 msgid "Switch"
 msgstr "Wechseln"
 
-#: src/features/assignments/assignments-list.tsx:265
-#: src/features/assignments/assignments-list.tsx:272
+#: src/features/assignments/assignments-list.tsx:264
+#: src/features/assignments/assignments-list.tsx:271
 msgid "Switch to {displayName}"
 msgstr "Zu {displayName} wechseln"
 

@@ -88,6 +88,12 @@ export function useLineItemMutations() {
     const activeSiblings = lineItem.assignments.filter((a) => !a.deletedAt);
     const rebalance = planAddRebalance(activeSiblings);
 
+    if (rebalance?.warning === 'fully-locked') {
+      toast.warning(
+        t`All existing shares are locked — added with 0% share. Unlock a share to give them a portion.`
+      );
+    }
+
     const result = zero.mutate(
       mutators.assignments.insert({
         id: assignmentId,
@@ -153,6 +159,12 @@ export function useLineItemMutations() {
     // Then, create the assignment
     const activeSiblings = lineItem.assignments.filter((a) => !a.deletedAt);
     const rebalance = planAddRebalance(activeSiblings);
+
+    if (rebalance?.warning === 'fully-locked') {
+      toast.warning(
+        t`All existing shares are locked — added with 0% share. Unlock a share to give them a portion.`
+      );
+    }
 
     const assignmentResult = zero.mutate(
       mutators.assignments.insert({
