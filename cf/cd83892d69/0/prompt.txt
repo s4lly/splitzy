@@ -1,0 +1,17 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/components/Receipt/utils/receipt-calculation.ts` around lines
+757 - 806, Add a unit test that covers the "all-zero pretax shares" edge case
+for the proportional tax split: construct a receipt where
+pretax.getTotalForAllItems(receipt) > 0 but personTotals contains assigned
+people whose item totals sum to zero (e.g., all assigned item values are
+Decimal(0) or custom shares sum to 0%), set receipt.tax to a non-zero value and
+taxSplitType = 'proportional', run the code path that computes taxAmount and
+updates personTotals, and assert that no exception is thrown, each person's
+total remains unchanged except for adding Decimal(0), and that overall tax
+distributed is Decimal(0) (i.e., personTotals did not increase and taxAmount
+effectively stayed zero).
+
+---
+
+commit changes to current branch
