@@ -26,7 +26,7 @@ export const lineItemsUpdateSchema = z.object({
   total_price: z.number().optional(),
 });
 
-export const lineItemsDeleteSchema = z.object({
+export const lineItemsSoftDeleteSchema = z.object({
   id: z.string(),
 });
 
@@ -97,9 +97,15 @@ export const mutators = defineMutators({
     update: defineMutator(lineItemsUpdateSchema, async ({ tx, args }) => {
       await tx.mutate.receipt_line_items.update(args);
     }),
-    delete: defineMutator(lineItemsDeleteSchema, async ({ tx, args }) => {
-      await tx.mutate.receipt_line_items.delete({ id: args.id });
-    }),
+    softDelete: defineMutator(
+      lineItemsSoftDeleteSchema,
+      async ({ tx, args }) => {
+        await tx.mutate.receipt_line_items.update({
+          id: args.id,
+          deleted_at: Date.now(),
+        });
+      }
+    ),
     insert: defineMutator(lineItemsInsertSchema, async ({ tx, args }) => {
       await tx.mutate.receipt_line_items.insert({
         id: args.id,

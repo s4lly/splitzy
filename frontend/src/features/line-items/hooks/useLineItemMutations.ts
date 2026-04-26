@@ -261,7 +261,7 @@ export function useLineItemMutations() {
     setIsDeleting(true);
     try {
       const result = zero.mutate(
-        mutators.lineItems.delete({
+        mutators.lineItems.softDelete({
           id: data.itemId,
         })
       );
