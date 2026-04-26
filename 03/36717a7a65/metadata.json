@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "0336717a7a65",
+  "strategy": "manual-commit",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".github/workflows/static-analysis.yml"
+  ],
+  "sessions": [
+    {
+      "metadata": "/03/36717a7a65/0/metadata.json",
+      "transcript": "/03/36717a7a65/0/full.jsonl",
+      "content_hash": "/03/36717a7a65/0/content_hash.txt",
+      "prompt": "/03/36717a7a65/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 28,
+    "cache_creation_tokens": 56697,
+    "cache_read_tokens": 479450,
+    "output_tokens": 6174,
+    "api_call_count": 13
+  }
+}

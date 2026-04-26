@@ -1,0 +1,54 @@
+i push my code to github. i use github workflows to perform static analysis. the workflow "static-analysis-frontend (type-check)" is failing. i think it is failing because we recenlty moved the zero schema/mutators/queries to a separate pnpm workspace package.
+
+Run pnpm run type-check
+
+> frontend@0.1.0 type-check /home/runner/work/splitzy/splitzy/frontend
+> tsc --noEmit
+
+Error: src/components/Receipt/LineItemAddForm.tsx(3,26): error TS2307: Cannot find module '@splitzy/shared-zero/mutators' or its corresponding type declarations.
+Error: src/context/ReceiptContext.tsx(7,8): error TS2307: Cannot find module '@splitzy/shared-zero/schema' or its corresponding type declarations.
+Error: src/context/ZeroProvider.tsx(5,26): error TS2307: Cannot find module '@splitzy/shared-zero/mutators' or its corresponding type declarations.
+Error: src/context/ZeroProvider.tsx(6,29): error TS2307: Cannot find module '@splitzy/shared-zero/schema' or its corresponding type declarations.
+Error: src/context/ZeroProvider.tsx(7,24): error TS2307: Cannot find module '@splitzy/shared-zero/schema' or its corresponding type declarations.
+Error: src/features/assignments/ClaimReceiptUserDialog.tsx(3,26): error TS2307: Cannot find module '@splitzy/shared-zero/mutators' or its corresponding type declarations.
+Error: src/features/assignments/ClaimReceiptUserDialog.tsx(4,25): error TS2307: Cannot find module '@splitzy/shared-zero/queries' or its corresponding type declarations.
+Error: src/features/assignments/ClaimReceiptUserDialog.tsx(36,32): error TS2339: Property 'id' does not exist on type '{ readonly [x: string]: any; }[]'.
+Error: src/features/assignments/SwitchReceiptUserDialog.tsx(3,26): error TS2307: Cannot find module '@splitzy/shared-zero/mutators' or its corresponding type declarations.
+Error: src/features/assignments/SwitchReceiptUserDialog.tsx(4,25): error TS2307: Cannot find module '@splitzy/shared-zero/queries' or its corresponding type declarations.
+Error: src/features/assignments/SwitchReceiptUserDialog.tsx(77,32): error TS2339: Property 'id' does not exist on type '{ readonly [x: string]: any; }[]'.
+Error: src/features/assignments/hooks/useSplitPercent.ts(2,26): error TS2307: Cannot find module '@splitzy/shared-zero/mutators' or its corresponding type declarations.
+Error: src/features/bill-split/components/BillBreakdownCollab.tsx(4,26): error TS2307: Cannot find module '@splitzy/shared-zero/mutators' or its corresponding type declarations.
+Error: src/features/line-items/hooks/useLineItemMutations.ts(3,26): error TS2307: Cannot find module '@splitzy/shared-zero/mutators' or its corresponding type declarations.
+Error: src/features/receipt-image/components/ImageSettingsDialog.tsx(3,26): error TS2307: Cannot find module '@splitzy/shared-zero/mutators' or its corresponding type declarations.
+Error: src/features/receipt-viewer/hooks/useReceiptMutation.ts(2,26): error TS2307: Cannot find module '@splitzy/shared-zero/mutators' or its corresponding type declarations.
+Error: src/lib/receiptTypes.ts(1,34): error TS2307: Cannot find module '@splitzy/shared-zero/schema' or its corresponding type declarations.
+Error: src/models/transformers/fromZero.ts(29,6): error TS7006: Parameter 'item' implicitly has an 'any' type.
+Error: src/pages/HomePage.tsx(5,25): error TS2307: Cannot find module '@splitzy/shared-zero/queries' or its corresponding type declarations.
+Error: src/pages/HomePage.tsx(33,18): error TS2339: Property 'receipts' does not exist on type '{ readonly [x: string]: any; }[]'.
+Error: src/pages/HomePage.tsx(33,34): error TS2339: Property 'receipts' does not exist on type '{ readonly [x: string]: any; }[]'.
+Error: src/pages/HomePage.tsx(34,12): error TS2339: Property 'receipts' does not exist on type '{ readonly [x: string]: any; }[]'.
+Error: src/pages/ReceiptCollabPage.tsx(2,25): error TS2307: Cannot find module '@splitzy/shared-zero/queries' or its corresponding type declarations.
+Error: src/pages/ReceiptsPage.tsx(4,25): error TS2307: Cannot find module '@splitzy/shared-zero/queries' or its corresponding type declarations.
+Error: src/pages/ReceiptsPage.tsx(18,16): error TS2339: Property 'receipts' does not exist on type '{ readonly [x: string]: any; }[]'.
+Error: src/pages/ReceiptsPage.tsx(22,17): error TS2339: Property 'receipts' does not exist on type '{ readonly [x: string]: any; }[]'.
+Error: src/pages/ReceiptsPage.tsx(23,13): error TS2339: Property 'receipts' does not exist on type '{ readonly [x: string]: any; }[]'.
+ ELIFECYCLE  Command failed with exit code 2.
+Error: Process completed with exit code 2.
+
+similarly the other workflow "static-analysis-zero-query (type-check)" is also failing.
+
+Run pnpm run type-check
+
+> zero-query@ type-check /home/runner/work/splitzy/splitzy/zero-query
+> tsc --noEmit
+
+Error: src/db-provider.ts(2,24): error TS2307: Cannot find module '@splitzy/shared-zero/schema' or its corresponding type declarations.
+Error: src/index.ts(5,26): error TS2307: Cannot find module '@splitzy/shared-zero/mutators' or its corresponding type declarations.
+Error: src/index.ts(6,25): error TS2307: Cannot find module '@splitzy/shared-zero/queries' or its corresponding type declarations.
+Error: src/index.ts(7,24): error TS2307: Cannot find module '@splitzy/shared-zero/schema' or its corresponding type declarations.
+Error: src/index.ts(182,22): error TS2339: Property 'fn' does not exist on type 'never'.
+Error: src/index.ts(242,26): error TS2339: Property 'fn' does not exist on type 'never'.
+ ELIFECYCLE  Command failed with exit code 2.
+Error: Process completed with exit code 2.
+
+come up with a plan to fix
