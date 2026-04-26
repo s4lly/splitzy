@@ -68,9 +68,6 @@ export function largestRemainderRound(shares: Decimal[]): number[] {
   // Hand out one percent at a time until the deficit is exhausted, wrapping
   // around the ranked remainders if the deficit exceeds the entry count.
   const result = [...floors];
-  if (remainders.length === 0) {
-    return result;
-  }
   let rank = 0;
   while (deficit > 0) {
     result[remainders[rank].index] += 1;
