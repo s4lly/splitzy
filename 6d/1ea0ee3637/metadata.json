@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "6d1ea0ee3637",
+  "strategy": "manual-commit",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/src/components/Receipt/utils/receipt-calculation.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/6d/1ea0ee3637/0/metadata.json",
+      "transcript": "/6d/1ea0ee3637/0/full.jsonl",
+      "content_hash": "/6d/1ea0ee3637/0/content_hash.txt",
+      "prompt": "/6d/1ea0ee3637/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 17,
+    "cache_creation_tokens": 17953,
+    "cache_read_tokens": 193541,
+    "output_tokens": 1516,
+    "api_call_count": 7
+  }
+}

@@ -1,0 +1,11 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/components/Receipt/utils/receipt-calculation.ts` around lines
+472 - 480, createItemSplitsFromAssignments is silently coercing a null
+assignment.sharePercentage to new Decimal(0) when building groupShares, which
+hides the same invalid-state warning emitted by getPersonTotalForItem and can
+cause under-billing when getAllPersonItemTotals consumes this graph; update
+createItemSplitsFromAssignments to detect assignment.sharePercentage == null and
+emit a console.warn (with context: item id, personIdentifier, assignment info)
+before coercing to new Decimal(0) so both code paths surface the same diagnostic
+and make debugging consistent.
