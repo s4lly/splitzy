@@ -1,0 +1,18 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/hooks/useSplitPercent.ts` around lines 77 -
+99, seedEntries currently seeds every null share with
+evenShares(participantCount), which over-allocates when some assignments already
+have a non-null assignment.sharePercentage; update the useMemo to first compute
+sum of existing custom shares (using Decimal) and count of null shares from
+activeAssignments, then if nullCount > 0 compute remaining = max(0, new
+Decimal(100).minus(sumCustom)) and fallbackPerNull =
+remaining.dividedBy(nullCount) and use fallbackPerNull for assignments with
+sharePercentage == null (preserving existing assignment.sharePercentage values),
+ensuring you use Decimal arithmetic and handle edge cases (no nulls or remaining
+<= 0) when setting share in the seedEntries mapping (references: seedEntries,
+activeAssignments, evenShares, assignment.sharePercentage).
+
+---
+
+commit changes to current branch
