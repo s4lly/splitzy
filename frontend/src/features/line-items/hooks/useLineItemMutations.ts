@@ -250,9 +250,14 @@ export function useLineItemMutations() {
 
   const handleUpdateLineItem = async (data: UpdateLineItemData) => {
     const current = receipt?.lineItems.find((item) => item.id === data.itemId);
-    const nextQuantity = data.quantity ?? current?.quantity.toNumber() ?? 1;
+    if (!current) {
+      console.error(`Line item with id ${data.itemId} not found`);
+      toast.error(t`Failed to update item`);
+      return;
+    }
+    const nextQuantity = data.quantity ?? current.quantity.toNumber();
     const nextPricePerItem =
-      data.price_per_item ?? current?.pricePerItem.toNumber() ?? 0;
+      data.price_per_item ?? current.pricePerItem.toNumber();
     const nextTotalPrice =
       Math.round(nextQuantity * nextPricePerItem * 100) / 100;
 

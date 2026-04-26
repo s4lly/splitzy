@@ -488,7 +488,7 @@ msgstr "紐付けに失敗しました"
 #~ msgid "Failed to delete gratuity. Please try again."
 #~ msgstr "チップの削除に失敗しました。もう一度お試しください。"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:298
+#: src/features/line-items/hooks/useLineItemMutations.ts:303
 msgid "Failed to delete item"
 msgstr "アイテムの削除に失敗しました"
 
@@ -543,7 +543,8 @@ msgstr "人の切り替えに失敗しました"
 msgid "Failed to update image visibility"
 msgstr "画像の公開設定の更新に失敗しました"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:273
+#: src/features/line-items/hooks/useLineItemMutations.ts:255
+#: src/features/line-items/hooks/useLineItemMutations.ts:278
 msgid "Failed to update item"
 msgstr "アイテムの更新に失敗しました"
 

@@ -468,7 +468,7 @@ msgstr "文档分析失败"
 msgid "Failed to claim person"
 msgstr "认领失败"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:298
+#: src/features/line-items/hooks/useLineItemMutations.ts:303
 msgid "Failed to delete item"
 msgstr "删除项目失败"
 
@@ -510,7 +510,8 @@ msgstr "切换人员失败"
 msgid "Failed to update image visibility"
 msgstr "更新图片可见性失败"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:273
+#: src/features/line-items/hooks/useLineItemMutations.ts:255
+#: src/features/line-items/hooks/useLineItemMutations.ts:278
 msgid "Failed to update item"
 msgstr "更新项目失败"
 

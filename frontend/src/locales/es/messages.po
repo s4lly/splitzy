@@ -488,7 +488,7 @@ msgstr "Error al reclamar persona"
 #~ msgid "Failed to delete gratuity. Please try again."
 #~ msgstr "Error al eliminar la propina. Por favor, inténtelo de nuevo."
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:298
+#: src/features/line-items/hooks/useLineItemMutations.ts:303
 msgid "Failed to delete item"
 msgstr "Error al eliminar el artículo"
 
@@ -543,7 +543,8 @@ msgstr "Error al cambiar de persona"
 msgid "Failed to update image visibility"
 msgstr "Error al actualizar la visibilidad de la imagen"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:273
+#: src/features/line-items/hooks/useLineItemMutations.ts:255
+#: src/features/line-items/hooks/useLineItemMutations.ts:278
 msgid "Failed to update item"
 msgstr "Error al actualizar el artículo"
 
