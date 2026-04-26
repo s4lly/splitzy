@@ -94,7 +94,7 @@ export function AuthenticatedZeroProvider({
       queryURL: ZERO_QUERY_URL,
       mutateURL: ZERO_MUTATE_URL,
       schema,
-      mutators: mutators,
+      mutators,
       // Use Clerk user ID when authenticated, otherwise use persistent anonymous ID
       userID: userId ?? getAnonymousUserID(),
       auth: token,
