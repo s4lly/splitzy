@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "4e2ebcd52fd4",
+  "strategy": "manual-commit",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/src/context/ZeroProvider.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/4e/2ebcd52fd4/0/metadata.json",
+      "transcript": "/4e/2ebcd52fd4/0/full.jsonl",
+      "content_hash": "/4e/2ebcd52fd4/0/content_hash.txt",
+      "prompt": "/4e/2ebcd52fd4/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 16,
+    "cache_creation_tokens": 14948,
+    "cache_read_tokens": 157816,
+    "output_tokens": 932,
+    "api_call_count": 6
+  }
+}

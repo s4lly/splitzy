@@ -1,0 +1,8 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/context/ZeroProvider.tsx` at line 6, Change the named import of
+Schema to a type-only import to improve tree-shaking and signal intent: replace
+the combined import "import { Schema, schema } from
+'@splitzy/shared-zero/schema'" with a type import for Schema and a value import
+for schema (e.g., "import type { Schema } from '...'; import { schema } from
+'...';") so Schema is only used as a type parameter to ZeroOptions<Schema>.
