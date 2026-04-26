@@ -165,7 +165,7 @@ export function useSplitPercent({
       setEntries((prev) => {
         // Delegate the math to the pure module and persist any row whose
         // share ended up different from its previous value.
-        const next = rebalance(prev, assignmentId, value) as DraftEntry[];
+        const next = rebalance(prev, assignmentId, value);
         persistChangedShares(next, prev);
         return next;
       });

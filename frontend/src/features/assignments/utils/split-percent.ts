@@ -150,11 +150,11 @@ export function evenShares(count: number): Decimal {
  *   );
  *   // → b clamped to 60, c falls to 0, a stays at 40
  */
-export function rebalance(
-  entries: ShareEntry[],
+export function rebalance<T extends ShareEntry>(
+  entries: T[],
   targetId: string,
   newValue: Decimal
-): ShareEntry[] {
+): T[] {
   // Target is missing or locked → nothing to do; return the input unchanged so
   // callers can use reference equality to skip a re-render.
   const target = entries.find((entry) => entry.id === targetId);
