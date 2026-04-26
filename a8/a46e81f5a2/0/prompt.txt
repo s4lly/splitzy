@@ -1,0 +1,10 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@shared-zero/src/mutators.ts` around lines 213 - 222, The insert mutator in
+defineMutator(assignmentsInsertSchema) currently collapses null and undefined by
+using args.share_percentage ?? undefined; change it to the same
+conditional-spread pattern used in the update path so null is preserved: inside
+the tx.mutate.assignments.insert call use ...(args.share_percentage !==
+undefined && { share_percentage: args.share_percentage }) instead of the
+null-coalescing expression; this keeps the exact nullable/optional semantics
+consistent with the update logic.
