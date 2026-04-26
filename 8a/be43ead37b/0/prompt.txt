@@ -1,0 +1,15 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/line-items/hooks/useLineItemMutations.ts` around lines
+240 - 246, In useLineItemMutations, guard the optional numeric BigNumber-like
+fields before calling .toNumber(): instead of calling
+current?.quantity.toNumber() and current?.pricePerItem.toNumber() directly,
+check existence first (e.g., current?.quantity != null ?
+current.quantity.toNumber() : <fallback>) and similarly for
+current?.pricePerItem, then compute nextQuantity, nextPricePerItem, and
+nextTotalPrice using those guarded values so you don't call .toNumber() on
+null/undefined and don't produce a synthetic total when the item is missing.
+
+---
+
+use translation skill to check if any locales with missing translations. if any missing then translate and fill appropriate *.po files.

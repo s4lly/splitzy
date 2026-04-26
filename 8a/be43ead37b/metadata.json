@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "8abe43ead37b",
+  "strategy": "manual-commit",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "frontend/src/features/line-items/hooks/useLineItemMutations.ts",
+    "frontend/src/locales/de/messages.po",
+    "frontend/src/locales/en/messages.po",
+    "frontend/src/locales/es/messages.po",
+    "frontend/src/locales/fr/messages.po",
+    "frontend/src/locales/ja/messages.po",
+    "frontend/src/locales/zh/messages.po"
+  ],
+  "sessions": [
+    {
+      "metadata": "/8a/be43ead37b/0/metadata.json",
+      "transcript": "/8a/be43ead37b/0/full.jsonl",
+      "content_hash": "/8a/be43ead37b/0/content_hash.txt",
+      "prompt": "/8a/be43ead37b/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 33,
+    "cache_creation_tokens": 22642,
+    "cache_read_tokens": 431981,
+    "output_tokens": 3556,
+    "api_call_count": 14
+  }
+}
