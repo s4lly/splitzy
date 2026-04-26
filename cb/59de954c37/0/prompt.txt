@@ -1,0 +1,10 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/hooks/useSplitPercent.ts` around lines 215
+- 232, In handleReset, round the share value to the DB precision the same way
+persistShare does: replace the raw share.toNumber() usage with
+share.toDecimalPlaces(4).toNumber() before passing it into
+mutators.assignments.update (the zero.mutate call) so the share_percentage
+written by handleReset matches the Numeric(7,4) precision; leave the existing
+pending-timer cancellation (persistTimers.current) and locked:false behavior
+unchanged.
