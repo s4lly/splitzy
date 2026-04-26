@@ -348,59 +348,19 @@ describe('receipt-calculation candidate logic', () => {
 describe('filterPeople', () => {
   const allPeople = ['1', '2', '3', '4'];
 
-  it('returns all people if none are assigned and no searchValue', () => {
-    expect(calculations.utils.filterPeople(allPeople, [], '')).toEqual(
-      allPeople
-    );
-    expect(calculations.utils.filterPeople(allPeople, [], undefined)).toEqual(
-      allPeople
-    );
+  it('returns all people if none are assigned', () => {
+    expect(calculations.utils.filterPeople(allPeople, [])).toEqual(allPeople);
   });
 
-  it('excludes assigned people if no searchValue', () => {
-    expect(calculations.utils.filterPeople(allPeople, ['2', '4'], '')).toEqual([
+  it('excludes assigned people', () => {
+    expect(calculations.utils.filterPeople(allPeople, ['2', '4'])).toEqual([
       '1',
       '3',
     ]);
   });
 
-  it('filters by searchValue (not applicable with numeric IDs, but kept for compatibility)', () => {
-    // Note: searchValue doesn't make sense with numeric IDs, but function still works
-    expect(calculations.utils.filterPeople(allPeople, [], 'a')).toEqual(
-      allPeople
-    );
-    expect(calculations.utils.filterPeople(allPeople, [], 'AL')).toEqual(
-      allPeople
-    );
-    expect(calculations.utils.filterPeople(allPeople, [], 'b')).toEqual(
-      allPeople
-    );
-  });
-
-  it('excludes assigned people and filters by searchValue', () => {
-    expect(calculations.utils.filterPeople(allPeople, ['3'], 'a')).toEqual([
-      '1',
-      '2',
-      '4',
-    ]);
-    expect(calculations.utils.filterPeople(allPeople, ['1', '4'], 'a')).toEqual(
-      ['2', '3']
-    );
-  });
-
   it('returns empty array if all people are assigned', () => {
-    expect(calculations.utils.filterPeople(allPeople, allPeople, '')).toEqual(
-      []
-    );
-    expect(calculations.utils.filterPeople(allPeople, allPeople, 'a')).toEqual(
-      []
-    );
-  });
-
-  it('returns empty array if no people match searchValue', () => {
-    expect(calculations.utils.filterPeople(allPeople, [], 'zzz')).toEqual(
-      allPeople
-    );
+    expect(calculations.utils.filterPeople(allPeople, allPeople)).toEqual([]);
   });
 });
 

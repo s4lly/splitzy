@@ -118,8 +118,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
   const assignedReceiptUserIds = item.assignments.map((a) => a.receiptUserId);
   const filteredReceiptUserIds = calculations.utils.filterPeople(
     possiblePeople,
-    assignedReceiptUserIds,
-    newPersonSanitized
+    assignedReceiptUserIds
   );
 
   const chipColors = getAvatarChipColors(receiptId, possiblePeople);

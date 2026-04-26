@@ -994,15 +994,11 @@ export namespace calculations {
      * `assignedPeople`. Used by the assignment picker to populate the
      * "people you haven't added yet" list on a line item.
      *
-     * `searchValue` is accepted for API compatibility but currently has
-     * no effect — the IDs here are ULIDs, not names, so substring
-     * matching at this layer doesn't make sense. The UI that uses the
-     * result does name-based filtering one level up, where display names
-     * are actually available.
+     * Name-based search filtering is done one level up in the UI, where
+     * display names are available — IDs here are ULIDs.
      *
      * @param people - All known receipt-user IDs (ULIDs) on the receipt.
      * @param assignedPeople - Receipt-user IDs already assigned to the item.
-     * @param searchValue - Currently ignored; see note above.
      * @returns IDs present in `people` but absent from `assignedPeople`.
      *
      * @example
@@ -1016,15 +1012,8 @@ export namespace calculations {
      */
     export function filterPeople(
       people: readonly PersonIdentifier[],
-      assignedPeople: readonly PersonIdentifier[],
-      searchValue?: string
+      assignedPeople: readonly PersonIdentifier[]
     ): PersonIdentifier[] {
-      if (searchValue) {
-        // Note: searchValue doesn't make sense with ULID IDs, but kept for API compatibility.
-        // In practice, this would need user data to search by name.
-        return people.filter((person) => !assignedPeople.includes(person));
-      }
-
       return people.filter((person) => !assignedPeople.includes(person));
     }
 
