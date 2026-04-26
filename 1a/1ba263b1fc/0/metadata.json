@@ -1,0 +1,48 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "1a1ba263b1fc",
+  "session_id": "ff66afa3-5ee2-4e90-8d4b-d750196d6fc1",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-26T23:09:18.087389Z",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/src/context/ZeroProvider.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "b3e622d47af4",
+  "checkpoint_transcript_start": 33,
+  "transcript_lines_at_start": 33,
+  "token_usage": {
+    "input_tokens": 1,
+    "cache_creation_tokens": 277,
+    "cache_read_tokens": 30199,
+    "output_tokens": 31,
+    "api_call_count": 1
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-26T23:09:18.085602Z",
+    "agent_lines": 1,
+    "agent_removed": 1,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1,
+    "total_lines_changed": 2,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
