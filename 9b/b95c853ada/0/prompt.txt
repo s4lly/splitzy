@@ -1,0 +1,17 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@shared-zero/src/mutators.ts` around lines 100 - 114, The delete mutator for
+receipt_line_items is inconsistent with receiptUsers.delete and
+assignments.delete (which perform soft-deletes) and with receipts.softDelete;
+update the API to be consistent by renaming the hard-delete mutator
+lineItems.delete to lineItems.softDelete and change its implementation to set
+deleted_at (e.g., tx.mutate.receipt_line_items.update({ id: args.id }, {
+deleted_at: Date.now() })) instead of deleting the row, and likewise update any
+call sites; alternatively, if you prefer hard deletes everywhere, change
+receiptUsers.delete and assignments.delete to perform real deletes—pick one
+approach and apply it consistently across the mutators (receiptUsers.delete,
+assignments.delete, receipts.softDelete, and lineItems.*).
+
+---
+
+commit changes to current branch

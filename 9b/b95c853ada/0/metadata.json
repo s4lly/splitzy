@@ -1,0 +1,65 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "9bb95c853ada",
+  "session_id": "0f37f76a-c6fc-4a9e-875c-88db5e421bc0",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-26T05:46:35.927328Z",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/src/features/line-items/hooks/useLineItemMutations.ts",
+    "shared-zero/src/mutators.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "67ff15088c2e",
+  "token_usage": {
+    "input_tokens": 30,
+    "cache_creation_tokens": 25899,
+    "cache_read_tokens": 681065,
+    "output_tokens": 3800,
+    "api_call_count": 20
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 4573,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".agents/skills/grill-me/SKILL.md": 10,
+        ".claude/settings.local.json": 7,
+        "2026-04-04-194954-verify-each-finding-against-the-current-code-and.txt": 709,
+        "CODE_REVIEW_split-calculation-fixes-phase-4-6.md": 168,
+        "IMAGE_PREP_PLAN.md": 162,
+        "REFACTOR_PROMPT.md": 126,
+        "docs/assignment-code-journey.md": 683,
+        "docs/custom-splits-architecture-notes.md": 455,
+        "docs/lingui-precommit-hook-plan.md": 134,
+        "docs/setup-improvements.md": 25,
+        "docs/shared-zero-extraction-plan.md": 124,
+        "docs/split-calculation-findings.md": 378,
+        "docs/split-calculation-fix-plan.md": 314,
+        "docs/structured-logging-plan.md": 182,
+        "docs/zero-query-docker-shared-zero-fix.md": 191,
+        "frontend/2026-03-31-233627-create-a-plan-for-a-new-page-which-appears-after-u.txt": 734,
+        "frontend/tsconfig.tsbuildinfo": 1,
+        "splitzy-payment-tracking-prompt.md": 170
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4577,
+      "agent_lines_removed": 5,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    }
+  ]
+}
