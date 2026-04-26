@@ -1,0 +1,13 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/components/Receipt/utils/receipt-calculation.ts` around lines
+369 - 389, When itemHasCustomShares(activeAssignments) is true but
+assignment.sharePercentage is null, add a warning/telemetry breadcrumb instead
+of silently treating it as 0%: inside the branch that checks
+itemHasCustomShares(activeAssignments) (the code referencing
+assignment.sharePercentage), detect if assignment.sharePercentage == null and
+call console.warn or the app telemetry logger with a concise message including
+item.id and assignment.receiptUserId, then proceed (or decide to fallback) —
+update the logic in the function using getIndividualItemTotalPrice,
+activeAssignments, and assignment to emit the warning before computing the
+share.
