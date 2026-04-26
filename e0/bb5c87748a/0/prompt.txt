@@ -1,0 +1,9 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/utils/split-percent.ts` around lines 71 -
+73, The check "if (remainders.length === 0) return result;" is unreachable
+because remainders is created by mapping shares (so its length always equals
+shares.length) and there is already an early return when shares is empty; remove
+this dead branch from the split-percent logic (references: variable remainders,
+shares, and the enclosing function splitPercent) so the function flow is
+simplified and no-op code is eliminated.

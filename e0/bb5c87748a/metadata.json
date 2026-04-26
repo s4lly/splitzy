@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "e0bb5c87748a",
+  "strategy": "manual-commit",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/src/features/assignments/utils/split-percent.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/e0/bb5c87748a/0/metadata.json",
+      "transcript": "/e0/bb5c87748a/0/full.jsonl",
+      "content_hash": "/e0/bb5c87748a/0/content_hash.txt",
+      "prompt": "/e0/bb5c87748a/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 15,
+    "cache_creation_tokens": 17342,
+    "cache_read_tokens": 137673,
+    "output_tokens": 860,
+    "api_call_count": 5
+  }
+}
