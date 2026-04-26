@@ -71,7 +71,7 @@
     "i18n:extract": "lingui extract",
     "i18n:compile": "lingui compile --typescript",
     "i18n": "lingui extract && lingui compile --typescript",
-    "build": "lingui extract && lingui compile --typescript && vite build",
+    "build": "pnpm --filter @splitzy/shared-zero run build && lingui extract && lingui compile --typescript && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:ui": "vitest --ui",
