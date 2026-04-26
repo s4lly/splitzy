@@ -1,0 +1,10 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/utils/split-percent.ts` around lines 168 -
+185, Compute a non-negative remainingClamped after clamping the target: clamp
+remaining = ONE_HUNDRED.minus(clamped).minus(lockedSum) to at least ZERO (e.g.
+remainingClamped = Decimal.max(ZERO, remaining)) and then use remainingClamped
+in place of remaining in both the proportional redistribution (where siblings
+are adjusted using siblingSum) and the equal-split branch so unlocked siblings
+never receive negative shares; update references in the splitPercent logic that
+currently use remaining, clamped, siblings, siblingSum, targetId, and lockedSum.
