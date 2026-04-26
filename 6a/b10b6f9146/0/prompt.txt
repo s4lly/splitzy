@@ -1,0 +1,12 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/components/Receipt/utils/receipt-calculation.ts` around lines
+1014 - 1022, The filterPeople function's searchValue parameter is unused; update
+the filterPeople signature to remove the searchValue parameter and simplify its
+body to a single return of people.filter(person =>
+!assignedPeople.includes(person)). Then update all call sites (notably the call
+in assignments-list.tsx that currently passes newPersonSanitized) to call
+filterPeople with the remaining parameters, and update
+receipt-calculation.test.ts to reflect the new signature and expected behavior;
+ensure no conditional branch referencing searchValue remains in the filterPeople
+implementation.
