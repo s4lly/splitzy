@@ -1,0 +1,8 @@
+Verify each finding against the current code and only fix it if needed.
+
+In @README.md around lines 224 - 250, The fenced project-structure code block
+(the triple-backtick block showing the splitzy/ tree) is missing a language tag
+causing markdownlint MD040; update that fence from totext (or another
+suitable language) so the block becomes a labeled code fence and the linter
+warning is resolved, ensuring the existing indentation and content of the
+project-structure block remain unchanged.
