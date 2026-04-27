@@ -1,0 +1,86 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "cbb1f2aae8ca",
+  "session_id": "7cb09788-b999-4f03-827e-1c546476239a",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-27T00:20:14.247442Z",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/src/features/assignments/hooks/useSplitPercent.test.tsx",
+    "frontend/src/features/assignments/hooks/useSplitPercent.ts",
+    "frontend/src/features/assignments/utils/merge-seed-entries.test.ts",
+    "frontend/src/features/assignments/utils/merge-seed-entries.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7[1m]",
+  "turn_id": "40c6066c47b0",
+  "token_usage": {
+    "input_tokens": 113,
+    "cache_creation_tokens": 106808,
+    "cache_read_tokens": 2098746,
+    "output_tokens": 22662,
+    "api_call_count": 38
+  },
+  "session_metrics": {
+    "turn_count": 12
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-27T00:20:14.24077Z",
+    "agent_lines": 313,
+    "agent_removed": 0,
+    "human_added": 28,
+    "human_modified": 14,
+    "human_removed": 0,
+    "total_committed": 348,
+    "total_lines_changed": 355,
+    "agent_percentage": 88.16901408450704,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 4805,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".agents/skills/grill-me/SKILL.md": 10,
+        ".claude/settings.local.json": 7,
+        "2026-04-04-194954-verify-each-finding-against-the-current-code-and.txt": 709,
+        "CODE_REVIEW_split-calculation-fixes-phase-4-6.md": 168,
+        "CODE_REVIEW_split-percent-issues.md": 232,
+        "IMAGE_PREP_PLAN.md": 162,
+        "REFACTOR_PROMPT.md": 126,
+        "docs/assignment-code-journey.md": 683,
+        "docs/custom-splits-architecture-notes.md": 455,
+        "docs/lingui-precommit-hook-plan.md": 134,
+        "docs/setup-improvements.md": 25,
+        "docs/shared-zero-extraction-plan.md": 124,
+        "docs/split-calculation-findings.md": 378,
+        "docs/split-calculation-fix-plan.md": 314,
+        "docs/structured-logging-plan.md": 182,
+        "docs/zero-query-docker-shared-zero-fix.md": 191,
+        "frontend/2026-03-31-233627-create-a-plan-for-a-new-page-which-appears-after-u.txt": 734,
+        "frontend/tsconfig.tsbuildinfo": 1,
+        "splitzy-payment-tracking-prompt.md": 170
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 28,
+      "user_lines_removed": 7,
+      "agent_lines_added": 5139,
+      "agent_lines_removed": 6,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7,
+        "frontend/src/features/assignments/hooks/useSplitPercent.test.tsx": 11,
+        "frontend/src/features/assignments/utils/merge-seed-entries.test.ts": 10
+      },
+      "user_removed_per_file": {
+        "frontend/src/features/assignments/hooks/useSplitPercent.test.tsx": 5,
+        "frontend/src/features/assignments/utils/merge-seed-entries.test.ts": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+/grill-me open @CODE_REVIEW_split-percent-issues.md and work on issue #1
+
+---
+
+i agree, fix needs to be timer-aware
+
+---
+
+agree, per-row
+
+---
+
+agree, handle all three
+
+---
+
+agree with a
+
+---
+
+agree, gate with lastSeededKey ref + value-equality bail in setEntries callback.
+
+---
+
+option c, both
+
+---
+
+agree, c
+
+---
+
+agree, a
+
+---
+
+agree, a
+
+---
+
+agree, a
+
+---
+
+yes, no changes needed
