@@ -7,3 +7,7 @@ i want to update the text so that it reads something meaningful on receipt pages
 ---
 
 do i need to do anything for the vercel function to be deployed?
+
+---
+
+create a new branch for the changes for this plan. commit the changes for this plan in the new branch.
