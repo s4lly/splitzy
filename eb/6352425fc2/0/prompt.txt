@@ -1,0 +1,14 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@shared-zero/src/rebalance-shares.ts` around lines 165 - 190, The current
+logic lets newcomerShare take the entire headroom (when fair > headroom) which
+reduces unlocked siblings to 0%; change the cap so the newcomer cannot consume
+more than its fair fraction of the available headroom shared with unlocked
+siblings. Concretely, in the rebalance code that computes fair, newcomerShare,
+headroom and remainingForUnlocked, compute a capped newcomerShare as the minimum
+of fair and headroom.div(unlocked.length + 1) (or otherwise headroom *
+(1/(unlocked.length+1))) so the newcomer and unlocked siblings split headroom;
+then recompute remainingForUnlocked = headroom.minus(newcomerShare) and leave
+the unlocked scaling logic that uses unlockedSum/unlocked.length untouched
+(symbols: fair, newcomerShare, headroom, remainingForUnlocked, unlockedSum,
+unlocked, siblingUpdates).
