@@ -1,6 +1,6 @@
+import { itemHasCustomShares } from '@splitzy/shared-zero/rebalance-shares';
 import Decimal from 'decimal.js';
 
-import { itemHasCustomShares } from '@/features/line-items/utils/rebalance-shares';
 import type { Receipt } from '@/models/Receipt';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 

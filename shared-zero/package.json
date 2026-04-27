@@ -15,6 +15,10 @@
     "./queries": {
       "types": "./dist/queries.d.ts",
       "default": "./dist/queries.js"
+    },
+    "./rebalance-shares": {
+      "types": "./dist/rebalance-shares.d.ts",
+      "default": "./dist/rebalance-shares.js"
     }
   },
   "files": [
@@ -23,6 +27,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
+    "test": "vitest run",
     "type-check": "tsc --noEmit",
     "format": "prettier --check .",
     "format:fix": "prettier --write --ignore-unknown .",
@@ -30,11 +35,13 @@
   },
   "dependencies": {
     "@rocicorp/zero": "^0.25.12",
+    "decimal.js": "^10.6.0",
     "zod": "^4.2.1"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
     "prettier": "^3.8.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   }
 }

@@ -7,7 +7,7 @@ import {
   planRemoveRebalance,
   type RebalanceAssignment,
   type SiblingShareUpdate,
-} from '@/features/line-items/utils/rebalance-shares';
+} from './rebalance-shares.js';
 
 // Small helpers keep the test cases concise and readable.
 const decimal = (value: number | string) => new Decimal(value);

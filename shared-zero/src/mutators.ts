@@ -1,7 +1,43 @@
 import { defineMutator, defineMutators } from '@rocicorp/zero';
+import { Decimal } from 'decimal.js';
 import { z } from 'zod';
 
-import { zql } from './schema.js';
+import {
+  planRemoveRebalance,
+  type RebalanceAssignment,
+  type SiblingShareUpdate,
+} from './rebalance-shares.js';
+import { zql, type Assignment } from './schema.js';
+
+const adaptForPlanner = (row: Assignment): RebalanceAssignment => ({
+  id: row.id,
+  sharePercentage:
+    row.share_percentage == null ? null : new Decimal(row.share_percentage),
+  locked: row.locked,
+});
+
+/**
+ * Compose the writes needed to soft-delete an assignment and rebalance its
+ * surviving siblings. Pure: takes the already-fetched `self` row and the
+ * cohort (all active rows on the same line item, including `self`), returns
+ * the writes to apply or `null` when the delete should be skipped (row
+ * missing or already deleted).
+ */
+export function planAssignmentDelete(
+  selfId: string,
+  self: Assignment | undefined,
+  cohort: readonly Assignment[]
+): { siblingUpdates: SiblingShareUpdate[] } | null {
+  if (!self || self.deleted_at != null) {
+    return null;
+  }
+  const siblings = cohort.filter((row) => row.id !== selfId);
+  const updates = planRemoveRebalance(
+    adaptForPlanner(self),
+    siblings.map(adaptForPlanner)
+  );
+  return { siblingUpdates: updates ?? [] };
+}
 
 // ----
 // Exported Zod input schemas (reusable for form validation, etc.)
@@ -238,10 +274,29 @@ export const mutators = defineMutators({
       });
     }),
     delete: defineMutator(assignmentsDeleteSchema, async ({ tx, args }) => {
+      const [self] = await tx.run(zql.assignments.where('id', args.id));
+      if (!self || self.deleted_at != null) {
+        return;
+      }
+
+      const cohort = await tx.run(
+        zql.assignments
+          .where('receipt_line_item_id', self.receipt_line_item_id)
+          .where('deleted_at', 'IS', null)
+      );
+
+      const plan = planAssignmentDelete(args.id, self, cohort);
+      if (!plan) {
+        return;
+      }
+
       await tx.mutate.assignments.update({
         id: args.id,
         deleted_at: Date.now(),
       });
+      for (const update of plan.siblingUpdates) {
+        await tx.mutate.assignments.update(update);
+      }
     }),
   },
 });

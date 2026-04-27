@@ -1,6 +1,10 @@
 import { useLingui } from '@lingui/react/macro';
 import { useZero } from '@rocicorp/zero/react';
 import { mutators } from '@splitzy/shared-zero/mutators';
+import {
+  planAddRebalance,
+  type SiblingShareUpdate,
+} from '@splitzy/shared-zero/rebalance-shares';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -11,11 +15,6 @@ import type {
   MutationCallbackOptions,
   UpdateLineItemData,
 } from '@/features/line-items/types';
-import {
-  planAddRebalance,
-  planRemoveRebalance,
-  type SiblingShareUpdate,
-} from '@/features/line-items/utils/rebalance-shares';
 import {
   receiptAtom,
   receiptIdAtom,
@@ -210,24 +209,9 @@ export function useLineItemMutations() {
    * Remove an assignment from a line item.
    */
   const removePersonAssignment = async (
-    itemId: string,
+    _itemId: string,
     assignmentId: string
   ) => {
-    if (!receipt) {
-      return;
-    }
-
-    const lineItem = receipt.lineItems.find((item) => item.id === itemId);
-    if (!lineItem) {
-      console.error(`Line item with id ${itemId} not found`);
-      return;
-    }
-
-    const removed = lineItem.assignments.find((a) => a.id === assignmentId);
-    const remainingActive = lineItem.assignments.filter(
-      (a) => a.id !== assignmentId && !a.deletedAt
-    );
-
     const result = zero.mutate(
       mutators.assignments.delete({ id: assignmentId })
     );
@@ -239,13 +223,6 @@ export function useLineItemMutations() {
       return;
     }
     console.info('Successfully deleted assignment');
-
-    if (removed) {
-      const updates = planRemoveRebalance(removed, remainingActive);
-      if (updates) {
-        await applySiblingUpdates(updates);
-      }
-    }
   };
 
   const handleUpdateLineItem = async (data: UpdateLineItemData) => {
