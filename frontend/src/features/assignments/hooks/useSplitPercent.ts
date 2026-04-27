@@ -236,91 +236,86 @@ export function useSplitPercent({
 
   const handleChange = useCallback(
     (assignmentId: string, value: Decimal) => {
-      setEntries((prev) => {
-        // Delegate the math to the pure module. Any row whose share moved
-        // joins the pending batch so the whole new state is persisted in
-        // one atomic mutator call.
-        const next = rebalance(prev, assignmentId, value);
-        const changedIds = new Set<string>();
-        for (const entry of next) {
-          const before = prev.find((candidate) => candidate.id === entry.id);
-          if (!before || !before.share.equals(entry.share)) {
-            changedIds.add(entry.id);
-          }
+      // Delegate the math to the pure module. Any row whose share moved
+      // joins the pending batch so the whole new state is persisted in
+      // one atomic mutator call.
+      const prev = entries;
+      const next = rebalance(prev, assignmentId, value);
+      const changedIds = new Set<string>();
+      for (const entry of next) {
+        const before = prev.find((candidate) => candidate.id === entry.id);
+        if (!before || !before.share.equals(entry.share)) {
+          changedIds.add(entry.id);
         }
-        if (changedIds.size > 0) {
-          scheduleBatch(next, changedIds);
-        }
-        return next;
-      });
+      }
+      setEntries(next);
+      if (changedIds.size > 0) {
+        scheduleBatch(next, changedIds);
+      }
     },
-    [scheduleBatch]
+    [entries, scheduleBatch]
   );
 
   const handleToggleLock = useCallback(
     (assignmentId: string) => {
-      setEntries((prev) => {
-        // Flip the lock flag for the targeted row only.
-        const next = prev.map((entry) => {
-          if (entry.id === assignmentId) {
-            return { ...entry, locked: !entry.locked };
-          }
-          return entry;
-        });
-
-        // Mirror the new lock state to Zero so it persists.
-        const target = next.find((entry) => entry.id === assignmentId);
-        if (target) {
-          const result = zero.mutate(
-            mutators.assignments.update({
-              id: assignmentId,
-              locked: target.locked,
-            })
-          );
-          surfaceMutationError(result, t`Failed to update lock`);
+      // Flip the lock flag for the targeted row only.
+      const next = entries.map((entry) => {
+        if (entry.id === assignmentId) {
+          return { ...entry, locked: !entry.locked };
         }
-
-        return next;
+        return entry;
       });
+      const target = next.find((entry) => entry.id === assignmentId);
+
+      setEntries(next);
+
+      // Mirror the new lock state to Zero so it persists.
+      if (target) {
+        const result = zero.mutate(
+          mutators.assignments.update({
+            id: assignmentId,
+            locked: target.locked,
+          })
+        );
+        surfaceMutationError(result, t`Failed to update lock`);
+      }
     },
-    [zero, surfaceMutationError, t]
+    [entries, zero, surfaceMutationError, t]
   );
 
   const handleReset = useCallback(() => {
-    setEntries((prev) => {
-      // Reset: every row gets the even share and every lock is cleared.
-      const share = evenShares(prev.length);
-      const next = prev.map((entry) => ({
-        ...entry,
-        share,
-        locked: false,
-      }));
+    // Reset: every row gets the even share and every lock is cleared.
+    const share = evenShares(entries.length);
+    const next = entries.map((entry) => ({
+      ...entry,
+      share,
+      locked: false,
+    }));
 
-      // Cancel any pending debounced batch so it can't clobber this reset.
-      const pending = pendingPersistRef.current;
-      if (pending) {
-        clearTimeout(pending.timer);
-        pendingPersistRef.current = null;
-      }
+    setEntries(next);
 
-      // Single batched transaction so the post-state total is validated once
-      // and locks/shares move atomically.
-      const sharePercentage = share.toDecimalPlaces(4).toNumber();
-      const result = zero.mutate(
-        mutators.assignments.updateShares({
-          receipt_line_item_id: item.id,
-          updates: next.map((entry) => ({
-            id: entry.id,
-            share_percentage: sharePercentage,
-            locked: false,
-          })),
-        })
-      );
-      surfaceMutationError(result, t`Failed to reset shares`);
+    // Cancel any pending debounced batch so it can't clobber this reset.
+    const pending = pendingPersistRef.current;
+    if (pending) {
+      clearTimeout(pending.timer);
+      pendingPersistRef.current = null;
+    }
 
-      return next;
-    });
-  }, [zero, item.id, surfaceMutationError, t]);
+    // Single batched transaction so the post-state total is validated once
+    // and locks/shares move atomically.
+    const sharePercentage = share.toDecimalPlaces(4).toNumber();
+    const result = zero.mutate(
+      mutators.assignments.updateShares({
+        receipt_line_item_id: item.id,
+        updates: next.map((entry) => ({
+          id: entry.id,
+          share_percentage: sharePercentage,
+          locked: false,
+        })),
+      })
+    );
+    surfaceMutationError(result, t`Failed to reset shares`);
+  }, [entries, zero, item.id, surfaceMutationError, t]);
 
   // Pre-compute the integer percents shown in the UI so the component layer
   // never has to deal with rounding math directly.
