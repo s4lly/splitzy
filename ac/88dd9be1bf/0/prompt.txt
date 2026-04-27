@@ -1,0 +1,41 @@
+/grill-me open @CODE_REVIEW_split-percent-issues.md and work on issue #2
+
+---
+
+agree with Option A
+
+---
+
+agree to run in both, A
+
+---
+
+agree on A with the early-bail for missing/already-deleted
+
+---
+
+agree to gut the client-side call entirely
+
+---
+
+agree, A
+
+---
+
+land #2 alone now and gate the residual race behind #5
+
+---
+
+agree on A
+
+---
+
+agree A only
+
+---
+
+Agree on scope A and that order
+
+---
+
+yes, start implementing

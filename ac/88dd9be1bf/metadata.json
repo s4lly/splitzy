@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "ac88dd9be1bf",
+  "strategy": "manual-commit",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/src/components/Receipt/utils/receipt-calculation.ts",
+    "frontend/src/features/line-items/hooks/useLineItemMutations.ts",
+    "frontend/src/features/line-items/utils/rebalance-shares.test.ts",
+    "frontend/src/features/line-items/utils/rebalance-shares.ts",
+    "pnpm-lock.yaml",
+    "shared-zero/package.json",
+    "shared-zero/src/mutators.test.ts",
+    "shared-zero/src/mutators.ts",
+    "shared-zero/src/rebalance-shares.test.ts",
+    "shared-zero/src/rebalance-shares.ts",
+    "shared-zero/tsconfig.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ac/88dd9be1bf/0/metadata.json",
+      "transcript": "/ac/88dd9be1bf/0/full.jsonl",
+      "content_hash": "/ac/88dd9be1bf/0/content_hash.txt",
+      "prompt": "/ac/88dd9be1bf/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 161,
+    "cache_creation_tokens": 128136,
+    "cache_read_tokens": 6251110,
+    "output_tokens": 30938,
+    "api_call_count": 96
+  }
+}
