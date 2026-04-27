@@ -1,6 +1,13 @@
+import { useLingui } from '@lingui/react/macro';
 import { useZero } from '@rocicorp/zero/react';
+import { mutators } from '@splitzy/shared-zero/mutators';
+import {
+  planAddRebalance,
+  type SiblingShareUpdate,
+} from '@splitzy/shared-zero/rebalance-shares';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { ulid } from 'ulid';
 
 import type {
@@ -12,10 +19,10 @@ import {
   receiptAtom,
   receiptIdAtom,
 } from '@/features/receipt-collab/atoms/receiptAtoms';
-import { mutators } from '@/zero/mutators';
 
 export function useLineItemMutations() {
   const zero = useZero();
+  const { t } = useLingui();
   const receipt = useAtomValue(receiptAtom);
   const receiptId = useAtomValue(receiptIdAtom);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -30,6 +37,23 @@ export function useLineItemMutations() {
    */
   const generateId = (): string => {
     return ulid();
+  };
+
+  const applySiblingUpdates = async (updates: SiblingShareUpdate[]) => {
+    const results = await Promise.all(
+      updates.map(
+        (update) => zero.mutate(mutators.assignments.update(update)).client
+      )
+    );
+    const failures = results.flatMap((result, i) =>
+      result.type === 'error'
+        ? [{ id: updates[i].id, message: result.error.message }]
+        : []
+    );
+    if (failures.length > 0) {
+      console.error('Failed to apply sibling rebalance updates:', failures);
+      toast.error(t`Failed to rebalance shares`);
+    }
   };
 
   /**
@@ -59,19 +83,35 @@ export function useLineItemMutations() {
     }
 
     const assignmentId = generateId();
+    const activeSiblings = lineItem.assignments.filter((a) => !a.deletedAt);
+    const rebalance = planAddRebalance(activeSiblings);
+
+    if (rebalance?.warning === 'fully-locked') {
+      toast.warning(
+        t`All existing shares are locked — added with 0% share. Unlock a share to give them a portion.`
+      );
+    }
+
     const result = zero.mutate(
       mutators.assignments.insert({
         id: assignmentId,
         receipt_user_id: receiptUserId,
         receipt_line_item_id: itemId,
+        share_percentage: rebalance ? rebalance.newcomerShare : null,
+        locked: rebalance ? rebalance.newcomerLocked : false,
       })
     );
 
     const clientResult = await result.client;
     if (clientResult.type === 'error') {
       console.error('Failed to create assignment:', clientResult.error.message);
-    } else {
-      console.info('Successfully created assignment');
+      toast.error(t`Failed to add person to item`);
+      return;
+    }
+    console.info('Successfully created assignment');
+
+    if (rebalance) {
+      await applySiblingUpdates(rebalance.siblingUpdates);
     }
   };
 
@@ -110,15 +150,27 @@ export function useLineItemMutations() {
         'Failed to create receipt user:',
         receiptUserClientResult.error.message
       );
+      toast.error(t`Failed to add new person`);
       return;
     }
 
     // Then, create the assignment
+    const activeSiblings = lineItem.assignments.filter((a) => !a.deletedAt);
+    const rebalance = planAddRebalance(activeSiblings);
+
+    if (rebalance?.warning === 'fully-locked') {
+      toast.warning(
+        t`All existing shares are locked — added with 0% share. Unlock a share to give them a portion.`
+      );
+    }
+
     const assignmentResult = zero.mutate(
       mutators.assignments.insert({
         id: assignmentId,
         receipt_user_id: receiptUserId,
         receipt_line_item_id: itemId,
+        share_percentage: rebalance ? rebalance.newcomerShare : null,
+        locked: rebalance ? rebalance.newcomerLocked : false,
       })
     );
 
@@ -128,6 +180,7 @@ export function useLineItemMutations() {
         'Failed to create assignment:',
         assignmentClientResult.error.message
       );
+      toast.error(t`Failed to add person to item`);
       // Rollback: soft-delete the orphaned receipt_user
       try {
         const rollbackResult = zero.mutate(
@@ -145,6 +198,9 @@ export function useLineItemMutations() {
       }
     } else {
       console.info('Successfully created receipt user and assignment');
+      if (rebalance) {
+        await applySiblingUpdates(rebalance.siblingUpdates);
+      }
     }
   };
 
@@ -152,19 +208,9 @@ export function useLineItemMutations() {
    * Remove an assignment from a line item.
    */
   const removePersonAssignment = async (
-    itemId: string,
+    _itemId: string,
     assignmentId: string
   ) => {
-    if (!receipt) {
-      return;
-    }
-
-    const lineItem = receipt.lineItems.find((item) => item.id === itemId);
-    if (!lineItem) {
-      console.error(`Line item with id ${itemId} not found`);
-      return;
-    }
-
     const result = zero.mutate(
       mutators.assignments.delete({ id: assignmentId })
     );
@@ -172,18 +218,32 @@ export function useLineItemMutations() {
     const clientResult = await result.client;
     if (clientResult.type === 'error') {
       console.error('Failed to delete assignment:', clientResult.error.message);
-    } else {
-      console.info('Successfully deleted assignment');
+      toast.error(t`Failed to remove person from item`);
+      return;
     }
+    console.info('Successfully deleted assignment');
   };
 
   const handleUpdateLineItem = async (data: UpdateLineItemData) => {
+    const current = receipt?.lineItems.find((item) => item.id === data.itemId);
+    if (!current) {
+      console.error(`Line item with id ${data.itemId} not found`);
+      toast.error(t`Failed to update item`);
+      return;
+    }
+    const nextQuantity = data.quantity ?? current.quantity.toNumber();
+    const nextPricePerItem =
+      data.price_per_item ?? current.pricePerItem.toNumber();
+    const nextTotalPrice =
+      Math.round(nextQuantity * nextPricePerItem * 100) / 100;
+
     const result = zero.mutate(
       mutators.lineItems.update({
         id: data.itemId,
         name: data.name,
         quantity: data.quantity,
         price_per_item: data.price_per_item,
+        total_price: nextTotalPrice,
       })
     );
 
@@ -191,6 +251,7 @@ export function useLineItemMutations() {
 
     if (clientResult.type === 'error') {
       console.error('Failed to update line item:', clientResult.error.message);
+      toast.error(t`Failed to update item`);
     } else {
       console.info('Successfully updated line item');
     }
@@ -203,7 +264,7 @@ export function useLineItemMutations() {
     setIsDeleting(true);
     try {
       const result = zero.mutate(
-        mutators.lineItems.delete({
+        mutators.lineItems.softDelete({
           id: data.itemId,
         })
       );
@@ -215,6 +276,7 @@ export function useLineItemMutations() {
           'Failed to delete line item:',
           clientResult.error.message
         );
+        toast.error(t`Failed to delete item`);
         options?.onError?.(new Error(clientResult.error.message));
       } else {
         console.info('Successfully deleted line item');

@@ -1,6 +1,7 @@
 packages:
   - frontend
   - zero-query
+  - shared-zero
 
 onlyBuiltDependencies:
   - '@clerk/shared'

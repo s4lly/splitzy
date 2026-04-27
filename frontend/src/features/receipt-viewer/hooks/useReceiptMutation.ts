@@ -1,7 +1,6 @@
 import { useZero } from '@rocicorp/zero/react';
+import { mutators } from '@splitzy/shared-zero/mutators';
 import { useState } from 'react';
-
-import { mutators } from '@/zero/mutators';
 
 interface ReceiptUpdateArgs {
   id: number;

@@ -4,11 +4,11 @@
   "packageManager": "pnpm@10.17.1",
   "scripts": {
     "dev": "pnpm --parallel --filter frontend --filter zero-query run dev",
-    "format": "pnpm --filter frontend run format && pnpm --filter zero-query run format",
-    "format:fix": "pnpm --filter frontend run format:fix && pnpm --filter zero-query run format:fix",
-    "lint": "pnpm --filter frontend run lint && pnpm --filter zero-query run lint",
-    "lint:fix": "pnpm --filter frontend run lint:fix && pnpm --filter zero-query run lint:fix",
-    "type-check": "pnpm --filter frontend run type-check && pnpm --filter zero-query run type-check",
-    "check": "pnpm --filter frontend run check && pnpm --filter zero-query run check"
+    "format": "pnpm --filter frontend run format && pnpm --filter zero-query run format && pnpm --filter @splitzy/shared-zero run format",
+    "format:fix": "pnpm --filter frontend run format:fix && pnpm --filter zero-query run format:fix && pnpm --filter @splitzy/shared-zero run format:fix",
+    "lint": "pnpm --filter frontend run lint && pnpm --filter zero-query run lint && pnpm --filter @splitzy/shared-zero run lint",
+    "lint:fix": "pnpm --filter frontend run lint:fix && pnpm --filter zero-query run lint:fix && pnpm --filter @splitzy/shared-zero run lint:fix",
+    "type-check": "pnpm --filter @splitzy/shared-zero run type-check && pnpm --filter frontend run type-check && pnpm --filter zero-query run type-check",
+    "check": "pnpm --filter @splitzy/shared-zero run check && pnpm --filter frontend run check && pnpm --filter zero-query run check"
   }
 }

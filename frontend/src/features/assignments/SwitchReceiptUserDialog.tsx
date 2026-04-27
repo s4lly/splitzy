@@ -1,5 +1,7 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery, useZero } from '@rocicorp/zero/react';
+import { mutators } from '@splitzy/shared-zero/mutators';
+import { queries } from '@splitzy/shared-zero/queries';
 import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -21,8 +23,6 @@ import {
 } from '@/components/ui/dialog';
 import { getInitials } from '@/lib/get-initials';
 import { cn } from '@/lib/utils';
-import { mutators } from '@/zero/mutators';
-import { queries } from '@/zero/queries';
 
 interface SwitchReceiptUserDialogProps {
   open: boolean;

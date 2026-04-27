@@ -2,12 +2,12 @@ import { createClerkClient } from '@clerk/backend';
 import { serve } from '@hono/node-server';
 import { mustGetMutator, mustGetQuery } from '@rocicorp/zero';
 import { handleMutateRequest, handleQueryRequest } from '@rocicorp/zero/server';
+import { mutators } from '@splitzy/shared-zero/mutators';
+import { queries } from '@splitzy/shared-zero/queries';
+import { schema } from '@splitzy/shared-zero/schema';
 import { Hono } from 'hono';
 
 import { dbProvider } from './db-provider.js';
-import { mutators } from './mutators.js';
-import { queries } from './queries.js';
-import { schema } from './schema.js';
 
 const BUILD_VERSION = process.env.BUILD_VERSION || 'unknown';
 

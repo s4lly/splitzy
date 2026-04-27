@@ -40,6 +40,9 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
           receiptLineItemId: a.receipt_line_item_id,
           createdAt: new Date(a.created_at),
           deletedAt: a.deleted_at ? new Date(a.deleted_at) : null,
+          sharePercentage:
+            a.share_percentage != null ? new Decimal(a.share_percentage) : null,
+          locked: a.locked ?? false,
           receiptUser: a.receipt_user
             ? {
                 id: a.receipt_user.id,

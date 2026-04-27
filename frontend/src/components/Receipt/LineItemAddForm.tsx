@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 import { useZero } from '@rocicorp/zero/react';
+import { mutators } from '@splitzy/shared-zero/mutators';
 import Decimal from 'decimal.js';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
@@ -10,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import type { UpdateLineItemData } from '@/features/line-items/types';
 import { receiptIdAtom } from '@/features/receipt-collab/atoms/receiptAtoms';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-import { mutators } from '@/zero/mutators';
 
 function isStringEmpty(str: string) {
   return str == null || str.trim() === '';

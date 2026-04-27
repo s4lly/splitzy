@@ -16,6 +16,8 @@ const makeAssignment = (
   createdAt: new Date('2024-01-01'),
   deletedAt: null,
   receiptUser: null,
+  sharePercentage: null,
+  locked: false,
   ...overrides,
 });
 
@@ -346,59 +348,19 @@ describe('receipt-calculation candidate logic', () => {
 describe('filterPeople', () => {
   const allPeople = ['1', '2', '3', '4'];
 
-  it('returns all people if none are assigned and no searchValue', () => {
-    expect(calculations.utils.filterPeople(allPeople, [], '')).toEqual(
-      allPeople
-    );
-    expect(calculations.utils.filterPeople(allPeople, [], undefined)).toEqual(
-      allPeople
-    );
+  it('returns all people if none are assigned', () => {
+    expect(calculations.utils.filterPeople(allPeople, [])).toEqual(allPeople);
   });
 
-  it('excludes assigned people if no searchValue', () => {
-    expect(calculations.utils.filterPeople(allPeople, ['2', '4'], '')).toEqual([
+  it('excludes assigned people', () => {
+    expect(calculations.utils.filterPeople(allPeople, ['2', '4'])).toEqual([
       '1',
       '3',
     ]);
   });
 
-  it('filters by searchValue (not applicable with numeric IDs, but kept for compatibility)', () => {
-    // Note: searchValue doesn't make sense with numeric IDs, but function still works
-    expect(calculations.utils.filterPeople(allPeople, [], 'a')).toEqual(
-      allPeople
-    );
-    expect(calculations.utils.filterPeople(allPeople, [], 'AL')).toEqual(
-      allPeople
-    );
-    expect(calculations.utils.filterPeople(allPeople, [], 'b')).toEqual(
-      allPeople
-    );
-  });
-
-  it('excludes assigned people and filters by searchValue', () => {
-    expect(calculations.utils.filterPeople(allPeople, ['3'], 'a')).toEqual([
-      '1',
-      '2',
-      '4',
-    ]);
-    expect(calculations.utils.filterPeople(allPeople, ['1', '4'], 'a')).toEqual(
-      ['2', '3']
-    );
-  });
-
   it('returns empty array if all people are assigned', () => {
-    expect(calculations.utils.filterPeople(allPeople, allPeople, '')).toEqual(
-      []
-    );
-    expect(calculations.utils.filterPeople(allPeople, allPeople, 'a')).toEqual(
-      []
-    );
-  });
-
-  it('returns empty array if no people match searchValue', () => {
-    expect(calculations.utils.filterPeople(allPeople, [], 'zzz')).toEqual(
-      allPeople
-    );
+    expect(calculations.utils.filterPeople(allPeople, allPeople)).toEqual([]);
   });
 });
 
@@ -1077,7 +1039,7 @@ describe('getPersonTotals - edge cases', () => {
   });
 });
 
-describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)', () => {
+describe('pretax.getIndividualItemTotalPrice (pricePerItem × quantity authoritative)', () => {
   const itemId = '11111111-1111-1111-1111-111111111111';
 
   const makeModelLineItem = (overrides: {
@@ -1096,7 +1058,7 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
     assignments: overrides.assignments ?? [],
   });
 
-  it('returns item.totalPrice when no candidate is provided, even if it differs from pricePerItem * quantity', () => {
+  it('returns pricePerItem * quantity when no candidate is provided, even if it differs from stored totalPrice', () => {
     const item = makeModelLineItem({
       pricePerItem: 3.33,
       quantity: 3,
@@ -1105,8 +1067,8 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
 
     const result = calculations.pretax.getIndividualItemTotalPrice(item as any);
 
-    expect(result.equals(new Decimal(10.0))).toBe(true);
-    expect(result.equals(new Decimal(9.99))).toBe(false);
+    expect(result.equals(new Decimal(9.99))).toBe(true);
+    expect(result.equals(new Decimal(10.0))).toBe(false);
   });
 
   it('uses pricePerItem * quantity from candidate override when provided', () => {
@@ -1127,8 +1089,7 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
     expect(result.equals(new Decimal(45))).toBe(true);
   });
 
-  it('reconciles person totals to receipt total using totalPrice for OCR-inconsistent triples', () => {
-    // OCR produced an inconsistent triple: 3.33 * 3 = 9.99, but the printed total is 10.00
+  it('splits pricePerItem * quantity evenly across assigned people, ignoring stale totalPrice', () => {
     const item = makeModelLineItem({
       pricePerItem: 3.33,
       quantity: 3,
@@ -1143,12 +1104,12 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
     const personTotals = calculations.pretax.getAllPersonItemTotals(itemSplits);
     const sum = Decimal.sum(...Array.from(personTotals.values()));
 
-    expect(sum.equals(new Decimal(10.0))).toBe(true);
-    expect(personTotals.get('1')?.equals(new Decimal(5))).toBe(true);
-    expect(personTotals.get('2')?.equals(new Decimal(5))).toBe(true);
+    expect(sum.equals(new Decimal(9.99))).toBe(true);
+    expect(personTotals.get('1')?.equals(new Decimal(4.995))).toBe(true);
+    expect(personTotals.get('2')?.equals(new Decimal(4.995))).toBe(true);
   });
 
-  it('getPersonTotalForItem uses totalPrice when no candidate is provided', () => {
+  it('getPersonTotalForItem uses pricePerItem * quantity when no candidate is provided', () => {
     const item = makeModelLineItem({
       pricePerItem: 3.33,
       quantity: 3,
@@ -1158,10 +1119,10 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
 
     const result = calculations.pretax.getPersonTotalForItem(item as any, '1');
 
-    expect(result.equals(new Decimal(5))).toBe(true);
+    expect(result.equals(new Decimal(4.995))).toBe(true);
   });
 
-  it('getTotalForAllItems sums totalPrice across line items', () => {
+  it('getTotalForAllItems sums pricePerItem * quantity across line items', () => {
     const itemA = makeModelLineItem({
       id: '11111111-1111-1111-1111-111111111111',
       pricePerItem: 3.33,
@@ -1178,7 +1139,9 @@ describe('pretax.getIndividualItemTotalPrice (Phase 1: totalPrice authoritative)
     const receipt = { lineItems: [itemA, itemB] } as any;
 
     expect(
-      calculations.pretax.getTotalForAllItems(receipt).equals(new Decimal(15.0))
+      calculations.pretax
+        .getTotalForAllItems(receipt)
+        .equals(new Decimal(14.99))
     ).toBe(true);
   });
 });
@@ -1397,6 +1360,56 @@ describe('Phase 2: tax distribution via receipt.tax (no rate indirection)', () =
     });
 
     expect(result.get('1')?.equals(new Decimal(50))).toBe(true);
+  });
+
+  it('does not throw and adds no tax when assigned items sum to zero', () => {
+    // Reproduces the all-zero-pretax-shares edge case: totalItemsValue > 0
+    // (an unassigned item carries the receipt total) but every assigned
+    // person's item share is Decimal(0). The proportional branch must
+    // guard against the resulting 0/0 in burden = itemTotal /
+    // totalAssignedItemsValue.
+    const itemA = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    const itemB = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+    const receipt = makeReceipt({
+      lineItems: [
+        makeModelLineItem({
+          id: itemA,
+          pricePerItem: 0,
+          quantity: 1,
+          totalPrice: 0,
+          assignments: [makeAssignment('1', itemA)],
+        }),
+        makeModelLineItem({
+          id: itemB,
+          pricePerItem: 25,
+          quantity: 1,
+          totalPrice: 25,
+          assignments: [],
+        }),
+      ],
+      tax: 5,
+      tip: 0,
+      gratuity: 0,
+    });
+
+    const itemSplits = calculations.pretax.createItemSplitsFromAssignments(
+      receipt.lineItems as any
+    );
+
+    let result: ReturnType<typeof calculations.final.getPersonTotals>;
+    expect(() => {
+      result = calculations.final.getPersonTotals(receipt as any, {
+        itemSplits,
+        taxSplitType: 'proportional',
+      });
+    }).not.toThrow();
+
+    // Person 1 was assigned but their pre-tax share is 0; no tax should be
+    // distributed to them, and the total distributed across personTotals
+    // must be Decimal(0).
+    expect(result!.get('1')?.equals(new Decimal(0))).toBe(true);
+    const distributed = Decimal.sum(...Array.from(result!.values()));
+    expect(distributed.equals(new Decimal(0))).toBe(true);
   });
 
   it('does not add tax in getPersonTotals when taxIncludedInItems is true', () => {

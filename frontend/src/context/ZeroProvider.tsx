@@ -2,6 +2,9 @@ import { useAuth } from '@clerk/react-router';
 import { Trans } from '@lingui/react/macro';
 import type { ZeroOptions } from '@rocicorp/zero';
 import { ZeroProvider } from '@rocicorp/zero/react';
+import { mutators } from '@splitzy/shared-zero/mutators';
+import type { Schema } from '@splitzy/shared-zero/schema';
+import { schema } from '@splitzy/shared-zero/schema';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,8 +12,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { mutators } from '@/zero/mutators';
-import { Schema, schema } from '@/zero/schema';
 
 // Zero environment variables
 const ZERO_CACHE_URL = import.meta.env.VITE_ZERO_CACHE_URL;
@@ -93,7 +94,7 @@ export function AuthenticatedZeroProvider({
       queryURL: ZERO_QUERY_URL,
       mutateURL: ZERO_MUTATE_URL,
       schema,
-      mutators: mutators,
+      mutators,
       // Use Clerk user ID when authenticated, otherwise use persistent anonymous ID
       userID: userId ?? getAnonymousUserID(),
       auth: token,

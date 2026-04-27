@@ -1,5 +1,7 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery, useZero } from '@rocicorp/zero/react';
+import { mutators } from '@splitzy/shared-zero/mutators';
+import { queries } from '@splitzy/shared-zero/queries';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -12,8 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { mutators } from '@/zero/mutators';
-import { queries } from '@/zero/queries';
 
 interface ClaimReceiptUserDialogProps {
   open: boolean;

@@ -2,7 +2,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import { Check, HandGrab, Plus, X } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   DEFAULT_CHIP_COLOR,
@@ -14,9 +14,11 @@ import { Avatar, AvatarBadge, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
 import { ClaimReceiptUserDialog } from '@/features/assignments/ClaimReceiptUserDialog';
 import { SignInToClaimDialog } from '@/features/assignments/SignInToClaimDialog';
+import SplitPercentTab from '@/features/assignments/SplitPercentTab';
 import { SwitchReceiptUserDialog } from '@/features/assignments/SwitchReceiptUserDialog';
 import { getInitials } from '@/lib/get-initials';
 import { cn } from '@/lib/utils';
@@ -98,14 +100,25 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
     newId: string;
     newName: string;
   } | null>(null);
+  const [tabValue, setTabValue] = useState<'assignment' | 'split'>(
+    'assignment'
+  );
+  const activeAssignments = item.assignments.filter(
+    (assignment) => !assignment.deletedAt
+  );
+  const splitDisabled = activeAssignments.length < 2;
+  useEffect(() => {
+    if (splitDisabled && tabValue === 'split') {
+      setTabValue('assignment');
+    }
+  }, [splitDisabled, tabValue]);
   const newPersonSanitized = newPerson.trim();
   const assignmentsAddAllEnabled = useFeatureFlag('assignments-add-all');
 
   const assignedReceiptUserIds = item.assignments.map((a) => a.receiptUserId);
   const filteredReceiptUserIds = calculations.utils.filterPeople(
     possiblePeople,
-    assignedReceiptUserIds,
-    newPersonSanitized
+    assignedReceiptUserIds
   );
 
   const chipColors = getAvatarChipColors(receiptId, possiblePeople);
@@ -178,239 +191,264 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
           possiblePeople={possiblePeople}
         />
       )}
-      <div className="flex flex-col gap-4 rounded-md p-2 md:flex-row">
-        {/* assigned list */}
-        <div className="flex flex-1 flex-col gap-2">
-          {item.assignments.length === 0 ? (
-            <div className="text-sm text-muted-foreground">
-              <Trans>No one assigned yet.</Trans>
-            </div>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {item.assignments.map((assignment) => {
-                const receiptUserId = assignment.receiptUserId;
-                const displayName = getUserDisplayName(assignment);
-                const c = chipColors.get(receiptUserId) || DEFAULT_CHIP_COLOR;
-                const action = getAvatarAction(
-                  assignment,
-                  allAssignments,
-                  clerkUserId
-                );
+      <Tabs
+        value={tabValue}
+        onValueChange={(v) => setTabValue(v as 'assignment' | 'split')}
+        className="w-full"
+      >
+        <TabsList className="grid h-auto w-full grid-cols-2">
+          <TabsTrigger value="assignment">
+            <Trans>Assignment</Trans>
+          </TabsTrigger>
+          <TabsTrigger value="split" disabled={splitDisabled}>
+            <Trans>Split %</Trans>
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="assignment">
+          <div className="flex flex-col gap-4 rounded-md p-2 md:flex-row">
+            {/* assigned list */}
+            <div className="flex flex-1 flex-col gap-2">
+              {item.assignments.length === 0 ? (
+                <div className="text-sm text-muted-foreground">
+                  <Trans>No one assigned yet.</Trans>
+                </div>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {item.assignments.map((assignment) => {
+                    const receiptUserId = assignment.receiptUserId;
+                    const displayName = getUserDisplayName(assignment);
+                    const c =
+                      chipColors.get(receiptUserId) || DEFAULT_CHIP_COLOR;
+                    const action = getAvatarAction(
+                      assignment,
+                      allAssignments,
+                      clerkUserId
+                    );
 
-                return (
-                  <li
-                    key={assignment.id}
-                    className="flex items-center justify-between bg-muted/30 py-2"
-                  >
-                    <div className="flex items-center gap-2">
-                      {action !== null ? (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="size-9 rounded-full p-0"
-                          onClick={() => {
-                            if (action.type === 'claim') {
-                              setClaimTarget({
-                                id: receiptUserId,
-                                name: displayName,
-                              });
-                            } else if (action.type === 'sign-in') {
-                              setSignInTarget({
-                                id: receiptUserId,
-                                name: displayName,
-                              });
-                            } else {
-                              setSwitchTarget({
-                                previousId: action.previousReceiptUserId,
-                                previousName: action.previousDisplayName,
-                                newId: receiptUserId,
-                                newName: displayName,
-                              });
-                            }
-                          }}
-                          aria-label={
-                            action.type === 'sign-in'
-                              ? t`Sign in to claim ${displayName}`
-                              : action.type === 'switch'
-                                ? t`Switch to ${displayName}`
-                                : t`Claim ${displayName}`
-                          }
-                          title={
-                            action.type === 'sign-in'
-                              ? t`Sign in to claim ${displayName}`
-                              : action.type === 'switch'
-                                ? t`Switch to ${displayName}`
-                                : t`Claim ${displayName}`
-                          }
-                        >
-                          <Avatar
-                            key={assignment.id}
-                            className={cn('ring-1', c.ring)}
-                            title={displayName}
-                          >
-                            <AvatarFallback className={cn(c.bg, c.text)}>
-                              <HandGrab />
-                            </AvatarFallback>
-                          </Avatar>
-                        </Button>
-                      ) : (
-                        <Avatar
-                          key={assignment.id}
-                          className={cn(
-                            'ring-1',
-                            c.ring,
-                            assignment.receiptUser?.user?.authUserId ===
-                              clerkUserId && 'overflow-visible'
-                          )}
-                          title={displayName}
-                        >
-                          <AvatarFallback className={cn(c.bg, c.text)}>
-                            {getInitials(displayName)}
-                          </AvatarFallback>
-                          {assignment.receiptUser?.user?.authUserId ===
-                            clerkUserId && (
-                            <AvatarBadge
-                              className="bg-green-600 text-white ring-2 ring-background dark:bg-green-700 dark:text-white"
-                              aria-label={t`Linked to your account`}
-                            >
-                              <Check className="size-2.5" aria-hidden />
-                            </AvatarBadge>
-                          )}
-                        </Avatar>
-                      )}
-                      <span>{displayName}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span>
-                        {formatCurrency(
-                          calculations.pretax.getPersonTotalForItem(
-                            item,
-                            receiptUserId,
-                            {
-                              candidate: {
-                                pricePerItem: formPricePerItem,
-                                quantity: formQuantity,
-                              },
-                            }
-                          )
-                        )}
-                      </span>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="secondary"
-                        onClick={() => onRemoveAssignment(assignment.id)}
-                        aria-label={t`Remove ${displayName}`}
-                        title={t`Remove ${displayName}`}
+                    return (
+                      <li
+                        key={assignment.id}
+                        className="flex items-center justify-between bg-muted/30 py-2"
                       >
-                        <X />
-                      </Button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-
-        {/* assign new */}
-        <div className="flex-1 space-y-2">
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="new-item-assignment" className="font-semibold">
-              <Trans>New:</Trans>
-            </Label>
-            <div className="flex items-center gap-2">
-              <Input
-                id="new-item-assignment"
-                type="text"
-                value={newPerson}
-                onChange={(e) => setNewPerson(e.target.value)}
-                onKeyDown={handleInputKeyDown}
-                placeholder={t`Enter name...`}
-                className="flex-1"
-              />
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => {
-                  if (newPersonSanitized) {
-                    // Check if input matches an existing receiptUserId (ULID)
-                    if (possiblePeople.includes(newPersonSanitized)) {
-                      handleAddExisting(newPersonSanitized);
-                    } else {
-                      handleAddNew(newPersonSanitized);
-                    }
-                  }
-                }}
-                disabled={!newPersonSanitized}
-              >
-                <Trans>Create</Trans>
-              </Button>
+                        <div className="flex items-center gap-2">
+                          {action !== null ? (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-9 rounded-full p-0"
+                              onClick={() => {
+                                if (action.type === 'claim') {
+                                  setClaimTarget({
+                                    id: receiptUserId,
+                                    name: displayName,
+                                  });
+                                } else if (action.type === 'sign-in') {
+                                  setSignInTarget({
+                                    id: receiptUserId,
+                                    name: displayName,
+                                  });
+                                } else {
+                                  setSwitchTarget({
+                                    previousId: action.previousReceiptUserId,
+                                    previousName: action.previousDisplayName,
+                                    newId: receiptUserId,
+                                    newName: displayName,
+                                  });
+                                }
+                              }}
+                              aria-label={
+                                action.type === 'sign-in'
+                                  ? t`Sign in to claim ${displayName}`
+                                  : action.type === 'switch'
+                                    ? t`Switch to ${displayName}`
+                                    : t`Claim ${displayName}`
+                              }
+                              title={
+                                action.type === 'sign-in'
+                                  ? t`Sign in to claim ${displayName}`
+                                  : action.type === 'switch'
+                                    ? t`Switch to ${displayName}`
+                                    : t`Claim ${displayName}`
+                              }
+                            >
+                              <Avatar
+                                key={assignment.id}
+                                className={cn('ring-1', c.ring)}
+                                title={displayName}
+                              >
+                                <AvatarFallback className={cn(c.bg, c.text)}>
+                                  <HandGrab />
+                                </AvatarFallback>
+                              </Avatar>
+                            </Button>
+                          ) : (
+                            <Avatar
+                              key={assignment.id}
+                              className={cn(
+                                'ring-1',
+                                c.ring,
+                                assignment.receiptUser?.user?.authUserId ===
+                                  clerkUserId && 'overflow-visible'
+                              )}
+                              title={displayName}
+                            >
+                              <AvatarFallback className={cn(c.bg, c.text)}>
+                                {getInitials(displayName)}
+                              </AvatarFallback>
+                              {assignment.receiptUser?.user?.authUserId ===
+                                clerkUserId && (
+                                <AvatarBadge
+                                  className="bg-green-600 text-white ring-2 ring-background dark:bg-green-700 dark:text-white"
+                                  aria-label={t`Linked to your account`}
+                                >
+                                  <Check className="size-2.5" aria-hidden />
+                                </AvatarBadge>
+                              )}
+                            </Avatar>
+                          )}
+                          <span>{displayName}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span>
+                            {formatCurrency(
+                              calculations.pretax.getPersonTotalForItem(
+                                item,
+                                receiptUserId,
+                                {
+                                  candidate: {
+                                    pricePerItem: formPricePerItem,
+                                    quantity: formQuantity,
+                                  },
+                                }
+                              )
+                            )}
+                          </span>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="secondary"
+                            onClick={() => onRemoveAssignment(assignment.id)}
+                            aria-label={t`Remove ${displayName}`}
+                            title={t`Remove ${displayName}`}
+                          >
+                            <X />
+                          </Button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
-          </div>
-          <ul className="flex max-h-40 flex-col gap-2 overflow-y-auto">
-            {assignmentsAddAllEnabled &&
-              filteredReceiptUserIds.length > 0 &&
-              newPersonSanitized === '' && (
-                <li className="mb-2">
+
+            {/* assign new */}
+            <div className="flex-1 space-y-2">
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="new-item-assignment" className="font-semibold">
+                  <Trans>New:</Trans>
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="new-item-assignment"
+                    type="text"
+                    value={newPerson}
+                    onChange={(e) => setNewPerson(e.target.value)}
+                    onKeyDown={handleInputKeyDown}
+                    placeholder={t`Enter name...`}
+                    className="flex-1"
+                  />
                   <Button
                     type="button"
                     size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      filteredReceiptUserIds.forEach((receiptUserId) =>
-                        handleAddExisting(receiptUserId)
-                      )
-                    }
-                    disabled={filteredReceiptUserIds.length === 0}
-                    className="w-full"
+                    onClick={() => {
+                      if (newPersonSanitized) {
+                        // Check if input matches an existing receiptUserId (ULID)
+                        if (possiblePeople.includes(newPersonSanitized)) {
+                          handleAddExisting(newPersonSanitized);
+                        } else {
+                          handleAddNew(newPersonSanitized);
+                        }
+                      }
+                    }}
+                    disabled={!newPersonSanitized}
                   >
-                    <Trans>Assign All</Trans>
+                    <Trans>Create</Trans>
                   </Button>
-                </li>
-              )}
-            {filteredReceiptUserIds.length === 0 ? (
-              <li>
-                <div className="text-center">
-                  {newPersonSanitized ? (
-                    <span className="text-sm text-muted-foreground">
-                      <Trans>No matching people. Press Enter to add.</Trans>
-                    </span>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">
-                      <Trans>All people assigned.</Trans>
-                    </span>
-                  )}
                 </div>
-              </li>
-            ) : (
-              filteredReceiptUserIds.map((receiptUserId) => {
-                const displayName =
-                  getDisplayNameForReceiptUserId(receiptUserId);
-
-                return (
-                  <li
-                    key={receiptUserId}
-                    className="flex items-center justify-between gap-2 rounded border-b bg-muted/10 pb-2 last-of-type:border-b-0"
-                  >
-                    <span>{displayName}</span>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleAddExisting(receiptUserId)}
-                      className="size-8 rounded-full"
-                      aria-label={t`Assign ${displayName}`}
-                      title={t`Assign ${displayName}`}
-                    >
-                      <Plus />
-                    </Button>
+              </div>
+              <ul className="flex max-h-40 flex-col gap-2 overflow-y-auto">
+                {assignmentsAddAllEnabled &&
+                  filteredReceiptUserIds.length > 0 &&
+                  newPersonSanitized === '' && (
+                    <li className="mb-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          filteredReceiptUserIds.forEach((receiptUserId) =>
+                            handleAddExisting(receiptUserId)
+                          )
+                        }
+                        disabled={filteredReceiptUserIds.length === 0}
+                        className="w-full"
+                      >
+                        <Trans>Assign All</Trans>
+                      </Button>
+                    </li>
+                  )}
+                {filteredReceiptUserIds.length === 0 ? (
+                  <li>
+                    <div className="text-center">
+                      {newPersonSanitized ? (
+                        <span className="text-sm text-muted-foreground">
+                          <Trans>No matching people. Press Enter to add.</Trans>
+                        </span>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">
+                          <Trans>All people assigned.</Trans>
+                        </span>
+                      )}
+                    </div>
                   </li>
-                );
-              })
-            )}
-          </ul>
-        </div>
-      </div>
+                ) : (
+                  filteredReceiptUserIds.map((receiptUserId) => {
+                    const displayName =
+                      getDisplayNameForReceiptUserId(receiptUserId);
+
+                    return (
+                      <li
+                        key={receiptUserId}
+                        className="flex items-center justify-between gap-2 rounded border-b bg-muted/10 pb-2 last-of-type:border-b-0"
+                      >
+                        <span>{displayName}</span>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleAddExisting(receiptUserId)}
+                          className="size-8 rounded-full"
+                          aria-label={t`Assign ${displayName}`}
+                          title={t`Assign ${displayName}`}
+                        >
+                          <Plus />
+                        </Button>
+                      </li>
+                    );
+                  })
+                )}
+              </ul>
+            </div>
+          </div>
+        </TabsContent>
+        <TabsContent value="split">
+          <SplitPercentTab
+            item={item}
+            chipColors={chipColors}
+            formPricePerItem={formPricePerItem}
+            formQuantity={formQuantity}
+          />
+        </TabsContent>
+      </Tabs>
     </>
   );
 };

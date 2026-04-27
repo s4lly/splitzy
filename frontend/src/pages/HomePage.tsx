@@ -2,6 +2,7 @@ import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery } from '@rocicorp/zero/react';
+import { queries } from '@splitzy/shared-zero/queries';
 import { motion } from 'framer-motion';
 import { useSetAtom } from 'jotai';
 import { AlertCircle } from 'lucide-react';
@@ -22,7 +23,6 @@ import { ReceiptUploader } from '@/features/receipt-upload/ReceiptUploader';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { fromZeroReceipt } from '@/lib/receiptTypes';
-import { queries } from '@/zero/queries';
 
 const API_URL =
   import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';

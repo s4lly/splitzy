@@ -1,4 +1,5 @@
 import { useQuery } from '@rocicorp/zero/react';
+import { queries } from '@splitzy/shared-zero/queries';
 import { Provider as JotaiProvider } from 'jotai';
 import { Navigate, useParams } from 'react-router-dom';
 
@@ -10,7 +11,6 @@ import {
 } from '@/context/ReceiptContext';
 import { ReceiptCollabContent } from '@/features/receipt-collab/components/ReceiptCollabContent';
 import { useReceiptNotFoundRetry } from '@/hooks/useReceiptNotFoundRetry';
-import { queries } from '@/zero/queries';
 
 /**
  * Root page component for collaborative receipt viewing/editing.

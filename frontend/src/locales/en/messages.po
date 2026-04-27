@@ -34,6 +34,16 @@ msgstr "{0} {1, plural, one {item} other {items}} assigned"
 msgid "{0} of total"
 msgstr "{0} of total"
 
+#. placeholder {0}: entry.displayName
+#: src/features/assignments/SplitPercentTab.tsx:96
+msgid "{0} percent"
+msgstr "{0} percent"
+
+#. placeholder {0}: entry.displayName
+#: src/features/assignments/SplitPercentTab.tsx:115
+msgid "{0} share slider"
+msgstr "{0} share slider"
+
 #. placeholder {0}: person.displayName
 #: src/features/bill-split/components/BillBreakdownView.tsx:276
 msgid "{0}'s Items"
@@ -90,11 +100,16 @@ msgstr "Add Users"
 msgid "After tax"
 msgstr "After tax"
 
+#: src/features/line-items/hooks/useLineItemMutations.ts:92
+#: src/features/line-items/hooks/useLineItemMutations.ts:164
+msgid "All existing shares are locked — added with 0% share. Unlock a share to give them a portion."
+msgstr "All existing shares are locked — added with 0% share. Unlock a share to give them a portion."
+
 #: src/features/bill-split/components/AssignmentProgressCollab.tsx:42
 msgid "All items assigned"
 msgstr "All items assigned"
 
-#: src/features/assignments/assignments-list.tsx:382
+#: src/features/assignments/assignments-list.tsx:410
 msgid "All people assigned."
 msgstr "All people assigned."
 
@@ -130,8 +145,8 @@ msgstr "Appearance settings content would go here."
 #~ msgid "Assign {0}"
 #~ msgstr "Assign {0}"
 
-#: src/features/assignments/assignments-list.tsx:402
-#: src/features/assignments/assignments-list.tsx:403
+#: src/features/assignments/assignments-list.tsx:430
+#: src/features/assignments/assignments-list.tsx:431
 msgid "Assign {displayName}"
 msgstr "Assign {displayName}"
 
@@ -139,7 +154,11 @@ msgstr "Assign {displayName}"
 msgid "Assign {itemLabel}"
 msgstr "Assign {itemLabel}"
 
-#: src/features/assignments/assignments-list.tsx:369
+#: src/features/assignments/SplitPercentTab.tsx:50
+msgid "Assign 2+ people to customize the split."
+msgstr "Assign 2+ people to customize the split."
+
+#: src/features/assignments/assignments-list.tsx:397
 msgid "Assign All"
 msgstr "Assign All"
 
@@ -160,11 +179,15 @@ msgstr "Assigned to:"
 msgid "Assigned Users"
 msgstr "Assigned Users"
 
+#: src/features/assignments/assignments-list.tsx:201
+msgid "Assignment"
+msgstr "Assignment"
+
 #: src/features/bill-split/components/AssignmentProgressCollab.tsx:44
 msgid "Assignment in progress"
 msgstr "Assignment in progress"
 
-#: src/context/ZeroProvider.tsx:126
+#: src/context/ZeroProvider.tsx:127
 msgid "Authentication Error"
 msgstr "Authentication Error"
 
@@ -227,8 +250,8 @@ msgstr "Claim"
 msgid "Claim \"{displayName}\" as yourself? This will link this user to your account."
 msgstr "Claim \"{displayName}\" as yourself? This will link this user to your account."
 
-#: src/features/assignments/assignments-list.tsx:237
-#: src/features/assignments/assignments-list.tsx:244
+#: src/features/assignments/assignments-list.tsx:265
+#: src/features/assignments/assignments-list.tsx:272
 msgid "Claim {displayName}"
 msgstr "Claim {displayName}"
 
@@ -287,7 +310,7 @@ msgstr "Control who can see the receipt image."
 msgid "Could not restore your original claim. Please try claiming again manually."
 msgstr "Could not restore your original claim. Please try claiming again manually."
 
-#: src/features/assignments/assignments-list.tsx:348
+#: src/features/assignments/assignments-list.tsx:376
 msgid "Create"
 msgstr "Create"
 
@@ -403,7 +426,7 @@ msgstr "Enable or disable features in your application."
 msgid "Enter name"
 msgstr "Enter name"
 
-#: src/features/assignments/assignments-list.tsx:330
+#: src/features/assignments/assignments-list.tsx:358
 msgid "Enter name..."
 msgstr "Enter name..."
 
@@ -443,6 +466,15 @@ msgstr "Evenly"
 msgid "Every split is saved. Review, adjust, or settle up any time."
 msgstr "Every split is saved. Review, adjust, or settle up any time."
 
+#: src/features/line-items/hooks/useLineItemMutations.ts:154
+msgid "Failed to add new person"
+msgstr "Failed to add new person"
+
+#: src/features/line-items/hooks/useLineItemMutations.ts:109
+#: src/features/line-items/hooks/useLineItemMutations.ts:184
+msgid "Failed to add person to item"
+msgstr "Failed to add person to item"
+
 #: src/pages/PreviewPage.tsx:96
 msgid "Failed to analyze document"
 msgstr "Failed to analyze document"
@@ -455,6 +487,10 @@ msgstr "Failed to claim person"
 #: src/features/summary-card/GratuityEditor.tsx:114
 #~ msgid "Failed to delete gratuity. Please try again."
 #~ msgstr "Failed to delete gratuity. Please try again."
+
+#: src/features/line-items/hooks/useLineItemMutations.ts:280
+msgid "Failed to delete item"
+msgstr "Failed to delete item"
 
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:79
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:84
@@ -469,13 +505,25 @@ msgstr "Failed to delete receipt"
 msgid "Failed to download image"
 msgstr "Failed to download image"
 
-#: src/context/ZeroProvider.tsx:130
+#: src/context/ZeroProvider.tsx:131
 msgid "Failed to fetch authentication token. Your requests may not be properly authenticated."
 msgstr "Failed to fetch authentication token. Your requests may not be properly authenticated."
 
 #: src/features/receipt-image/ReceiptImageViewer.tsx:143
 msgid "Failed to load receipt image"
 msgstr "Failed to load receipt image"
+
+#: src/features/line-items/hooks/useLineItemMutations.ts:55
+msgid "Failed to rebalance shares"
+msgstr "Failed to rebalance shares"
+
+#: src/features/line-items/hooks/useLineItemMutations.ts:222
+msgid "Failed to remove person from item"
+msgstr "Failed to remove person from item"
+
+#: src/features/assignments/hooks/useSplitPercent.ts:319
+msgid "Failed to reset shares"
+msgstr "Failed to reset shares"
 
 #: src/features/summary-card/GratuityEditor.tsx:61
 #~ msgid "Failed to save gratuity. Please try again."
@@ -499,6 +547,15 @@ msgstr "Failed to switch person"
 msgid "Failed to update image visibility"
 msgstr "Failed to update image visibility"
 
+#: src/features/line-items/hooks/useLineItemMutations.ts:232
+#: src/features/line-items/hooks/useLineItemMutations.ts:255
+msgid "Failed to update item"
+msgstr "Failed to update item"
+
+#: src/features/assignments/hooks/useSplitPercent.ts:280
+msgid "Failed to update lock"
+msgstr "Failed to update lock"
+
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:65
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:68
 msgid "Failed to update payment status"
@@ -507,6 +564,10 @@ msgstr "Failed to update payment status"
 #: src/features/summary-card/TipEditor.tsx:193
 #~ msgid "Failed to update setting. Please try again."
 #~ msgstr "Failed to update setting. Please try again."
+
+#: src/features/assignments/hooks/useSplitPercent.ts:209
+msgid "Failed to update shares"
+msgstr "Failed to update shares"
 
 #: src/pages/SettingsPage.tsx:22
 #: src/pages/SettingsPage.tsx:133
@@ -612,10 +673,16 @@ msgstr "Items total"
 msgid "Items Total:"
 msgstr "Items Total:"
 
-#: src/features/assignments/assignments-list.tsx:275
+#: src/features/assignments/assignments-list.tsx:303
 #: src/features/bill-split/components/BillBreakdownView.tsx:131
 msgid "Linked to your account"
 msgstr "Linked to your account"
+
+#. placeholder {0}: entry.displayName
+#: src/features/assignments/SplitPercentTab.tsx:126
+#: src/features/assignments/SplitPercentTab.tsx:131
+msgid "Lock {0}"
+msgstr "Lock {0}"
 
 #: src/components/Header.tsx:21
 msgid "Main navigation"
@@ -673,7 +740,7 @@ msgstr "Move your claim from \"{0}\" to \"{1}\"? Your account will be linked to 
 msgid "My Receipts"
 msgstr "My Receipts"
 
-#: src/features/assignments/assignments-list.tsx:321
+#: src/features/assignments/assignments-list.tsx:349
 msgid "New:"
 msgstr "New:"
 
@@ -689,11 +756,11 @@ msgstr "No items assigned yet"
 msgid "No items have been assigned yet. The total has been divided equally among all people by default."
 msgstr "No items have been assigned yet. The total has been divided equally among all people by default."
 
-#: src/features/assignments/assignments-list.tsx:378
+#: src/features/assignments/assignments-list.tsx:406
 msgid "No matching people. Press Enter to add."
 msgstr "No matching people. Press Enter to add."
 
-#: src/features/assignments/assignments-list.tsx:186
+#: src/features/assignments/assignments-list.tsx:213
 msgid "No one assigned yet."
 msgstr "No one assigned yet."
 
@@ -851,8 +918,8 @@ msgstr "receipt splitting, simplified"
 msgid "Receipt Viewer"
 msgstr "Receipt Viewer"
 
-#: src/features/assignments/assignments-list.tsx:304
-#: src/features/assignments/assignments-list.tsx:305
+#: src/features/assignments/assignments-list.tsx:332
+#: src/features/assignments/assignments-list.tsx:333
 msgid "Remove {displayName}"
 msgstr "Remove {displayName}"
 
@@ -872,16 +939,20 @@ msgstr "Reset crop"
 msgid "Reset image zoom"
 msgstr "Reset image zoom"
 
+#: src/features/assignments/SplitPercentTab.tsx:143
+msgid "Reset to even split"
+msgstr "Reset to even split"
+
 #. placeholder {0}: cornerLabel[corner]
 #: src/features/image-prep/components/EraseRectangle.tsx:386
 msgid "Resize from {0} corner. Use arrow keys to resize, Shift+arrow for larger steps."
 msgstr "Resize from {0} corner. Use arrow keys to resize, Shift+arrow for larger steps."
 
-#: src/context/ZeroProvider.tsx:153
+#: src/context/ZeroProvider.tsx:154
 msgid "Retry"
 msgstr "Retry"
 
-#: src/context/ZeroProvider.tsx:148
+#: src/context/ZeroProvider.tsx:149
 msgid "Retrying..."
 msgstr "Retrying..."
 
@@ -921,8 +992,8 @@ msgstr "Show QR Code"
 msgid "Sign in or create account"
 msgstr "Sign in or create account"
 
-#: src/features/assignments/assignments-list.tsx:234
-#: src/features/assignments/assignments-list.tsx:241
+#: src/features/assignments/assignments-list.tsx:262
+#: src/features/assignments/assignments-list.tsx:269
 msgid "Sign in to claim {displayName}"
 msgstr "Sign in to claim {displayName}"
 
@@ -938,6 +1009,10 @@ msgstr "Sign in to see your history →"
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:164
 msgid "Something went wrong"
 msgstr "Something went wrong"
+
+#: src/features/assignments/assignments-list.tsx:204
+msgid "Split %"
+msgstr "Split %"
 
 #: src/features/bill-split/components/EvenSplitTabCollab.tsx:58
 msgid "Split between how many people?"
@@ -971,8 +1046,8 @@ msgstr "Summary"
 msgid "Switch"
 msgstr "Switch"
 
-#: src/features/assignments/assignments-list.tsx:236
-#: src/features/assignments/assignments-list.tsx:243
+#: src/features/assignments/assignments-list.tsx:264
+#: src/features/assignments/assignments-list.tsx:271
 msgid "Switch to {displayName}"
 msgstr "Switch to {displayName}"
 
@@ -1139,6 +1214,12 @@ msgstr "Unknown date"
 #: src/components/Receipt/ReceiptHistory.tsx:72
 msgid "Unknown Merchant"
 msgstr "Unknown Merchant"
+
+#. placeholder {0}: entry.displayName
+#: src/features/assignments/SplitPercentTab.tsx:125
+#: src/features/assignments/SplitPercentTab.tsx:130
+msgid "Unlock {0}"
+msgstr "Unlock {0}"
 
 #: src/features/summary-card/EditableDetail.tsx:34
 #: src/features/summary-card/EditableDetail.tsx:35
