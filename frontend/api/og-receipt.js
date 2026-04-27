@@ -81,13 +81,12 @@ function buildTagBlock({ pageTitle, ogTitle, description, url, image }) {
 }
 
 function renderReceiptTags({ merchant, dateIso, total, host, id }) {
-  const merchantText = merchant && merchant.trim() ? merchant.trim() : 'Receipt';
+  const merchantText =
+    merchant && merchant.trim() ? merchant.trim() : 'Receipt';
   const dateText = formatDate(dateIso);
   const totalText = formatTotal(total);
 
-  const ogTitle = dateText
-    ? `${merchantText} — ${dateText}`
-    : merchantText;
+  const ogTitle = dateText ? `${merchantText} — ${dateText}` : merchantText;
   const pageTitle = `${ogTitle} · Splitzy`;
 
   const description = totalText
