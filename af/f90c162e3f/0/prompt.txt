@@ -1,0 +1,12 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/hooks/useSplitPercent.ts` around lines 196
+- 205, handleChange, handleToggleLock, and handleReset currently invoke side
+effects (persistChangedShares and zero.mutate) from inside the setEntries
+updater, which is impure and can double-fire under React 19 StrictMode; fix by
+moving all side effects out of the updater: compute next = rebalance(prev,
+assignmentId, value) (or read prev = entries and compute next), call
+setEntries(next) synchronously, and then invoke persistChangedShares(prev, next)
+and zero.mutate(...) outside the updater (or defer them with queueMicrotask(()
+=> ...)) so the updater remains pure; apply the same pattern for
+handleToggleLock and handleReset where zero.mutate is called.
