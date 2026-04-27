@@ -1,0 +1,17 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/assignments/hooks/useSplitPercent.ts` around lines 165
+- 173, The three calls to zero.mutate(...) that invoke
+mutators.assignments.update (used to persist share_percentage changes and
+resets) are currently fire-and-forget (using the void operator) and can produce
+unhandled rejections; update each site to handle promise rejections by attaching
+a .catch(...) that calls toast.error with a sensible message (e.g., error
+instanceof Error ? error.message : 'Failed to update assignment') so server-side
+errors like wouldExceedShareLimit or missing rows surface to users; locate the
+three occurrences of zero.mutate(mutators.assignments.update(...)) in
+useSplitPercent.ts and replace the void usage with the promise chain that calls
+toast.error on failure (or equivalently wrap in try/catch when awaiting).
+
+---
+
+use translation skill to check if any locales have missing translations and translate and add missing if they exist

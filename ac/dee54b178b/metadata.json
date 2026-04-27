@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "acdee54b178b",
+  "strategy": "manual-commit",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "frontend/src/features/assignments/hooks/useSplitPercent.ts",
+    "frontend/src/locales/de/messages.po",
+    "frontend/src/locales/en/messages.po",
+    "frontend/src/locales/es/messages.po",
+    "frontend/src/locales/fr/messages.po",
+    "frontend/src/locales/ja/messages.po",
+    "frontend/src/locales/zh/messages.po"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ac/dee54b178b/0/metadata.json",
+      "transcript": "/ac/dee54b178b/0/full.jsonl",
+      "content_hash": "/ac/dee54b178b/0/content_hash.txt",
+      "prompt": "/ac/dee54b178b/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 56,
+    "cache_creation_tokens": 53318,
+    "cache_read_tokens": 1640829,
+    "output_tokens": 11959,
+    "api_call_count": 37
+  }
+}
