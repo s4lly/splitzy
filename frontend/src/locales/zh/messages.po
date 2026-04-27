@@ -497,6 +497,10 @@ msgstr "重新分配份额失败"
 msgid "Failed to remove person from item"
 msgstr "从项目移除成员失败"
 
+#: src/features/assignments/hooks/useSplitPercent.ts:319
+msgid "Failed to reset shares"
+msgstr "重置份额失败"
+
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:115
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:145
 #: src/features/assignments/SwitchReceiptUserDialog.tsx:149
@@ -515,10 +519,18 @@ msgstr "更新图片可见性失败"
 msgid "Failed to update item"
 msgstr "更新项目失败"
 
+#: src/features/assignments/hooks/useSplitPercent.ts:280
+msgid "Failed to update lock"
+msgstr "更新锁定失败"
+
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:65
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:68
 msgid "Failed to update payment status"
 msgstr "更新支付状态失败"
+
+#: src/features/assignments/hooks/useSplitPercent.ts:209
+msgid "Failed to update shares"
+msgstr "更新份额失败"
 
 #: src/pages/SettingsPage.tsx:22
 #: src/pages/SettingsPage.tsx:133

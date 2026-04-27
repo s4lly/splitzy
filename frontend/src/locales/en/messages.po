@@ -521,6 +521,10 @@ msgstr "Failed to rebalance shares"
 msgid "Failed to remove person from item"
 msgstr "Failed to remove person from item"
 
+#: src/features/assignments/hooks/useSplitPercent.ts:319
+msgid "Failed to reset shares"
+msgstr "Failed to reset shares"
+
 #: src/features/summary-card/GratuityEditor.tsx:61
 #~ msgid "Failed to save gratuity. Please try again."
 #~ msgstr "Failed to save gratuity. Please try again."
@@ -548,6 +552,10 @@ msgstr "Failed to update image visibility"
 msgid "Failed to update item"
 msgstr "Failed to update item"
 
+#: src/features/assignments/hooks/useSplitPercent.ts:280
+msgid "Failed to update lock"
+msgstr "Failed to update lock"
+
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:65
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:68
 msgid "Failed to update payment status"
@@ -556,6 +564,10 @@ msgstr "Failed to update payment status"
 #: src/features/summary-card/TipEditor.tsx:193
 #~ msgid "Failed to update setting. Please try again."
 #~ msgstr "Failed to update setting. Please try again."
+
+#: src/features/assignments/hooks/useSplitPercent.ts:209
+msgid "Failed to update shares"
+msgstr "Failed to update shares"
 
 #: src/pages/SettingsPage.tsx:22
 #: src/pages/SettingsPage.tsx:133

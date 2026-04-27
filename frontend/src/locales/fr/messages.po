@@ -521,6 +521,10 @@ msgstr "Échec du rééquilibrage des parts"
 msgid "Failed to remove person from item"
 msgstr "Échec de la suppression de la personne de l'article"
 
+#: src/features/assignments/hooks/useSplitPercent.ts:319
+msgid "Failed to reset shares"
+msgstr "Échec de la réinitialisation des parts"
+
 #: src/features/summary-card/GratuityEditor.tsx:61
 #~ msgid "Failed to save gratuity. Please try again."
 #~ msgstr "Échec de l'enregistrement du pourboire. Veuillez réessayer."
@@ -548,6 +552,10 @@ msgstr "Échec de la mise à jour de la visibilité de l'image"
 msgid "Failed to update item"
 msgstr "Échec de la mise à jour de l'article"
 
+#: src/features/assignments/hooks/useSplitPercent.ts:280
+msgid "Failed to update lock"
+msgstr "Échec de la mise à jour du verrou"
+
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:65
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:68
 msgid "Failed to update payment status"
@@ -556,6 +564,10 @@ msgstr "Échec de la mise à jour du statut de paiement"
 #: src/features/summary-card/TipEditor.tsx:193
 #~ msgid "Failed to update setting. Please try again."
 #~ msgstr "Échec de la mise à jour du paramètre. Veuillez réessayer."
+
+#: src/features/assignments/hooks/useSplitPercent.ts:209
+msgid "Failed to update shares"
+msgstr "Échec de la mise à jour des parts"
 
 #: src/pages/SettingsPage.tsx:22
 #: src/pages/SettingsPage.tsx:133

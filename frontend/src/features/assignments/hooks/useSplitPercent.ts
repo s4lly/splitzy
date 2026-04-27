@@ -1,7 +1,9 @@
+import { useLingui } from '@lingui/react/macro';
 import { useZero } from '@rocicorp/zero/react';
 import { mutators } from '@splitzy/shared-zero/mutators';
 import Decimal from 'decimal.js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { mergeSeedEntries } from '@/features/assignments/utils/merge-seed-entries';
 import {
@@ -52,6 +54,32 @@ export function useSplitPercent({
   item,
 }: UseSplitPercentArgs): UseSplitPercentResult {
   const zero = useZero();
+  const { t } = useLingui();
+
+  const surfaceMutationError = useCallback(
+    (
+      result: { client: Promise<{ type: string; error?: { message: string } }> },
+      failureMessage: string
+    ) => {
+      result.client
+        .then((clientResult) => {
+          if (clientResult.type === 'error') {
+            console.error(failureMessage, clientResult.error?.message);
+            toast.error(failureMessage, {
+              description: clientResult.error?.message,
+            });
+          }
+        })
+        .catch((error) => {
+          console.error(failureMessage, error);
+          toast.error(failureMessage, {
+            description:
+              error instanceof Error ? error.message : undefined,
+          });
+        });
+    },
+    []
+  );
 
   // Only active assignments participate in the split; soft-deleted rows would
   // otherwise skew the even-share fallback and show ghost rows in the UI.
@@ -169,7 +197,7 @@ export function useSplitPercent({
 
   const flushBatch = useCallback(
     (snapshot: DraftEntry[]) => {
-      void zero.mutate(
+      const result = zero.mutate(
         mutators.assignments.updateShares({
           receipt_line_item_id: item.id,
           updates: snapshot.map((entry) => ({
@@ -178,9 +206,10 @@ export function useSplitPercent({
           })),
         })
       );
+      surfaceMutationError(result, t`Failed to update shares`);
       pendingPersistRef.current = null;
     },
-    [zero, item.id]
+    [zero, item.id, surfaceMutationError, t]
   );
 
   const scheduleBatch = useCallback(
@@ -242,18 +271,19 @@ export function useSplitPercent({
         // Mirror the new lock state to Zero so it persists.
         const target = next.find((entry) => entry.id === assignmentId);
         if (target) {
-          void zero.mutate(
+          const result = zero.mutate(
             mutators.assignments.update({
               id: assignmentId,
               locked: target.locked,
             })
           );
+          surfaceMutationError(result, t`Failed to update lock`);
         }
 
         return next;
       });
     },
-    [zero]
+    [zero, surfaceMutationError, t]
   );
 
   const handleReset = useCallback(() => {
@@ -276,7 +306,7 @@ export function useSplitPercent({
       // Single batched transaction so the post-state total is validated once
       // and locks/shares move atomically.
       const sharePercentage = share.toDecimalPlaces(4).toNumber();
-      void zero.mutate(
+      const result = zero.mutate(
         mutators.assignments.updateShares({
           receipt_line_item_id: item.id,
           updates: next.map((entry) => ({
@@ -286,10 +316,11 @@ export function useSplitPercent({
           })),
         })
       );
+      surfaceMutationError(result, t`Failed to reset shares`);
 
       return next;
     });
-  }, [zero, item.id]);
+  }, [zero, item.id, surfaceMutationError, t]);
 
   // Pre-compute the integer percents shown in the UI so the component layer
   // never has to deal with rounding math directly.

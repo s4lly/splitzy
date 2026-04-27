@@ -521,6 +521,10 @@ msgstr "Error al reequilibrar las proporciones"
 msgid "Failed to remove person from item"
 msgstr "Error al quitar persona del artículo"
 
+#: src/features/assignments/hooks/useSplitPercent.ts:319
+msgid "Failed to reset shares"
+msgstr "Error al restablecer las proporciones"
+
 #: src/features/summary-card/GratuityEditor.tsx:61
 #~ msgid "Failed to save gratuity. Please try again."
 #~ msgstr "Error al guardar la propina. Por favor, inténtelo de nuevo."
@@ -548,6 +552,10 @@ msgstr "Error al actualizar la visibilidad de la imagen"
 msgid "Failed to update item"
 msgstr "Error al actualizar el artículo"
 
+#: src/features/assignments/hooks/useSplitPercent.ts:280
+msgid "Failed to update lock"
+msgstr "Error al actualizar el bloqueo"
+
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:65
 #: src/features/bill-split/components/BillBreakdownCollab.tsx:68
 msgid "Failed to update payment status"
@@ -556,6 +564,10 @@ msgstr "No se pudo actualizar el estado de pago"
 #: src/features/summary-card/TipEditor.tsx:193
 #~ msgid "Failed to update setting. Please try again."
 #~ msgstr "Error al actualizar la configuración. Por favor, inténtelo de nuevo."
+
+#: src/features/assignments/hooks/useSplitPercent.ts:209
+msgid "Failed to update shares"
+msgstr "Error al actualizar las proporciones"
 
 #: src/pages/SettingsPage.tsx:22
 #: src/pages/SettingsPage.tsx:133
