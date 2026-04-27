@@ -221,7 +221,7 @@ Use this checklist before/after production deploys to avoid auth and Zero sync i
 
 ## Project Structure
 
-```
+```text
 splitzy/
 ├── backend/                  # Flask API
 │   ├── app.py
