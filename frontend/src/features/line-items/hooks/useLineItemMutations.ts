@@ -45,16 +45,15 @@ export function useLineItemMutations() {
         (update) => zero.mutate(mutators.assignments.update(update)).client
       )
     );
-    results.forEach((result, i) => {
-      if (result.type === 'error') {
-        console.error(
-          'Failed to apply sibling rebalance update:',
-          updates[i].id,
-          result.error.message
-        );
-        toast.error(t`Failed to rebalance shares`);
-      }
-    });
+    const failures = results.flatMap((result, i) =>
+      result.type === 'error'
+        ? [{ id: updates[i].id, message: result.error.message }]
+        : []
+    );
+    if (failures.length > 0) {
+      console.error('Failed to apply sibling rebalance updates:', failures);
+      toast.error(t`Failed to rebalance shares`);
+    }
   };
 
   /**
