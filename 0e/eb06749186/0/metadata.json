@@ -1,0 +1,76 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "0eeb06749186",
+  "session_id": "8a2659e4-154d-40ab-bb0a-31a37f42f009",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-27T03:41:56.832759Z",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "frontend/src/features/line-items/hooks/useLineItemMutations.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "c5c2c2be1fc1",
+  "token_usage": {
+    "input_tokens": 16,
+    "cache_creation_tokens": 19323,
+    "cache_read_tokens": 173504,
+    "output_tokens": 1106,
+    "api_call_count": 6
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-27T03:41:56.829482Z",
+    "agent_lines": 9,
+    "agent_removed": 10,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 9,
+    "total_lines_changed": 19,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 4804,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".agents/skills/grill-me/SKILL.md": 10,
+        ".claude/settings.local.json": 7,
+        "2026-04-04-194954-verify-each-finding-against-the-current-code-and.txt": 709,
+        "CODE_REVIEW_split-calculation-fixes-phase-4-6.md": 168,
+        "CODE_REVIEW_split-percent-issues.md": 232,
+        "IMAGE_PREP_PLAN.md": 162,
+        "REFACTOR_PROMPT.md": 126,
+        "docs/assignment-code-journey.md": 683,
+        "docs/custom-splits-architecture-notes.md": 455,
+        "docs/lingui-precommit-hook-plan.md": 134,
+        "docs/setup-improvements.md": 25,
+        "docs/shared-zero-extraction-plan.md": 124,
+        "docs/split-calculation-findings.md": 378,
+        "docs/split-calculation-fix-plan.md": 314,
+        "docs/structured-logging-plan.md": 182,
+        "docs/zero-query-docker-shared-zero-fix.md": 191,
+        "frontend/2026-03-31-233627-create-a-plan-for-a-new-page-which-appears-after-u.txt": 734,
+        "splitzy-payment-tracking-prompt.md": 170
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4806,
+      "agent_lines_removed": 10,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    }
+  ]
+}

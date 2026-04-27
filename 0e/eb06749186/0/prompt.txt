@@ -1,0 +1,12 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/features/line-items/hooks/useLineItemMutations.ts` around lines
+42 - 58, applySiblingUpdates currently shows one toast per failed update because
+it calls toast.error inside the results.forEach; change it to collect all
+failures from the results of Promise.all (identify failures by result.type ===
+'error'), build a single summary (list of failed updates' ids and optionally
+error messages) and then call console.error once with that summary and call
+toast.error once (e.g., if failures.length > 0) with the aggregated message;
+reference applySiblingUpdates, SiblingShareUpdate, zero.mutate, and
+mutators.assignments.update to locate and modify the logic that processes
+results and emits toasts/logs.
