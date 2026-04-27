@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { planAssignmentDelete } from './mutators.js';
+import { planAssignmentDelete, wouldExceedShareLimit } from './mutators.js';
 import type { Assignment } from './schema.js';
 
 const makeAssignment = (overrides: Partial<Assignment>): Assignment =>
@@ -80,5 +80,47 @@ describe('planAssignmentDelete', () => {
       expect(update.share_percentage).toBeCloseTo(50, 6);
       expect(update.locked).toBe(false);
     }
+  });
+});
+
+describe('wouldExceedShareLimit', () => {
+  it('allows a candidate when the cohort is empty', () => {
+    expect(wouldExceedShareLimit([], 50)).toBe(false);
+  });
+
+  it('allows a candidate that lands exactly on the 100% boundary', () => {
+    const cohort = [makeAssignment({ id: 'a', share_percentage: 50 })];
+    expect(wouldExceedShareLimit(cohort, 50)).toBe(false);
+  });
+
+  it('rejects when cohort + candidate would exceed 100', () => {
+    const cohort = [makeAssignment({ id: 'a', share_percentage: 60 })];
+    expect(wouldExceedShareLimit(cohort, 50)).toBe(true);
+  });
+
+  it('ignores rows with null share_percentage (even-split mode)', () => {
+    const cohort = [
+      makeAssignment({ id: 'a', share_percentage: null }),
+      makeAssignment({ id: 'b', share_percentage: null }),
+    ];
+    expect(wouldExceedShareLimit(cohort, 50)).toBe(false);
+  });
+
+  it('excludes the self row when excludeId is provided (no-op self update)', () => {
+    const cohort = [
+      makeAssignment({ id: 'self', share_percentage: 30 }),
+      makeAssignment({ id: 'other', share_percentage: 70 }),
+    ];
+    expect(wouldExceedShareLimit(cohort, 30, 'self')).toBe(false);
+  });
+
+  it('accepts a tiny float overshoot within the 0.0001 slack', () => {
+    const cohort = [makeAssignment({ id: 'a', share_percentage: 50.00005 })];
+    expect(wouldExceedShareLimit(cohort, 50.00005)).toBe(false);
+  });
+
+  it('rejects when the overshoot exceeds the 0.0001 slack', () => {
+    const cohort = [makeAssignment({ id: 'a', share_percentage: 50.0001 })];
+    expect(wouldExceedShareLimit(cohort, 50.0001)).toBe(true);
   });
 });

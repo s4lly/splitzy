@@ -17,6 +17,33 @@ const adaptForPlanner = (row: Assignment): RebalanceAssignment => ({
 });
 
 /**
+ * Maximum allowed sum of `share_percentage` across active assignments on a
+ * single line item, plus a 1-DB-tick slack to absorb float rounding from
+ * the rebalance planners. The DB column is `Numeric(7, 4)` so values within
+ * [100, 100.0001) round to the same persisted total.
+ */
+const SHARE_SUM_LIMIT = 100.0001;
+
+/**
+ * Pure check: does adding `candidate` to the active sibling shares (with
+ * an optional `excludeId` for self-update flows) push the sum past the
+ * allowed limit?
+ *
+ * Rows with `share_percentage == null` are in even-split mode and don't
+ * contribute to the custom-share budget, so they're skipped.
+ */
+export function wouldExceedShareLimit(
+  rows: readonly Pick<Assignment, 'id' | 'share_percentage'>[],
+  candidate: number,
+  excludeId?: string
+): boolean {
+  const siblingSum = rows
+    .filter((row) => row.id !== excludeId && row.share_percentage != null)
+    .reduce((acc, row) => acc + Number(row.share_percentage), 0);
+  return siblingSum + candidate > SHARE_SUM_LIMIT;
+}
+
+/**
  * Compose the writes needed to soft-delete an assignment and rebalance its
  * surviving siblings. Pure: takes the already-fetched `self` row and the
  * cohort (all active rows on the same line item, including `self`), returns
@@ -253,6 +280,19 @@ export const mutators = defineMutators({
   },
   assignments: {
     insert: defineMutator(assignmentsInsertSchema, async ({ tx, args }) => {
+      if (
+        tx.location === 'server' &&
+        typeof args.share_percentage === 'number'
+      ) {
+        const cohort = await tx.run(
+          zql.assignments
+            .where('receipt_line_item_id', args.receipt_line_item_id)
+            .where('deleted_at', 'IS', null)
+        );
+        if (wouldExceedShareLimit(cohort, args.share_percentage)) {
+          throw new Error('Share total would exceed 100%');
+        }
+      }
       await tx.mutate.assignments.insert({
         id: args.id,
         receipt_user_id: args.receipt_user_id,
@@ -265,6 +305,25 @@ export const mutators = defineMutators({
       });
     }),
     update: defineMutator(assignmentsUpdateSchema, async ({ tx, args }) => {
+      if (
+        tx.location === 'server' &&
+        typeof args.share_percentage === 'number'
+      ) {
+        const [self] = await tx.run(zql.assignments.where('id', args.id));
+        if (!self || self.deleted_at != null) {
+          throw new Error('Assignment not found');
+        }
+        const cohort = await tx.run(
+          zql.assignments
+            .where('receipt_line_item_id', self.receipt_line_item_id)
+            .where('deleted_at', 'IS', null)
+        );
+        if (
+          wouldExceedShareLimit(cohort, args.share_percentage, args.id)
+        ) {
+          throw new Error('Share total would exceed 100%');
+        }
+      }
       await tx.mutate.assignments.update({
         id: args.id,
         ...(args.share_percentage !== undefined && {
