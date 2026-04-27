@@ -83,3 +83,27 @@ jobs:
         working-directory: .
         run: pnpm --filter @splitzy/shared-zero run build
       - run: pnpm run ${{ matrix.script }}
+
+  static-analysis-shared-zero:
+    needs: changes
+    if: needs.changes.outputs.shared-zero == 'true' || needs.changes.outputs.tooling == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        script: [lint, format, type-check]
+    defaults:
+      run:
+        working-directory: shared-zero
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run ${{ matrix.script }}

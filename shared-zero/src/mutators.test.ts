@@ -38,10 +38,7 @@ describe('planAssignmentDelete', () => {
 
   it('returns no sibling updates when the deleted row was in even-split mode', () => {
     const self = makeAssignment({ id: 'a', share_percentage: null });
-    const cohort = [
-      self,
-      makeAssignment({ id: 'b', share_percentage: null }),
-    ];
+    const cohort = [self, makeAssignment({ id: 'b', share_percentage: null })];
 
     const plan = planAssignmentDelete('a', self, cohort);
 

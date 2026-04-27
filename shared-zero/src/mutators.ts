@@ -7,7 +7,7 @@ import {
   type RebalanceAssignment,
   type SiblingShareUpdate,
 } from './rebalance-shares.js';
-import { zql, type Assignment } from './schema.js';
+import { type Assignment, zql } from './schema.js';
 
 const adaptForPlanner = (row: Assignment): RebalanceAssignment => ({
   id: row.id,
@@ -318,9 +318,7 @@ export const mutators = defineMutators({
             .where('receipt_line_item_id', self.receipt_line_item_id)
             .where('deleted_at', 'IS', null)
         );
-        if (
-          wouldExceedShareLimit(cohort, args.share_percentage, args.id)
-        ) {
+        if (wouldExceedShareLimit(cohort, args.share_percentage, args.id)) {
           throw new Error('Share total would exceed 100%');
         }
       }

@@ -28,10 +28,12 @@
     "build": "tsc",
     "dev": "tsc -w",
     "test": "vitest run",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "type-check": "tsc --noEmit",
     "format": "prettier --check .",
     "format:fix": "prettier --write --ignore-unknown .",
-    "check": "pnpm run format && pnpm run type-check"
+    "check": "pnpm run lint && pnpm run format && pnpm run type-check"
   },
   "dependencies": {
     "@rocicorp/zero": "^0.25.12",
@@ -40,8 +42,11 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
+    "eslint": "^10.0.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "prettier": "^3.8.1",
     "typescript": "^5.8.3",
+    "typescript-eslint": "^8.56.0",
     "vitest": "^3.2.4"
   }
 }
