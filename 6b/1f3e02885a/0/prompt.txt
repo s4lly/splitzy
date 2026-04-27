@@ -1,0 +1,7 @@
+do an audit of the "pnpm check" command. verify if it include the three static analysis commands, typecheck/lint/format, for shared-zero pnpm workspace package. if it doesn't then make whatever updates necessary so that shared-zero has each individual static analysis script and also runs all three along other pnpm workspace packages when running "pnpm check" from root directory.
+
+similarly check that we have a static analysis github workspace setup for shared-zero like we do for the other pnpm workspace packages.
+
+---
+
+commit changes to current branch

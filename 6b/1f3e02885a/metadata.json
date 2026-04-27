@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "6b1f3e02885a",
+  "strategy": "manual-commit",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".github/workflows/static-analysis.yml",
+    "package.json",
+    "pnpm-lock.yaml",
+    "shared-zero/eslint.config.js",
+    "shared-zero/package.json",
+    "shared-zero/src/mutators.test.ts",
+    "shared-zero/src/mutators.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/6b/1f3e02885a/0/metadata.json",
+      "transcript": "/6b/1f3e02885a/0/full.jsonl",
+      "content_hash": "/6b/1f3e02885a/0/content_hash.txt",
+      "prompt": "/6b/1f3e02885a/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 31,
+    "cache_creation_tokens": 37007,
+    "cache_read_tokens": 747213,
+    "output_tokens": 8075,
+    "api_call_count": 25
+  }
+}
