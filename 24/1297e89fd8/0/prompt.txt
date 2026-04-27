@@ -1,0 +1,13 @@
+what commands do i run to build all the necessary resources from each pnpm workspace package? like i have zero-query, frontend and shared-zero. i want to make sure that any dependencies between each is built and up to date.
+
+---
+
+update root README.md and add info about cleanest single command. include around "Frontend Setup" section, where you think it makes most sense for someone trying to run the app after a fresh clone of the repo.
+
+---
+
+i want you to update the README.md organization. remove "Features" section. udpate "Project Structure" section. group info from "Technology Stack" section into relevant setup sections. remove "Usage" section. remove "License" section. remove "Acknowledgements" section. i prefer the setup commands towards the top, after "Overview" section.
+
+---
+
+commit changes to current branch

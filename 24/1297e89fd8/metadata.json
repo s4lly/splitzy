@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "241297e89fd8",
+  "strategy": "manual-commit",
+  "branch": "feat/split-percent-assignments",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "README.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/24/1297e89fd8/0/metadata.json",
+      "transcript": "/24/1297e89fd8/0/full.jsonl",
+      "content_hash": "/24/1297e89fd8/0/content_hash.txt",
+      "prompt": "/24/1297e89fd8/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 19,
+    "cache_creation_tokens": 32952,
+    "cache_read_tokens": 232789,
+    "output_tokens": 5107,
+    "api_call_count": 11
+  }
+}
