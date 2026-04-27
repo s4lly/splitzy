@@ -1,0 +1,10 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@package.json` around lines 7 - 12, Reorder the root npm scripts so
+`@splitzy/shared-zero`'s tasks run before the consumers: update the "type-check"
+script to run "pnpm --filter `@splitzy/shared-zero` run type-check" first (then
+frontend and zero-query), and apply the same change to the "check" script;
+alternatively, run the three filters in parallel if preferred — ensure you
+modify the "type-check" and "check" entries in package.json (the existing pnpm
+--filter ... run type-check / run check commands) so shared-zero is executed
+before the consumers to surface shared-package regressions earlier.
