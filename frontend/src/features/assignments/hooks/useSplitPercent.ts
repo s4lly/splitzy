@@ -3,6 +3,7 @@ import { mutators } from '@splitzy/shared-zero/mutators';
 import Decimal from 'decimal.js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { mergeSeedEntries } from '@/features/assignments/utils/merge-seed-entries';
 import {
   evenShares,
   largestRemainderRound,
@@ -115,17 +116,32 @@ export function useSplitPercent({
 
   const [entries, setEntries] = useState<DraftEntry[]>(seedEntries);
 
-  // Re-seed whenever the upstream assignments change so remote edits and
-  // add/remove operations are reflected locally.
-  useEffect(() => {
-    setEntries(seedEntries);
-  }, [seedKey, seedEntries]);
-
   // Per-assignment debounce timers. Kept in a ref so re-renders don't reset
   // pending writes mid-flight.
   const persistTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
     new Map()
   );
+
+  // Re-seed whenever the upstream assignments change so remote edits and
+  // add/remove operations are reflected locally — but preserve any row
+  // whose persist is still pending so an echoed sync can't yank a slider
+  // mid-drag. Gated by `seedKey` (a value, not a reference) so reference
+  // churn from unrelated Zero updates doesn't trigger reconciliation.
+  const lastSeededKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (lastSeededKeyRef.current === seedKey) return;
+    lastSeededKeyRef.current = seedKey;
+
+    const seedIds = new Set(seedEntries.map((entry) => entry.id));
+    for (const [id, timer] of persistTimers.current) {
+      if (!seedIds.has(id)) {
+        clearTimeout(timer);
+        persistTimers.current.delete(id);
+      }
+    }
+    const pendingIds = new Set(persistTimers.current.keys());
+    setEntries((prev) => mergeSeedEntries(prev, seedEntries, pendingIds));
+  }, [seedKey, seedEntries]);
 
   useEffect(() => {
     const timers = persistTimers.current;
