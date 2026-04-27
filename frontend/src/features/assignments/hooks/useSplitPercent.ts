@@ -58,7 +58,9 @@ export function useSplitPercent({
 
   const surfaceMutationError = useCallback(
     (
-      result: { client: Promise<{ type: string; error?: { message: string } }> },
+      result: {
+        client: Promise<{ type: string; error?: { message: string } }>;
+      },
       failureMessage: string
     ) => {
       result.client
@@ -73,8 +75,7 @@ export function useSplitPercent({
         .catch((error) => {
           console.error(failureMessage, error);
           toast.error(failureMessage, {
-            description:
-              error instanceof Error ? error.message : undefined,
+            description: error instanceof Error ? error.message : undefined,
           });
         });
     },
