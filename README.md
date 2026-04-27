@@ -6,51 +6,6 @@ A full-stack application for receipt analysis, expense tracking, and bill splitt
 
 Splitzy is a web application that allows users to upload receipts or bills, analyzes them using AI to extract line items and amounts, and provides an interface to split expenses among friends. The application consists of a Flask backend API that processes receipt images using OpenAI's vision capabilities, and a React frontend that provides a user-friendly interface.
 
-## Features
-
-- **Receipt Analysis**: Upload receipt images and extract structured data including merchant, date, line items, tax, and totals
-- **Bill Splitting**: Assign items to different people and calculate how much each person owes
-- **User Authentication**: Register and login to save and access your receipts
-- **Expense History**: View past receipts and their analyses
-- **Responsive Design**: Mobile-friendly interface works on all devices
-- **Dark/Light Mode**: Toggle between light and dark themes
-- **Tax Distribution**: Automatically distributes tax proportionally based on item assignments
-
-## Project Structure
-
-```
-project-root/
-├── backend/
-│   ├── app.py              # Flask backend application
-│   ├── image_analyzer.py   # Receipt analysis logic using OpenAI
-│   ├── requirements.txt    # Python dependencies
-│   ├── uploads/            # Directory for uploaded receipt images
-│   ├── templates/          # Jinja templates
-│   └── static/             # Static assets for Flask
-└── frontend/               # React frontend application
-    ├── src/                # React source code
-    ├── public/             # Static assets
-    ├── package.json        # Node.js dependencies
-    └── tailwind.config.js  # Tailwind CSS configuration
-```
-
-## Technology Stack
-
-### Backend
-
-- **Flask**: Python web framework for the API
-- **OpenAI API**: AI for receipt image analysis
-- **SQLite**: Database for storing user information and receipts
-- **Flask-CORS**: Cross-Origin Resource Sharing support
-
-### Frontend
-
-- **React**: JavaScript library for building user interfaces
-- **Tailwind CSS**: Utility-first CSS framework
-- **Framer Motion**: Animation library
-- **Lucide React**: Icon library
-- **Shadcn UI**: UI component library
-
 ## Setup Instructions
 
 ### Prerequisites
@@ -77,32 +32,6 @@ cp zero-query/.env.example zero-query/.env
 Then edit the `.env` files with your actual values. For local-only overrides, you can also create `.env.local` files which take priority.
 
 **Note:** The `zero-query/.env` file is required when using Docker Compose (Option B setup). The `docker-compose.yml` will use `zero-query/.env.example` as a fallback, but you should create `zero-query/.env` with your actual Clerk API keys and other configuration values.
-
-### Production Deployment Checklist (Vercel + Render)
-
-Use this checklist before/after production deploys to avoid auth and Zero sync issues.
-
-1. **Clerk publishable key**
-   - Set `VITE_CLERK_PUBLISHABLE_KEY` in frontend production env.
-   - `pk_live_*` is recommended.
-   - `pk_test_*` is supported (for testing/no custom domain), but Clerk will show browser warnings and enforce development-instance limits.
-
-2. **Zero version parity**
-   - Keep frontend + zero-query `@rocicorp/zero` package versions aligned.
-   - Zero-cache version is pinned only in the root **Dockerfile** (used by both local docker-compose and production). Change it there to upgrade; then rebuild/redeploy zero-cache.
-
-3. **Allowed frontend origins**
-   - In Render zero-query env, set `FRONTEND_ORIGINS` to include your deployed frontend URL(s), for example:
-     - `https://splitzy-kappa.vercel.app`
-   - If you use preview deployments, add those origins too.
-
-4. **If you see `VersionNotSupported` protocol errors**
-   - Typical error: `server is at sync protocol v44 and does not support v45`.
-   - This usually means your frontend client is newer than deployed zero-cache.
-   - Fix by redeploying/upgrading zero-cache (and zero-query if needed) so versions are compatible, then retest.
-
-5. **If the root Dockerfile base image (`rocicorp/zero`) was changed**
-   - Rebuild and redeploy zero-cache: locally run `docker-compose up -d --build zero-cache-local`; in production, redeploy the zero-cache service from the same Dockerfile.
 
 ### Development Modes
 
@@ -190,6 +119,8 @@ This works for any service: `db-splitzy-local`, `zero-query-local`, or `zero-cac
 
 ### Backend Setup
 
+Built with **Flask**, **SQLAlchemy**, **PostgreSQL**, and **OpenAI API** for receipt image analysis.
+
 1. Clone the repository:
 
    ```bash
@@ -232,6 +163,8 @@ This works for any service: `db-splitzy-local`, `zero-query-local`, or `zero-cac
 
 ### Frontend Setup
 
+Built with **React**, **Vite**, **Tailwind CSS**, **Shadcn UI**, and **Rocicorp Zero** for real-time sync.
+
 1. Install Node.js dependencies from the repository root:
 
    ```bash
@@ -246,20 +179,75 @@ This works for any service: `db-splitzy-local`, `zero-query-local`, or `zero-cac
    # Edit .env with your actual values
    ```
 
-3. Start the development server (from repo root):
+3. Build all workspace packages (from repo root):
+
+   ```bash
+   pnpm -r run build
+   ```
+
+   This compiles all packages (`shared-zero`, `zero-query`, `frontend`) in dependency order. Run this after a fresh clone or whenever a dependency package has changed.
+
+4. Start the development server (from repo root):
    ```bash
    pnpm --filter frontend run dev
    ```
    The frontend will start at http://localhost:5173
 
-## Usage
+### Production Deployment Checklist (Vercel + Render)
 
-1. Register or login to your account
-2. Upload a receipt image from your device
-3. The AI will analyze the receipt and extract items and amounts
-4. Add the names of people who participated in the expense
-5. Assign items to different people
-6. View how much each person owes, with tax automatically distributed
+Use this checklist before/after production deploys to avoid auth and Zero sync issues.
+
+1. **Clerk publishable key**
+   - Set `VITE_CLERK_PUBLISHABLE_KEY` in frontend production env.
+   - `pk_live_*` is recommended.
+   - `pk_test_*` is supported (for testing/no custom domain), but Clerk will show browser warnings and enforce development-instance limits.
+
+2. **Zero version parity**
+   - Keep frontend + zero-query `@rocicorp/zero` package versions aligned.
+   - Zero-cache version is pinned only in the root **Dockerfile** (used by both local docker-compose and production). Change it there to upgrade; then rebuild/redeploy zero-cache.
+
+3. **Allowed frontend origins**
+   - In Render zero-query env, set `FRONTEND_ORIGINS` to include your deployed frontend URL(s), for example:
+     - `https://splitzy-kappa.vercel.app`
+   - If you use preview deployments, add those origins too.
+
+4. **If you see `VersionNotSupported` protocol errors**
+   - Typical error: `server is at sync protocol v44 and does not support v45`.
+   - This usually means your frontend client is newer than deployed zero-cache.
+   - Fix by redeploying/upgrading zero-cache (and zero-query if needed) so versions are compatible, then retest.
+
+5. **If the root Dockerfile base image (`rocicorp/zero`) was changed**
+   - Rebuild and redeploy zero-cache: locally run `docker-compose up -d --build zero-cache-local`; in production, redeploy the zero-cache service from the same Dockerfile.
+
+## Project Structure
+
+```
+splitzy/
+├── backend/                  # Flask API
+│   ├── app.py
+│   ├── blueprints/           # Route handlers
+│   ├── models/               # SQLAlchemy models
+│   ├── schemas/              # Marshmallow schemas
+│   ├── migrations/           # Alembic migrations
+│   ├── scripts/              # DB dump/restore helpers
+│   ├── tests/
+│   └── requirements.txt
+├── frontend/                 # React app (Vite)
+│   ├── src/
+│   ├── api/                  # Vercel serverless functions
+│   └── package.json
+├── zero-query/               # Zero Query API server
+│   ├── src/
+│   ├── Dockerfile
+│   └── package.json
+├── shared-zero/              # Shared Zero schema + types
+│   ├── src/
+│   └── package.json
+├── Dockerfile                # Zero-cache image (single source of truth)
+├── docker-compose.yml
+├── package.json              # pnpm workspace root
+└── pnpm-workspace.yaml
+```
 
 ## Development
 
@@ -272,12 +260,3 @@ pytest
 # Frontend tests
 pnpm --filter frontend run test
 ```
-
-## License
-
-[MIT License](LICENSE)
-
-## Acknowledgements
-
-- OpenAI for the vision API capabilities
-- All open-source libraries and frameworks used in this project
