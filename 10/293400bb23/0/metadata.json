@@ -1,0 +1,51 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "10293400bb23",
+  "session_id": "a130131f-f5e8-40f1-854b-773666089d88",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-27T06:21:55.921827Z",
+  "branch": "feat/og-receipt-previews",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "frontend/src/locales/de/messages.po",
+    "frontend/src/locales/en/messages.po",
+    "frontend/src/locales/es/messages.po",
+    "frontend/src/locales/fr/messages.po",
+    "frontend/src/locales/ja/messages.po",
+    "frontend/src/locales/zh/messages.po"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-4-6",
+  "turn_id": "7a2277ea4531",
+  "token_usage": {
+    "input_tokens": 84,
+    "cache_creation_tokens": 119014,
+    "cache_read_tokens": 3558729,
+    "output_tokens": 24701,
+    "api_call_count": 59
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-27T06:21:55.914066Z",
+    "agent_lines": 72,
+    "agent_removed": 72,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 72,
+    "total_lines_changed": 144,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}

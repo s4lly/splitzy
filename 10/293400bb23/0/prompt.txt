@@ -1,0 +1,13 @@
+when i past link to production site into an app like slack or discord the detail card displays the text:
+Splitzy
+Web site created using create-react-app
+
+i want to update the text so that it reads something meaningful on receipt pages /receipts/80. i would like it to include the merchant and date. can you help me come up with plan to update code to provide that info and come up with template.
+
+---
+
+do i need to do anything for the vercel function to be deployed?
+
+---
+
+create a new branch for the changes for this plan. commit the changes for this plan in the new branch.
