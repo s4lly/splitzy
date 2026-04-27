@@ -74,7 +74,7 @@ describe('planAddRebalance', () => {
     ).toBeCloseTo(100, 10);
   });
 
-  it('caps the newcomer at headroom when locked siblings limit the budget', () => {
+  it('caps the newcomer at its share of headroom when locked siblings limit the budget', () => {
     const result = planAddRebalance([
       makeAssignment('a', 60, true),
       makeAssignment('b', 40, false),
@@ -82,15 +82,30 @@ describe('planAddRebalance', () => {
 
     expect(result).not.toBeNull();
     expect(result!.warning).toBeNull();
-    // Fair = 100/3 ≈ 33.33, headroom = 40 → newcomer gets the smaller (fair).
-    expect(result!.newcomerShare).toBeCloseTo(100 / 3, 10);
-    // Only the unlocked sibling appears in updates; it absorbs the remaining headroom.
+    // Fair = 100/3 ≈ 33.33, headroom = 40, unlocked = 1 →
+    // headroom/(unlocked+1) = 20, so newcomer is capped at 20 and the
+    // unlocked sibling keeps the other 20 instead of being squeezed to ~6.67.
+    expect(result!.newcomerShare).toBeCloseTo(20, 10);
     expect(result!.siblingUpdates).toHaveLength(1);
     expect(result!.siblingUpdates[0].id).toBe('b');
-    expect(result!.siblingUpdates[0].share_percentage).toBeCloseTo(
-      40 - 100 / 3,
-      10
-    );
+    expect(result!.siblingUpdates[0].share_percentage).toBeCloseTo(20, 10);
+  });
+
+  it('does not zero out an unlocked sibling when fair exceeds headroom', () => {
+    // Regression: previously fair > headroom caused newcomerShare = headroom,
+    // leaving 0 for the unlocked sibling.
+    const result = planAddRebalance([
+      makeAssignment('a', 90, true),
+      makeAssignment('b', 10, false),
+    ]);
+
+    expect(result).not.toBeNull();
+    expect(result!.warning).toBeNull();
+    // Fair = 100/3 ≈ 33.33, headroom = 10, unlocked = 1 →
+    // headroom/(unlocked+1) = 5, so newcomer = 5 and sibling = 5.
+    expect(result!.newcomerShare).toBeCloseTo(5, 10);
+    expect(result!.siblingUpdates).toHaveLength(1);
+    expect(result!.siblingUpdates[0].share_percentage).toBeCloseTo(5, 10);
   });
 
   it('returns the fully-locked warning when locked shares already sum to 100', () => {
@@ -123,11 +138,14 @@ describe('planAddRebalance', () => {
     ]);
 
     expect(result!.warning).toBeNull();
-    // Fair = 100/4 = 25, headroom = 50, newcomer = 25, remaining = 25, split evenly = 12.5 each.
-    expect(result!.newcomerShare).toBeCloseTo(25, 10);
+    // Fair = 100/4 = 25, headroom = 50, unlocked = 2 →
+    // headroom/(unlocked+1) = 50/3 ≈ 16.67, so newcomer ≈ 16.67, remaining
+    // ≈ 33.33, split evenly ≈ 16.67 each. Newcomer + unlocked siblings each
+    // get the same slice of the headroom.
+    expect(result!.newcomerShare).toBeCloseTo(50 / 3, 10);
     expect(result!.siblingUpdates).toHaveLength(2);
-    expect(result!.siblingUpdates[0].share_percentage).toBeCloseTo(12.5, 10);
-    expect(result!.siblingUpdates[1].share_percentage).toBeCloseTo(12.5, 10);
+    expect(result!.siblingUpdates[0].share_percentage).toBeCloseTo(50 / 3, 10);
+    expect(result!.siblingUpdates[1].share_percentage).toBeCloseTo(50 / 3, 10);
   });
 });
 

@@ -81,9 +81,11 @@ export function itemHasCustomShares(
  *   2. Otherwise, compute the headroom left after honoring locked siblings.
  *      If no headroom or no unlocked sibling can donate, surface a
  *      `fully-locked` warning and give the newcomer 0%.
- *   3. Otherwise, award the newcomer `min(fair, headroom)` where
- *      `fair = 100 / (n + 1)`, and rescale the unlocked siblings so they
- *      collectively absorb the remaining headroom (proportionally to their
+ *   3. Otherwise, award the newcomer `min(fair, headroom / (u + 1))` where
+ *      `fair = 100 / (n + 1)` and `u` is the count of unlocked siblings, so
+ *      the newcomer and the unlocked siblings split a tight headroom rather
+ *      than the newcomer swallowing all of it. Then rescale the unlocked
+ *      siblings to absorb the remaining headroom (proportionally to their
  *      current shares; evenly when their current shares sum to zero).
  *
  * @param activeSiblings - The item's active (non-deleted) assignments,
@@ -161,13 +163,13 @@ export function planAddRebalance(
   }
 
   // The newcomer gets their "fair" slice of a group one larger than today,
-  // but capped by the headroom so we never exceed the locked budget.
+  // but capped so they never consume more than their share of the headroom
+  // alongside the unlocked siblings — otherwise a tight headroom (e.g. locks
+  // already eating most of 100%) would let the newcomer take everything left
+  // and force unlocked siblings down to 0%.
   const fair = ONE_HUNDRED.div(siblings.length + 1);
-  let newcomerShare = fair;
-  if (newcomerShare.greaterThan(headroom)) {
-    // Fair slice would exceed what locks leave us; cap at the headroom.
-    newcomerShare = headroom;
-  }
+  const headroomShare = headroom.div(unlocked.length + 1);
+  const newcomerShare = Decimal.min(fair, headroomShare);
   const remainingForUnlocked = headroom.minus(newcomerShare);
 
   // Distribute `remainingForUnlocked` across the unlocked pool. When their
