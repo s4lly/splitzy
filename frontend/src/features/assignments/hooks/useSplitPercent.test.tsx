@@ -6,9 +6,22 @@ import { useSplitPercent } from '@/features/assignments/hooks/useSplitPercent';
 import type { Assignment } from '@/models/Assignment';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 
-const mutateMock = vi.fn(
-  (_descriptor: { kind: string; args: { id: string } }) => Promise.resolve()
-);
+type UpdateSharesCall = {
+  kind: 'assignments.updateShares';
+  args: {
+    receipt_line_item_id: string;
+    updates: { id: string; share_percentage: number; locked?: boolean }[];
+  };
+};
+
+type UpdateCall = {
+  kind: 'assignments.update';
+  args: { id: string; share_percentage?: number; locked?: boolean };
+};
+
+type MutateCall = UpdateSharesCall | UpdateCall;
+
+const mutateMock = vi.fn((_descriptor: MutateCall) => Promise.resolve());
 
 vi.mock('@rocicorp/zero/react', () => ({
   useZero: () => ({ mutate: mutateMock }),
@@ -18,6 +31,10 @@ vi.mock('@splitzy/shared-zero/mutators', () => ({
   mutators: {
     assignments: {
       update: (args: unknown) => ({ kind: 'assignments.update', args }),
+      updateShares: (args: unknown) => ({
+        kind: 'assignments.updateShares',
+        args,
+      }),
     },
   },
 }));
@@ -160,9 +177,82 @@ describe('useSplitPercent — re-seed behavior', () => {
       vi.advanceTimersByTime(500);
     });
 
-    const calledForRemovedRow = mutateMock.mock.calls.some(
-      (call) => call[0]?.args?.id === 'a'
-    );
+    const calledForRemovedRow = mutateMock.mock.calls.some((call) => {
+      const desc = call[0];
+      if (desc?.kind === 'assignments.updateShares') {
+        return desc.args.updates.some((update) => update.id === 'a');
+      }
+      return desc?.args?.id === 'a';
+    });
     expect(calledForRemovedRow).toBe(false);
+  });
+
+  it('coalesces a slider drag into a single batched updateShares call', () => {
+    const initial = makeItem([
+      makeAssignment('a', '33.3334'),
+      makeAssignment('b', '33.3333'),
+      makeAssignment('c', '33.3333'),
+    ]);
+
+    const { result } = renderHook(
+      ({ item }: { item: ReceiptLineItem }) => useSplitPercent({ item }),
+      { initialProps: { item: initial } }
+    );
+
+    act(() => {
+      result.current.handleChange('a', new Decimal(50));
+    });
+
+    mutateMock.mockClear();
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
+
+    expect(mutateMock).toHaveBeenCalledTimes(1);
+    const call = mutateMock.mock.calls[0]![0] as UpdateSharesCall;
+    expect(call.kind).toBe('assignments.updateShares');
+    expect(call.args.receipt_line_item_id).toBe('line-1');
+    const byId = Object.fromEntries(
+      call.args.updates.map((u) => [u.id, u.share_percentage])
+    );
+    expect(byId.a).toBe(50);
+    // Siblings split the remaining 50% evenly.
+    expect(byId.b).toBeCloseTo(25, 4);
+    expect(byId.c).toBeCloseTo(25, 4);
+  });
+
+  it('rapid drags coalesce into a single batched call with the latest snapshot', () => {
+    const initial = makeItem([
+      makeAssignment('a', 50),
+      makeAssignment('b', 50),
+    ]);
+
+    const { result } = renderHook(
+      ({ item }: { item: ReceiptLineItem }) => useSplitPercent({ item }),
+      { initialProps: { item: initial } }
+    );
+
+    act(() => {
+      result.current.handleChange('a', new Decimal(60));
+    });
+    act(() => {
+      vi.advanceTimersByTime(50);
+    });
+    act(() => {
+      result.current.handleChange('a', new Decimal(80));
+    });
+
+    mutateMock.mockClear();
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
+
+    expect(mutateMock).toHaveBeenCalledTimes(1);
+    const call = mutateMock.mock.calls[0]![0] as UpdateSharesCall;
+    const byId = Object.fromEntries(
+      call.args.updates.map((u) => [u.id, u.share_percentage])
+    );
+    expect(byId.a).toBe(80);
+    expect(byId.b).toBe(20);
   });
 });

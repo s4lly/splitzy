@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { planAssignmentDelete, wouldExceedShareLimit } from './mutators.js';
+import {
+  planAssignmentDelete,
+  wouldBatchExceedShareLimit,
+  wouldExceedShareLimit,
+} from './mutators.js';
 import type { Assignment } from './schema.js';
 
 const makeAssignment = (overrides: Partial<Assignment>): Assignment =>
@@ -119,5 +123,71 @@ describe('wouldExceedShareLimit', () => {
   it('rejects when the overshoot exceeds the 0.0001 slack', () => {
     const cohort = [makeAssignment({ id: 'a', share_percentage: 50.0001 })];
     expect(wouldExceedShareLimit(cohort, 50.0001)).toBe(true);
+  });
+});
+
+describe('wouldBatchExceedShareLimit', () => {
+  it('allows a batch whose post-state sums to 100', () => {
+    const cohort = [
+      makeAssignment({ id: 'a', share_percentage: 33.3334 }),
+      makeAssignment({ id: 'b', share_percentage: 33.3333 }),
+      makeAssignment({ id: 'c', share_percentage: 33.3333 }),
+    ];
+    expect(
+      wouldBatchExceedShareLimit(cohort, [
+        { id: 'a', share_percentage: 50 },
+        { id: 'b', share_percentage: 25 },
+        { id: 'c', share_percentage: 25 },
+      ])
+    ).toBe(false);
+  });
+
+  it('rejects a batch whose post-state would exceed 100', () => {
+    const cohort = [
+      makeAssignment({ id: 'a', share_percentage: 33 }),
+      makeAssignment({ id: 'b', share_percentage: 33 }),
+      makeAssignment({ id: 'c', share_percentage: 34 }),
+    ];
+    // Caller mistakenly bumped "a" without lowering siblings.
+    expect(
+      wouldBatchExceedShareLimit(cohort, [{ id: 'a', share_percentage: 80 }])
+    ).toBe(true);
+  });
+
+  it('counts persisted shares of cohort rows that are not in the batch', () => {
+    const cohort = [
+      makeAssignment({ id: 'a', share_percentage: 50 }),
+      makeAssignment({ id: 'b', share_percentage: 50 }),
+    ];
+    // Batch updates only "a" but the new value plus untouched "b" overshoots.
+    expect(
+      wouldBatchExceedShareLimit(cohort, [{ id: 'a', share_percentage: 60 }])
+    ).toBe(true);
+  });
+
+  it('skips null-share rows in the cohort (even-split mode contributes 0)', () => {
+    const cohort = [
+      makeAssignment({ id: 'a', share_percentage: null }),
+      makeAssignment({ id: 'b', share_percentage: null }),
+    ];
+    expect(
+      wouldBatchExceedShareLimit(cohort, [
+        { id: 'a', share_percentage: 60 },
+        { id: 'b', share_percentage: 40 },
+      ])
+    ).toBe(false);
+  });
+
+  it('allows a batch that lands exactly on the 100% boundary', () => {
+    const cohort = [
+      makeAssignment({ id: 'a', share_percentage: 50 }),
+      makeAssignment({ id: 'b', share_percentage: 50 }),
+    ];
+    expect(
+      wouldBatchExceedShareLimit(cohort, [
+        { id: 'a', share_percentage: 70 },
+        { id: 'b', share_percentage: 30 },
+      ])
+    ).toBe(false);
   });
 });

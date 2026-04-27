@@ -116,11 +116,15 @@ export function useSplitPercent({
 
   const [entries, setEntries] = useState<DraftEntry[]>(seedEntries);
 
-  // Per-assignment debounce timers. Kept in a ref so re-renders don't reset
-  // pending writes mid-flight.
-  const persistTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
-    new Map()
-  );
+  // Single in-flight debounce timer for the line item. Slider drags coalesce
+  // into one batched `assignments.updateShares` call so the server validates
+  // the post-state total atomically rather than per-row (which races with
+  // sibling rebalances and trips the >100% guard).
+  const pendingPersistRef = useRef<{
+    timer: ReturnType<typeof setTimeout>;
+    snapshot: DraftEntry[];
+    pendingIds: Set<string>;
+  } | null>(null);
 
   // Re-seed whenever the upstream assignments change so remote edits and
   // add/remove operations are reflected locally — but preserve any row
@@ -132,76 +136,96 @@ export function useSplitPercent({
     if (lastSeededKeyRef.current === seedKey) return;
     lastSeededKeyRef.current = seedKey;
 
-    const seedIds = new Set(seedEntries.map((entry) => entry.id));
-    for (const [id, timer] of persistTimers.current) {
-      if (!seedIds.has(id)) {
-        clearTimeout(timer);
-        persistTimers.current.delete(id);
+    const pending = pendingPersistRef.current;
+    if (pending) {
+      const seedIds = new Set(seedEntries.map((entry) => entry.id));
+      const survivingPending = new Set<string>();
+      for (const id of pending.pendingIds) {
+        if (seedIds.has(id)) survivingPending.add(id);
+      }
+      if (survivingPending.size === 0) {
+        clearTimeout(pending.timer);
+        pendingPersistRef.current = null;
+      } else if (survivingPending.size !== pending.pendingIds.size) {
+        pending.pendingIds = survivingPending;
+        pending.snapshot = pending.snapshot.filter((entry) =>
+          seedIds.has(entry.id)
+        );
       }
     }
-    const pendingIds = new Set(persistTimers.current.keys());
+    const pendingIds = new Set(pendingPersistRef.current?.pendingIds ?? []);
     setEntries((prev) => mergeSeedEntries(prev, seedEntries, pendingIds));
   }, [seedKey, seedEntries]);
 
   useEffect(() => {
-    const timers = persistTimers.current;
     return () => {
-      for (const timer of timers.values()) {
-        clearTimeout(timer);
+      const pending = pendingPersistRef.current;
+      if (pending) {
+        clearTimeout(pending.timer);
+        pendingPersistRef.current = null;
       }
-      timers.clear();
     };
   }, []);
 
-  const persistShare = useCallback(
-    (assignmentId: string, share: Decimal) => {
-      // Replace any in-flight timer for this row so rapid slider moves
-      // coalesce into a single mutator call.
-      const existing = persistTimers.current.get(assignmentId);
-      if (existing) {
-        clearTimeout(existing);
-      }
-
-      const timer = setTimeout(() => {
-        void zero.mutate(
-          mutators.assignments.update({
-            id: assignmentId,
-            share_percentage: share.toDecimalPlaces(4).toNumber(),
-          })
-        );
-        persistTimers.current.delete(assignmentId);
-      }, PERSIST_DEBOUNCE_MS);
-
-      persistTimers.current.set(assignmentId, timer);
+  const flushBatch = useCallback(
+    (snapshot: DraftEntry[]) => {
+      void zero.mutate(
+        mutators.assignments.updateShares({
+          receipt_line_item_id: item.id,
+          updates: snapshot.map((entry) => ({
+            id: entry.id,
+            share_percentage: entry.share.toDecimalPlaces(4).toNumber(),
+          })),
+        })
+      );
+      pendingPersistRef.current = null;
     },
-    [zero]
+    [zero, item.id]
   );
 
-  const persistChangedShares = useCallback(
-    (next: DraftEntry[], previous: DraftEntry[]) => {
-      // Diff each row so we only schedule a write when its share actually
-      // moved. Sibling rebalancing legitimately touches every unlocked row.
-      for (const entry of next) {
-        const prev = previous.find((candidate) => candidate.id === entry.id);
-        if (!prev || !prev.share.equals(entry.share)) {
-          persistShare(entry.id, entry.share);
-        }
+  const scheduleBatch = useCallback(
+    (next: DraftEntry[], changedIds: Set<string>) => {
+      const existing = pendingPersistRef.current;
+      if (existing) {
+        clearTimeout(existing.timer);
+        for (const id of existing.pendingIds) changedIds.add(id);
       }
+      const pendingIds = changedIds;
+      const timer = setTimeout(() => {
+        const current = pendingPersistRef.current;
+        if (!current) return;
+        flushBatch(current.snapshot);
+      }, PERSIST_DEBOUNCE_MS);
+      pendingPersistRef.current = {
+        timer,
+        snapshot: next,
+        pendingIds,
+      };
     },
-    [persistShare]
+    [flushBatch]
   );
 
   const handleChange = useCallback(
     (assignmentId: string, value: Decimal) => {
       setEntries((prev) => {
-        // Delegate the math to the pure module and persist any row whose
-        // share ended up different from its previous value.
+        // Delegate the math to the pure module. Any row whose share moved
+        // joins the pending batch so the whole new state is persisted in
+        // one atomic mutator call.
         const next = rebalance(prev, assignmentId, value);
-        persistChangedShares(next, prev);
+        const changedIds = new Set<string>();
+        for (const entry of next) {
+          const before = prev.find((candidate) => candidate.id === entry.id);
+          if (!before || !before.share.equals(entry.share)) {
+            changedIds.add(entry.id);
+          }
+        }
+        if (changedIds.size > 0) {
+          scheduleBatch(next, changedIds);
+        }
         return next;
       });
     },
-    [persistChangedShares]
+    [scheduleBatch]
   );
 
   const handleToggleLock = useCallback(
@@ -242,29 +266,30 @@ export function useSplitPercent({
         locked: false,
       }));
 
-      // Fire-and-forget a write for every row so the persisted state matches
-      // what the user sees. This bypasses the debounce intentionally — a
-      // reset is a single discrete action, not a drag.
+      // Cancel any pending debounced batch so it can't clobber this reset.
+      const pending = pendingPersistRef.current;
+      if (pending) {
+        clearTimeout(pending.timer);
+        pendingPersistRef.current = null;
+      }
+
+      // Single batched transaction so the post-state total is validated once
+      // and locks/shares move atomically.
       const sharePercentage = share.toDecimalPlaces(4).toNumber();
-      for (const entry of next) {
-        // Cancel any pending debounced write so it can't clobber this reset.
-        const pending = persistTimers.current.get(entry.id);
-        if (pending) {
-          clearTimeout(pending);
-          persistTimers.current.delete(entry.id);
-        }
-        void zero.mutate(
-          mutators.assignments.update({
+      void zero.mutate(
+        mutators.assignments.updateShares({
+          receipt_line_item_id: item.id,
+          updates: next.map((entry) => ({
             id: entry.id,
             share_percentage: sharePercentage,
             locked: false,
-          })
-        );
-      }
+          })),
+        })
+      );
 
       return next;
     });
-  }, [zero]);
+  }, [zero, item.id]);
 
   // Pre-compute the integer percents shown in the UI so the component layer
   // never has to deal with rounding math directly.

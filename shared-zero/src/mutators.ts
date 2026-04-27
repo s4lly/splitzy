@@ -44,6 +44,29 @@ export function wouldExceedShareLimit(
 }
 
 /**
+ * Pure check for the batched share-update flow. Computes the post-state sum
+ * by replacing each cohort row whose id appears in `updates` with the
+ * candidate share, leaving other rows' persisted shares (or null/even-split
+ * rows) untouched, and returns true when that sum would exceed the limit.
+ */
+export function wouldBatchExceedShareLimit(
+  cohort: readonly Pick<Assignment, 'id' | 'share_percentage'>[],
+  updates: readonly { id: string; share_percentage: number }[]
+): boolean {
+  const updateById = new Map(updates.map((u) => [u.id, u.share_percentage]));
+  let total = 0;
+  for (const row of cohort) {
+    const next = updateById.get(row.id);
+    if (next !== undefined) {
+      total += next;
+    } else if (row.share_percentage != null) {
+      total += Number(row.share_percentage);
+    }
+  }
+  return total > SHARE_SUM_LIMIT;
+}
+
+/**
  * Compose the writes needed to soft-delete an assignment and rebalance its
  * surviving siblings. Pure: takes the already-fetched `self` row and the
  * cohort (all active rows on the same line item, including `self`), returns
@@ -138,6 +161,19 @@ export const assignmentsUpdateSchema = z.object({
 });
 
 export const assignmentsDeleteSchema = z.object({ id: z.string() }); // ULID
+
+export const assignmentsUpdateSharesSchema = z.object({
+  receipt_line_item_id: z.string(),
+  updates: z
+    .array(
+      z.object({
+        id: z.string(),
+        share_percentage: z.number().min(0).max(100),
+        locked: z.boolean().optional(),
+      })
+    )
+    .min(1),
+});
 
 // ----
 
@@ -330,6 +366,34 @@ export const mutators = defineMutators({
         ...(args.locked !== undefined && { locked: args.locked }),
       });
     }),
+    updateShares: defineMutator(
+      assignmentsUpdateSharesSchema,
+      async ({ tx, args }) => {
+        if (tx.location === 'server') {
+          const cohort = await tx.run(
+            zql.assignments
+              .where('receipt_line_item_id', args.receipt_line_item_id)
+              .where('deleted_at', 'IS', null)
+          );
+          const cohortIds = new Set(cohort.map((row) => row.id));
+          for (const update of args.updates) {
+            if (!cohortIds.has(update.id)) {
+              throw new Error('Assignment not found');
+            }
+          }
+          if (wouldBatchExceedShareLimit(cohort, args.updates)) {
+            throw new Error('Share total would exceed 100%');
+          }
+        }
+        for (const update of args.updates) {
+          await tx.mutate.assignments.update({
+            id: update.id,
+            share_percentage: update.share_percentage,
+            ...(update.locked !== undefined && { locked: update.locked }),
+          });
+        }
+      }
+    ),
     delete: defineMutator(assignmentsDeleteSchema, async ({ tx, args }) => {
       const [self] = await tx.run(zql.assignments.where('id', args.id));
       if (!self || self.deleted_at != null) {
