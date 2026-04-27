@@ -100,8 +100,8 @@ msgstr "Añadir usuarios"
 msgid "After tax"
 msgstr "Después de impuestos"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:93
-#: src/features/line-items/hooks/useLineItemMutations.ts:165
+#: src/features/line-items/hooks/useLineItemMutations.ts:92
+#: src/features/line-items/hooks/useLineItemMutations.ts:164
 msgid "All existing shares are locked — added with 0% share. Unlock a share to give them a portion."
 msgstr "Todas las partes existentes están bloqueadas: se añadió con 0 % de participación. Desbloquea una parte para asignarle una porción."
 
@@ -466,12 +466,12 @@ msgstr "Equitativo"
 msgid "Every split is saved. Review, adjust, or settle up any time."
 msgstr "Cada división se guarda. Revisa, ajusta o liquida en cualquier momento."
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:155
+#: src/features/line-items/hooks/useLineItemMutations.ts:154
 msgid "Failed to add new person"
 msgstr "Error al agregar nueva persona"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:110
-#: src/features/line-items/hooks/useLineItemMutations.ts:185
+#: src/features/line-items/hooks/useLineItemMutations.ts:109
+#: src/features/line-items/hooks/useLineItemMutations.ts:184
 msgid "Failed to add person to item"
 msgstr "Error al agregar persona al artículo"
 
@@ -488,7 +488,7 @@ msgstr "Error al reclamar persona"
 #~ msgid "Failed to delete gratuity. Please try again."
 #~ msgstr "Error al eliminar la propina. Por favor, inténtelo de nuevo."
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:303
+#: src/features/line-items/hooks/useLineItemMutations.ts:280
 msgid "Failed to delete item"
 msgstr "Error al eliminar el artículo"
 
@@ -513,11 +513,11 @@ msgstr "Error al obtener el token de autenticación. Tus solicitudes pueden no e
 msgid "Failed to load receipt image"
 msgstr "Error al cargar la imagen del recibo"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:56
+#: src/features/line-items/hooks/useLineItemMutations.ts:55
 msgid "Failed to rebalance shares"
 msgstr "Error al reequilibrar las proporciones"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:238
+#: src/features/line-items/hooks/useLineItemMutations.ts:222
 msgid "Failed to remove person from item"
 msgstr "Error al quitar persona del artículo"
 
@@ -543,8 +543,8 @@ msgstr "Error al cambiar de persona"
 msgid "Failed to update image visibility"
 msgstr "Error al actualizar la visibilidad de la imagen"
 
+#: src/features/line-items/hooks/useLineItemMutations.ts:232
 #: src/features/line-items/hooks/useLineItemMutations.ts:255
-#: src/features/line-items/hooks/useLineItemMutations.ts:278
 msgid "Failed to update item"
 msgstr "Error al actualizar el artículo"
 

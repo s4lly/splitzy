@@ -100,8 +100,8 @@ msgstr "Ajouter des utilisateurs"
 msgid "After tax"
 msgstr "Après taxes"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:93
-#: src/features/line-items/hooks/useLineItemMutations.ts:165
+#: src/features/line-items/hooks/useLineItemMutations.ts:92
+#: src/features/line-items/hooks/useLineItemMutations.ts:164
 msgid "All existing shares are locked — added with 0% share. Unlock a share to give them a portion."
 msgstr "Toutes les parts existantes sont verrouillées — ajouté avec 0 % de part. Déverrouillez une part pour leur en attribuer une portion."
 
@@ -466,12 +466,12 @@ msgstr "Également"
 msgid "Every split is saved. Review, adjust, or settle up any time."
 msgstr "Chaque partage est sauvegardé. Consultez, ajustez ou réglez à tout moment."
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:155
+#: src/features/line-items/hooks/useLineItemMutations.ts:154
 msgid "Failed to add new person"
 msgstr "Échec de l'ajout d'une nouvelle personne"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:110
-#: src/features/line-items/hooks/useLineItemMutations.ts:185
+#: src/features/line-items/hooks/useLineItemMutations.ts:109
+#: src/features/line-items/hooks/useLineItemMutations.ts:184
 msgid "Failed to add person to item"
 msgstr "Échec de l'ajout de la personne à l'article"
 
@@ -488,7 +488,7 @@ msgstr "Échec de la revendication"
 #~ msgid "Failed to delete gratuity. Please try again."
 #~ msgstr "Échec de la suppression du pourboire. Veuillez réessayer."
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:303
+#: src/features/line-items/hooks/useLineItemMutations.ts:280
 msgid "Failed to delete item"
 msgstr "Échec de la suppression de l'article"
 
@@ -513,11 +513,11 @@ msgstr "Impossible de récupérer le jeton d'authentification. Vos requêtes pou
 msgid "Failed to load receipt image"
 msgstr "Échec du chargement de l'image du reçu"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:56
+#: src/features/line-items/hooks/useLineItemMutations.ts:55
 msgid "Failed to rebalance shares"
 msgstr "Échec du rééquilibrage des parts"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:238
+#: src/features/line-items/hooks/useLineItemMutations.ts:222
 msgid "Failed to remove person from item"
 msgstr "Échec de la suppression de la personne de l'article"
 
@@ -543,8 +543,8 @@ msgstr "Échec du changement de personne"
 msgid "Failed to update image visibility"
 msgstr "Échec de la mise à jour de la visibilité de l'image"
 
+#: src/features/line-items/hooks/useLineItemMutations.ts:232
 #: src/features/line-items/hooks/useLineItemMutations.ts:255
-#: src/features/line-items/hooks/useLineItemMutations.ts:278
 msgid "Failed to update item"
 msgstr "Échec de la mise à jour de l'article"
 

@@ -96,8 +96,8 @@ msgstr "添加用户"
 msgid "After tax"
 msgstr "税后"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:93
-#: src/features/line-items/hooks/useLineItemMutations.ts:165
+#: src/features/line-items/hooks/useLineItemMutations.ts:92
+#: src/features/line-items/hooks/useLineItemMutations.ts:164
 msgid "All existing shares are locked — added with 0% share. Unlock a share to give them a portion."
 msgstr "所有现有份额均已锁定 — 已按 0% 份额添加。请解锁某个份额以分配给该用户。"
 
@@ -450,12 +450,12 @@ msgstr "平均"
 msgid "Every split is saved. Review, adjust, or settle up any time."
 msgstr "每次分摊都会保存。随时查看、调整或结算。"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:155
+#: src/features/line-items/hooks/useLineItemMutations.ts:154
 msgid "Failed to add new person"
 msgstr "添加新成员失败"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:110
-#: src/features/line-items/hooks/useLineItemMutations.ts:185
+#: src/features/line-items/hooks/useLineItemMutations.ts:109
+#: src/features/line-items/hooks/useLineItemMutations.ts:184
 msgid "Failed to add person to item"
 msgstr "向项目添加成员失败"
 
@@ -468,7 +468,7 @@ msgstr "文档分析失败"
 msgid "Failed to claim person"
 msgstr "认领失败"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:303
+#: src/features/line-items/hooks/useLineItemMutations.ts:280
 msgid "Failed to delete item"
 msgstr "删除项目失败"
 
@@ -489,11 +489,11 @@ msgstr "获取身份验证令牌失败。您的请求可能未正确验证。"
 msgid "Failed to load receipt image"
 msgstr "加载收据图片失败"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:56
+#: src/features/line-items/hooks/useLineItemMutations.ts:55
 msgid "Failed to rebalance shares"
 msgstr "重新分配份额失败"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:238
+#: src/features/line-items/hooks/useLineItemMutations.ts:222
 msgid "Failed to remove person from item"
 msgstr "从项目移除成员失败"
 
@@ -510,8 +510,8 @@ msgstr "切换人员失败"
 msgid "Failed to update image visibility"
 msgstr "更新图片可见性失败"
 
+#: src/features/line-items/hooks/useLineItemMutations.ts:232
 #: src/features/line-items/hooks/useLineItemMutations.ts:255
-#: src/features/line-items/hooks/useLineItemMutations.ts:278
 msgid "Failed to update item"
 msgstr "更新项目失败"
 

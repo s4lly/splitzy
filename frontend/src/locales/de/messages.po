@@ -100,8 +100,8 @@ msgstr "Benutzer hinzufügen"
 msgid "After tax"
 msgstr "Nach Steuern"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:93
-#: src/features/line-items/hooks/useLineItemMutations.ts:165
+#: src/features/line-items/hooks/useLineItemMutations.ts:92
+#: src/features/line-items/hooks/useLineItemMutations.ts:164
 msgid "All existing shares are locked — added with 0% share. Unlock a share to give them a portion."
 msgstr "Alle bestehenden Anteile sind gesperrt – mit 0 % Anteil hinzugefügt. Entsperre einen Anteil, um ihnen einen Teil zuzuweisen."
 
@@ -466,12 +466,12 @@ msgstr "Gleichmäßig"
 msgid "Every split is saved. Review, adjust, or settle up any time."
 msgstr "Jede Teilung wird gespeichert. Überprüfe, passe an oder rechne jederzeit ab."
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:155
+#: src/features/line-items/hooks/useLineItemMutations.ts:154
 msgid "Failed to add new person"
 msgstr "Hinzufügen einer neuen Person fehlgeschlagen"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:110
-#: src/features/line-items/hooks/useLineItemMutations.ts:185
+#: src/features/line-items/hooks/useLineItemMutations.ts:109
+#: src/features/line-items/hooks/useLineItemMutations.ts:184
 msgid "Failed to add person to item"
 msgstr "Hinzufügen der Person zum Artikel fehlgeschlagen"
 
@@ -488,7 +488,7 @@ msgstr "Person konnte nicht beansprucht werden"
 #~ msgid "Failed to delete gratuity. Please try again."
 #~ msgstr "Trinkgeld konnte nicht gelöscht werden. Bitte versuche es erneut."
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:303
+#: src/features/line-items/hooks/useLineItemMutations.ts:280
 msgid "Failed to delete item"
 msgstr "Löschen des Artikels fehlgeschlagen"
 
@@ -513,11 +513,11 @@ msgstr "Authentifizierungstoken konnte nicht abgerufen werden. Deine Anfragen si
 msgid "Failed to load receipt image"
 msgstr "Belegbild konnte nicht geladen werden"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:56
+#: src/features/line-items/hooks/useLineItemMutations.ts:55
 msgid "Failed to rebalance shares"
 msgstr "Anteile konnten nicht neu verteilt werden"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:238
+#: src/features/line-items/hooks/useLineItemMutations.ts:222
 msgid "Failed to remove person from item"
 msgstr "Entfernen der Person vom Artikel fehlgeschlagen"
 
@@ -543,8 +543,8 @@ msgstr "Person konnte nicht gewechselt werden"
 msgid "Failed to update image visibility"
 msgstr "Bildsichtbarkeit konnte nicht aktualisiert werden"
 
+#: src/features/line-items/hooks/useLineItemMutations.ts:232
 #: src/features/line-items/hooks/useLineItemMutations.ts:255
-#: src/features/line-items/hooks/useLineItemMutations.ts:278
 msgid "Failed to update item"
 msgstr "Aktualisieren des Artikels fehlgeschlagen"
 
