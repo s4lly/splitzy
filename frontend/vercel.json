@@ -2,14 +2,31 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "devCommand": "vite --port $PORT",
+  "functions": {
+    "api/og-receipt.js": {
+      "includeFiles": "dist/index.html"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/upload-to-blob",
       "destination": "/api/upload-to-blob"
     },
     {
+      "source": "/api/og-receipt",
+      "destination": "/api/og-receipt"
+    },
+    {
       "source": "/api/:path*",
       "destination": "https://splitzy-prod.onrender.com/api/:path*"
+    },
+    {
+      "source": "/receipts/:id",
+      "destination": "/api/og-receipt?id=:id"
+    },
+    {
+      "source": "/receipt/:id",
+      "destination": "/api/og-receipt?id=:id"
     },
     {
       "source": "/(.*)",

@@ -278,3 +278,24 @@ def analyze_receipt():
 def health_check():
     """Simple health check endpoint"""
     return jsonify({"status": "healthy"})
+
+
+@receipts_bp.route("/api/receipts/<int:receipt_id>/preview", methods=["GET"])
+def receipt_preview(receipt_id):
+    """Public minimal receipt fields for link-preview (Open Graph) generation.
+
+    Exposes only merchant, date, and total — no line items, users, or images.
+    """
+    receipt = UserReceipt.query.filter_by(id=receipt_id, deleted_at=None).first()
+    if receipt is None:
+        return jsonify({"error": "not_found"}), 404
+
+    response = jsonify(
+        {
+            "merchant": receipt.merchant,
+            "date": receipt.date.isoformat() if receipt.date else None,
+            "total": float(receipt.total) if receipt.total is not None else None,
+        }
+    )
+    response.headers["Cache-Control"] = "public, max-age=300, s-maxage=3600"
+    return response
