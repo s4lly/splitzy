@@ -1,11 +1,14 @@
 import json
 import os
+from datetime import date, datetime, timezone
+from decimal import Decimal
 from unittest.mock import patch
 
 import pytest
 from pydantic import ValidationError
 
 from models import db
+from models.user_receipt import UserReceipt
 from schemas.receipt import BoundingBox, FieldMetadata, RegularReceipt
 
 
@@ -117,3 +120,63 @@ def test_analyze_receipt(
     assert data["receipt_data"]["merchant"] == mock_receipt_data["merchant"]
 
     os.remove(file_path)
+
+
+class TestReceiptPreview:
+    """GET /api/receipts/<id>/preview — public endpoint for OG link previews."""
+
+    def _make_receipt(self, **overrides):
+        defaults = dict(
+            merchant="Trader Joe's",
+            date=date(2026, 4, 12),
+            total=Decimal("48.21"),
+        )
+        defaults.update(overrides)
+        receipt = UserReceipt(**defaults)
+        db.session.add(receipt)
+        db.session.commit()
+        return receipt
+
+    def test_returns_merchant_date_total(self, test_app, test_client):
+        with test_app.app_context():
+            receipt = self._make_receipt()
+            response = test_client.get(f"/api/receipts/{receipt.id}/preview")
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data == {
+            "merchant": "Trader Joe's",
+            "date": "2026-04-12",
+            "total": 48.21,
+        }
+        assert "public" in response.headers.get("Cache-Control", "")
+
+    def test_no_auth_required(self, test_app, test_client):
+        with test_app.app_context():
+            receipt = self._make_receipt()
+            response = test_client.get(f"/api/receipts/{receipt.id}/preview")
+
+        assert response.status_code == 200
+
+    def test_unknown_id_returns_404(self, test_client):
+        response = test_client.get("/api/receipts/999999/preview")
+        assert response.status_code == 404
+
+    def test_soft_deleted_returns_404(self, test_app, test_client):
+        with test_app.app_context():
+            receipt = self._make_receipt(
+                deleted_at=datetime.now(timezone.utc)
+            )
+            response = test_client.get(f"/api/receipts/{receipt.id}/preview")
+
+        assert response.status_code == 404
+
+    def test_null_merchant_and_date_serialized_as_null(self, test_app, test_client):
+        with test_app.app_context():
+            receipt = self._make_receipt(merchant=None, date=None)
+            response = test_client.get(f"/api/receipts/{receipt.id}/preview")
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data["merchant"] is None
+        assert data["date"] is None
