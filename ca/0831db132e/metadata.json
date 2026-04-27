@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "ca0831db132e",
+  "strategy": "manual-commit",
+  "branch": "feat/og-receipt-previews",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "backend/blueprints/receipts.py",
+    "backend/tests/test_receipts.py",
+    "frontend/api/og-receipt.js",
+    "frontend/index.html",
+    "frontend/vercel.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ca/0831db132e/0/metadata.json",
+      "transcript": "/ca/0831db132e/0/full.jsonl",
+      "content_hash": "/ca/0831db132e/0/content_hash.txt",
+      "prompt": "/ca/0831db132e/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 83,
+    "cache_creation_tokens": 117963,
+    "cache_read_tokens": 3474682,
+    "output_tokens": 24624,
+    "api_call_count": 58
+  }
+}
