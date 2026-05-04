@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import AuthenticatedOnly from '@/components/Auth/AuthenticatedOnly';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import LegacyReceiptRedirect from '@/components/routes/LegacyReceiptRedirect';
 import NotFound from '@/components/routes/NotFound';
 import ReceiptRoute from '@/components/routes/ReceiptRoute';
 import { Toaster } from '@/components/ui/sonner';
@@ -49,10 +50,18 @@ function App() {
           {/* Receipts list */}
           <Route path="/receipts" element={<ReceiptsPage />} />
 
-          {/* Receipt - RESTful plural form */}
-          <Route path="/receipts/:receiptId" element={<ReceiptRoute />} />
-          {/* Receipt - legacy singular form (backward compatibility) */}
-          <Route path="/receipt/:receiptId" element={<ReceiptRoute />} />
+          {/* Receipt - canonical token-based route */}
+          <Route path="/r/:token" element={<ReceiptRoute />} />
+          {/* Legacy id-based routes — resolve to share_token via Zero,
+              then redirect to /r/:token so the URL bar canonicalizes. */}
+          <Route
+            path="/receipts/:receiptId"
+            element={<LegacyReceiptRedirect />}
+          />
+          <Route
+            path="/receipt/:receiptId"
+            element={<LegacyReceiptRedirect />}
+          />
 
           {/* Settings (protected) */}
           <Route

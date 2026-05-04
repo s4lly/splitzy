@@ -57,6 +57,9 @@ export interface Receipt {
   /** The authentication user ID associated with this receipt, or null if not linked */
   readonly authUserId: string | null;
 
+  /** Unguessable URL-safe token used for the canonical /r/<token> share link */
+  readonly shareToken: string;
+
   // Core receipt data
   /** The name of the merchant or business where the receipt is from */
   readonly merchant: string | null;

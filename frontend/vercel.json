@@ -21,12 +21,16 @@
       "destination": "https://splitzy-prod.onrender.com/api/:path*"
     },
     {
+      "source": "/r/:token",
+      "destination": "/api/og-receipt?t=:token"
+    },
+    {
       "source": "/receipts/:id",
-      "destination": "/api/og-receipt?id=:id"
+      "destination": "/api/og-receipt?legacy_id=:id"
     },
     {
       "source": "/receipt/:id",
-      "destination": "/api/og-receipt?id=:id"
+      "destination": "/api/og-receipt?legacy_id=:id"
     },
     {
       "source": "/(.*)",

@@ -35,5 +35,25 @@ export const queries = defineQueries({
         .related('user')
         .one()
     ),
+    byShareToken: defineQuery(
+      z.object({ token: z.string() }),
+      ({ args: { token } }) =>
+        zql.user_receipts
+          .where('share_token', token)
+          .where('deleted_at', 'IS', null)
+          .related('line_items', (q) =>
+            q
+              .where('deleted_at', 'IS', null)
+              .related('assignments', (q) =>
+                q
+                  .where('deleted_at', 'IS', null)
+                  .related('receipt_user', (q) =>
+                    q.where('deleted_at', 'IS', null).related('user')
+                  )
+              )
+          )
+          .related('user')
+          .one()
+    ),
   },
 });

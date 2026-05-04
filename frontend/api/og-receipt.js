@@ -80,7 +80,7 @@ function buildTagBlock({ pageTitle, ogTitle, description, url, image }) {
   ].join('\n    ');
 }
 
-function renderReceiptTags({ merchant, dateIso, total, host, id }) {
+function renderReceiptTags({ merchant, dateIso, total, host, canonicalPath }) {
   const merchantText =
     merchant && merchant.trim() ? merchant.trim() : 'Receipt';
   const dateText = formatDate(dateIso);
@@ -98,16 +98,16 @@ function renderReceiptTags({ merchant, dateIso, total, host, id }) {
     pageTitle,
     ogTitle,
     description,
-    url: `${origin}/receipts/${id}`,
+    url: `${origin}${canonicalPath}`,
     image: `${origin}/logo512.png`,
   });
 }
 
-async function fetchReceipt(id) {
+async function fetchBackend(pathSuffix) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    const res = await fetch(`${BACKEND_URL}/api/receipts/${id}/preview`, {
+    const res = await fetch(`${BACKEND_URL}${pathSuffix}`, {
       signal: controller.signal,
       headers: { Accept: 'application/json' },
     });
@@ -145,38 +145,58 @@ export default async function handler(req, res) {
   }
 
   const url = new URL(req.url, 'http://localhost');
-  let id = url.searchParams.get('id');
-  if (!id) {
-    // Fall back to parsing /receipts/:id or /receipt/:id from the path.
+
+  let token = url.searchParams.get('t');
+  if (!token) {
+    const m = /\/r\/([^/?#]+)/.exec(url.pathname);
+    if (m) token = m[1];
+  }
+
+  let legacyId = url.searchParams.get('legacy_id');
+  if (!legacyId) {
     const m = /\/receipts?\/([^/?#]+)/.exec(url.pathname);
-    if (m) id = m[1];
+    if (m) legacyId = m[1];
   }
 
   const host = req.headers['x-forwarded-host'] || req.headers.host || '';
 
+  let data = null;
+  let canonicalPath = null;
+  // Share tokens are URL-safe base64 from secrets.token_urlsafe(16) — 22 chars,
+  // alphabet [A-Za-z0-9_-]. Validate cheaply before hitting the API.
+  if (token && /^[A-Za-z0-9_-]{1,32}$/.test(token)) {
+    data = await fetchBackend(
+      `/api/receipts/preview/${encodeURIComponent(token)}`
+    );
+    canonicalPath = `/r/${token}`;
+  } else if (legacyId && /^\d+$/.test(legacyId)) {
+    data = await fetchBackend(`/api/receipts/legacy-preview/${legacyId}`);
+    // Preserve the URL the crawler was actually fetching — don't surprise it.
+    canonicalPath = `/receipts/${legacyId}`;
+  }
+
   let html;
-  if (!id || !/^\d+$/.test(id)) {
-    html = template;
+  if (data && canonicalPath) {
+    const tagBlock = renderReceiptTags({
+      merchant: data.merchant,
+      dateIso: data.date,
+      total: data.total,
+      host,
+      canonicalPath,
+    });
+    html = injectTags(template, tagBlock);
   } else {
-    const data = await fetchReceipt(id);
-    if (!data) {
-      html = template;
-    } else {
-      const tagBlock = renderReceiptTags({
-        merchant: data.merchant,
-        dateIso: data.date,
-        total: data.total,
-        host,
-        id,
-      });
-      html = injectTags(template, tagBlock);
-    }
+    html = template;
   }
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  // Long cache on success, short cache on fallback so transient backend
+  // hiccups don't pin a poor preview at the CDN for an hour.
   res.setHeader(
     'Cache-Control',
-    'public, s-maxage=3600, stale-while-revalidate=86400'
+    data
+      ? 'public, s-maxage=3600, stale-while-revalidate=86400'
+      : 'public, max-age=60, s-maxage=300'
   );
   res.status(200).send(html);
 }

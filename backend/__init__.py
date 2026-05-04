@@ -1,13 +1,20 @@
 import os
 import sqlite3
+from datetime import datetime, timezone
 from pathlib import Path
 
 from clerk_backend_api import Clerk
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+
+limiter = Limiter(key_func=get_remote_address)
 
 
 def create_app():
@@ -23,6 +30,10 @@ def create_app():
     # Flask App Creation
     # ============================================================================
     app = Flask(__name__)
+
+    # Render terminates TLS upstream; trust X-Forwarded-* so get_remote_address
+    # resolves to the real client IP instead of the proxy.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
     # ============================================================================
     # CORS Configuration
@@ -123,6 +134,27 @@ def create_app():
             "VERCEL_FUNCTION_URL environment variable is required for blob storage functionality"
         )
 
+    # Cutoff for the legacy /receipts/:id preview surface. Receipts with
+    # created_at < this timestamp may be reached by integer id; everything
+    # newer must use the unguessable share_token. Required in production;
+    # fail-closed default (epoch 0) in dev so legacy lookups always 404 unless
+    # explicitly opted in.
+    cutoff_iso = os.environ.get("LEGACY_ID_CUTOFF_ISO")
+    if vercel_env == "production" and not cutoff_iso:
+        raise ValueError(
+            "LEGACY_ID_CUTOFF_ISO is required in production"
+        )
+    try:
+        app.config["LEGACY_ID_CUTOFF"] = (
+            datetime.fromisoformat(cutoff_iso.replace("Z", "+00:00"))
+            if cutoff_iso
+            else datetime(1970, 1, 1, tzinfo=timezone.utc)
+        )
+    except ValueError as e:
+        raise ValueError(
+            f"LEGACY_ID_CUTOFF_ISO is not a valid ISO timestamp: {cutoff_iso!r}"
+        ) from e
+
     # ============================================================================
     # Database Configuration
     # ============================================================================
@@ -165,6 +197,15 @@ def create_app():
     # Configure migrations directory
     migrations_dir = os.path.join(os.path.dirname(__file__), "migrations")
     migrate = Migrate(app, db, directory=migrations_dir)
+
+    # Rate limiter — Redis-backed when REDIS_URL is set (Render Key Value),
+    # in-memory fallback otherwise.
+    redis_url = os.environ.get("REDIS_URL")
+    app.config["RATELIMIT_STORAGE_URI"] = redis_url or "memory://"
+    app.config["RATELIMIT_STRATEGY"] = "fixed-window"
+    app.config["RATELIMIT_HEADERS_ENABLED"] = True
+    app.config["RATELIMIT_IN_MEMORY_FALLBACK_ENABLED"] = True
+    limiter.init_app(app)
 
     # ============================================================================
     # Blueprints Registration

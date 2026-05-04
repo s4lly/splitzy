@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from unittest.mock import patch
 
@@ -123,7 +123,7 @@ def test_analyze_receipt(
 
 
 class TestReceiptPreview:
-    """GET /api/receipts/<id>/preview — public endpoint for OG link previews."""
+    """GET /api/receipts/preview/<token> — token-keyed public preview."""
 
     def _make_receipt(self, **overrides):
         defaults = dict(
@@ -137,46 +137,98 @@ class TestReceiptPreview:
         db.session.commit()
         return receipt
 
-    def test_returns_merchant_date_total(self, test_app, test_client):
+    def test_token_minted_on_create(self, test_app):
         with test_app.app_context():
             receipt = self._make_receipt()
-            response = test_client.get(f"/api/receipts/{receipt.id}/preview")
+            assert receipt.share_token
+            assert len(receipt.share_token) == 22
 
+    def test_returns_merchant_date_total_by_token(self, test_app, test_client):
+        with test_app.app_context():
+            receipt = self._make_receipt()
+            token = receipt.share_token
+        response = test_client.get(f"/api/receipts/preview/{token}")
         assert response.status_code == 200
-        data = json.loads(response.data)
-        assert data == {
+        assert json.loads(response.data) == {
             "merchant": "Trader Joe's",
             "date": "2026-04-12",
             "total": 48.21,
         }
         assert "public" in response.headers.get("Cache-Control", "")
 
-    def test_no_auth_required(self, test_app, test_client):
+    def test_unknown_token_returns_404(self, test_client):
+        response = test_client.get("/api/receipts/preview/bogus_token_x")
+        assert response.status_code == 404
+        assert response.headers.get("Cache-Control") == "no-store"
+
+    def test_soft_deleted_token_returns_404(self, test_app, test_client):
+        with test_app.app_context():
+            receipt = self._make_receipt(deleted_at=datetime.now(timezone.utc))
+            token = receipt.share_token
+        response = test_client.get(f"/api/receipts/preview/{token}")
+        assert response.status_code == 404
+
+    def test_legacy_int_id_route_is_gone(self, test_client):
+        # The original /api/receipts/<int:id>/preview was replaced. The
+        # legacy compat path is /api/receipts/legacy-preview/<id>.
+        response = test_client.get("/api/receipts/1/preview")
+        assert response.status_code == 404
+
+
+class TestReceiptLegacyPreview:
+    """GET /api/receipts/legacy-preview/<int:id> — cutoff-gated compat path."""
+
+    def _make_receipt(self, **overrides):
+        defaults = dict(
+            merchant="Trader Joe's",
+            date=date(2026, 4, 12),
+            total=Decimal("48.21"),
+        )
+        defaults.update(overrides)
+        receipt = UserReceipt(**defaults)
+        db.session.add(receipt)
+        db.session.commit()
+        return receipt
+
+    def test_pre_cutoff_returns_payload(self, test_app, test_client):
         with test_app.app_context():
             receipt = self._make_receipt()
-            response = test_client.get(f"/api/receipts/{receipt.id}/preview")
-
-        assert response.status_code == 200
-
-    def test_unknown_id_returns_404(self, test_client):
-        response = test_client.get("/api/receipts/999999/preview")
-        assert response.status_code == 404
-
-    def test_soft_deleted_returns_404(self, test_app, test_client):
-        with test_app.app_context():
-            receipt = self._make_receipt(
-                deleted_at=datetime.now(timezone.utc)
+            test_app.config["LEGACY_ID_CUTOFF"] = (
+                datetime.now(timezone.utc) + timedelta(hours=1)
             )
-            response = test_client.get(f"/api/receipts/{receipt.id}/preview")
-
-        assert response.status_code == 404
-
-    def test_null_merchant_and_date_serialized_as_null(self, test_app, test_client):
-        with test_app.app_context():
-            receipt = self._make_receipt(merchant=None, date=None)
-            response = test_client.get(f"/api/receipts/{receipt.id}/preview")
-
+            rid = receipt.id
+        response = test_client.get(f"/api/receipts/legacy-preview/{rid}")
         assert response.status_code == 200
-        data = json.loads(response.data)
-        assert data["merchant"] is None
-        assert data["date"] is None
+        assert "public" in response.headers.get("Cache-Control", "")
+        assert json.loads(response.data)["merchant"] == "Trader Joe's"
+
+    def test_post_cutoff_returns_uniform_404(self, test_app, test_client):
+        with test_app.app_context():
+            receipt = self._make_receipt()
+            test_app.config["LEGACY_ID_CUTOFF"] = datetime(
+                1970, 1, 1, tzinfo=timezone.utc
+            )
+            rid = receipt.id
+        response = test_client.get(f"/api/receipts/legacy-preview/{rid}")
+        assert response.status_code == 404
+        assert response.headers.get("Cache-Control") == "no-store"
+
+    def test_unknown_id_returns_uniform_404(self, test_app, test_client):
+        with test_app.app_context():
+            test_app.config["LEGACY_ID_CUTOFF"] = (
+                datetime.now(timezone.utc) + timedelta(hours=1)
+            )
+        response = test_client.get("/api/receipts/legacy-preview/9999999")
+        assert response.status_code == 404
+        assert response.headers.get("Cache-Control") == "no-store"
+
+    def test_soft_deleted_returns_uniform_404(self, test_app, test_client):
+        with test_app.app_context():
+            receipt = self._make_receipt(deleted_at=datetime.now(timezone.utc))
+            test_app.config["LEGACY_ID_CUTOFF"] = (
+                datetime.now(timezone.utc) + timedelta(hours=1)
+            )
+            rid = receipt.id
+        response = test_client.get(f"/api/receipts/legacy-preview/{rid}")
+        assert response.status_code == 404
+        assert response.headers.get("Cache-Control") == "no-store"

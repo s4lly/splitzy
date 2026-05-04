@@ -8,20 +8,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { QRCode } from '@/components/ui/kibo-ui/qr-code';
 
 interface ReceiptDetailsCardProps {
+  shareToken: string;
   merchant: string | null;
   date: Date | number | null;
 }
 
 /**
- * Receipt details card component that displays merchant and date information.
- * Includes a QR code toggle to display the current page URL.
+ * Receipt details card. The QR code encodes the canonical `/r/<share_token>`
+ * URL — share_token is replicated via Zero so it's available the moment the
+ * page renders, no extra round-trip.
  */
 export const ReceiptDetailsCard = ({
+  shareToken,
   merchant,
   date,
 }: ReceiptDetailsCardProps) => {
   const { t, i18n } = useLingui();
   const [showQrCode, setShowQrCode] = useState(false);
+
+  const shareUrl = `${window.location.origin}/r/${shareToken}`;
 
   // Format date - handle both Date objects and timestamps (seconds or milliseconds)
   const formatDate = (): string => {
@@ -31,7 +36,6 @@ export const ReceiptDetailsCard = ({
       return date.toLocaleDateString(i18n.locale);
     }
 
-    // Handle numeric timestamp
     // Heuristic: If the timestamp is less than Jan 1, 2000 in milliseconds (946684800000),
     // assume it's in seconds. This works for any reasonable receipt date.
     const timestamp = typeof date === 'number' ? date : 0;
@@ -40,7 +44,6 @@ export const ReceiptDetailsCard = ({
       timestamp < YEAR_2000_MS ? timestamp * 1000 : timestamp
     );
 
-    // Validate the date
     if (isNaN(dateObj.getTime())) {
       return t`Invalid Date`;
     }
@@ -78,7 +81,7 @@ export const ReceiptDetailsCard = ({
             transition={{ duration: 0.5 }}
             className="flex justify-center py-4"
           >
-            <QRCode data={window.location.href} className="h-48 w-48" />
+            <QRCode data={shareUrl} className="h-48 w-48" />
           </motion.div>
         )}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
