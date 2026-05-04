@@ -144,16 +144,20 @@ def create_app():
         raise ValueError(
             "LEGACY_ID_CUTOFF_ISO is required in production"
         )
-    try:
-        app.config["LEGACY_ID_CUTOFF"] = (
-            datetime.fromisoformat(cutoff_iso.replace("Z", "+00:00"))
-            if cutoff_iso
-            else datetime(1970, 1, 1, tzinfo=timezone.utc)
-        )
-    except ValueError as e:
-        raise ValueError(
-            f"LEGACY_ID_CUTOFF_ISO is not a valid ISO timestamp: {cutoff_iso!r}"
-        ) from e
+    if cutoff_iso:
+        try:
+            cutoff_dt = datetime.fromisoformat(cutoff_iso.replace("Z", "+00:00"))
+        except ValueError as e:
+            raise ValueError(
+                f"LEGACY_ID_CUTOFF_ISO is not a valid ISO timestamp: {cutoff_iso!r}"
+            ) from e
+        if cutoff_dt.tzinfo is None:
+            raise ValueError(
+                f"LEGACY_ID_CUTOFF_ISO must include a timezone: {cutoff_iso!r}"
+            )
+        app.config["LEGACY_ID_CUTOFF"] = cutoff_dt
+    else:
+        app.config["LEGACY_ID_CUTOFF"] = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
     # ============================================================================
     # Database Configuration
