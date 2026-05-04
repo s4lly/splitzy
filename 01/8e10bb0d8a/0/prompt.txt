@@ -1,0 +1,3 @@
+refactor frontend/api/og-receipt.js
+
+make sure to add jsdoc for each of the functions which are not react related, like largestRemainderRound. include info about params, return value and examples. also, add inline comments for logical groupings of lines of code. so if there is a couple lines which perform one logical unit of work, then there should be one comment describing what those lines are doing. to that affect, also try to add one empty line between logical groupings of code. avoid single character variable names. avoid ternary operator, use if statement instead and include comment explaining why fell into if block.
