@@ -1,0 +1,10 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@backend/schemas/receipt.py` around lines 309 - 310, Add schema-level
+validation/normalization for the currency field: on the Pydantic model that
+declares the currency Optional[str] field, add a Pydantic validator (e.g.
+`@validator`("currency", pre=True)) that trims whitespace, strips common currency
+symbols (e.g. "$", "€", "£"), converts the value to uppercase, and verifies it
+matches a 3-letter ISO-4217 pattern /^[A-Z]{3}$/; return the normalized code or
+None and raise ValueError for invalid inputs so only canonical 3-letter
+uppercase ISO codes are accepted and persisted.
