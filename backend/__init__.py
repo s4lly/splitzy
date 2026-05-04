@@ -203,12 +203,19 @@ def create_app():
     migrate = Migrate(app, db, directory=migrations_dir)
 
     # Rate limiter — Redis-backed when REDIS_URL is set (Render Key Value),
-    # in-memory fallback otherwise.
+    # in-memory fallback otherwise. Production requires Redis so per-process
+    # counters can't be sidestepped by horizontal scaling.
     redis_url = os.environ.get("REDIS_URL")
-    app.config["RATELIMIT_STORAGE_URI"] = redis_url or "memory://"
+    if vercel_env == "production":
+        if not redis_url:
+            raise RuntimeError("REDIS_URL is required in production")
+        app.config["RATELIMIT_STORAGE_URI"] = redis_url
+        app.config["RATELIMIT_IN_MEMORY_FALLBACK_ENABLED"] = False
+    else:
+        app.config["RATELIMIT_STORAGE_URI"] = redis_url or "memory://"
+        app.config["RATELIMIT_IN_MEMORY_FALLBACK_ENABLED"] = True
     app.config["RATELIMIT_STRATEGY"] = "fixed-window"
     app.config["RATELIMIT_HEADERS_ENABLED"] = True
-    app.config["RATELIMIT_IN_MEMORY_FALLBACK_ENABLED"] = True
     limiter.init_app(app)
 
     # ============================================================================
