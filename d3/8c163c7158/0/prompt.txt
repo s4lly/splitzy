@@ -1,0 +1,114 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@backend/blueprints/receipts.py` around lines 283 - 301, The public
+receipt_preview route exposes sequential UserReceipt.id data allowing
+enumeration; protect it by adding rate-limiting and/or requiring an unguessable
+share token. Update the receipt_preview handler (and its `@receipts_bp.route`) to
+enforce per-IP throttling (e.g. integrate Flask-Limiter and apply
+limiter.limit("X per minute") on receipt_preview) or, preferably, change the
+route to accept a share token and validate a new share_token column on
+UserReceipt (mint lazily) before returning merchant/date/total; also ensure
+non-shared receipts 404 and add/update vercel.json WAF/rate-limit rules for the
+endpoint.
+
+---
+
+create a plan for option 3, combined approach. do not implement. in the plan include how the system would work if we use redis on render.com, Render Key Value, and we choose the free tier which provides 25MB RAM, 50 connections and does not offer persistence. this is a hobby project so i am not worried about traffic, just want to make sure that is suitable for what we are trying to achieve.
+
+---
+
+execute the plan
+
+---
+
+stage all the changes you made for this chat session. just the changes you made for this chat session. leave everything else untracked.
+
+---
+
+how was the migration created? did you use the flask command or did you manually create?
+
+---
+
+i thought part of the plan was to migrate existing user_receipts and add the token? is that not part of the migration file?
+
+---
+
+how does someone hit post? like what if i have link to id from before, do i just try to load the link again?
+
+---
+
+/grill-me on direction #2. i would like for old links to continue working and include the rich previews. apply additional security checks like rate-limiting, treat the redirect as the public surface and anything else that might be helpful. for new links we would use the token, the id will not work. maybe we can use created at time to determine if the id redirects.
+
+---
+
+i agree with (a) + env var
+
+---
+
+stick with (a) inline render
+
+---
+
+Go with (b) + uniform 404s
+
+---
+
+Go with (b) + (y)
+
+---
+
+stick with (b)
+
+---
+
+go with (d)
+
+---
+
+go with (b)
+
+---
+
+push for a bigger (c) refactor
+
+---
+
+Go with (a) — replicate via Zero, mint on creation, backfill existing rows. right now the expecation is that any user, authenticated or not, can view the receipt, make sure that is still the case.
+
+---
+
+go with (ii)
+
+---
+
+write this up as an updated plan file
+
+---
+
+implement the plan
+
+---
+
+how do i test the rich preview?
+
+---
+
+i get:
+ curl -s "http://localhost:5001/api/receipts/preview/-JwFm-akXHrfkaY_QBbzsw"
+<!doctype html>
+<html lang=en>
+<title>404 Not Found</title>
+<h1>Not Found</h1>
+<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+
+---
+
+what are the steps i need to perform to setup the render key value store
+
+---
+
+what about vercel, do i need to do anything?
+
+---
+
+stage additional changes for this chat session. just stage, do not commit

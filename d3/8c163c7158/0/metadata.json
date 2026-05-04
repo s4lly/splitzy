@@ -1,0 +1,313 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "d38c163c7158",
+  "session_id": "b2ad31fc-e3ab-4f9f-9804-9522f425c245",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-04T06:50:13.702382Z",
+  "branch": "feat/og-receipt-previews",
+  "checkpoints_count": 23,
+  "files_touched": [
+    "backend/__init__.py",
+    "backend/blueprints/receipts.py",
+    "backend/migrations/versions/160dedca41ad_add_share_token_to_user_receipts.py",
+    "backend/migrations/versions/350348f56766_backfill_share_token_and_make_not_null.py",
+    "backend/models/user_receipt.py",
+    "backend/requirements.txt",
+    "backend/tests/test_receipts.py",
+    "frontend/api/og-receipt.js",
+    "frontend/src/App.tsx",
+    "frontend/src/components/routes/LegacyReceiptRedirect.tsx",
+    "frontend/src/features/receipt-collab/components/ReceiptCollabContent.tsx",
+    "frontend/src/features/receipt-viewer/ReceiptDetailsCard.tsx",
+    "frontend/src/models/Receipt.ts",
+    "frontend/src/models/transformers/fromZero.ts",
+    "frontend/src/pages/ReceiptCollabPage.tsx",
+    "frontend/vercel.json",
+    "shared-zero/src/queries.ts",
+    "shared-zero/src/schemas/user-receipt.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "047fc8a99bc2",
+  "token_usage": {
+    "input_tokens": 312,
+    "cache_creation_tokens": 724434,
+    "cache_read_tokens": 23184515,
+    "output_tokens": 128580,
+    "api_call_count": 162
+  },
+  "session_metrics": {
+    "turn_count": 25
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-04T06:50:13.681025Z",
+    "agent_lines": 417,
+    "agent_removed": 82,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 417,
+    "total_lines_changed": 499,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 4804,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".agents/skills/grill-me/SKILL.md": 10,
+        ".claude/settings.local.json": 7,
+        "2026-04-04-194954-verify-each-finding-against-the-current-code-and.txt": 709,
+        "CODE_REVIEW_split-calculation-fixes-phase-4-6.md": 168,
+        "CODE_REVIEW_split-percent-issues.md": 232,
+        "IMAGE_PREP_PLAN.md": 162,
+        "REFACTOR_PROMPT.md": 126,
+        "docs/assignment-code-journey.md": 683,
+        "docs/custom-splits-architecture-notes.md": 455,
+        "docs/lingui-precommit-hook-plan.md": 134,
+        "docs/setup-improvements.md": 25,
+        "docs/shared-zero-extraction-plan.md": 124,
+        "docs/split-calculation-findings.md": 378,
+        "docs/split-calculation-fix-plan.md": 314,
+        "docs/structured-logging-plan.md": 182,
+        "docs/zero-query-docker-shared-zero-fix.md": 191,
+        "frontend/2026-03-31-233627-create-a-plan-for-a-new-page-which-appears-after-u.txt": 734,
+        "splitzy-payment-tracking-prompt.md": 170
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 8,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 9,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 10,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 11,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 12,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 13,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 14,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 15,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 16,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 17,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 18,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4972,
+      "agent_lines_removed": 30,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 19,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5214,
+      "agent_lines_removed": 82,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 20,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5214,
+      "agent_lines_removed": 82,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 21,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5214,
+      "agent_lines_removed": 82,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 22,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5214,
+      "agent_lines_removed": 82,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 23,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5214,
+      "agent_lines_removed": 82,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 24,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5214,
+      "agent_lines_removed": 82,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    }
+  ]
+}

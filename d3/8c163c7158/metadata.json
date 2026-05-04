@@ -1,0 +1,42 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "d38c163c7158",
+  "strategy": "manual-commit",
+  "branch": "feat/og-receipt-previews",
+  "checkpoints_count": 23,
+  "files_touched": [
+    "backend/__init__.py",
+    "backend/blueprints/receipts.py",
+    "backend/migrations/versions/160dedca41ad_add_share_token_to_user_receipts.py",
+    "backend/migrations/versions/350348f56766_backfill_share_token_and_make_not_null.py",
+    "backend/models/user_receipt.py",
+    "backend/requirements.txt",
+    "backend/tests/test_receipts.py",
+    "frontend/api/og-receipt.js",
+    "frontend/src/App.tsx",
+    "frontend/src/components/routes/LegacyReceiptRedirect.tsx",
+    "frontend/src/features/receipt-collab/components/ReceiptCollabContent.tsx",
+    "frontend/src/features/receipt-viewer/ReceiptDetailsCard.tsx",
+    "frontend/src/models/Receipt.ts",
+    "frontend/src/models/transformers/fromZero.ts",
+    "frontend/src/pages/ReceiptCollabPage.tsx",
+    "frontend/vercel.json",
+    "shared-zero/src/queries.ts",
+    "shared-zero/src/schemas/user-receipt.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/d3/8c163c7158/0/metadata.json",
+      "transcript": "/d3/8c163c7158/0/full.jsonl",
+      "content_hash": "/d3/8c163c7158/0/content_hash.txt",
+      "prompt": "/d3/8c163c7158/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 312,
+    "cache_creation_tokens": 724434,
+    "cache_read_tokens": 23184515,
+    "output_tokens": 128580,
+    "api_call_count": 162
+  }
+}
