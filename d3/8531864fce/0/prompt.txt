@@ -1,0 +1,11 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/src/components/routes/LegacyReceiptRedirect.tsx` around lines 21 -
+37, LegacyReceiptRedirect can hang in LoadingState when Zero returns
+details.type === 'error' because useReceiptNotFoundRetry only flips
+shouldNavigateTo404 on 'complete'; update LegacyReceiptRedirect to mirror
+ReceiptCollabPage's guard by checking details.type === 'error' (alongside
+!receipt and receiptId/isValidId) and navigate to "/404" when details.type ===
+'error'; locate the useQuery result vars (receipt, details) and the
+shouldNavigateTo404 usage and add the extra condition so the component returns
+<Navigate to="/404" replace /> for error details.
