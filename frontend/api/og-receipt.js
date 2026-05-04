@@ -51,11 +51,21 @@ function formatDate(iso) {
   });
 }
 
-function formatTotal(total) {
+function formatTotal(total, currency) {
   if (total === null || total === undefined) return null;
   const n = Number(total);
   if (!Number.isFinite(n)) return null;
-  return `$${n.toFixed(2)}`;
+  if (currency && /^[A-Za-z]{3}$/.test(currency)) {
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency.toUpperCase(),
+      }).format(n);
+    } catch {
+      // Fall through to neutral format on unsupported codes.
+    }
+  }
+  return n.toFixed(2);
 }
 
 function buildTagBlock({ pageTitle, ogTitle, description, url, image }) {
@@ -80,11 +90,18 @@ function buildTagBlock({ pageTitle, ogTitle, description, url, image }) {
   ].join('\n    ');
 }
 
-function renderReceiptTags({ merchant, dateIso, total, host, canonicalPath }) {
+function renderReceiptTags({
+  merchant,
+  dateIso,
+  total,
+  currency,
+  host,
+  canonicalPath,
+}) {
   const merchantText =
     merchant && merchant.trim() ? merchant.trim() : 'Receipt';
   const dateText = formatDate(dateIso);
-  const totalText = formatTotal(total);
+  const totalText = formatTotal(total, currency);
 
   const ogTitle = dateText ? `${merchantText} — ${dateText}` : merchantText;
   const pageTitle = `${ogTitle} · Splitzy`;
@@ -181,6 +198,7 @@ export default async function handler(req, res) {
       merchant: data.merchant,
       dateIso: data.date,
       total: data.total,
+      currency: data.currency,
       host,
       canonicalPath,
     });

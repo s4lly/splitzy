@@ -153,6 +153,7 @@ class TestReceiptPreview:
             "merchant": "Trader Joe's",
             "date": "2026-04-12",
             "total": 48.21,
+            "currency": None,
         }
         assert "public" in response.headers.get("Cache-Control", "")
 

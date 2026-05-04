@@ -286,6 +286,7 @@ def _preview_payload(receipt):
         "merchant": receipt.merchant,
         "date": receipt.date.isoformat() if receipt.date else None,
         "total": float(receipt.total) if receipt.total is not None else None,
+        "currency": receipt.currency,
     }
 
 

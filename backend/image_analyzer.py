@@ -529,7 +529,8 @@ class ImageAnalyzer:
         7. Gratuity or service charge (if present, as a separate field from tip)
         8. Total amount — copy exactly from the printed document
         9. Payment method (if available)
-        10. Special fields for different tax handling:
+        10. Currency code (ISO 4217, e.g. "USD", "EUR", "GBP", "JPY") if identifiable from the document. Use null if not determinable.
+        11. Special fields for different tax handling:
            - tax_included_in_items: (true/false) - Whether tax is already included in item prices
            - display_subtotal: The subtotal shown on document (may or may not include tax)
            - items_total: Sum of all line items (before any tax if tax is not included in items)
@@ -593,6 +594,7 @@ class ImageAnalyzer:
           "gratuity": 5.00,
           "total": 62.15,
           "payment_method": "Credit Card",
+          "currency": "USD",
           "tax_included_in_items": false,
           "display_subtotal": 45.98,
           "items_total": 45.98,
