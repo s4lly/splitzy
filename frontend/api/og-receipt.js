@@ -123,14 +123,23 @@ function renderReceiptTags({
 async function fetchBackend(pathSuffix) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  const url = `${BACKEND_URL}${pathSuffix}`;
   try {
-    const res = await fetch(`${BACKEND_URL}${pathSuffix}`, {
+    const res = await fetch(url, {
       signal: controller.signal,
       headers: { Accept: 'application/json' },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.warn(
+        `og-receipt: backend non-OK ${res.status} ${res.statusText} for ${url}`
+      );
+      return null;
+    }
     return await res.json();
-  } catch {
+  } catch (err) {
+    console.warn(
+      `og-receipt: backend fetch failed for ${url}: ${err && err.name ? `${err.name}: ` : ''}${err && err.message ? err.message : err}`
+    );
     return null;
   } finally {
     clearTimeout(timer);
