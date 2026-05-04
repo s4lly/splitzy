@@ -1,0 +1,23 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/api/og-receipt.js` around lines 54 - 59, formatTotal currently
+hardcodes a USD "$" and will mislabel non-USD totals; update the preview flow so
+the receipt preview exposes the currency (add currency to the JSON in
+backend/blueprints/receipts.py receipt_preview) and then change the frontend
+formatTotal function to accept a currency parameter and use Intl.NumberFormat
+with style: "currency" and the provided currency to render the amount correctly;
+if adding currency to the preview is unacceptable, alternatively change
+formatTotal to return a neutral numeric string (e.g., n.toFixed(2)) without any
+currency symbol to avoid misleading users.
+
+---
+
+is currency in UserReceipt model currently filled in by any of the code?
+
+---
+
+yes, plumb currency thorugh so it actually gets saved on creation. can you also consider what to do about existing receipts.
+
+---
+
+option 1 for now is fine, do nothing
