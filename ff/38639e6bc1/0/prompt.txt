@@ -1,0 +1,11 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/api/og-receipt.js` around lines 106 - 121, The fetchReceipt function
+currently swallows all errors and non-OK responses; update fetchReceipt to log
+failures (including AbortError, network errors, and non-OK HTTP responses) so
+backend outages are visible: inside the try/catch check and on non-res.ok, call
+a warning logger (e.g., console.warn) including BACKEND_URL +
+`/api/receipts/${id}/preview`, the HTTP status and statusText for non-OK
+responses, and the caught error message for exceptions (preserve the
+AbortController/FETCH_TIMEOUT_MS behavior); consider lightweight rate-limiting
+or deduping logs if noise is a concern.
