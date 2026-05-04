@@ -1,0 +1,13 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@backend/__init__.py` around lines 203 - 208, The current rate-limit setup
+uses a memory:// fallback and enables RATELIMIT_IN_MEMORY_FALLBACK_ENABLED which
+allows per-process in-memory limits when Redis is missing; change this so that
+in production (use the existing vercel_env or equivalent env check) the code
+requires REDIS_URL to be present and sets app.config["RATELIMIT_STORAGE_URI"] to
+that value (or fail/startup-error if missing) and set
+app.config["RATELIMIT_IN_MEMORY_FALLBACK_ENABLED"] = False; for non-production
+keep the existing fallback behavior. Update the block that reads redis_url, sets
+app.config["RATELIMIT_STORAGE_URI"/"RATELIMIT_IN_MEMORY_FALLBACK_ENABLED"/"RATELIMIT_STRATEGY"/"RATELIMIT_HEADERS_ENABLED"]
+and calls limiter.init_app(app) accordingly so production never falls back to
+in-memory counters.
