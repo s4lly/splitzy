@@ -28,7 +28,12 @@ export default function LegacyReceiptRedirect() {
     details,
   });
 
-  if (!receiptId || !isValidId || shouldNavigateTo404) {
+  if (
+    !receiptId ||
+    !isValidId ||
+    shouldNavigateTo404 ||
+    details.type === 'error'
+  ) {
     return <Navigate to="/404" replace />;
   }
 
