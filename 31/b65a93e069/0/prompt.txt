@@ -1,0 +1,16 @@
+Verify each finding against the current code and only fix it if needed.
+
+In `@backend/__init__.py` around lines 147 - 156, The current config parsing uses
+datetime.fromisoformat(cutoff_iso.replace("Z", "+00:00")) which can return a
+naive datetime and later cause TypeError when compared to timezone-aware DB
+timestamps; change the logic around cutoff_iso parsing (the use of cutoff_iso
+and app.config["LEGACY_ID_CUTOFF"]) to explicitly require a timezone: parse into
+a datetime using fromisoformat (still replacing "Z" with "+00:00"), then if the
+resulting dt.tzinfo is None raise a ValueError describing that
+LEGACY_ID_CUTOFF_ISO must include a timezone, otherwise assign the tz-aware
+datetime into app.config["LEGACY_ID_CUTOFF"]; keep the fallback default as
+datetime(1970, 1, 1, tzinfo=timezone.utc).
+
+---
+
+what value for LEGACY_ID_CUTOFF_ISO should i use? a value which will resolve to tomorrow at noon usa pst timezone?
