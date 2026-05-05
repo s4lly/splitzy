@@ -1,0 +1,15 @@
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@backend/__init__.py` around lines 34 - 36, ProxyFix is currently configured
+with x_for=1 which may under-trust Render's proxy chain; check actual proxy hops
+in your deployment and set ProxyFix(app.wsgi_app, x_for=<N>, x_proto=1) with N
+equal to the number of trusted proxy hops (e.g., 3 for Render's 3-hop
+architecture) so get_remote_address returns the true client IP; verify whether
+any additional fronting layers (CDN or LB) exist and update the x_for value
+accordingly in the ProxyFix call referenced by app.wsgi_app and adjust
+deployment/config to avoid trusting untrusted proxies.
+
+---
+
+where is the deployment config?
