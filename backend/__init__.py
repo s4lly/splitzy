@@ -32,8 +32,15 @@ def create_app():
     app = Flask(__name__)
 
     # Render terminates TLS upstream; trust X-Forwarded-* so get_remote_address
-    # resolves to the real client IP instead of the proxy.
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+    # resolves to the real client IP instead of the proxy. The hop count must
+    # match the number of trusted proxies in front of the app — too low and
+    # rate-limit keys collapse to the proxy IP; too high and clients can spoof
+    # X-Forwarded-For. Configure PROXY_FIX_X_FOR to match the deployment.
+    try:
+        proxy_x_for = int(os.environ.get("PROXY_FIX_X_FOR", "1"))
+    except ValueError:
+        proxy_x_for = 1
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=proxy_x_for, x_proto=1)
 
     # ============================================================================
     # CORS Configuration
