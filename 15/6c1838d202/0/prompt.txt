@@ -1,0 +1,17 @@
+can you help me understand what the latest commit in this branch is for
+
+---
+
+is there a way i can check how many proxies are configured on render?
+
+---
+
+do both, add that debug endpoint guarded and check whether that env var is wired into .env.example / deployment config
+
+---
+
+yes, also document the other two undocumented env vars
+
+---
+
+can you create a markdown document with the information we learned about in this chat session and the next steps
