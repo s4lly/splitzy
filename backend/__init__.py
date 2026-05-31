@@ -5,7 +5,7 @@ from pathlib import Path
 
 from clerk_backend_api import Clerk
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -232,5 +232,30 @@ def create_app():
 
     app.register_blueprint(webhooks.webhooks_bp)
     app.register_blueprint(receipts.receipts_bp)
+
+    # ============================================================================
+    # Proxy Debug Endpoint (opt-in)
+    # ============================================================================
+    # Temporary diagnostic for tuning PROXY_FIX_X_FOR. Off by default; enable by
+    # setting DEBUG_PROXY_ENDPOINT to a truthy value (e.g. on Render) to read how
+    # many proxies prepend to X-Forwarded-For, then turn it back off. The leftmost
+    # IP in the chain is the real client; "hop_count" is the value PROXY_FIX_X_FOR
+    # should match. Disabled by default because it exposes client IPs.
+    if os.environ.get("DEBUG_PROXY_ENDPOINT", "").strip().lower() in ("1", "true", "yes"):
+
+        @app.route("/debug/proxy")
+        def debug_proxy():
+            # Read the raw header off the WSGI environ so ProxyFix's rewrite of
+            # request.remote_addr doesn't obscure the original chain.
+            xff = request.environ.get("HTTP_X_FORWARDED_FOR", "")
+            hops = [ip.strip() for ip in xff.split(",") if ip.strip()]
+            return jsonify(
+                {
+                    "x_forwarded_for": xff,
+                    "hop_count": len(hops),
+                    "configured_x_for": proxy_x_for,
+                    "resolved_remote_addr": request.remote_addr,
+                }
+            )
 
     return app
