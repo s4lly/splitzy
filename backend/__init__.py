@@ -36,10 +36,19 @@ def create_app():
     # match the number of trusted proxies in front of the app — too low and
     # rate-limit keys collapse to the proxy IP; too high and clients can spoof
     # X-Forwarded-For. Configure PROXY_FIX_X_FOR to match the deployment.
+    raw_proxy_x_for = os.environ.get("PROXY_FIX_X_FOR", "1")
     try:
-        proxy_x_for = int(os.environ.get("PROXY_FIX_X_FOR", "1"))
-    except ValueError:
-        proxy_x_for = 1
+        proxy_x_for = int(raw_proxy_x_for)
+        if proxy_x_for < 0:
+            raise ValueError("must be >= 0")
+    except ValueError as exc:
+        app.logger.error(
+            "Invalid PROXY_FIX_X_FOR=%r: %s", raw_proxy_x_for, exc
+        )
+        raise ValueError(
+            f"Invalid PROXY_FIX_X_FOR={raw_proxy_x_for!r}: "
+            "must be a non-negative integer"
+        ) from exc
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=proxy_x_for, x_proto=1)
 
     # ============================================================================
