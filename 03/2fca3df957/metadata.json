@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "032fca3df957",
+  "strategy": "manual-commit",
+  "branch": "feat/og-receipt-previews",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "backend/__init__.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/03/2fca3df957/0/metadata.json",
+      "transcript": "/03/2fca3df957/0/full.jsonl",
+      "content_hash": "/03/2fca3df957/0/content_hash.txt",
+      "prompt": "/03/2fca3df957/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 9526,
+    "cache_creation_tokens": 33770,
+    "cache_read_tokens": 210365,
+    "output_tokens": 3165,
+    "api_call_count": 8
+  }
+}

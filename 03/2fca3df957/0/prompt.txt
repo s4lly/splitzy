@@ -1,0 +1,11 @@
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@backend/__init__.py` around lines 39 - 43, Replace the current
+silent-defaulting logic for PROXY_FIX_X_FOR with strict validation: parse
+os.environ.get("PROXY_FIX_X_FOR") into an int and validate it is >= 0, using a
+Pydantic model/validator (or raise ValueError) so invalid or negative values
+cause startup to fail with a clear error logged; then pass the validated
+proxy_x_for into ProxyFix(app.wsgi_app, x_for=proxy_x_for, x_proto=1). Ensure
+the error path logs the environment variable name ("PROXY_FIX_X_FOR") and the
+invalid value and does not silently fall back to 1.
