@@ -1,0 +1,87 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "111930d320a5",
+  "session_id": "45761773-8f77-41f1-b30f-31855e6646c8",
+  "strategy": "manual-commit",
+  "created_at": "2026-06-06T22:42:34.590368Z",
+  "branch": "feat/og-receipt-previews",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "frontend/.env.example"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "9e584ba67da7",
+  "token_usage": {
+    "input_tokens": 9858,
+    "cache_creation_tokens": 29721,
+    "cache_read_tokens": 800260,
+    "output_tokens": 11885,
+    "api_call_count": 20
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-06-06T22:42:34.586203Z",
+    "agent_lines": 12,
+    "agent_removed": 4,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 12,
+    "total_lines_changed": 16,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 5086,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7,
+        "2026-04-04-194954-verify-each-finding-against-the-current-code-and.txt": 709,
+        "CODE_REVIEW_split-calculation-fixes-phase-4-6.md": 168,
+        "CODE_REVIEW_split-percent-issues.md": 232,
+        "IMAGE_PREP_PLAN.md": 162,
+        "LEGACY_BYID_CUTOFF_PLAN.md": 176,
+        "REFACTOR_PROMPT.md": 126,
+        "docs/assignment-code-journey.md": 683,
+        "docs/custom-splits-architecture-notes.md": 455,
+        "docs/lingui-precommit-hook-plan.md": 134,
+        "docs/proxy-fix-and-env-config.md": 116,
+        "docs/setup-improvements.md": 25,
+        "docs/shared-zero-extraction-plan.md": 124,
+        "docs/split-calculation-findings.md": 378,
+        "docs/split-calculation-fix-plan.md": 314,
+        "docs/structured-logging-plan.md": 182,
+        "docs/zero-query-docker-shared-zero-fix.md": 191,
+        "frontend/2026-03-31-233627-create-a-plan-for-a-new-page-which-appears-after-u.txt": 734,
+        "splitzy-payment-tracking-prompt.md": 170
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5107,
+      "agent_lines_removed": 3,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 7,
+      "user_lines_removed": 0,
+      "agent_lines_added": 5108,
+      "agent_lines_removed": 4,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 7
+      }
+    }
+  ]
+}

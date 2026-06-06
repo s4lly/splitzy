@@ -1,0 +1,13 @@
+read this file /Users/s4lly/dev/splitzy/docs/proxy-fix-and-env-config.md and do an audit of the env vars newly added to this branch compared to "main" branch. if there is anything missing that is not documented in the file then walk through them with me one at a time to verify and after we walk through all update the doc.
+
+---
+
+1. yes, that is the intended prod default, not explicitly set in prod. 2. yes, also add a commented entry to frontend .env.example.
+
+---
+
+1. yes, phrase as "should agree with". yes, call it out in the doc.
+
+---
+
+for the frontend .env.example for the cutoff env var can you also include an example value, like we do in the backend .env.example file

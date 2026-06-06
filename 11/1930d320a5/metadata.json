@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "111930d320a5",
+  "strategy": "manual-commit",
+  "branch": "feat/og-receipt-previews",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "frontend/.env.example"
+  ],
+  "sessions": [
+    {
+      "metadata": "/11/1930d320a5/0/metadata.json",
+      "transcript": "/11/1930d320a5/0/full.jsonl",
+      "content_hash": "/11/1930d320a5/0/content_hash.txt",
+      "prompt": "/11/1930d320a5/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 9858,
+    "cache_creation_tokens": 29721,
+    "cache_read_tokens": 800260,
+    "output_tokens": 11885,
+    "api_call_count": 20
+  }
+}
