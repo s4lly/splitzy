@@ -5,6 +5,7 @@ import requests
 from flask import Blueprint, current_app, jsonify, request
 from werkzeug.utils import secure_filename
 
+from __init__ import limiter
 from blueprints.auth import get_current_user
 from image_analyzer import ImageAnalysisError, ImageAnalyzer, ImageAnalyzerConfigError
 from models import db
@@ -278,3 +279,78 @@ def analyze_receipt():
 def health_check():
     """Simple health check endpoint"""
     return jsonify({"status": "healthy"})
+
+
+def _preview_payload(receipt):
+    return {
+        "merchant": receipt.merchant,
+        "date": receipt.date.isoformat() if receipt.date else None,
+        "total": float(receipt.total) if receipt.total is not None else None,
+        "currency": receipt.currency,
+    }
+
+
+def _not_found_response():
+    response = jsonify({"error": "not_found"})
+    response.status_code = 404
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
+
+@receipts_bp.route("/api/receipts/preview/<token>", methods=["GET"])
+@limiter.limit("60 per minute; 600 per hour")
+def receipt_preview(token):
+    """Public minimal receipt fields for link-preview (Open Graph) generation.
+
+    Keyed by unguessable share token — sequential ID enumeration is not
+    possible on this surface.
+    """
+    if not token or len(token) > 32:
+        return _not_found_response()
+
+    receipt = UserReceipt.query.filter_by(share_token=token, deleted_at=None).first()
+    if receipt is None:
+        return _not_found_response()
+
+    response = jsonify(_preview_payload(receipt))
+    response.headers["Cache-Control"] = "public, max-age=300, s-maxage=3600"
+    return response
+
+
+@receipts_bp.route("/api/receipts/legacy-preview/<int:receipt_id>", methods=["GET"])
+@limiter.limit("20 per minute; 200 per hour")
+def receipt_legacy_preview(receipt_id):
+    """Compat surface for `/receipts/:id` URLs shared before the token-based
+    preview existed. Gated by the LEGACY_ID_CUTOFF timestamp so only
+    pre-cutoff receipts are reachable by integer id.
+
+    Always returns a uniform 404 for any "you can't see this" outcome (id
+    doesn't exist, post-cutoff, or soft-deleted) to avoid leaking which case
+    applies. Distinguishable in server logs but not on the wire.
+    """
+    receipt = UserReceipt.query.filter_by(id=receipt_id).first()
+
+    cutoff = current_app.config.get("LEGACY_ID_CUTOFF")
+
+    if receipt is None:
+        reason = "not_found"
+    elif receipt.deleted_at is not None:
+        reason = "soft_deleted"
+    elif cutoff is None or receipt.created_at is None or receipt.created_at >= cutoff:
+        reason = "post_cutoff"
+    else:
+        reason = "ok"
+
+    current_app.logger.info(
+        "legacy_preview ip=%s id=%s reason=%s",
+        request.remote_addr,
+        receipt_id,
+        reason,
+    )
+
+    if reason != "ok":
+        return _not_found_response()
+
+    response = jsonify(_preview_payload(receipt))
+    response.headers["Cache-Control"] = "public, max-age=300, s-maxage=3600"
+    return response

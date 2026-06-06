@@ -100,8 +100,8 @@ msgstr "ユーザーを追加"
 msgid "After tax"
 msgstr "税込"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:92
-#: src/features/line-items/hooks/useLineItemMutations.ts:164
+#: src/features/line-items/hooks/useLineItemMutations.ts:91
+#: src/features/line-items/hooks/useLineItemMutations.ts:163
 msgid "All existing shares are locked — added with 0% share. Unlock a share to give them a portion."
 msgstr "既存の取り分はすべてロックされています — 取り分 0% で追加しました。取り分を割り当てるには、いずれかのロックを解除してください。"
 
@@ -466,12 +466,12 @@ msgstr "均等"
 msgid "Every split is saved. Review, adjust, or settle up any time."
 msgstr "すべての分割が保存されます。いつでも確認、調整、精算できます。"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:154
+#: src/features/line-items/hooks/useLineItemMutations.ts:153
 msgid "Failed to add new person"
 msgstr "新しい人物の追加に失敗しました"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:109
-#: src/features/line-items/hooks/useLineItemMutations.ts:184
+#: src/features/line-items/hooks/useLineItemMutations.ts:108
+#: src/features/line-items/hooks/useLineItemMutations.ts:183
 msgid "Failed to add person to item"
 msgstr "アイテムへの人物の追加に失敗しました"
 
@@ -488,7 +488,7 @@ msgstr "紐付けに失敗しました"
 #~ msgid "Failed to delete gratuity. Please try again."
 #~ msgstr "チップの削除に失敗しました。もう一度お試しください。"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:280
+#: src/features/line-items/hooks/useLineItemMutations.ts:279
 msgid "Failed to delete item"
 msgstr "アイテムの削除に失敗しました"
 
@@ -517,11 +517,11 @@ msgstr "レシート画像の読み込みに失敗しました"
 msgid "Failed to rebalance shares"
 msgstr "シェアの再調整に失敗しました"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:222
+#: src/features/line-items/hooks/useLineItemMutations.ts:221
 msgid "Failed to remove person from item"
 msgstr "アイテムからの人物の削除に失敗しました"
 
-#: src/features/assignments/hooks/useSplitPercent.ts:319
+#: src/features/assignments/hooks/useSplitPercent.ts:318
 msgid "Failed to reset shares"
 msgstr "シェアのリセットに失敗しました"
 
@@ -547,12 +547,12 @@ msgstr "人の切り替えに失敗しました"
 msgid "Failed to update image visibility"
 msgstr "画像の公開設定の更新に失敗しました"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:232
-#: src/features/line-items/hooks/useLineItemMutations.ts:255
+#: src/features/line-items/hooks/useLineItemMutations.ts:231
+#: src/features/line-items/hooks/useLineItemMutations.ts:254
 msgid "Failed to update item"
 msgstr "アイテムの更新に失敗しました"
 
-#: src/features/assignments/hooks/useSplitPercent.ts:280
+#: src/features/assignments/hooks/useSplitPercent.ts:281
 msgid "Failed to update lock"
 msgstr "ロックの更新に失敗しました"
 
@@ -565,7 +565,7 @@ msgstr "支払いステータスの更新に失敗しました"
 #~ msgid "Failed to update setting. Please try again."
 #~ msgstr "設定の更新に失敗しました。もう一度お試しください。"
 
-#: src/features/assignments/hooks/useSplitPercent.ts:209
+#: src/features/assignments/hooks/useSplitPercent.ts:210
 msgid "Failed to update shares"
 msgstr "シェアの更新に失敗しました"
 

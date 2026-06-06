@@ -76,7 +76,11 @@ export const ReceiptCollabContent = () => {
         <div className="flex flex-col gap-4">
           <ReceiptImageViewer receipt={receipt} />
 
-          <ReceiptDetailsCard merchant={receipt.merchant} date={receipt.date} />
+          <ReceiptDetailsCard
+            shareToken={receipt.shareToken}
+            merchant={receipt.merchant}
+            date={receipt.date}
+          />
 
           {/* Items Card */}
           <Card className="overflow-hidden border-0 shadow-[0_2px_12px_0_rgba(0,0,0,0.06)]">

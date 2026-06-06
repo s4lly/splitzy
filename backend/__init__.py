@@ -1,13 +1,20 @@
 import os
 import sqlite3
+from datetime import datetime, timezone
 from pathlib import Path
 
 from clerk_backend_api import Clerk
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+
+limiter = Limiter(key_func=get_remote_address)
 
 
 def create_app():
@@ -23,6 +30,26 @@ def create_app():
     # Flask App Creation
     # ============================================================================
     app = Flask(__name__)
+
+    # Render terminates TLS upstream; trust X-Forwarded-* so get_remote_address
+    # resolves to the real client IP instead of the proxy. The hop count must
+    # match the number of trusted proxies in front of the app — too low and
+    # rate-limit keys collapse to the proxy IP; too high and clients can spoof
+    # X-Forwarded-For. Configure PROXY_FIX_X_FOR to match the deployment.
+    raw_proxy_x_for = os.environ.get("PROXY_FIX_X_FOR", "1")
+    try:
+        proxy_x_for = int(raw_proxy_x_for)
+        if proxy_x_for < 0:
+            raise ValueError("must be >= 0")
+    except ValueError as exc:
+        app.logger.error(
+            "Invalid PROXY_FIX_X_FOR=%r: %s", raw_proxy_x_for, exc
+        )
+        raise ValueError(
+            f"Invalid PROXY_FIX_X_FOR={raw_proxy_x_for!r}: "
+            "must be a non-negative integer"
+        ) from exc
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=proxy_x_for, x_proto=1)
 
     # ============================================================================
     # CORS Configuration
@@ -123,6 +150,31 @@ def create_app():
             "VERCEL_FUNCTION_URL environment variable is required for blob storage functionality"
         )
 
+    # Cutoff for the legacy /receipts/:id preview surface. Receipts with
+    # created_at < this timestamp may be reached by integer id; everything
+    # newer must use the unguessable share_token. Required in production;
+    # fail-closed default (epoch 0) in dev so legacy lookups always 404 unless
+    # explicitly opted in.
+    cutoff_iso = os.environ.get("LEGACY_ID_CUTOFF_ISO")
+    if vercel_env == "production" and not cutoff_iso:
+        raise ValueError(
+            "LEGACY_ID_CUTOFF_ISO is required in production"
+        )
+    if cutoff_iso:
+        try:
+            cutoff_dt = datetime.fromisoformat(cutoff_iso.replace("Z", "+00:00"))
+        except ValueError as e:
+            raise ValueError(
+                f"LEGACY_ID_CUTOFF_ISO is not a valid ISO timestamp: {cutoff_iso!r}"
+            ) from e
+        if cutoff_dt.tzinfo is None:
+            raise ValueError(
+                f"LEGACY_ID_CUTOFF_ISO must include a timezone: {cutoff_iso!r}"
+            )
+        app.config["LEGACY_ID_CUTOFF"] = cutoff_dt
+    else:
+        app.config["LEGACY_ID_CUTOFF"] = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
     # ============================================================================
     # Database Configuration
     # ============================================================================
@@ -166,6 +218,22 @@ def create_app():
     migrations_dir = os.path.join(os.path.dirname(__file__), "migrations")
     migrate = Migrate(app, db, directory=migrations_dir)
 
+    # Rate limiter — Redis-backed when REDIS_URL is set (Render Key Value),
+    # in-memory fallback otherwise. Production requires Redis so per-process
+    # counters can't be sidestepped by horizontal scaling.
+    redis_url = os.environ.get("REDIS_URL")
+    if vercel_env == "production":
+        if not redis_url:
+            raise RuntimeError("REDIS_URL is required in production")
+        app.config["RATELIMIT_STORAGE_URI"] = redis_url
+        app.config["RATELIMIT_IN_MEMORY_FALLBACK_ENABLED"] = False
+    else:
+        app.config["RATELIMIT_STORAGE_URI"] = redis_url or "memory://"
+        app.config["RATELIMIT_IN_MEMORY_FALLBACK_ENABLED"] = True
+    app.config["RATELIMIT_STRATEGY"] = "fixed-window"
+    app.config["RATELIMIT_HEADERS_ENABLED"] = True
+    limiter.init_app(app)
+
     # ============================================================================
     # Blueprints Registration
     # ============================================================================
@@ -173,5 +241,30 @@ def create_app():
 
     app.register_blueprint(webhooks.webhooks_bp)
     app.register_blueprint(receipts.receipts_bp)
+
+    # ============================================================================
+    # Proxy Debug Endpoint (opt-in)
+    # ============================================================================
+    # Temporary diagnostic for tuning PROXY_FIX_X_FOR. Off by default; enable by
+    # setting DEBUG_PROXY_ENDPOINT to a truthy value (e.g. on Render) to read how
+    # many proxies prepend to X-Forwarded-For, then turn it back off. The leftmost
+    # IP in the chain is the real client; "hop_count" is the value PROXY_FIX_X_FOR
+    # should match. Disabled by default because it exposes client IPs.
+    if os.environ.get("DEBUG_PROXY_ENDPOINT", "").strip().lower() in ("1", "true", "yes"):
+
+        @app.route("/debug/proxy")
+        def debug_proxy():
+            # Read the raw header off the WSGI environ so ProxyFix's rewrite of
+            # request.remote_addr doesn't obscure the original chain.
+            xff = request.environ.get("HTTP_X_FORWARDED_FOR", "")
+            hops = [ip.strip() for ip in xff.split(",") if ip.strip()]
+            return jsonify(
+                {
+                    "x_forwarded_for": xff,
+                    "hop_count": len(hops),
+                    "configured_x_for": proxy_x_for,
+                    "resolved_remote_addr": request.remote_addr,
+                }
+            )
 
     return app

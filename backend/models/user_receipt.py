@@ -1,3 +1,5 @@
+import secrets
+
 from sqlalchemy import Numeric, text
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -21,6 +23,13 @@ class UserReceipt(db.Model):
         db.TIMESTAMP(timezone=True), server_default=text("CURRENT_TIMESTAMP")
     )
     deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
+    share_token = db.Column(
+        db.String(32),
+        unique=True,
+        nullable=False,
+        index=True,
+        default=lambda: secrets.token_urlsafe(16),
+    )
 
     # Denormalized fields extracted from receipt_data (RegularReceipt / TransportationTicket)
     is_receipt = db.Column(db.Boolean, nullable=True, default=True)

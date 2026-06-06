@@ -14,22 +14,22 @@ import { useReceiptNotFoundRetry } from '@/hooks/useReceiptNotFoundRetry';
 
 /**
  * Root page component for collaborative receipt viewing/editing.
+ * Canonical route: /r/:token
  *
  * Architecture:
- * - Fetches receipt data using Zero's useQuery
+ * - Fetches receipt data using Zero's useQuery keyed on share_token
  * - Wraps children with ReceiptProvider (React Context) for server state
  * - Wraps children with JotaiProvider for derived/modifiable state
  * - ReceiptCollabContent runs useReceiptSync to bridge Context -> Jotai
  */
 const ReceiptCollabPage = () => {
-  const { receiptId } = useParams();
+  const { token } = useParams();
 
-  const parsedId = receiptId ? parseInt(receiptId, 10) : NaN;
-  const isValidId = !Number.isNaN(parsedId);
+  const isValidToken = !!token && /^[A-Za-z0-9_-]{1,32}$/.test(token);
 
   const [receipt, details] = useQuery(
-    queries.receipt.byId({ id: isValidId ? parsedId : 0 }),
-    { enabled: isValidId }
+    queries.receipt.byShareToken({ token: isValidToken ? token : '' }),
+    { enabled: isValidToken }
   );
 
   const { shouldNavigateTo404, retryMessage } = useReceiptNotFoundRetry({
@@ -37,22 +37,18 @@ const ReceiptCollabPage = () => {
     details,
   });
 
-  // Redirect to 404 if receiptId is missing or not a valid number or not found after all retries exhausted
-  if (!receiptId || !isValidId || shouldNavigateTo404) {
+  if (!token || !isValidToken || shouldNavigateTo404) {
     return <Navigate to="/404" replace />;
   }
 
-  // Handle loading state
   if (details.type === 'unknown') {
     return <LoadingState message="Loading receipt details..." />;
   }
 
-  // Handle error state
   if (details.type === 'error') {
     return <ErrorState message={details.error.message} />;
   }
 
-  // Still loading/retrying if no receipt yet
   if (!receipt) {
     return <LoadingState message={retryMessage} />;
   }

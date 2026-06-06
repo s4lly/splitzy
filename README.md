@@ -157,8 +157,10 @@ Built with **Flask**, **SQLAlchemy**, **PostgreSQL**, and **OpenAI API** for rec
 
 6. **Start the Flask application:** From the `backend/` directory with the virtual environment activated, run:
    ```bash
-   gunicorn --bind localhost:5001 app:app
+   ./start.sh
    ```
+   This wraps `gunicorn --config gunicorn.conf.py app:app` and exports `OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`, which is required on macOS so prefork workers don't crash during Objective-C initialization (see `backend/start.sh` and `backend/gunicorn.conf.py` for details).
+
    The backend will start at http://localhost:5001
 
 ### Frontend Setup

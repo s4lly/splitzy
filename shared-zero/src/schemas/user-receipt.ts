@@ -53,5 +53,6 @@ export const userReceipt = table('user_receipts')
     taxes: number().optional(),
     receipt_metadata: json().optional(),
     deleted_at: number().optional(),
+    share_token: string(),
   })
   .primaryKey('id');

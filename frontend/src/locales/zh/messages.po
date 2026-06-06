@@ -96,8 +96,8 @@ msgstr "添加用户"
 msgid "After tax"
 msgstr "税后"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:92
-#: src/features/line-items/hooks/useLineItemMutations.ts:164
+#: src/features/line-items/hooks/useLineItemMutations.ts:91
+#: src/features/line-items/hooks/useLineItemMutations.ts:163
 msgid "All existing shares are locked — added with 0% share. Unlock a share to give them a portion."
 msgstr "所有现有份额均已锁定 — 已按 0% 份额添加。请解锁某个份额以分配给该用户。"
 
@@ -450,12 +450,12 @@ msgstr "平均"
 msgid "Every split is saved. Review, adjust, or settle up any time."
 msgstr "每次分摊都会保存。随时查看、调整或结算。"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:154
+#: src/features/line-items/hooks/useLineItemMutations.ts:153
 msgid "Failed to add new person"
 msgstr "添加新成员失败"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:109
-#: src/features/line-items/hooks/useLineItemMutations.ts:184
+#: src/features/line-items/hooks/useLineItemMutations.ts:108
+#: src/features/line-items/hooks/useLineItemMutations.ts:183
 msgid "Failed to add person to item"
 msgstr "向项目添加成员失败"
 
@@ -468,7 +468,7 @@ msgstr "文档分析失败"
 msgid "Failed to claim person"
 msgstr "认领失败"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:280
+#: src/features/line-items/hooks/useLineItemMutations.ts:279
 msgid "Failed to delete item"
 msgstr "删除项目失败"
 
@@ -493,11 +493,11 @@ msgstr "加载收据图片失败"
 msgid "Failed to rebalance shares"
 msgstr "重新分配份额失败"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:222
+#: src/features/line-items/hooks/useLineItemMutations.ts:221
 msgid "Failed to remove person from item"
 msgstr "从项目移除成员失败"
 
-#: src/features/assignments/hooks/useSplitPercent.ts:319
+#: src/features/assignments/hooks/useSplitPercent.ts:318
 msgid "Failed to reset shares"
 msgstr "重置份额失败"
 
@@ -514,12 +514,12 @@ msgstr "切换人员失败"
 msgid "Failed to update image visibility"
 msgstr "更新图片可见性失败"
 
-#: src/features/line-items/hooks/useLineItemMutations.ts:232
-#: src/features/line-items/hooks/useLineItemMutations.ts:255
+#: src/features/line-items/hooks/useLineItemMutations.ts:231
+#: src/features/line-items/hooks/useLineItemMutations.ts:254
 msgid "Failed to update item"
 msgstr "更新项目失败"
 
-#: src/features/assignments/hooks/useSplitPercent.ts:280
+#: src/features/assignments/hooks/useSplitPercent.ts:281
 msgid "Failed to update lock"
 msgstr "更新锁定失败"
 
@@ -528,7 +528,7 @@ msgstr "更新锁定失败"
 msgid "Failed to update payment status"
 msgstr "更新支付状态失败"
 
-#: src/features/assignments/hooks/useSplitPercent.ts:209
+#: src/features/assignments/hooks/useSplitPercent.ts:210
 msgid "Failed to update shares"
 msgstr "更新份额失败"
 

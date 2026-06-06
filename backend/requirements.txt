@@ -12,6 +12,7 @@ cryptography==45.0.7
 distro==1.9.0
 Flask>=3.1.0
 Flask-Cors==4.0.0
+Flask-Limiter[redis]==3.8.0
 Flask-Migrate==4.0.7
 Flask-SQLAlchemy==3.1.1
 google-ai-generativelanguage==0.6.15

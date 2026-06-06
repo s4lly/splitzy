@@ -83,6 +83,7 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
       | 'public'
       | 'owner_only',
     authUserId: zeroReceipt.user?.auth_user_id ?? null,
+    shareToken: zeroReceipt.share_token,
 
     // Core receipt data
     merchant: zeroReceipt.merchant ?? null,

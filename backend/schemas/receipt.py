@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from datetime import date as date_type
 from datetime import datetime
 from decimal import Decimal
@@ -14,8 +15,28 @@ from pydantic import (
     ConfigDict,
     Field,
     field_serializer,
+    field_validator,
     model_validator,
 )
+
+_ISO_4217_RE = re.compile(r"^[A-Z]{3}$")
+_CURRENCY_SYMBOLS = "$€£¥₹₩₽¢"
+
+
+def _normalize_currency(value: Optional[str]) -> Optional[str]:
+    """Normalize a currency input to a canonical ISO-4217 3-letter code.
+
+    Returns None for empty/invalid inputs rather than raising, so an
+    AI-extracted receipt isn't rejected over a cosmetic field.
+    """
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        return None
+    cleaned = value.strip().strip(_CURRENCY_SYMBOLS).strip().upper()
+    if not cleaned:
+        return None
+    return cleaned if _ISO_4217_RE.match(cleaned) else None
 
 logger = logging.getLogger(__name__)
 
@@ -307,7 +328,13 @@ class RegularReceiptBase(
     gratuity: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     payment_method: Optional[str] = None
+    currency: Optional[str] = None
     tax_included_in_items: Optional[bool] = False
+
+    @field_validator("currency", mode="before")
+    @classmethod
+    def _validate_currency(cls, v):
+        return _normalize_currency(v)
     tip_after_tax: Optional[bool] = Field(False)
     display_subtotal: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     items_total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
@@ -428,6 +455,11 @@ class TransportationTicketBase(
     currency: Optional[str] = None
     taxes: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
     total: Optional[Decimal] = Field(Decimal("0.00"), ge=Decimal("0.00"))
+
+    @field_validator("currency", mode="before")
+    @classmethod
+    def _validate_currency(cls, v):
+        return _normalize_currency(v)
 
     @model_validator(mode="after")
     def _reconcile_totals(self):
