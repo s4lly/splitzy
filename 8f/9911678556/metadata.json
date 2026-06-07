@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "8f9911678556",
+  "strategy": "manual-commit",
+  "branch": "react-doctor",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "frontend/src/components/NumericInput.tsx",
+    "frontend/src/components/Receipt/utils/receipt-conditions.ts",
+    "frontend/src/components/ui/alert-description.tsx",
+    "frontend/src/components/ui/alert-title.tsx",
+    "frontend/src/components/ui/toggle.tsx",
+    "frontend/src/features/assignments/assignments-list.tsx",
+    "frontend/src/features/assignments/components/AddPersonPanel.tsx",
+    "frontend/src/features/assignments/components/AssignedList.tsx",
+    "frontend/src/features/bill-split/components/SettlementControls.tsx",
+    "frontend/src/features/image-prep/hooks/useEraseRectangleGestures.ts",
+    "frontend/src/features/receipt-viewer/components/TipEditor.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/8f/9911678556/0/metadata.json",
+      "transcript": "/8f/9911678556/0/full.jsonl",
+      "content_hash": "/8f/9911678556/0/content_hash.txt",
+      "prompt": "/8f/9911678556/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 15328,
+    "cache_creation_tokens": 110901,
+    "cache_read_tokens": 6042129,
+    "output_tokens": 32487,
+    "api_call_count": 81
+  }
+}

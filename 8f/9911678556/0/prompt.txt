@@ -1,0 +1,9 @@
+/goal use gh cli to get comments from pr #123 from coderabbitai verify they are an actual issue, ask me before working on any changes and continue one at a time until all the coderabbitai comments with "Potential issue" for title are resolved
+
+---
+
+run react doctor and apply any changes necessary to get a score of 100 again
+
+---
+
+use latest

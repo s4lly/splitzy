@@ -1,0 +1,70 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "8f9911678556",
+  "session_id": "4fed214b-9670-4f05-90fa-da5cebefe50f",
+  "strategy": "manual-commit",
+  "created_at": "2026-06-07T02:01:40.969934Z",
+  "branch": "react-doctor",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "frontend/src/components/NumericInput.tsx",
+    "frontend/src/components/Receipt/utils/receipt-conditions.ts",
+    "frontend/src/components/ui/alert-description.tsx",
+    "frontend/src/components/ui/alert-title.tsx",
+    "frontend/src/components/ui/toggle.tsx",
+    "frontend/src/features/assignments/assignments-list.tsx",
+    "frontend/src/features/assignments/components/AddPersonPanel.tsx",
+    "frontend/src/features/assignments/components/AssignedList.tsx",
+    "frontend/src/features/bill-split/components/SettlementControls.tsx",
+    "frontend/src/features/image-prep/hooks/useEraseRectangleGestures.ts",
+    "frontend/src/features/receipt-viewer/components/TipEditor.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-8[1m]",
+  "turn_id": "9501f4be922e",
+  "token_usage": {
+    "input_tokens": 15328,
+    "cache_creation_tokens": 110901,
+    "cache_read_tokens": 6042129,
+    "output_tokens": 32487,
+    "api_call_count": 81
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-06-07T02:01:40.958506Z",
+    "agent_lines": 33,
+    "agent_removed": 20,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 33,
+    "total_lines_changed": 53,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 27,
+      "agent_lines_removed": 20
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 33,
+      "agent_lines_removed": 20
+    }
+  ]
+}
