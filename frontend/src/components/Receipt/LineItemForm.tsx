@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { LazyMotion, domAnimation, m } from 'framer-motion';
+import { domAnimation, LazyMotion, m } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 

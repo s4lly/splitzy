@@ -36,19 +36,13 @@ function saveLocale(locale: string): void {
   localStorage.setItem(LOCALE_STORAGE_KEY, locale);
 }
 
-const LOCALE_LOADERS: Record<string, () => Promise<{ messages: unknown }>> = {
-  en: () => import('./locales/en/messages.ts'),
-  es: () => import('./locales/es/messages.ts'),
-  fr: () => import('./locales/fr/messages.ts'),
-  de: () => import('./locales/de/messages.ts'),
-  ja: () => import('./locales/ja/messages.ts'),
-  zh: () => import('./locales/zh/messages.ts'),
-};
-
 export async function activateLocale(locale: string): Promise<void> {
-  const loadMessages = LOCALE_LOADERS[locale] ?? LOCALE_LOADERS.en;
-  const { messages } = await loadMessages();
-  i18n.load(locale, messages as Parameters<typeof i18n.load>[1]);
+  // The per-locale message modules are generated at build time by
+  // `lingui compile` (gitignored, not present during `tsc`), so they cannot be
+  // referenced as static import paths — a runtime-computed path is required.
+  // react-doctor-disable-next-line react-doctor/no-dynamic-import-path
+  const { messages } = await import(`./locales/${locale}/messages.ts`);
+  i18n.load(locale, messages);
   i18n.activate(locale);
   document.documentElement.lang = locale;
   saveLocale(locale);

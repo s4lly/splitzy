@@ -154,11 +154,7 @@ const TipEditForm = ({
           >
             <Trans>Cancel</Trans>
           </Button>
-          <Button
-            onClick={handleSaveTip}
-            variant="outline"
-            disabled={isSaving}
-          >
+          <Button onClick={handleSaveTip} variant="outline" disabled={isSaving}>
             <Trans>Done</Trans>
           </Button>
         </div>

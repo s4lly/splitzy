@@ -61,11 +61,7 @@ const TipDisplay = ({
           </Badge>
         )}
         <Badge variant="outline" className="font-normal">
-          {tipAfterTax ? (
-            <Trans>After tax</Trans>
-          ) : (
-            <Trans>Before tax</Trans>
-          )}
+          {tipAfterTax ? <Trans>After tax</Trans> : <Trans>Before tax</Trans>}
         </Badge>
       </div>
     </>

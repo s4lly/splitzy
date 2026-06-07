@@ -1,6 +1,9 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
+import Decimal from 'decimal.js';
 import { Check, HandGrab, X } from 'lucide-react';
+import React from 'react';
 
 import {
   DEFAULT_CHIP_COLOR,
@@ -15,9 +18,6 @@ import { cn } from '@/lib/utils';
 import type { Assignment } from '@/models/Assignment';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { getUserDisplayName } from '@/utils/user-display';
-import Decimal from 'decimal.js';
-import { Trans } from '@lingui/react/macro';
-import React from 'react';
 
 type AvatarAction =
   | { type: 'claim' }

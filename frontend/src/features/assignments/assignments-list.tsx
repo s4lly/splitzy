@@ -3,6 +3,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import React, { useReducer, useState } from 'react';
 
+import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
@@ -13,9 +14,9 @@ import { SwitchReceiptUserDialog } from '@/features/assignments/SwitchReceiptUse
 import type { Assignment } from '@/models/Assignment';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { getReceiptUserDisplayName } from '@/utils/user-display';
+
 import AddPersonPanel from './components/AddPersonPanel';
 import AssignedList from './components/AssignedList';
-import { getAvatarChipColors } from '@/components/Receipt/utils/avatar-chip-colors';
 
 // ── Dialog state machine ────────────────────────────────────────────────────
 
@@ -85,7 +86,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
     splitDisabled && selectedTab === 'split' ? 'assignment' : selectedTab;
 
   const newPersonSanitized = newPerson.trim();
-  const assignmentsAddAllEnabled = useFeatureFlag('assignments-add-all');
+  const assignmentsAddAllEnabled = !!useFeatureFlag('assignments-add-all');
 
   const assignedReceiptUserIds = item.assignments.map((a) => a.receiptUserId);
   const filteredReceiptUserIds = calculations.utils.filterPeople(

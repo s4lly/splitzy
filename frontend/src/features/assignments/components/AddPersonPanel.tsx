@@ -1,4 +1,4 @@
-import { useLingui, Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Plus } from 'lucide-react';
 import React from 'react';
 

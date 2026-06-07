@@ -7,7 +7,9 @@ function AlertTitle({
   children,
   ref,
   ...props
-}: React.HTMLAttributes<HTMLHeadingElement> & { ref?: React.Ref<HTMLParagraphElement> }) {
+}: React.HTMLAttributes<HTMLHeadingElement> & {
+  ref?: React.Ref<HTMLParagraphElement>;
+}) {
   return (
     <h5
       ref={ref}

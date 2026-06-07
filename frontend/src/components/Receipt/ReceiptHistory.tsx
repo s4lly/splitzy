@@ -1,6 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { formatDistanceToNow } from 'date-fns';
-import { LazyMotion, domAnimation, m } from 'framer-motion';
+import { domAnimation, LazyMotion, m } from 'framer-motion';
 import { Clock, Eye, Receipt, Store } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';

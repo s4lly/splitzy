@@ -37,5 +37,5 @@ function Alert({
 }
 
 export { Alert };
-export { AlertTitle } from './alert-title';
 export { AlertDescription } from './alert-description';
+export { AlertTitle } from './alert-title';

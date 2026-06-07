@@ -58,9 +58,7 @@ export const PersonItemsDialog = ({
           </span>
         </DialogTitle>
         <DialogDescription>
-          <Trans>
-            Detailed breakdown of items assigned to {displayName}.
-          </Trans>
+          <Trans>Detailed breakdown of items assigned to {displayName}.</Trans>
         </DialogDescription>
       </DialogHeader>
 
@@ -97,9 +95,7 @@ export const PersonItemsDialog = ({
                             const sharedWithNames = item.sharedWith
                               .map((id) => idToName.get(id) ?? id)
                               .join(', ');
-                            return (
-                              <Trans>Shared with {sharedWithNames}</Trans>
-                            );
+                            return <Trans>Shared with {sharedWithNames}</Trans>;
                           })()}
                         </div>
                       )}
@@ -148,9 +144,9 @@ export const PersonItemsDialog = ({
                     </td>
                     <td className="px-3 py-2 text-right text-sm">
                       {(() => {
-                        const totalTip = (
-                          receipt.tip ?? new Decimal(0)
-                        ).plus(receipt.gratuity ?? new Decimal(0));
+                        const totalTip = (receipt.tip ?? new Decimal(0)).plus(
+                          receipt.gratuity ?? new Decimal(0)
+                        );
                         const tipPerPerson = totalTip.div(peopleCount);
                         return formatCurrency(tipPerPerson);
                       })()}
@@ -158,10 +154,7 @@ export const PersonItemsDialog = ({
                   </tr>
                 )}
                 <tr className="border-t">
-                  <td
-                    colSpan={2}
-                    className="px-3 py-2 text-base font-semibold"
-                  >
+                  <td colSpan={2} className="px-3 py-2 text-base font-semibold">
                     <Trans>Total</Trans>
                   </td>
                   <td className="px-3 py-2 text-right text-base font-semibold">

@@ -2,7 +2,7 @@ import { SignedIn, SignedOut } from '@clerk/clerk-react';
 import { Trans } from '@lingui/react/macro';
 import { useQuery } from '@rocicorp/zero/react';
 import { queries } from '@splitzy/shared-zero/queries';
-import { LazyMotion, domAnimation, m } from 'framer-motion';
+import { domAnimation, LazyMotion, m } from 'framer-motion';
 import { useMemo } from 'react';
 
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
