@@ -1,5 +1,4 @@
 import { Minus, Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,13 +40,6 @@ export default function NumericInput({
   disabled = false,
   id,
 }: NumericInputProps) {
-  const [inputValue, setInputValue] = useState<number>(value);
-
-  // Sync internal state when value prop changes
-  useEffect(() => {
-    setInputValue(value);
-  }, [value]);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = Number(e.target.value);
     const newValue = Number.isFinite(raw)
@@ -55,20 +47,15 @@ export default function NumericInput({
         ? Math.min(max, Math.max(min, raw))
         : Math.max(min, raw)
       : min;
-    setInputValue(newValue);
     onChange(newValue);
   };
 
   const handleDecrement = () => {
-    const newValue = Math.max(min, inputValue - 1);
-    setInputValue(newValue);
-    onChange(newValue);
+    onChange(Math.max(min, value - 1));
   };
 
   const handleIncrement = () => {
-    const newValue = max ? Math.min(max, inputValue + 1) : inputValue + 1;
-    setInputValue(newValue);
-    onChange(newValue);
+    onChange(max !== undefined ? Math.min(max, value + 1) : value + 1);
   };
 
   return (
@@ -78,7 +65,7 @@ export default function NumericInput({
         size="icon"
         variant="outline"
         onClick={handleDecrement}
-        disabled={disabled || inputValue <= min}
+        disabled={disabled || value <= min}
         className="shrink-0 rounded-full"
       >
         <Minus className="h-4 w-4" />
@@ -86,7 +73,7 @@ export default function NumericInput({
       <Input
         id={id}
         type="number"
-        value={inputValue}
+        value={value}
         onChange={handleInputChange}
         placeholder={placeholder}
         min={min}
@@ -100,7 +87,7 @@ export default function NumericInput({
         size="icon"
         variant="outline"
         onClick={handleIncrement}
-        disabled={disabled || (max !== undefined && inputValue >= max)}
+        disabled={disabled || (max !== undefined && value >= max)}
         className="shrink-0 rounded-full"
       >
         <Plus className="h-4 w-4" />

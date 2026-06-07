@@ -1,7 +1,7 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import { Trash } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
 import { Button } from '@/components/ui/button';
@@ -25,8 +25,21 @@ const GratuityEditor = ({
   receiptId,
 }: GratuityEditorProps) => {
   const { t } = useLingui();
+  // `gratuity` is an editable draft seeded from the saved prop — this is a
+  // controlled editor with an explicit save action, so initializing local
+  // state from the prop is intentional (not accidental derived state).
+  // react-doctor-disable-next-line react-doctor/no-derived-useState
   const [gratuity, setGratuity] = useState<Decimal>(receiptGratuity);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Keep the editable draft in sync when the saved gratuity prop changes,
+  // adjusting state during render instead of in an effect (avoids an extra
+  // render with a stale value). See react.dev "you might not need an effect".
+  const prevReceiptGratuityRef = useRef<Decimal>(receiptGratuity);
+  if (!receiptGratuity.equals(prevReceiptGratuityRef.current)) {
+    prevReceiptGratuityRef.current = receiptGratuity;
+    setGratuity(receiptGratuity);
+  }
 
   const resetToInitialValue = () => {
     setGratuity(receiptGratuity);
@@ -37,10 +50,6 @@ const GratuityEditor = ({
   const { mutate, isSaving } = useReceiptMutation({
     onSuccess: () => setIsEditing(false),
   });
-
-  useEffect(() => {
-    resetToInitialValue();
-  }, [receiptGratuity]);
 
   const handleEditGratuity = () => {
     resetToInitialValue();

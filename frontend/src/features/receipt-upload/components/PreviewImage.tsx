@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, domAnimation, LazyMotion, m } from 'framer-motion';
 import { Upload, X } from 'lucide-react';
 
 interface PreviewImageProps {
@@ -11,49 +11,51 @@ export const PreviewImage = ({ preview, onClear }: PreviewImageProps) => {
   const { t } = useLingui();
 
   return (
-    <AnimatePresence>
-      {preview ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="relative"
-        >
-          <img
-            src={preview}
-            alt={t`Preview`}
-            className="mx-auto max-h-[300px] rounded-lg"
-          />
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClear();
-            }}
-            className="absolute right-2 top-2 flex min-h-[24px] min-w-[24px] items-center justify-center rounded-full bg-background/80 p-1 backdrop-blur-sm hover:bg-background"
-            aria-label={t`Clear preview`}
+    <LazyMotion features={domAnimation}>
+      <AnimatePresence>
+        {preview ? (
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="relative"
           >
-            <X className="h-4 w-4" aria-hidden />
-          </button>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="flex flex-col items-center gap-2.5"
-        >
-          <Upload className="h-8 w-8 text-muted-foreground/50" />
-          <div>
-            <p className="text-sm font-medium text-foreground">
-              <Trans>Tap to upload a receipt</Trans>
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              <Trans>or drag & drop · JPEG, PNG</Trans>
-            </p>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            <img
+              src={preview}
+              alt={t`Preview`}
+              className="mx-auto max-h-[300px] rounded-lg"
+            />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClear();
+              }}
+              className="absolute right-2 top-2 flex min-h-[24px] min-w-[24px] items-center justify-center rounded-full bg-background/80 p-1 backdrop-blur-sm hover:bg-background"
+              aria-label={t`Clear preview`}
+            >
+              <X className="h-4 w-4" aria-hidden />
+            </button>
+          </m.div>
+        ) : (
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex flex-col items-center gap-2.5"
+          >
+            <Upload className="h-8 w-8 text-muted-foreground/50" />
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                <Trans>Tap to upload a receipt</Trans>
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                <Trans>or drag & drop · JPEG, PNG</Trans>
+              </p>
+            </div>
+          </m.div>
+        )}
+      </AnimatePresence>
+    </LazyMotion>
   );
 };

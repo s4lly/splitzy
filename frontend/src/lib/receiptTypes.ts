@@ -5,7 +5,7 @@ import { z } from 'zod';
  * Shared schema for receipt history items displayed in the UI
  * This unified type works for both Zero Query and TanStack Query data sources
  */
-export const ReceiptHistoryItemSchema = z.object({
+const ReceiptHistoryItemSchema = z.object({
   id: z.number(),
   merchant: z.string().nullable(),
   total: z.number().nullable(),

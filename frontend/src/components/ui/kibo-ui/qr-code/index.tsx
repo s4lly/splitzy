@@ -1,8 +1,9 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { formatHex, oklch } from 'culori';
 import QR from 'qrcode';
-import { type HTMLAttributes, useEffect, useState } from 'react';
+import { type HTMLAttributes } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -37,53 +38,37 @@ export const QRCode = ({
   className,
   ...props
 }: QRCodeProps) => {
-  const [svg, setSVG] = useState<string | null>(null);
+  const { data: src } = useQuery({
+    queryKey: ['qr-code', data, foreground, background, robustness],
+    queryFn: async () => {
+      const styles = getComputedStyle(document.documentElement);
+      const foregroundColor =
+        foreground ?? styles.getPropertyValue('--foreground');
+      const backgroundColor =
+        background ?? styles.getPropertyValue('--background');
 
-  useEffect(() => {
-    const generateQR = async () => {
-      try {
-        const styles = getComputedStyle(document.documentElement);
-        const foregroundColor =
-          foreground ?? styles.getPropertyValue('--foreground');
-        const backgroundColor =
-          background ?? styles.getPropertyValue('--background');
+      const foregroundOklch = getOklch(foregroundColor, [0.21, 0.006, 285.885]);
+      const backgroundOklch = getOklch(backgroundColor, [0.985, 0, 0]);
 
-        const foregroundOklch = getOklch(
-          foregroundColor,
-          [0.21, 0.006, 285.885]
-        );
-        const backgroundOklch = getOklch(backgroundColor, [0.985, 0, 0]);
+      return QR.toDataURL(data, {
+        color: {
+          dark: formatHex(oklch({ mode: 'oklch', ...foregroundOklch })),
+          light: formatHex(oklch({ mode: 'oklch', ...backgroundOklch })),
+        },
+        width: 200,
+        errorCorrectionLevel: robustness,
+        margin: 0,
+      });
+    },
+  });
 
-        const newSvg = await QR.toString(data, {
-          type: 'svg',
-          color: {
-            dark: formatHex(oklch({ mode: 'oklch', ...foregroundOklch })),
-            light: formatHex(oklch({ mode: 'oklch', ...backgroundOklch })),
-          },
-          width: 200,
-          errorCorrectionLevel: robustness,
-          margin: 0,
-        });
-
-        setSVG(newSvg);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    generateQR();
-  }, [data, foreground, background, robustness]);
-
-  if (!svg) {
+  if (!src) {
     return null;
   }
 
   return (
-    <div
-      className={cn('size-full', '[&_svg]:size-full', className)}
-      // biome-ignore lint/security/noDangerouslySetInnerHtml: "Required for SVG"
-      dangerouslySetInnerHTML={{ __html: svg }}
-      {...props}
-    />
+    <div className={cn('size-full', '[&_img]:size-full', className)} {...props}>
+      <img src={src} alt="QR code" />
+    </div>
   );
 };

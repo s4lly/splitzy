@@ -2,25 +2,6 @@ import Decimal from 'decimal.js';
 
 import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import type { Receipt } from '@/models/Receipt';
-import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
-
-/**
- * Extracts unique receipt user IDs from line item assignments
- * @param lineItems Array of line items to extract receipt user IDs from
- * @returns Array of unique receipt user IDs
- */
-export const getPeopleFromLineItems = (
-  lineItems: readonly ReceiptLineItem[]
-): string[] => {
-  const allAssignments = lineItems
-    .flatMap((item) => item.assignments)
-    .filter((assignment) => !assignment.deletedAt);
-  const receiptUserIds = allAssignments.map(
-    (assignment) => assignment.receiptUserId
-  );
-
-  return Array.from(new Set(receiptUserIds));
-};
 
 /**
  * Person item type for detailed breakdown

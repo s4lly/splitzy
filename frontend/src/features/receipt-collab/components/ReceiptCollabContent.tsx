@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { motion } from 'framer-motion';
+import { domAnimation, LazyMotion, m } from 'framer-motion';
 import { useAtomValue } from 'jotai';
 import { Plus, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
@@ -50,86 +50,90 @@ export const ReceiptCollabContent = () => {
   }
 
   return (
-    <motion.div
-      initial={
-        shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }
-      }
-      animate={{ opacity: 1, y: 0 }}
-      transition={
-        shouldReduceMotion
-          ? { duration: 0 }
-          : {
-              duration: 0.4,
-              ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
-            }
-      }
-      className="w-full"
-    >
-      <div className="mx-auto max-w-3xl px-4 py-5">
-        <h1 className="sr-only">
-          {receipt.merchant ? (
-            <Trans>Receipt — {receipt.merchant}</Trans>
-          ) : (
-            <Trans>Receipt details</Trans>
-          )}
-        </h1>
-        <div className="flex flex-col gap-4">
-          <ReceiptImageViewer receipt={receipt} />
+    <LazyMotion features={domAnimation}>
+      <m.div
+        initial={
+          shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }
+        }
+        animate={{ opacity: 1, y: 0 }}
+        transition={
+          shouldReduceMotion
+            ? { duration: 0 }
+            : {
+                duration: 0.4,
+                ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+              }
+        }
+        className="w-full"
+      >
+        <div className="mx-auto max-w-3xl px-4 py-5">
+          <h1 className="sr-only">
+            {receipt.merchant ? (
+              <Trans>Receipt — {receipt.merchant}</Trans>
+            ) : (
+              <Trans>Receipt details</Trans>
+            )}
+          </h1>
+          <div className="flex flex-col gap-4">
+            <ReceiptImageViewer receipt={receipt} />
 
-          <ReceiptDetailsCard
-            shareToken={receipt.shareToken}
-            merchant={receipt.merchant}
-            date={receipt.date}
-          />
+            <ReceiptDetailsCard
+              shareToken={receipt.shareToken}
+              merchant={receipt.merchant}
+              date={receipt.date}
+            />
 
-          {/* Items Card */}
-          <Card className="overflow-hidden border-0 shadow-[0_2px_12px_0_rgba(0,0,0,0.06)]">
-            <CardHeader className="px-4 pb-2 sm:px-5">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 font-display text-lg font-semibold">
-                  <ShoppingBag className="h-5 w-5 text-muted-foreground" />
-                  <Trans>Items</Trans>
-                </CardTitle>
+            {/* Items Card */}
+            <Card className="overflow-hidden border-0 shadow-[0_2px_12px_0_rgba(0,0,0,0.06)]">
+              <CardHeader className="px-4 pb-2 sm:px-5">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 font-display text-lg font-semibold">
+                    <ShoppingBag className="h-5 w-5 text-muted-foreground" />
+                    <Trans>Items</Trans>
+                  </CardTitle>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsAddingItem(true)}
-                >
-                  <Plus data-icon="inline-start" />
-                  <Trans>Add Item</Trans>
-                </Button>
-              </div>
-            </CardHeader>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsAddingItem(true)}
+                  >
+                    <Plus data-icon="inline-start" />
+                    <Trans>Add Item</Trans>
+                  </Button>
+                </div>
+              </CardHeader>
 
-            <CardContent className="px-4 sm:px-5">
-              {isAddingItem && (
-                <LineItemCard selected={true}>
-                  <LineItemAddForm onAddCancel={() => setIsAddingItem(false)} />
-                </LineItemCard>
-              )}
+              <CardContent className="px-4 sm:px-5">
+                {isAddingItem && (
+                  <LineItemCard selected={true}>
+                    <LineItemAddForm
+                      onAddCancel={() => setIsAddingItem(false)}
+                    />
+                  </LineItemCard>
+                )}
 
-              {receipt.lineItems && receipt.lineItems.length > 0 ? (
-                <>
-                  {isMobile ? (
-                    <LineItemsTableMobile />
-                  ) : (
-                    <LineItemsTableDesktop />
-                  )}
-                </>
-              ) : (
-                <NoLineItemsMessage merchant={receipt.merchant} />
-              )}
-            </CardContent>
-          </Card>
+                {receipt.lineItems && receipt.lineItems.length > 0 ? (
+                  <>
+                    {isMobile ? (
+                      <LineItemsTableMobile />
+                    ) : (
+                      <LineItemsTableDesktop />
+                    )}
+                  </>
+                ) : (
+                  <NoLineItemsMessage merchant={receipt.merchant} />
+                )}
+              </CardContent>
+            </Card>
 
-          <ReceiptSummaryCard />
+            <ReceiptSummaryCard />
 
-          <BillSplitSectionCollab />
+            <BillSplitSectionCollab />
 
-          {/* {isLocalDevelopment() && <ReceiptViewer />} */}
+            {/* {isLocalDevelopment() && <ReceiptViewer />} */}
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </m.div>
+    </LazyMotion>
   );
 };

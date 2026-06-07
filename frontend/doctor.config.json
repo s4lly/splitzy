@@ -1,0 +1,6 @@
+{
+  "$comment": "react-doctor config. The api/ directory holds Vercel Node serverless functions (entry points referenced from vercel.json), not React frontend code, so it is excluded from React-oriented analysis.",
+  "ignore": {
+    "files": ["api/**"]
+  }
+}

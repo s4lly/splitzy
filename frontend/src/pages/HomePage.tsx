@@ -3,10 +3,11 @@ import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery } from '@rocicorp/zero/react';
 import { queries } from '@splitzy/shared-zero/queries';
-import { motion } from 'framer-motion';
+import { useQuery as useReactQuery } from '@tanstack/react-query';
+import { domAnimation, LazyMotion, m } from 'framer-motion';
 import { useSetAtom } from 'jotai';
 import { AlertCircle } from 'lucide-react';
-import React, { Suspense, useCallback, useMemo, useState } from 'react';
+import { Suspense, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
@@ -89,29 +90,26 @@ const HomePage = () => {
   const setCompletedCrop = useSetAtom(completedCropAtom);
   const setImageDims = useSetAtom(imageDimsAtom);
   const setEraseRects = useSetAtom(eraseRectsAtom);
-  const [apiStatus, setApiStatus] = useState('checking');
   const shouldReduceMotion = useReducedMotion();
   const { t } = useLingui();
 
   useDocumentTitle('Home');
 
-  React.useEffect(() => {
-    const checkApiHealth = async () => {
-      try {
-        const response = await fetch(`${API_URL}/health`);
-        if (!response.ok) {
-          setApiStatus('unhealthy');
-          return;
-        }
-        const data = await response.json();
-        setApiStatus(data.status === 'healthy' ? 'healthy' : 'unhealthy');
-      } catch {
-        setApiStatus('unhealthy');
+  const { data: apiHealthy, isError: apiHealthError } = useReactQuery({
+    queryKey: ['api-health'],
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/health`);
+      if (!response.ok) {
+        return false;
       }
-    };
+      const data = await response.json();
+      return data.status === 'healthy';
+    },
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
 
-    checkApiHealth();
-  }, []);
+  const apiUnhealthy = apiHealthError || apiHealthy === false;
 
   const handleContinue = useCallback(
     (file: File) => {
@@ -133,119 +131,124 @@ const HomePage = () => {
   );
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-6 px-4 pb-10 pt-8">
-      <h1 className="sr-only">Splitzy</h1>
+    <LazyMotion features={domAnimation}>
+      <div className="mx-auto flex max-w-md flex-col gap-6 px-4 pb-10 pt-8">
+        <h1 className="sr-only">Splitzy</h1>
 
-      {/* ── Upload ── */}
-      <motion.section {...fadeUp(0.1, shouldReduceMotion)}>
-        <ReceiptUploader onContinue={handleContinue} />
+        {/* ── Upload ── */}
+        <m.section {...fadeUp(0.1, shouldReduceMotion)}>
+          <ReceiptUploader onContinue={handleContinue} />
 
-        {apiStatus === 'unhealthy' && (
-          <div
-            role="alert"
-            className="bg-destructive/8 mt-3 flex items-start gap-3 rounded-xl border border-destructive/25 p-4 text-sm"
-          >
-            <AlertCircle
-              className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive"
-              aria-hidden="true"
-            />
-            <p className="text-destructive">
-              <Trans>
-                Service temporarily unavailable. Please try again later.
-              </Trans>
-            </p>
-          </div>
-        )}
-      </motion.section>
-
-      {/* ── Hero ── */}
-      <motion.section {...fadeUp(0, shouldReduceMotion)}>
-        <div className="mb-4 flex justify-center">
-          <span className="rounded-full bg-accent px-3.5 py-1 text-xs font-medium tracking-wide text-accent-foreground">
-            <Trans>receipt splitting, simplified</Trans>
-          </span>
-        </div>
-        <p className="text-center text-sm leading-relaxed text-muted-foreground">
-          <Trans>
-            Scan a receipt, divide costs fairly, settle up in seconds.
-          </Trans>
-        </p>
-      </motion.section>
-
-      {/* ── Receipt history (signed-in only) ── */}
-      <SignedIn>
-        <motion.section {...fadeUp(0.2, shouldReduceMotion)}>
-          <Suspense fallback={<ReceiptHistorySkeleton />}>
-            <ReceiptHistorySection />
-          </Suspense>
-        </motion.section>
-      </SignedIn>
-
-      {/* ── How it works (below fold) ── */}
-      <motion.section
-        {...fadeUp(0.25, shouldReduceMotion)}
-        className="border-t border-border pt-6"
-      >
-        <p className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          <Trans>how it works</Trans>
-        </p>
-        <h2 className="mb-6 text-center font-display text-[1.4rem] font-semibold leading-snug tracking-[-0.01em] text-foreground">
-          <Trans>
-            From receipt to settled,
-            <br />
-            <span className="font-light italic">in a few taps.</span>
-          </Trans>
-        </h2>
-
-        <div className="flex flex-col gap-3">
-          {features.map((feature, i) => (
-            <motion.div
-              key={t(feature.title)}
-              initial={
-                shouldReduceMotion
-                  ? { opacity: 1, y: 0 }
-                  : { opacity: 0, y: 10 }
-              }
-              animate={{ opacity: 1, y: 0 }}
-              transition={
-                shouldReduceMotion
-                  ? { duration: 0 }
-                  : {
-                      duration: 0.4,
-                      delay: 0.35 + i * 0.07,
-                      ease: EASE,
-                    }
-              }
-              className="flex items-start gap-4 rounded-2xl bg-card p-5 shadow-[0_1px_4px_0_rgba(0,0,0,0.06)] ring-1 ring-border/70"
+          {apiUnhealthy && (
+            <div
+              role="alert"
+              className="bg-destructive/8 mt-3 flex items-start gap-3 rounded-xl border border-destructive/25 p-4 text-sm"
             >
-              <div
-                className="mt-1 flex size-11 flex-shrink-0 items-center justify-center rounded-xl bg-accent text-xl"
+              <AlertCircle
+                className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive"
                 aria-hidden="true"
+              />
+              <p className="text-destructive">
+                <Trans>
+                  Service temporarily unavailable. Please try again later.
+                </Trans>
+              </p>
+            </div>
+          )}
+        </m.section>
+
+        {/* ── Hero ── */}
+        <m.section {...fadeUp(0, shouldReduceMotion)}>
+          <div className="mb-4 flex justify-center">
+            <span className="rounded-full bg-accent px-3.5 py-1 text-xs font-medium tracking-wide text-accent-foreground">
+              <Trans>receipt splitting, simplified</Trans>
+            </span>
+          </div>
+          <p className="text-center text-sm leading-relaxed text-muted-foreground">
+            <Trans>
+              Scan a receipt, divide costs fairly, settle up in seconds.
+            </Trans>
+          </p>
+        </m.section>
+
+        {/* ── Receipt history (signed-in only) ── */}
+        <SignedIn>
+          <m.section {...fadeUp(0.2, shouldReduceMotion)}>
+            <Suspense fallback={<ReceiptHistorySkeleton />}>
+              <ReceiptHistorySection />
+            </Suspense>
+          </m.section>
+        </SignedIn>
+
+        {/* ── How it works (below fold) ── */}
+        <m.section
+          {...fadeUp(0.25, shouldReduceMotion)}
+          className="border-t border-border pt-6"
+        >
+          <p className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            <Trans>how it works</Trans>
+          </p>
+          <h2 className="mb-6 text-center font-display text-[1.4rem] font-semibold leading-snug tracking-[-0.01em] text-foreground">
+            <Trans>
+              From receipt to settled,
+              <br />
+              <span className="font-light italic">in a few taps.</span>
+            </Trans>
+          </h2>
+
+          <div className="flex flex-col gap-3">
+            {features.map((feature, i) => (
+              <m.div
+                key={t(feature.title)}
+                initial={
+                  shouldReduceMotion
+                    ? { opacity: 1, y: 0 }
+                    : { opacity: 0, y: 10 }
+                }
+                animate={{ opacity: 1, y: 0 }}
+                transition={
+                  shouldReduceMotion
+                    ? { duration: 0 }
+                    : {
+                        duration: 0.4,
+                        delay: 0.35 + i * 0.07,
+                        ease: EASE,
+                      }
+                }
+                className="flex items-start gap-4 rounded-2xl bg-card p-5 shadow-[0_1px_4px_0_rgba(0,0,0,0.06)] ring-1 ring-border/70"
               >
-                {feature.emoji}
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-foreground">
-                  {t(feature.title)}
-                </h3>
-                <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-                  {t(feature.description)}
-                </p>
-                {feature.signInCta && (
-                  <SignedOut>
-                    <SignInButton>
-                      <button className="mt-2 min-h-[24px] min-w-[24px] text-xs font-semibold text-primary underline-offset-2 hover:underline">
-                        <Trans>Sign in to see your history →</Trans>
-                      </button>
-                    </SignInButton>
-                  </SignedOut>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.section>
-    </div>
+                <div
+                  className="mt-1 flex size-11 flex-shrink-0 items-center justify-center rounded-xl bg-accent text-xl"
+                  aria-hidden="true"
+                >
+                  {feature.emoji}
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {t(feature.title)}
+                  </h3>
+                  <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
+                    {t(feature.description)}
+                  </p>
+                  {feature.signInCta && (
+                    <SignedOut>
+                      <SignInButton>
+                        <button
+                          type="button"
+                          className="mt-2 min-h-[24px] min-w-[24px] text-xs font-semibold text-primary underline-offset-2 hover:underline"
+                        >
+                          <Trans>Sign in to see your history →</Trans>
+                        </button>
+                      </SignInButton>
+                    </SignedOut>
+                  )}
+                </div>
+              </m.div>
+            ))}
+          </div>
+        </m.section>
+      </div>
+    </LazyMotion>
   );
 };
 

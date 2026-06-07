@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { motion } from 'framer-motion';
+import { domAnimation, LazyMotion, m } from 'framer-motion';
 import { Calendar, QrCode, ShoppingBag, Tag } from 'lucide-react';
 import { useState } from 'react';
 
@@ -52,60 +52,62 @@ export const ReceiptDetailsCard = ({
   };
 
   return (
-    <Card className="overflow-hidden border-0 shadow-[0_2px_12px_0_rgba(0,0,0,0.06)]">
-      <CardHeader className="px-4 pb-2 sm:px-5">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 font-display text-lg font-semibold">
-            <ShoppingBag className="h-5 w-5 text-muted-foreground" />
-            <Trans>Document Details</Trans>
-          </CardTitle>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowQrCode(!showQrCode)}
-          >
-            <QrCode className="mr-1 h-4 w-4" />
-            {showQrCode ? (
-              <Trans>Hide QR Code</Trans>
-            ) : (
-              <Trans>Show QR Code</Trans>
-            )}
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="px-4 sm:px-5">
-        {showQrCode && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex justify-center py-4"
-          >
-            <QRCode data={shareUrl} className="h-48 w-48" />
-          </motion.div>
-        )}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <Tag className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
-            <span className="whitespace-nowrap text-base font-medium">
-              <Trans>Merchant:</Trans>
-            </span>
-            <span className="ml-auto truncate text-base font-semibold">
-              {merchant || t`Unknown`}
-            </span>
+    <LazyMotion features={domAnimation}>
+      <Card className="overflow-hidden border-0 shadow-[0_2px_12px_0_rgba(0,0,0,0.06)]">
+        <CardHeader className="px-4 pb-2 sm:px-5">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 font-display text-lg font-semibold">
+              <ShoppingBag className="h-5 w-5 text-muted-foreground" />
+              <Trans>Document Details</Trans>
+            </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowQrCode(!showQrCode)}
+            >
+              <QrCode className="mr-1 h-4 w-4" />
+              {showQrCode ? (
+                <Trans>Hide QR Code</Trans>
+              ) : (
+                <Trans>Show QR Code</Trans>
+              )}
+            </Button>
           </div>
+        </CardHeader>
+        <CardContent className="px-4 sm:px-5">
+          {showQrCode && (
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex justify-center py-4"
+            >
+              <QRCode data={shareUrl} className="h-48 w-48" />
+            </m.div>
+          )}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <Tag className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+              <span className="whitespace-nowrap text-base font-medium">
+                <Trans>Merchant:</Trans>
+              </span>
+              <span className="ml-auto truncate text-base font-semibold">
+                {merchant || t`Unknown`}
+              </span>
+            </div>
 
-          <div className="flex items-center gap-3 overflow-hidden">
-            <Calendar className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
-            <span className="whitespace-nowrap text-base font-medium">
-              <Trans>Date:</Trans>
-            </span>
-            <span className="ml-auto truncate text-base font-semibold">
-              {formatDate()}
-            </span>
+            <div className="flex items-center gap-3 overflow-hidden">
+              <Calendar className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+              <span className="whitespace-nowrap text-base font-medium">
+                <Trans>Date:</Trans>
+              </span>
+              <span className="ml-auto truncate text-base font-semibold">
+                {formatDate()}
+              </span>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </LazyMotion>
   );
 };

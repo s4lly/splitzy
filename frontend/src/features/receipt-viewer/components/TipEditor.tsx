@@ -1,19 +1,9 @@
-import { Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
-import { Trash } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
-import PercentageTipButton from '@/components/Receipt/components/PercentageTipButton';
-import { formatCurrency } from '@/components/Receipt/utils/format-currency';
-import { calculations } from '@/components/Receipt/utils/receipt-calculation';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import TipDisplay from '@/features/receipt-viewer/components/TipDisplay';
+import TipEditForm from '@/features/receipt-viewer/components/TipEditForm';
 import { useReceiptMutation } from '@/features/receipt-viewer/hooks/useReceiptMutation';
-import EditableDetail from '@/features/summary-card/EditableDetail';
-import { cn } from '@/lib/utils';
 
 interface TipEditorProps {
   receiptTip: Decimal;
@@ -38,12 +28,20 @@ const TipEditor = ({
   receiptId,
   onTipPreview,
 }: TipEditorProps) => {
-  const { t } = useLingui();
+  // `tip`, `inputValue` and `tipAfterTax` are editable drafts seeded from props
+  // — this is a controlled editor with an explicit save action, so initializing
+  // local state from the prop is intentional (not accidental derived state).
+  // react-doctor-disable-next-line react-doctor/no-derived-useState
   const [tip, setTip] = useState<Decimal>(receiptTip);
-  const [inputValue, setInputValue] = useState(receiptTip.toFixed(2));
+  const [inputValue, setInputValue] = useState(() => receiptTip.toFixed(2));
   const [isEditing, setIsEditing] = useState(false);
+  // react-doctor-disable-next-line react-doctor/no-derived-useState
   const [tipAfterTax, setTipAfterTax] = useState(propTipAfterTax);
-  const inputRef = useRef<HTMLInputElement>(null);
+
+  const focusInputOnMount = useCallback((node: HTMLInputElement | null) => {
+    node?.focus();
+    node?.select();
+  }, []);
 
   const hasValueToDelete = !receiptTip.isZero();
 
@@ -69,20 +67,21 @@ const TipEditor = ({
     },
   });
 
-  useEffect(() => {
+  // Sync the editable drafts when the corresponding props change, adjusting
+  // state during render instead of in effects (avoids a stale intermediate
+  // render). Focus-on-edit is handled by the `focusInputOnMount` ref callback.
+  const prevReceiptTipRef = useRef(receiptTip);
+  if (!receiptTip.equals(prevReceiptTipRef.current)) {
+    prevReceiptTipRef.current = receiptTip;
     setTip(receiptTip);
-  }, [receiptTip]);
+    setInputValue(receiptTip.toFixed(2));
+  }
 
-  useEffect(() => {
+  const prevPropTipAfterTaxRef = useRef(propTipAfterTax);
+  if (propTipAfterTax !== prevPropTipAfterTaxRef.current) {
+    prevPropTipAfterTaxRef.current = propTipAfterTax;
     setTipAfterTax(propTipAfterTax);
-  }, [propTipAfterTax]);
-
-  useEffect(() => {
-    if (isEditing) {
-      inputRef.current?.focus();
-      inputRef.current?.select();
-    }
-  }, [isEditing]);
+  }
 
   const setTipAndInput = (value: Decimal) => {
     setTip(value);
@@ -177,164 +176,33 @@ const TipEditor = ({
   return (
     <div className="-ml-2 -mr-2 rounded-sm border">
       {isEditing ? (
-        <div className="flex flex-col gap-4 bg-background px-2 py-2">
-          <div className="flex items-baseline justify-between">
-            <Label htmlFor="tip" className="text-sm font-medium">
-              <Trans>Tip:</Trans>
-            </Label>
-            <span className="text-sm text-muted-foreground">
-              {tipBase.gt(0)
-                ? calculations.utils.formatPercentage(tip, tipBase)
-                : '—'}
-            </span>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="select-none pr-1 text-lg text-muted-foreground">
-                $
-              </span>
-              <Input
-                ref={inputRef}
-                type="text"
-                inputMode="decimal"
-                value={inputValue}
-                onChange={handleTipChange}
-                onBlur={handleInputBlur}
-                placeholder={t`Tip`}
-                required
-                className="text-center"
-                id="tip"
-                disabled={isSaving}
-              />
-            </div>
-            <Tabs
-              value={tipAfterTax ? 'after' : 'before'}
-              onValueChange={handleTipAfterTaxChange}
-            >
-              <TabsList className="w-full">
-                <TabsTrigger value="before" className="flex-1">
-                  <Trans>Before tax</Trans>
-                </TabsTrigger>
-                <TabsTrigger value="after" className="flex-1">
-                  <Trans>After tax</Trans>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-            {tipBase.gt(0) ? (
-              <div className="space-y-1 rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
-                <div className="flex justify-between">
-                  <span>
-                    <Trans>Items total</Trans>
-                  </span>
-                  <span>{formatCurrency(itemsTotal)}</span>
-                </div>
-                {tipAfterTax && (
-                  <>
-                    <div className="flex justify-between">
-                      <span>
-                        <Trans>Tax</Trans>
-                      </span>
-                      <span>+ {formatCurrency(receiptTax)}</span>
-                    </div>
-                    <div className="flex justify-between border-t border-border pt-1 font-medium">
-                      <span>
-                        <Trans>Tip base</Trans>
-                      </span>
-                      <span>{formatCurrency(tipBase)}</span>
-                    </div>
-                  </>
-                )}
-                <div className="flex justify-between border-t border-border pt-1">
-                  <span>
-                    {formatCurrency(tipBase)} ×{' '}
-                    {calculations.utils.formatPercentage(tip, tipBase)}
-                  </span>
-                  <span className="font-medium">= {formatCurrency(tip)}</span>
-                </div>
-              </div>
-            ) : (
-              <div className="text-sm text-muted-foreground">—</div>
-            )}
-          </div>
-
-          <div
-            className={cn(
-              'flex justify-between',
-              !hasValueToDelete && 'justify-end'
-            )}
-          >
-            {hasValueToDelete && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="border-red-500 text-red-500"
-                onClick={handleDeleteTip}
-                aria-label={t`Delete tip`}
-                disabled={isSaving}
-              >
-                <Trash className="size-4" />
-              </Button>
-            )}
-            <div className="flex gap-2">
-              <Button
-                onClick={handleCancelTip}
-                variant="outline"
-                disabled={isSaving}
-              >
-                <Trans>Cancel</Trans>
-              </Button>
-              <Button
-                onClick={handleSaveTip}
-                variant="outline"
-                disabled={isSaving}
-              >
-                <Trans>Done</Trans>
-              </Button>
-            </div>
-          </div>
-        </div>
+        <TipEditForm
+          inputValue={inputValue}
+          tipAfterTax={tipAfterTax}
+          tipBase={tipBase}
+          tip={tip}
+          itemsTotal={itemsTotal}
+          receiptTax={receiptTax}
+          hasValueToDelete={hasValueToDelete}
+          isSaving={isSaving}
+          focusInputOnMount={focusInputOnMount}
+          handleTipChange={handleTipChange}
+          handleInputBlur={handleInputBlur}
+          handleTipAfterTaxChange={handleTipAfterTaxChange}
+          handleDeleteTip={handleDeleteTip}
+          handleCancelTip={handleCancelTip}
+          handleSaveTip={handleSaveTip}
+        />
       ) : (
-        <>
-          <EditableDetail
-            label={t`Tip`}
-            value={formatCurrency(receiptTip)}
-            onClick={handleEditTip}
-          />
-          <div className="grid grid-flow-col gap-2 px-2 pb-2">
-            <PercentageTipButton
-              percentage={10}
-              itemsTotal={tipBase}
-              onTipSelect={handleQuickPercentageTip}
-              isActive={activePercentage === 10}
-            />
-            <PercentageTipButton
-              percentage={15}
-              itemsTotal={tipBase}
-              onTipSelect={handleQuickPercentageTip}
-              isActive={activePercentage === 15}
-            />
-            <PercentageTipButton
-              percentage={20}
-              itemsTotal={tipBase}
-              onTipSelect={handleQuickPercentageTip}
-              isActive={activePercentage === 20}
-            />
-          </div>
-          <div className="flex justify-end gap-1.5 px-2 pb-2">
-            {isOriginalTip && (
-              <Badge variant="outline" className="font-normal">
-                <Trans>Original</Trans>
-              </Badge>
-            )}
-            <Badge variant="outline" className="font-normal">
-              {tipAfterTax ? (
-                <Trans>After tax</Trans>
-              ) : (
-                <Trans>Before tax</Trans>
-              )}
-            </Badge>
-          </div>
-        </>
+        <TipDisplay
+          receiptTip={receiptTip}
+          tipBase={tipBase}
+          activePercentage={activePercentage}
+          isOriginalTip={isOriginalTip}
+          tipAfterTax={tipAfterTax}
+          handleEditTip={handleEditTip}
+          handleQuickPercentageTip={handleQuickPercentageTip}
+        />
       )}
     </div>
   );

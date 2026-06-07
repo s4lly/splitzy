@@ -1,6 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { ArrowLeft, ChevronRight, TriangleAlert } from 'lucide-react';
-import { useContext, useState } from 'react';
+import { use, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -123,7 +123,7 @@ function FeatureFlagsSettings() {
   const dispatch = useFeatureFlagDispatch();
 
   const receiptDesktopTable = useFeatureFlag('receipt-desktop-table');
-  const { isOverridden } = useContext(FeatureFlagStateContext);
+  const { isOverridden } = use(FeatureFlagStateContext);
 
   return (
     <div className="space-y-6">
