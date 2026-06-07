@@ -2,7 +2,7 @@ import Decimal from 'decimal.js';
 
 import type { Receipt } from '@/models/Receipt';
 
-import { ItemSplits } from './receipt-calculation';
+import type { ItemSplits } from './receipt-calculation';
 
 /**
  * Pure function to check if receipt has line items.

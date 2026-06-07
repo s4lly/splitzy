@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { motion } from 'framer-motion';
+import { LazyMotion, domAnimation, m } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 
@@ -34,10 +34,10 @@ export default function LineItemForm({
   onEditCancel?: () => void;
 }) {
   const [formName, setFormName] = useState(item.name ?? '');
-  const [formQuantity, setFormQuantity] = useState<number>(
+  const [formQuantity, setFormQuantity] = useState<number>(() =>
     item.quantity.toNumber()
   );
-  const [formPricePerItem, setFormPricePerItem] = useState<string>(
+  const [formPricePerItem, setFormPricePerItem] = useState<string>(() =>
     truncateToTwoDecimals(item.pricePerItem)
   );
   const [isNameFocused, setIsNameFocused] = useState(false);
@@ -97,42 +97,12 @@ export default function LineItemForm({
   };
 
   return (
-    <div className="flex flex-col gap-3 bg-background p-2">
-      <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-2">
-        <motion.div
-          className="flex-1"
-          layout
-          transition={{
-            type: 'spring',
-            stiffness: 300,
-            damping: 30,
-            layout: {
-              type: 'spring',
-              stiffness: 300,
-              damping: 30,
-            },
-          }}
-        >
-          <label htmlFor={`item-name-${item.id}`} className="sr-only">
-            <Trans>Item name</Trans>
-          </label>
-          <Input
-            id={`item-name-${item.id}`}
-            value={formName}
-            onChange={handleNameChange}
-            onFocus={() => setIsNameFocused(true)}
-            onBlur={() => setIsNameFocused(false)}
-            placeholder={t`Item name`}
-            required
-          />
-        </motion.div>
-
-        {!isNameFocused && (
-          <motion.span
-            key="formTotal"
+    <LazyMotion features={domAnimation}>
+      <div className="flex flex-col gap-3 bg-background p-2">
+        <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-2">
+          <m.div
+            className="flex-1"
             layout
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
             transition={{
               type: 'spring',
               stiffness: 300,
@@ -143,61 +113,93 @@ export default function LineItemForm({
                 damping: 30,
               },
             }}
-            className="whitespace-nowrap text-right font-semibold"
           >
-            {formatCurrency(formTotal)}
-          </motion.span>
-        )}
+            <label htmlFor={`item-name-${item.id}`} className="sr-only">
+              <Trans>Item name</Trans>
+            </label>
+            <Input
+              id={`item-name-${item.id}`}
+              value={formName}
+              onChange={handleNameChange}
+              onFocus={() => setIsNameFocused(true)}
+              onBlur={() => setIsNameFocused(false)}
+              placeholder={t`Item name`}
+              required
+            />
+          </m.div>
 
-        {onEditCancel && (
-          <Toggle pressed onClick={onEditCancel}>
-            <ChevronDown />
-          </Toggle>
-        )}
-      </div>
+          {!isNameFocused && (
+            <m.span
+              key="formTotal"
+              layout
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 30,
+                layout: {
+                  type: 'spring',
+                  stiffness: 300,
+                  damping: 30,
+                },
+              }}
+              className="whitespace-nowrap text-right font-semibold"
+            >
+              {formatCurrency(formTotal)}
+            </m.span>
+          )}
 
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor={`item-quantity-${item.id}`}
-          className="text-sm font-medium"
-        >
-          <Trans>Quantity</Trans>
-        </label>
-        <NumericInput
-          id={`item-quantity-${item.id}`}
-          value={formQuantity}
-          onChange={handleNumericQuantityChange}
-          min={1}
-          placeholder={t`Quantity`}
-        />
-      </div>
+          {onEditCancel && (
+            <Toggle pressed onClick={onEditCancel}>
+              <ChevronDown />
+            </Toggle>
+          )}
+        </div>
 
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor={`item-price-${item.id}`}
-          className="text-sm font-medium"
-        >
-          <Trans>Unit Price</Trans>
-        </label>
-        <div className="flex items-center gap-2">
-          <span className="select-none pl-2 pr-1 text-lg text-muted-foreground">
-            $
-          </span>
-          <Input
-            id={`item-price-${item.id}`}
-            type="number"
-            value={formPricePerItem}
-            onChange={handlePriceChange}
-            onBlur={handlePriceBlur}
-            onKeyDown={handlePriceKeyDown}
-            placeholder={t`Unit price`}
-            min={0}
-            step="0.01"
-            required
-            className="text-center"
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor={`item-quantity-${item.id}`}
+            className="text-sm font-medium"
+          >
+            <Trans>Quantity</Trans>
+          </label>
+          <NumericInput
+            id={`item-quantity-${item.id}`}
+            value={formQuantity}
+            onChange={handleNumericQuantityChange}
+            min={1}
+            placeholder={t`Quantity`}
           />
         </div>
+
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor={`item-price-${item.id}`}
+            className="text-sm font-medium"
+          >
+            <Trans>Unit Price</Trans>
+          </label>
+          <div className="flex items-center gap-2">
+            <span className="select-none pl-2 pr-1 text-lg text-muted-foreground">
+              $
+            </span>
+            <Input
+              id={`item-price-${item.id}`}
+              type="number"
+              value={formPricePerItem}
+              onChange={handlePriceChange}
+              onBlur={handlePriceBlur}
+              onKeyDown={handlePriceKeyDown}
+              placeholder={t`Unit price`}
+              min={0}
+              step="0.01"
+              required
+              className="text-center"
+            />
+          </div>
+        </div>
       </div>
-    </div>
+    </LazyMotion>
   );
 }

@@ -2,7 +2,7 @@ import { SignedIn, SignedOut } from '@clerk/clerk-react';
 import { Trans } from '@lingui/react/macro';
 import { useQuery } from '@rocicorp/zero/react';
 import { queries } from '@splitzy/shared-zero/queries';
-import { motion } from 'framer-motion';
+import { LazyMotion, domAnimation, m } from 'framer-motion';
 import { useMemo } from 'react';
 
 import ReceiptHistory from '@/components/Receipt/ReceiptHistory';
@@ -40,27 +40,32 @@ const ReceiptsPage = () => {
   }
 
   return (
-    <div className="px-1 py-8 sm:container">
-      <SignedIn>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <ReceiptHistory receipts={transformedReceipts} loading={isLoading} />
-        </motion.div>
-      </SignedIn>
+    <LazyMotion features={domAnimation}>
+      <div className="px-1 py-8 sm:container">
+        <SignedIn>
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ReceiptHistory
+              receipts={transformedReceipts}
+              loading={isLoading}
+            />
+          </m.div>
+        </SignedIn>
 
-      <SignedOut>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-        >
-          <SignInPromptCard />
-        </motion.div>
-      </SignedOut>
-    </div>
+        <SignedOut>
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.3 }}
+          >
+            <SignInPromptCard />
+          </m.div>
+        </SignedOut>
+      </div>
+    </LazyMotion>
   );
 };
 

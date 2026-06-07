@@ -5,7 +5,7 @@ import {
   User,
   UserReceipt,
 } from '@splitzy/shared-zero/schema';
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, ReactNode, use } from 'react';
 
 /**
  * Assignment with related receipt user from Zero query
@@ -75,7 +75,7 @@ export function ReceiptProvider({
  * Must be used within a ReceiptProvider.
  */
 export function useReceiptContext(): ReceiptContextValue {
-  const context = useContext(ReceiptContext);
+  const context = use(ReceiptContext);
 
   if (!context) {
     throw new Error('useReceiptContext must be used within a ReceiptProvider');

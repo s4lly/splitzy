@@ -15,9 +15,8 @@ const AuthenticatedOnly: React.FC<AuthenticatedOnlyProps> = ({
 
   if (!isLoaded) {
     return (
-      <div
+      <output
         className="flex min-h-[60vh] items-center justify-center"
-        role="status"
         aria-live="polite"
         aria-busy="true"
       >
@@ -26,7 +25,7 @@ const AuthenticatedOnly: React.FC<AuthenticatedOnlyProps> = ({
           aria-hidden="true"
         />
         <span className="sr-only">Loading…</span>
-      </div>
+      </output>
     );
   }
 

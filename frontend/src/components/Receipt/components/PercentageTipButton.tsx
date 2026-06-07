@@ -22,30 +22,21 @@ const PercentageTipButton = ({
     onTipSelect(tipAmount);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onTipSelect(tipAmount);
-    }
-  };
-
   return (
-    <div
+    <button
+      type="button"
       className={cn(
         'flex cursor-pointer flex-col items-center justify-center rounded-sm border p-2 transition-colors hover:bg-muted focus:bg-muted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
         isActive && 'border-primary bg-primary/10'
       )}
-      tabIndex={0}
-      role="button"
       aria-label={`Set tip to ${percentage}%`}
       onClick={handleClick}
-      onKeyDown={handleKeyDown}
     >
       <div className="text-xl font-semibold">{percentage}%</div>
       <div className="text-sm text-muted-foreground">
         {formatCurrency(tipAmount)}
       </div>
-    </div>
+    </button>
   );
 };
 

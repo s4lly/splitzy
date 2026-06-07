@@ -1,7 +1,7 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useAtomValue } from 'jotai';
 import { Divide } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import NumericInput from '@/components/NumericInput';
 import { formatCurrency } from '@/components/Receipt/utils/format-currency';
@@ -18,14 +18,17 @@ export const EvenSplitTabCollab = () => {
   const assignedUsers = useAtomValue(assignedUsersAtom);
   const receiptUserIds = assignedUsers.map((a) => a.receiptUserId);
   const receipt = useAtomValue(receiptAtom);
-  const [numberOfPeople, setNumberOfPeople] = useState(
-    receiptUserIds.length > 0 ? receiptUserIds.length : 1
-  );
+  const defaultNumberOfPeople =
+    receiptUserIds.length > 0 ? receiptUserIds.length : 1;
+  const [numberOfPeople, setNumberOfPeople] = useState(defaultNumberOfPeople);
 
-  // Sync numberOfPeople when assignments array changes
-  useEffect(() => {
-    setNumberOfPeople(receiptUserIds.length > 0 ? receiptUserIds.length : 1);
-  }, [receiptUserIds.length]);
+  // Reset the editable count when the number of assigned people changes,
+  // adjusting state during render instead of in an effect.
+  const prevPeopleCountRef = useRef(receiptUserIds.length);
+  if (receiptUserIds.length !== prevPeopleCountRef.current) {
+    prevPeopleCountRef.current = receiptUserIds.length;
+    setNumberOfPeople(defaultNumberOfPeople);
+  }
 
   if (!receipt) {
     return null;

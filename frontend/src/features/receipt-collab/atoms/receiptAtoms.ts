@@ -46,18 +46,10 @@ export const receiptIdAtom = atom((get) => {
 // =============================================================================
 
 /**
- * Derives line items from the receipt for convenience
- */
-export const lineItemsAtom = atom((get) => {
-  const receipt = get(receiptAtom);
-  return receipt?.lineItems ?? [];
-});
-
-/**
  * Creates the ItemSplits structure from line item assignments.
  * This organizes which people are assigned to which items.
  */
-export const itemSplitsAtom = atom((get) => {
+const itemSplitsAtom = atom((get) => {
   const receipt = get(receiptAtom);
   if (!receipt) return null;
 
@@ -140,7 +132,7 @@ const personTotalsOverrideAtom = atom<Map<PersonIdentifier, Decimal> | null>(
  * Can be read (computed or overridden) or written (to override).
  * Set to null to reset to computed value.
  */
-export const personTotalsAtom = atom(
+const personTotalsAtom = atom(
   (get) => {
     const override = get(personTotalsOverrideAtom);
     if (override) return override;

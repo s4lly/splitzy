@@ -55,6 +55,7 @@ const ImagePrepPage = () => {
     if (!pendingImage) {
       navigate('/', { replace: true });
     }
+    // react-doctor-disable-next-line react-doctor/exhaustive-deps
   }, []);
 
   // Create a blob URL inside an effect so it is created and revoked in the same
@@ -144,13 +145,16 @@ const ImagePrepPage = () => {
         eraseRects,
         imageDims ?? undefined
       );
-      if (!mountedRef.current) return;
-      setProcessedImage(processed);
-      navigate('/preview');
+      // Guard against state updates after unmount (mid-processing navigation).
+      if (mountedRef.current) {
+        setProcessedImage(processed);
+        navigate('/preview');
+      }
     } catch (err) {
       console.error('Image processing failed:', err);
-      if (!mountedRef.current) return;
-      setProcessingError(t`Image processing failed`);
+      if (mountedRef.current) {
+        setProcessingError(t`Image processing failed`);
+      }
     } finally {
       if (mountedRef.current) {
         setIsProcessing(false);
@@ -164,6 +168,7 @@ const ImagePrepPage = () => {
     navigate,
     pendingImage,
     setProcessedImage,
+    t,
   ]);
 
   if (!pendingImage || !localPreview) return null;

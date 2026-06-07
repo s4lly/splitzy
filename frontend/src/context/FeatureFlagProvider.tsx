@@ -4,10 +4,10 @@ import {
   createContext,
   Dispatch,
   ReactNode,
-  useContext,
+  use,
   useEffect,
+  useMemo,
   useReducer,
-  useState,
 } from 'react';
 
 // Define the shape of your feature flags
@@ -55,7 +55,7 @@ interface FeatureFlagDB extends DBSchema {
 }
 
 const createFeatureFlagDB = async () => {
-  openDB<FeatureFlagDB>(DB_NAME, 1, {
+  await openDB<FeatureFlagDB>(DB_NAME, 1, {
     upgrade(db) {
       db.createObjectStore(STORE_NAME);
     },
@@ -127,35 +127,30 @@ const FeatureFlagDispatchContext = createContext<
 
 // Provider
 export const FeatureFlagProvider = ({ children }: { children: ReactNode }) => {
-  const [isDBCreated, setIsDBCreated] = useState(false);
   const [state, dispatch] = useReducer(featureFlagReducer, initialFlags);
 
   useEffect(() => {
-    createFeatureFlagDB().then(() => {
-      setIsDBCreated(true);
-    });
-  }, []);
-
-  useEffect(() => {
-    const fetchFlags = async () => {
+    const initFlags = async () => {
+      await createFeatureFlagDB();
       const flags = await getFlagsFromDB();
       dispatch({ type: 'SET_FLAGS', flags });
     };
 
-    if (isDBCreated) {
-      fetchFlags();
-    }
-  }, [isDBCreated]);
+    initFlags();
+  }, []);
+
+  const stateValue = useMemo(
+    () => ({
+      featureFlags: state,
+      isOverridden: Object.values(state).some(
+        (flag) => flag.location !== 'unset'
+      ),
+    }),
+    [state]
+  );
 
   return (
-    <FeatureFlagStateContext.Provider
-      value={{
-        featureFlags: state,
-        isOverridden: Object.values(state).some(
-          (flag) => flag.location !== 'unset'
-        ),
-      }}
-    >
+    <FeatureFlagStateContext.Provider value={stateValue}>
       <FeatureFlagDispatchContext.Provider value={dispatch}>
         {children}
       </FeatureFlagDispatchContext.Provider>
@@ -166,7 +161,7 @@ export const FeatureFlagProvider = ({ children }: { children: ReactNode }) => {
 // Hooks for consuming context
 
 export function useFeatureFlag(flag: keyof FeatureFlags) {
-  const { featureFlags } = useContext(FeatureFlagStateContext);
+  const { featureFlags } = use(FeatureFlagStateContext);
   const specificFeatureRemoteValue = useFeatureFlagEnabled(flag);
 
   if (!featureFlags[flag] || featureFlags[flag].location === 'unset') {
@@ -179,7 +174,7 @@ export function useFeatureFlag(flag: keyof FeatureFlags) {
 }
 
 export function useFeatureFlagDispatch() {
-  const context = useContext(FeatureFlagDispatchContext);
+  const context = use(FeatureFlagDispatchContext);
   if (context === undefined) {
     throw new Error(
       'useFeatureFlagDispatch must be used within a FeatureFlagProvider'

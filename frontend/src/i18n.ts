@@ -32,13 +32,23 @@ export function getDefaultLocale(): string {
   return 'en';
 }
 
-export function saveLocale(locale: string): void {
+function saveLocale(locale: string): void {
   localStorage.setItem(LOCALE_STORAGE_KEY, locale);
 }
 
+const LOCALE_LOADERS: Record<string, () => Promise<{ messages: unknown }>> = {
+  en: () => import('./locales/en/messages.ts'),
+  es: () => import('./locales/es/messages.ts'),
+  fr: () => import('./locales/fr/messages.ts'),
+  de: () => import('./locales/de/messages.ts'),
+  ja: () => import('./locales/ja/messages.ts'),
+  zh: () => import('./locales/zh/messages.ts'),
+};
+
 export async function activateLocale(locale: string): Promise<void> {
-  const { messages } = await import(`./locales/${locale}/messages.ts`);
-  i18n.load(locale, messages);
+  const loadMessages = LOCALE_LOADERS[locale] ?? LOCALE_LOADERS.en;
+  const { messages } = await loadMessages();
+  i18n.load(locale, messages as Parameters<typeof i18n.load>[1]);
   i18n.activate(locale);
   document.documentElement.lang = locale;
   saveLocale(locale);

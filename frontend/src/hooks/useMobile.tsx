@@ -1,4 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
+
+const MOBILE_QUERY = '(max-width: 767px)';
+
+function subscribe(callback: () => void): () => void {
+  if (typeof window === 'undefined') {
+    return () => {};
+  }
+  const mql = window.matchMedia(MOBILE_QUERY);
+  mql.addEventListener('change', callback);
+  return () => mql.removeEventListener('change', callback);
+}
+
+function getSnapshot(): boolean {
+  return window.matchMedia(MOBILE_QUERY).matches;
+}
+
+function getServerSnapshot(): boolean {
+  return false;
+}
 
 /**
  * A hook to detect if the user is on a mobile device based on screen width.
@@ -24,22 +43,5 @@ import { useEffect, useState } from 'react';
  * ```
  */
 export function useMobile(): boolean {
-  const [isMobile, setIsMobile] = useState<boolean>(false);
-
-  useEffect(() => {
-    // Check if window is defined (browser environment)
-    if (typeof window !== 'undefined') {
-      const mql = window.matchMedia('(max-width: 767px)');
-      const onChange = (e: MediaQueryListEvent) => {
-        setIsMobile(e.matches);
-      };
-      mql.addEventListener('change', onChange);
-      setIsMobile(mql.matches);
-      return () => {
-        mql.removeEventListener('change', onChange);
-      };
-    }
-  }, []);
-
-  return isMobile;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

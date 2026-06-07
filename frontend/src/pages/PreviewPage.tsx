@@ -32,11 +32,13 @@ const PreviewPage = () => {
 
   useDocumentTitle('Preview');
 
-  // Guard: redirect on mount only if no processed image (handles direct URL access)
+  // Guard: redirect on mount only if no processed image (handles direct URL
+  // access). The empty dependency array is intentional — mount-only check.
   useEffect(() => {
     if (!processedImage) {
       navigate('/prepare', { replace: true });
     }
+    // react-doctor-disable-next-line react-doctor/exhaustive-deps
   }, []);
 
   const [localPreview, setLocalPreview] = useState<string | null>(null);

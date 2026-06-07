@@ -2,7 +2,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { animated, useSpring } from '@react-spring/web';
 import { Download, Image as ImageIcon, Settings, Undo } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -70,10 +70,13 @@ export const ReceiptImageViewer = ({ receipt }: ReceiptImageViewerProps) => {
     setImageError(true);
   };
 
-  // Reset error state when imageUrl changes
-  useEffect(() => {
+  // Reset error state when imageUrl changes, adjusting state during render
+  // instead of in an effect (avoids a stale render showing the old error).
+  const prevImageUrlRef = useRef(imageUrl);
+  if (imageUrl !== prevImageUrlRef.current) {
+    prevImageUrlRef.current = imageUrl;
     setImageError(false);
-  }, [imageUrl]);
+  }
 
   return (
     <animated.div style={mountAnimation}>
