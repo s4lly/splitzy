@@ -37,7 +37,7 @@ function getAvatarAction(
   if (assignment.receiptUser?.userId != null) return null;
   if (clerkUserId == null) return { type: 'sign-in' };
 
-  const assignments = allAssignments ?? [];
+  const assignments = (allAssignments ?? []).filter((a) => !a.deletedAt);
   const currentUserClaimed = assignments.find(
     (a) => a.receiptUser?.user?.authUserId === clerkUserId
   );
@@ -83,16 +83,17 @@ const AssignedList: React.FC<AssignedListProps> = ({
   const { t } = useLingui();
   const { userId: clerkUserId } = useAuth();
   const chipColors = getAvatarChipColors(receiptId, possiblePeople);
+  const activeAssignments = item.assignments.filter((a) => !a.deletedAt);
 
   return (
     <div className="flex flex-1 flex-col gap-2">
-      {item.assignments.length === 0 ? (
+      {activeAssignments.length === 0 ? (
         <div className="text-sm text-muted-foreground">
           <Trans>No one assigned yet.</Trans>
         </div>
       ) : (
         <ul className="flex flex-col gap-2">
-          {item.assignments.map((assignment) => {
+          {activeAssignments.map((assignment) => {
             const receiptUserId = assignment.receiptUserId;
             const displayName = getUserDisplayName(assignment);
             const c = chipColors.get(receiptUserId) || DEFAULT_CHIP_COLOR;

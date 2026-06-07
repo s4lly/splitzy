@@ -55,7 +55,7 @@ export default function NumericInput({
   };
 
   const handleIncrement = () => {
-    onChange(max ? Math.min(max, value + 1) : value + 1);
+    onChange(max !== undefined ? Math.min(max, value + 1) : value + 1);
   };
 
   return (

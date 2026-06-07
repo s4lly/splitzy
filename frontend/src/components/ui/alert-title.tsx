@@ -8,7 +8,7 @@ function AlertTitle({
   ref,
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement> & {
-  ref?: React.Ref<HTMLParagraphElement>;
+  ref?: React.Ref<HTMLHeadingElement>;
 }) {
   return (
     <h5

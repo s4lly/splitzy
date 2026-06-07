@@ -49,7 +49,7 @@ export function useEraseRectangleGestures(
   const getContainerSize = useCallback(() => {
     const el = containerRef.current;
     if (!el) return { w: 1, h: 1 };
-    return { w: el.offsetWidth, h: el.offsetHeight };
+    return { w: Math.max(1, el.offsetWidth), h: Math.max(1, el.offsetHeight) };
   }, [containerRef]);
 
   // ── Drag to move ──────────────────────────────────────────────────────────

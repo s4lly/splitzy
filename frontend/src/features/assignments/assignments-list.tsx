@@ -8,15 +8,14 @@ import { calculations } from '@/components/Receipt/utils/receipt-calculation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFeatureFlag } from '@/context/FeatureFlagProvider';
 import { ClaimReceiptUserDialog } from '@/features/assignments/ClaimReceiptUserDialog';
+import AddPersonPanel from '@/features/assignments/components/AddPersonPanel';
+import AssignedList from '@/features/assignments/components/AssignedList';
 import { SignInToClaimDialog } from '@/features/assignments/SignInToClaimDialog';
 import SplitPercentTab from '@/features/assignments/SplitPercentTab';
 import { SwitchReceiptUserDialog } from '@/features/assignments/SwitchReceiptUserDialog';
 import type { Assignment } from '@/models/Assignment';
 import type { ReceiptLineItem } from '@/models/ReceiptLineItem';
 import { getReceiptUserDisplayName } from '@/utils/user-display';
-
-import AddPersonPanel from './components/AddPersonPanel';
-import AssignedList from './components/AssignedList';
 
 // ── Dialog state machine ────────────────────────────────────────────────────
 

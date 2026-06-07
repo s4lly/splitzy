@@ -1,10 +1,9 @@
 import Decimal from 'decimal.js';
 import { useCallback, useRef, useState } from 'react';
 
+import TipDisplay from '@/features/receipt-viewer/components/TipDisplay';
+import TipEditForm from '@/features/receipt-viewer/components/TipEditForm';
 import { useReceiptMutation } from '@/features/receipt-viewer/hooks/useReceiptMutation';
-
-import TipDisplay from './TipDisplay';
-import TipEditForm from './TipEditForm';
 
 interface TipEditorProps {
   receiptTip: Decimal;
@@ -75,6 +74,7 @@ const TipEditor = ({
   if (!receiptTip.equals(prevReceiptTipRef.current)) {
     prevReceiptTipRef.current = receiptTip;
     setTip(receiptTip);
+    setInputValue(receiptTip.toFixed(2));
   }
 
   const prevPropTipAfterTaxRef = useRef(propTipAfterTax);

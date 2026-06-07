@@ -6,8 +6,8 @@ function AlertDescription({
   className,
   ref,
   ...props
-}: React.HTMLAttributes<HTMLParagraphElement> & {
-  ref?: React.Ref<HTMLParagraphElement>;
+}: React.HTMLAttributes<HTMLDivElement> & {
+  ref?: React.Ref<HTMLDivElement>;
 }) {
   return (
     <div

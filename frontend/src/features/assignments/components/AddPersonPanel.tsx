@@ -32,6 +32,7 @@ const AddPersonPanel: React.FC<AddPersonPanelProps> = ({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && newPersonSanitized) {
+      e.preventDefault();
       if (filteredReceiptUserIds.includes(newPersonSanitized)) {
         onAddExisting(newPersonSanitized);
       } else {
@@ -117,6 +118,7 @@ const AddPersonPanel: React.FC<AddPersonPanelProps> = ({
               >
                 <span>{displayName}</span>
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={() => onAddExisting(receiptUserId)}
                   className="size-8 rounded-full"

@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 import { Check } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -32,6 +32,19 @@ export const SettlementControls = ({
   const [isMarkedComplete, setIsMarkedComplete] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
+  // When the receipt is no longer fully paid, retract the "marked complete"
+  // confirmation and close the delete dialog so the destructive action can't be
+  // taken. Adjusted inline during render via a prev-prop comparison (instead of
+  // a useEffect) to avoid an extra render with stale UI between commits.
+  const prevAllPaidRef = useRef(allPaid);
+  if (allPaid !== prevAllPaidRef.current) {
+    prevAllPaidRef.current = allPaid;
+    if (!allPaid) {
+      setIsMarkedComplete(false);
+      setDeleteDialogOpen(false);
+    }
+  }
+
   return (
     <div className="mt-4 border-t pt-5">
       <Button
@@ -53,7 +66,7 @@ export const SettlementControls = ({
         )}
       </Button>
 
-      {isMarkedComplete && (
+      {isMarkedComplete && allPaid && (
         <div className="mt-3 text-center">
           <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <DialogTrigger asChild>
