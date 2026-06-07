@@ -1,0 +1,52 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "6c67a7dd7b65",
+  "session_id": "b8072de6-aecc-4b6f-aa1c-ba71ac3a42fa",
+  "strategy": "manual-commit",
+  "created_at": "2026-06-07T01:31:51.060504Z",
+  "branch": "react-doctor",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "frontend/src/i18n.ts",
+    "frontend/src/features/assignments/assignments-list.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-8[1m]",
+  "turn_id": "68c248375cb0",
+  "checkpoint_transcript_start": 972,
+  "transcript_lines_at_start": 972,
+  "token_usage": {
+    "input_tokens": 3604,
+    "cache_creation_tokens": 31200,
+    "cache_read_tokens": 8321476,
+    "output_tokens": 17282,
+    "api_call_count": 23
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-06-07T01:31:51.029906Z",
+    "agent_lines": 0,
+    "agent_removed": 14,
+    "human_added": 0,
+    "human_modified": 29,
+    "human_removed": 3537,
+    "total_committed": 9,
+    "total_lines_changed": 7183,
+    "agent_percentage": 0.19490463594598356,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 3566,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_removed_per_file": {
+        "pnpm-lock.yaml": 3566
+      }
+    }
+  ]
+}

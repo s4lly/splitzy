@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "6c67a7dd7b65",
+  "strategy": "manual-commit",
+  "branch": "react-doctor",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "frontend/src/features/assignments/assignments-list.tsx",
+    "frontend/src/i18n.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/6c/67a7dd7b65/0/metadata.json",
+      "transcript": "/6c/67a7dd7b65/0/full.jsonl",
+      "content_hash": "/6c/67a7dd7b65/0/content_hash.txt",
+      "prompt": "/6c/67a7dd7b65/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 3604,
+    "cache_creation_tokens": 31200,
+    "cache_read_tokens": 8321476,
+    "output_tokens": 17282,
+    "api_call_count": 23
+  }
+}
