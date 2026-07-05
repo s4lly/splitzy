@@ -157,20 +157,6 @@ const HomePage = () => {
           )}
         </m.section>
 
-        {/* ── Hero ── */}
-        <m.section {...fadeUp(0, shouldReduceMotion)}>
-          <div className="mb-4 flex justify-center">
-            <span className="rounded-full bg-accent px-3.5 py-1 text-xs font-medium tracking-wide text-accent-foreground">
-              <Trans>receipt splitting, simplified</Trans>
-            </span>
-          </div>
-          <p className="text-center text-sm leading-relaxed text-muted-foreground">
-            <Trans>
-              Scan a receipt, divide costs fairly, settle up in seconds.
-            </Trans>
-          </p>
-        </m.section>
-
         {/* ── Receipt history (signed-in only) ── */}
         <SignedIn>
           <m.section {...fadeUp(0.2, shouldReduceMotion)}>
