@@ -1,0 +1,23 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "1653e8facad0",
+  "strategy": "manual-commit",
+  "branch": "deps/safe-minors-undici-security",
+  "checkpoints_count": 1,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/16/53e8facad0/0/metadata.json",
+      "transcript": "/16/53e8facad0/0/full.jsonl",
+      "content_hash": "/16/53e8facad0/0/content_hash.txt",
+      "prompt": "/16/53e8facad0/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 16377,
+    "cache_creation_tokens": 97490,
+    "cache_read_tokens": 5294405,
+    "output_tokens": 41987,
+    "api_call_count": 69
+  }
+}

@@ -1,0 +1,11 @@
+read /Users/s4lly/dev/splitzy/docs/issues/001-safe-minors-and-undici-security.md
+
+us a subagent to do another deep investigation if the proposed plan is safe to update. if that is the case then implement the fix in new branch.
+
+---
+
+push to remote and create pull request when done
+
+---
+
+fix the pre-existing babel-plugin-macros test failure as separate commit and push
