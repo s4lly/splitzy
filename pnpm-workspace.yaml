@@ -7,3 +7,8 @@ onlyBuiltDependencies:
   - '@clerk/shared'
   - '@rocicorp/zero-sqlite3'
   - esbuild
+
+overrides:
+  esbuild: ^0.25.9
+  react-router>path-to-regexp: ^6.3.0
+  undici: ^6.27.0

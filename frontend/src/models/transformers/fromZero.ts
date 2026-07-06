@@ -80,8 +80,7 @@ export function fromZeroReceipt(zeroReceipt: ReceiptWithLineItems): Receipt {
     createdAt,
     imagePath: zeroReceipt.image_path ?? null,
     imageVisibility: (zeroReceipt.image_visibility ?? 'public') as
-      | 'public'
-      | 'owner_only',
+      'public' | 'owner_only',
     authUserId: zeroReceipt.user?.auth_user_id ?? null,
     shareToken: zeroReceipt.share_token,
 

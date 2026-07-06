@@ -76,8 +76,7 @@ export type ItemQuantityPrice = {
  * ```
  */
 export type SplitShare =
-  | { type: 'even' }
-  | { type: 'percent'; percent: Decimal };
+  { type: 'even' } | { type: 'percent'; percent: Decimal };
 
 /**
  * A single person's participation in a single line item, as surfaced by
