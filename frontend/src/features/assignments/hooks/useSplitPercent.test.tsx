@@ -21,7 +21,30 @@ type UpdateCall = {
 
 type MutateCall = UpdateSharesCall | UpdateCall;
 
-const mutateMock = vi.fn((_descriptor: MutateCall) => Promise.resolve());
+// The hook reads `zero.mutate(...).client` (a promise resolving to the mutation
+// outcome) to surface errors, so the mock must return that shape — a bare
+// Promise would make `result.client.then` throw.
+const mutateMock = vi.fn((_descriptor: MutateCall) => ({
+  client: Promise.resolve({ type: 'ok' as const }),
+}));
+
+// The `@lingui/react/macro` import in the hook is a compile-time macro that the
+// lingui babel plugin rewrites in the app build (vite.config.ts). The test build
+// (vitest.config.ts) does not run that plugin, so we stub the macro here. These
+// tests exercise re-seed/debounce logic, not translation, so `t` only needs to
+// behave as an identity tagged-template for the error-toast strings.
+vi.mock('@lingui/react/macro', () => ({
+  useLingui: () => ({
+    t: (strings: TemplateStringsArray | string, ...values: unknown[]) =>
+      typeof strings === 'string'
+        ? strings
+        : strings.reduce(
+            (acc, part, i) =>
+              acc + part + (i < values.length ? String(values[i]) : ''),
+            ''
+          ),
+  }),
+}));
 
 vi.mock('@rocicorp/zero/react', () => ({
   useZero: () => ({ mutate: mutateMock }),
