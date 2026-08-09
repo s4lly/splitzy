@@ -71,6 +71,13 @@ VITE_CLERK_PUBLISHABLE_KEY=$DUMMY_CLERK_PK
 
 # index.tsx requires a PostHog key to be present; this disables real analytics.
 REACT_APP_POSTHOG_PROJECT_API_KEY=phc_cloud_agent_placeholder
+
+# ZeroProvider throws at module load if these are unset, so point them at the
+# local Zero stack ports (docker-compose). Sync only works once those services
+# run; the app still renders without them.
+VITE_ZERO_CACHE_URL=http://localhost:4848
+VITE_ZERO_QUERY_URL=http://localhost:3000/api/query
+VITE_ZERO_MUTATE_URL=http://localhost:3000/api/mutate
 EOF
   echo "    created frontend/.env"
 else
