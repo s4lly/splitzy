@@ -1,0 +1,14 @@
+{
+  "name": "Splitzy",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "backend",
+      "command": "cd backend && ./start.sh"
+    },
+    {
+      "name": "frontend",
+      "command": "pnpm --filter frontend run dev"
+    }
+  ]
+}
