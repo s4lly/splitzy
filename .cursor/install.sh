@@ -44,6 +44,14 @@ CLERK_SECRET_KEY=sk_test_cloud_agent_placeholder
 CLERK_WEBHOOK_SECRET=whsec_cloud_agent_placeholder
 CLERK_AUTHORIZED_PARTIES=http://localhost:5173
 
+# create_app() refuses to start without VERCEL_FUNCTION_URL, so point it at the
+# local \`vercel dev\` address. Nothing serves that port by default: receipt image
+# uploads fail (after a 30s request timeout) until you run
+# \`pnpm --filter frontend run vercel:link\` once and then
+# \`pnpm --filter frontend run dev:vercel\` in a spare terminal -- both need a real
+# Vercel login, and the upload itself also needs a genuine BLOB_READ_WRITE_TOKEN.
+# The rest of the app (including receipt analysis from an existing URL) works
+# without it.
 VERCEL_FUNCTION_URL=http://localhost:3001/api/upload-to-blob
 
 # Placeholder AI key; real receipt analysis needs a genuine Google API key.
