@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "f937202633ed",
+  "strategy": "manual-commit",
+  "branch": "cursor/cloud-agent-environment-setup-19c3",
+  "checkpoints_count": 0,
+  "files_touched": [
+    ".cursor/install.sh"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f9/37202633ed/0/metadata.json",
+      "transcript": "/f9/37202633ed/0/full.jsonl",
+      "content_hash": "/f9/37202633ed/0/content_hash.txt",
+      "prompt": "/f9/37202633ed/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 25,
+    "cache_creation_tokens": 35469,
+    "cache_read_tokens": 599032,
+    "output_tokens": 4984,
+    "api_call_count": 13
+  }
+}

@@ -1,0 +1,5 @@
+checkout the branch for the pull request https://github.com/s4lly/splitzy/pull/126
+
+use gh cli to read the comments and resolve any code review comments from coderabbitai. use subagent with opus model to implement any fixes.
+
+the pr was created by cursor to create the cloud agent dev env. maybe take a look at the docs for guidance: https://cursor.com/docs/cloud-agent
