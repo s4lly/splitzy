@@ -111,6 +111,14 @@ fi
 
 echo "==> [2/3] Installing pnpm workspace dependencies"
 export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+# Pin the toolchain to the pnpm version declared in the root package.json
+# ("packageManager") instead of whatever the base image happens to ship.
+# corepack reads that field itself, so the version stays declared in one place.
+# Idempotent: enabling/preparing an already-active version is a no-op.
+if command -v corepack >/dev/null 2>&1; then
+  corepack enable >/dev/null 2>&1 || sudo corepack enable >/dev/null 2>&1 || true
+  corepack prepare --activate
+fi
 pnpm install --frozen-lockfile
 echo "    building @splitzy/shared-zero"
 pnpm --filter @splitzy/shared-zero run build
@@ -120,10 +128,14 @@ echo "==> [3/3] Setting up backend Python virtualenv"
 # install it once (baked into the environment build snapshot). Idempotent: skip
 # when venv already works.
 if ! python3 -c "import ensurepip" >/dev/null 2>&1; then
+  # Derive the versioned fallback package from the interpreter actually in use
+  # (e.g. python3.12-venv) so this keeps working when the base image's Python
+  # minor version changes.
+  PY_VENV_PKG="$(python3 -c 'import sys; print(f"python{sys.version_info.major}.{sys.version_info.minor}-venv")')"
   echo "    installing python3-venv (ensurepip missing)"
   sudo apt-get update -qq
   sudo apt-get install -y -qq "python3-venv" || \
-    sudo apt-get install -y -qq "python3.12-venv"
+    sudo apt-get install -y -qq "$PY_VENV_PKG"
 fi
 cd backend
 if [ ! -f .venv/bin/activate ]; then
@@ -132,7 +144,8 @@ if [ ! -f .venv/bin/activate ]; then
 fi
 # shellcheck disable=SC1091
 source .venv/bin/activate
-python -m pip install --upgrade pip >/dev/null
+# No unconditional `pip install --upgrade pip`: it would make every run depend
+# on pip's release timing. The venv's bundled pip installs requirements fine.
 pip install -r requirements.txt
 deactivate
 cd "$REPO_ROOT"
