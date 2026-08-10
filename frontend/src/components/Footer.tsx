@@ -1,29 +1,12 @@
 import { Trans } from '@lingui/react/macro';
-import { useQuery } from '@tanstack/react-query';
 import { Receipt, Server } from 'lucide-react';
 
-const API_URL =
-  import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+import { useApiHealth } from '@/hooks/useApiHealth';
 
 const currentYear = new Date().getFullYear();
 
-const fetchApiHealth = async (): Promise<'healthy' | 'unhealthy'> => {
-  const response = await fetch(`${API_URL}/health`);
-  const data = await response.json();
-  return data.status === 'healthy' ? 'healthy' : 'unhealthy';
-};
-
 export default function Footer() {
-  const { data, isError } = useQuery({
-    queryKey: ['api-health'],
-    queryFn: fetchApiHealth,
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
-
-  const apiStatus: 'checking' | 'healthy' | 'unhealthy' = isError
-    ? 'unhealthy'
-    : (data ?? 'checking');
+  const apiStatus = useApiHealth();
 
   return (
     <footer className="mt-auto border-t border-border bg-card/40 py-2">

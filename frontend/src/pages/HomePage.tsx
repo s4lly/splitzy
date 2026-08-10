@@ -3,7 +3,6 @@ import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery } from '@rocicorp/zero/react';
 import { queries } from '@splitzy/shared-zero/queries';
-import { useQuery as useReactQuery } from '@tanstack/react-query';
 import { domAnimation, LazyMotion, m } from 'framer-motion';
 import { useSetAtom } from 'jotai';
 import { AlertCircle } from 'lucide-react';
@@ -21,12 +20,10 @@ import {
   imageDimsAtom,
 } from '@/features/image-prep/atoms/imagePrepStateAtoms';
 import { ReceiptUploader } from '@/features/receipt-upload/ReceiptUploader';
+import { useApiHealth } from '@/hooks/useApiHealth';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { fromZeroReceipt } from '@/lib/receiptTypes';
-
-const API_URL =
-  import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const ReceiptHistorySection = () => {
   const [user, details] = useQuery(queries.users.receipts.byAuthUserId({}));
@@ -95,21 +92,7 @@ const HomePage = () => {
 
   useDocumentTitle('Home');
 
-  const { data: apiHealthy, isError: apiHealthError } = useReactQuery({
-    queryKey: ['api-health'],
-    queryFn: async () => {
-      const response = await fetch(`${API_URL}/health`);
-      if (!response.ok) {
-        return false;
-      }
-      const data = await response.json();
-      return data.status === 'healthy';
-    },
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
-
-  const apiUnhealthy = apiHealthError || apiHealthy === false;
+  const apiUnhealthy = useApiHealth() === 'unhealthy';
 
   const handleContinue = useCallback(
     (file: File) => {
