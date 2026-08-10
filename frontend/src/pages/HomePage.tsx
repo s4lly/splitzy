@@ -1,4 +1,4 @@
-import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, SignInButton } from '@clerk/react-router';
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQuery } from '@rocicorp/zero/react';

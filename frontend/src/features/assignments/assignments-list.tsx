@@ -1,4 +1,4 @@
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/react-router';
 import { Trans, useLingui } from '@lingui/react/macro';
 import Decimal from 'decimal.js';
 import React, { useReducer, useState } from 'react';

@@ -1,4 +1,4 @@
-import { SignInButton } from '@clerk/clerk-react';
+import { SignInButton } from '@clerk/react-router';
 import { Trans } from '@lingui/react/macro';
 
 import { Button } from '@/components/ui/button';

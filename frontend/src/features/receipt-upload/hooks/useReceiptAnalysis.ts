@@ -1,4 +1,4 @@
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/react-router';
 import { useMutation } from '@tanstack/react-query';
 
 import type { ReceiptAnalysisResult } from '@/features/receipt-upload/types';

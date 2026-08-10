@@ -1,4 +1,4 @@
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/react-router';
 import { Loader2 } from 'lucide-react';
 import React from 'react';
 

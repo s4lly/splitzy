@@ -1,4 +1,4 @@
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/react-router';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useZero } from '@rocicorp/zero/react';
 import { mutators } from '@splitzy/shared-zero/mutators';
