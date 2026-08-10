@@ -1,4 +1,4 @@
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/react-router';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { animated, useSpring } from '@react-spring/web';
 import { Download, Image as ImageIcon, Settings, Undo } from 'lucide-react';

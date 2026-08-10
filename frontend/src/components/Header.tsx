@@ -3,7 +3,7 @@ import {
   SignedOut,
   SignInButton,
   UserButton,
-} from '@clerk/clerk-react';
+} from '@clerk/react-router';
 import { useLingui } from '@lingui/react/macro';
 import { Receipt } from 'lucide-react';
 import { Link } from 'react-router-dom';

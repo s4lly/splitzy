@@ -1,4 +1,4 @@
-import { SignedIn, SignedOut } from '@clerk/clerk-react';
+import { SignedIn, SignedOut } from '@clerk/react-router';
 import { Trans } from '@lingui/react/macro';
 import { useQuery } from '@rocicorp/zero/react';
 import { queries } from '@splitzy/shared-zero/queries';
