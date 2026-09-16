@@ -9,6 +9,14 @@
   },
   "rewrites": [
     {
+      "source": "/maintenance.html",
+      "destination": "/maintenance.html"
+    },
+    {
+      "source": "/fonts/:file",
+      "destination": "/fonts/:file"
+    },
+    {
       "source": "/api/upload-to-blob",
       "destination": "/api/upload-to-blob"
     },

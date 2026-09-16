@@ -31,6 +31,19 @@ This is the React frontend for the Receipt Splitting App, built with React Spect
    REACT_APP_API_URL=http://localhost:5001/api
    ```
 
+### Maintenance mode
+
+A static "down for maintenance" page lives at `public/maintenance.html`. It is
+fully self-contained (inline CSS, self-hosted fonts from `public/fonts/`, no
+React), so it still renders when the app bundle is broken.
+
+- **Toggle:** the `MAINTENANCE_MODE` constant in the inline script at the top
+  of `index.html`. When `true`, every visitor is redirected to
+  `/maintenance.html` before the app bundle loads. Set it to `false` and
+  redeploy to bring the app back.
+- **Preview locally:** run `pnpm dev` and open
+  `http://localhost:<port>/maintenance.html` directly.
+
 ### Development
 
 Start the development server:

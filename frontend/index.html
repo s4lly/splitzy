@@ -8,6 +8,15 @@
     <link rel="apple-touch-icon" href="/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
 
+    <script>
+      // Maintenance switch: set to false (and redeploy) to bring the app back.
+      // Runs before the app bundle loads, so it works even if the app is broken.
+      var MAINTENANCE_MODE = true;
+      if (MAINTENANCE_MODE && location.pathname !== '/maintenance.html') {
+        location.replace('/maintenance.html');
+      }
+    </script>
+
     <!--OG_TAGS-->
     <title>Splitzy</title>
     <meta
