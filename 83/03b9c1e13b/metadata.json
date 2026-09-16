@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "8303b9c1e13b",
+  "strategy": "manual-commit",
+  "branch": "maintenance-page",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "frontend/README.md",
+    "frontend/index.html",
+    "frontend/public/fonts/fraunces-latin-wght-italic.woff2",
+    "frontend/public/fonts/fraunces-latin-wght-normal.woff2",
+    "frontend/public/fonts/plus-jakarta-sans-latin-wght-normal.woff2",
+    "frontend/public/maintenance.html",
+    "frontend/vercel.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/83/03b9c1e13b/0/metadata.json",
+      "transcript": "/83/03b9c1e13b/0/full.jsonl",
+      "content_hash": "/83/03b9c1e13b/0/content_hash.txt",
+      "prompt": "/83/03b9c1e13b/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 392,
+    "cache_creation_tokens": 65004,
+    "cache_read_tokens": 923586,
+    "output_tokens": 15381,
+    "api_call_count": 16
+  }
+}

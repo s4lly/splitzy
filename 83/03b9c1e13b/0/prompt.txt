@@ -1,0 +1,9 @@
+Create a “down for maintenance” page. Current site not working and I want users to land on page where mention working on fixes. In main chart investigate simple design which matches what site looks like now and use subagent with opus model to implement.
+
+---
+
+Can you just hard code it on, no env var
+
+---
+
+Did you create pr or did you push directly to main?
